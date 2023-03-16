@@ -2,10 +2,36 @@
 #include <SDL.h>
 #include <iostream>
 
+SDL_Window* Window;
+SDL_Renderer* Renderer;
+
+bool Initialize() {
+    int Result = SDL_Init(SDL_INIT_EVERYTHING);
+    if (Result) {
+        std::printf("Error while initializing %s", SDL_GetError());
+        return false;
+    }
+
+    Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 600, 0);
+    if (!Window) {
+        std::printf("Error while creating the window %s", SDL_GetError());
+        return false;
+    }
+
+    Renderer = SDL_CreateRenderer(Window, -1, 0);
+    if (!Renderer) {
+        std::printf("Error while creating the renderer %s", SDL_GetError());
+        return false;
+    }
+
+    return true;
+}
+
 int main() {
-    SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_Window* Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 600, 0);
-    SDL_Renderer* Renderer = SDL_CreateRenderer(Window, -1, 0);
+    if (!Initialize()) {
+        std::printf("Terminating..");
+        exit(1);
+    }
 
     bool Running = true;
     while (Running) {
@@ -27,5 +53,7 @@ int main() {
         SDL_RenderPresent(Renderer);
     }
 
+    SDL_DestroyRenderer(Renderer);
+    SDL_DestroyWindow(Window);
     return 0;
 }
