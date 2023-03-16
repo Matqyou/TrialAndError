@@ -1,9 +1,11 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
+#include "Clock.h"
 #include <iostream>
 
 SDL_Window* Window;
 SDL_Renderer* Renderer;
+Clock* Timer;
 
 bool Initialize() {
     int Result = SDL_Init(SDL_INIT_EVERYTHING);
@@ -23,6 +25,8 @@ bool Initialize() {
         std::printf("Error while creating the renderer %s", SDL_GetError());
         return false;
     }
+
+    Timer = new Clock(60);
 
     return true;
 }
@@ -51,8 +55,10 @@ int main() {
         SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
         SDL_RenderClear(Renderer);
         SDL_RenderPresent(Renderer);
+        Timer->Tick();
     }
 
+    delete Timer;
     SDL_DestroyRenderer(Renderer);
     SDL_DestroyWindow(Window);
     return 0;
