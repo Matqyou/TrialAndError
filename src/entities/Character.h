@@ -1,16 +1,17 @@
 #ifndef TRIALANDERROR_CHARACTER_H
 #define TRIALANDERROR_CHARACTER_H
-#include <SDL.h>
 
-class Character{
+#include <SDL.h>
+#include "Entity.h"
+
+class Character : public Entity {
 private:
-    SDL_Renderer* m_Renderer;
-    double m_x, m_y, m_w, m_h;
+
 
 public:
-    Character(SDL_Renderer* Renderer, double starting_x, double starting_y);
+    Character(SDL_Renderer* Renderer, double start_x, double start_y);
 
-    void Draw();
+    // void Draw();
 };
 
 
