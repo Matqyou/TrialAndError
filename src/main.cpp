@@ -46,6 +46,7 @@ int main() {
     while (Running) {
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
+            Player->Event(CurrentEvent);
             switch (CurrentEvent.type) {
                 case SDL_QUIT: {
                     Running = false;
@@ -58,6 +59,8 @@ int main() {
                 } break;
             }
         }
+
+        Player->Tick();
 
         SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
         SDL_RenderClear(Renderer);

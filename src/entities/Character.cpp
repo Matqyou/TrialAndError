@@ -11,9 +11,25 @@ Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
 }
 
 void Character::Tick() {
-    double Speed = 0.05;
-    if (m_Movement[MOVEMENT_UP])
-        m_y -= Speed;
+    const double Speed = 3;
+    bool MoveUp = m_Movement[MOVEMENT_UP];
+    bool MoveRight = m_Movement[MOVEMENT_RIGHT];
+    bool MoveDown = m_Movement[MOVEMENT_DOWN];
+    bool MoveLeft = m_Movement[MOVEMENT_LEFT];
+
+    if (MoveDown != MoveUp) {
+        if (MoveUp)
+            m_y -= Speed;
+        else
+            m_y += Speed;
+    }
+
+    if (MoveRight != MoveLeft) {
+        if (MoveLeft)
+            m_x -= Speed;
+        else
+            m_x += Speed;
+    }
 }
 
 void Character::Event(const SDL_Event& CurrentEvent) {

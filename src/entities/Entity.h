@@ -8,7 +8,7 @@
 #include <SDL.h>
 
 class Entity {
-private:
+protected:
     SDL_Renderer* m_Renderer;
     double m_x, m_y, m_w, m_h;
 
