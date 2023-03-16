@@ -15,7 +15,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(BUILD_OPTIONS)
 endif()
 
-add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} src/main.cpp src/Clock.cpp src/Clock.h deps/icon_resource.rc src/Colors.cpp src/Colors.h)
+add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} src/main.cpp src/Clock.cpp src/Clock.h deps/icon_resource.rc src/Colors.cpp src/Colors.h src/entities/Character.cpp src/entities/Character.h)
 target_link_libraries(${PROJECT_NAME} SDL2main SDL2) # SDL2_image
 
 function(copy_files SOURCE_DIR DEST_DIR)
