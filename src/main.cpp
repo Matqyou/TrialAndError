@@ -1,11 +1,14 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include "Clock.h"
+#include "entities/Character.h"
 #include <iostream>
 
 SDL_Window* Window;
 SDL_Renderer* Renderer;
 Clock* Timer;
+
+Character* Player;
 
 bool Initialize() {
     int Result = SDL_Init(SDL_INIT_EVERYTHING);
@@ -14,7 +17,8 @@ bool Initialize() {
         return false;
     }
 
-    Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 600, 0);
+    Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                              600, 600, SDL_WINDOW_RESIZABLE);
     if (!Window) {
         std::printf("Error while creating the window %s", SDL_GetError());
         return false;
@@ -27,6 +31,7 @@ bool Initialize() {
     }
 
     Timer = new Clock(60);
+    Player = new Character(Renderer, 100, 100);
 
     return true;
 }
@@ -54,10 +59,14 @@ int main() {
 
         SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
         SDL_RenderClear(Renderer);
+
+        Player->Draw();
+
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
 
+    delete Player;
     delete Timer;
     SDL_DestroyRenderer(Renderer);
     SDL_DestroyWindow(Window);
