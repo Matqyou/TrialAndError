@@ -18,7 +18,7 @@ bool Initialize() {
     }
 
     Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              600, 600, SDL_WINDOW_RESIZABLE);
+                              900, 700, 0);
     if (!Window) {
         std::printf("Error while creating the window %s", SDL_GetError());
         return false;
@@ -46,6 +46,7 @@ int main() {
     while (Running) {
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
+            Player->Event(CurrentEvent);
             switch (CurrentEvent.type) {
                 case SDL_QUIT: {
                     Running = false;
@@ -53,9 +54,13 @@ int main() {
                 case SDL_KEYDOWN: {
                     if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
                         Running = false;
+                    else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
+                        SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
             }
         }
+
+        Player->Tick();
 
         SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
         SDL_RenderClear(Renderer);
