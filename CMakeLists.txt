@@ -15,7 +15,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(BUILD_OPTIONS)
 endif()
 
-add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} src/main.cpp "src/technical stuff/Clock.cpp" "src/technical stuff/Clock.h" deps/icon_resource.rc "src/technical stuff/Colors.cpp" "src/technical stuff/Colors.h" src/entities/Character.cpp src/entities/Character.h src/entities/Entity.cpp src/entities/Entity.h)
+add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} src/main.cpp "src/technical stuff/Clock.cpp" "src/technical stuff/Clock.h" deps/icon_resource.rc "src/technical stuff/Colors.cpp" "src/technical stuff/Colors.h" src/entities/Character.cpp src/entities/Character.h src/entities/Entity.cpp src/entities/Entity.h "src/technical stuff/TextManager.cpp" "src/technical stuff/TextManager.h")
 target_link_libraries(${PROJECT_NAME} SDL2main SDL2 SDL2_image SDL2_mixer SDL2_ttf)
 
 function(copy_files SOURCE_DIR DEST_DIR)
