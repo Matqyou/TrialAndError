@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.23)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_EXE_LINKER_FLAGS "-static")
 
-include_directories(deps/SDL2/include) # C:/deps/SDL2_image/include
-link_directories(deps/SDL2/lib/x64) # C:/deps/SDL2_image/lib/x64
+include_directories(deps/SDL2/include deps/SDL2_image/include deps/SDL2_mixer/include deps/SDL2_ttf/include)
+link_directories(deps/SDL2/lib/x64 deps/SDL2_image/lib/x64 deps/SDL2_mixer/lib/x64 deps/SDL2_ttf/lib/x64)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
@@ -16,7 +16,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} src/main.cpp src/Clock.cpp src/Clock.h deps/icon_resource.rc src/Colors.cpp src/Colors.h src/entities/Character.cpp src/entities/Character.h src/entities/Entity.cpp src/entities/Entity.h)
-target_link_libraries(${PROJECT_NAME} SDL2main SDL2) # SDL2_image
+target_link_libraries(${PROJECT_NAME} SDL2main SDL2 SDL2_image SDL2_mixer SDL2_ttf)
 
 function(copy_files SOURCE_DIR DEST_DIR)
     file(GLOB files "${SOURCE_DIR}/*")
