@@ -1,6 +1,6 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
-#include "Clock.h"
+#include "technical stuff/Clock.h"
 #include "entities/Character.h"
 #include <vector>
 #include <iostream>
