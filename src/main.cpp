@@ -2,14 +2,14 @@
 #include <SDL.h>
 #include "Clock.h"
 #include "entities/Character.h"
+#include <vector>
 #include <iostream>
 
 SDL_Window* Window;
 SDL_Renderer* Renderer;
 Clock* Timer;
 
-Character* Player;
-Character* Player2;
+std::vector<Character*> aPlayers;
 
 bool Initialize() {
     int Result = SDL_Init(SDL_INIT_EVERYTHING);
@@ -32,8 +32,9 @@ bool Initialize() {
     }
 
     Timer = new Clock(60);
-    Player = new Character(Renderer, 100, 100);
-    Player2 = new Character(Renderer, 200, 100);
+    aPlayers.push_back(new Character(Renderer, 100, 100));
+    aPlayers.push_back(new Character(Renderer, 200, 100));
+    aPlayers.push_back(new Character(Renderer, 300, 100));
 
     return true;
 }
@@ -48,8 +49,9 @@ int main() {
     while (Running) {
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
-            Player->Event(CurrentEvent);
-            Player2->Event(CurrentEvent);
+            for (Character* Player : aPlayers)
+                Player->Event(CurrentEvent);
+
             switch (CurrentEvent.type) {
                 case SDL_QUIT: {
                     Running = false;
@@ -63,21 +65,22 @@ int main() {
             }
         }
 
-        Player->Tick();
-        Player2->Tick();
+        for (Character* Player : aPlayers)
+            Player->Tick();
 
         SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
         SDL_RenderClear(Renderer);
 
-        Player->Draw();
-        Player2->Draw();
+        for (Character* Player : aPlayers)
+            Player->Draw();
 
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
 
-    delete Player;
-    delete Player2;
+    for (Character* Player : aPlayers)
+        delete Player;
+
     delete Timer;
     SDL_DestroyRenderer(Renderer);
     SDL_DestroyWindow(Window);

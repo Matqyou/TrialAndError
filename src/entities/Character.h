@@ -17,8 +17,9 @@ private:
     int m_aControls[NUM_CONTROLS];
     bool m_Controllable;
 
-    static int saControlsPlayer1[NUM_CONTROLS];
-    static int saControlsPlayer2[NUM_CONTROLS];
+    static const int saControlsPlayer1[NUM_CONTROLS];
+    static const int saControlsPlayer2[NUM_CONTROLS];
+    static const int saControlsPlayer3[NUM_CONTROLS];
 
     double m_xvel, m_yvel;  // velocity
 
