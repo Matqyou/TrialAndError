@@ -3,53 +3,58 @@
 //
 
 #include "Character.h"
+#include <cmath>
+
+static double sDiagonalLength = 1.0 / std::sqrt(2.0);
+int Character::saControlsPlayer1[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
+int Character::saControlsPlayer2[NUM_CONTROLS] = {SDL_SCANCODE_UP, SDL_SCANCODE_RIGHT, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT };
+
 Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
  : Entity(Renderer, start_x, start_y, 50, 50) {
-
     for (bool& State : m_Movement)
         State = false;
+    int* paControls = saControlsPlayer1;  // Can also be player2
+    memcpy(m_Controls, paControls, sizeof(m_Controls));  // Copy default controls for this character
+    m_xvel = 0.0;
+    m_yvel = 0.0;
+}
+
+void Character::TickControls() {
+    // Check if buttons are held
+    const double Speed = 0.5;
+    bool MoveUp = m_Movement[CONTROL_UP];
+    bool MoveRight = m_Movement[CONTROL_RIGHT];
+    bool MoveDown = m_Movement[CONTROL_DOWN];
+    bool MoveLeft = m_Movement[CONTROL_LEFT];
+
+    bool Horizontally = MoveLeft != MoveRight;
+    bool Vertically = MoveUp != MoveDown;
+
+    // Accelerate when buttons are held
+    double LengthPerAxis = (Horizontally && Vertically) ? sDiagonalLength : 1.0;
+    double SpeedPerAxis = Speed * LengthPerAxis;
+
+    if (MoveDown != MoveUp) m_yvel += SpeedPerAxis * double(MoveDown ? 1 : -1);
+    if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
+}
+
+void Character::TickVelocity() {
+    m_x += m_xvel;
+    m_y += m_yvel;
 }
 
 void Character::Tick() {
-    const double Speed = 3;
-    bool MoveUp = m_Movement[MOVEMENT_UP];
-    bool MoveRight = m_Movement[MOVEMENT_RIGHT];
-    bool MoveDown = m_Movement[MOVEMENT_DOWN];
-    bool MoveLeft = m_Movement[MOVEMENT_LEFT];
-
-    if (MoveDown != MoveUp) {
-        if (MoveUp)
-            m_y -= Speed;
-        else
-            m_y += Speed;
-    }
-
-    if (MoveRight != MoveLeft) {
-        if (MoveLeft)
-            m_x -= Speed;
-        else
-            m_x += Speed;
-    }
+    TickControls();  // Do stuff depending on the current held buttons
+    TickVelocity();  // Move the chracter entity
 }
 
 void Character::Event(const SDL_Event& CurrentEvent) {
     if (CurrentEvent.type == SDL_KEYDOWN ||
         CurrentEvent.type == SDL_KEYUP) {
         bool State = CurrentEvent.type == SDL_KEYDOWN;
-        switch (CurrentEvent.key.keysym.scancode) {
-            case SDL_SCANCODE_W: {
-                m_Movement[MOVEMENT_UP] = State;
-            } break;
-            case SDL_SCANCODE_D: {
-                m_Movement[MOVEMENT_RIGHT] = State;
-            } break;
-            case SDL_SCANCODE_S: {
-                m_Movement[MOVEMENT_DOWN] = State;
-            } break;
-            case SDL_SCANCODE_A: {
-                m_Movement[MOVEMENT_LEFT] = State;
-            } break;
-            default: break;
+        for (int i = 0; i < NUM_CONTROLS; i++) {
+            if (CurrentEvent.key.keysym.scancode == m_Controls[i])
+                m_Movement[i] = State;
         }
     }
 }

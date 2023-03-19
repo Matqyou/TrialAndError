@@ -7,13 +7,22 @@
 class Character : public Entity {
 private:
     enum {
-        MOVEMENT_UP,
-        MOVEMENT_RIGHT,
-        MOVEMENT_DOWN,
-        MOVEMENT_LEFT,
-        NUM_MOVEMENTS
+        CONTROL_UP,
+        CONTROL_RIGHT,
+        CONTROL_DOWN,
+        CONTROL_LEFT,
+        NUM_CONTROLS
     };
-    bool m_Movement[NUM_MOVEMENTS];
+    bool m_Movement[NUM_CONTROLS];
+    int m_Controls[NUM_CONTROLS];
+
+    static int saControlsPlayer1[NUM_CONTROLS];
+    static int saControlsPlayer2[NUM_CONTROLS];
+
+    double m_xvel, m_yvel;  // velocity
+
+    void TickControls();
+    void TickVelocity();
 
 public:
     Character(SDL_Renderer* Renderer, double start_x, double start_y);
