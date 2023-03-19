@@ -13,6 +13,7 @@ SDL_Renderer* Renderer;
 Clock* Timer;
 
 std::vector<Character*> aPlayers;
+SDL_Texture* TextTexture;
 
 bool Initialize() {
     int Result = SDL_Init(SDL_INIT_EVERYTHING);
@@ -50,6 +51,10 @@ bool Initialize() {
     aPlayers.push_back(new Character(Renderer, 200, 100));
     aPlayers.push_back(new Character(Renderer, 300, 100));
 
+    TTF_Font* Font1 = TextHandler.LoadFont("font1", "GROBOLD.ttf", 24);
+    SDL_Surface* TempSurface = TTF_RenderText_Solid(Font1, "Text", SDL_Color{ 255, 255, 255, 255 });
+    TextTexture = SDL_CreateTextureFromSurface(Renderer, TempSurface);
+    SDL_FreeSurface(TempSurface);
 
     return true;
 }
@@ -89,13 +94,19 @@ int main() {
         for (Character* Player : aPlayers)
             Player->Draw();
 
+        SDL_Rect DestinationRect;
+        DestinationRect.x = 400;
+        DestinationRect.y = 400;
+        SDL_QueryTexture(TextTexture, nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
+        SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
+
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
 
+    SDL_DestroyTexture(TextTexture);
     for (Character* Player : aPlayers)
         delete Player;
-
     delete Timer;
     SDL_DestroyRenderer(Renderer);
     SDL_DestroyWindow(Window);
