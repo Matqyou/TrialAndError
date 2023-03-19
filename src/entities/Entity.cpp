@@ -7,7 +7,7 @@
 Entity::Entity(SDL_Renderer* Renderer, double start_x, double start_y, double start_w, double start_h) {
     m_Renderer = Renderer;
     m_x = start_x;
-    m_y = start_x;
+    m_y = start_y;
     m_w = start_w;
     m_h = start_h;
 }
