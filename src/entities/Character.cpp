@@ -6,6 +6,7 @@
 #include <cmath>
 
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
+static int sNumCharacters = 0;
 int Character::saControlsPlayer1[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
 int Character::saControlsPlayer2[NUM_CONTROLS] = {SDL_SCANCODE_UP, SDL_SCANCODE_RIGHT, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT };
 
@@ -13,8 +14,24 @@ Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
  : Entity(Renderer, start_x, start_y, 50, 50) {
     for (bool& State : m_Movement)
         State = false;
-    int* paControls = saControlsPlayer1;  // Can also be player2
-    memcpy(m_Controls, paControls, sizeof(m_Controls));  // Copy default controls for this character
+
+    sNumCharacters += 1;
+    int* paControls;
+    switch (sNumCharacters) {
+        case 1: {
+            paControls = saControlsPlayer1;
+        } break;
+        case 2: {
+            paControls = saControlsPlayer2;
+        } break;
+        default: {
+            paControls = nullptr;
+        }
+    }
+    if (paControls) { memcpy(m_aControls, paControls, sizeof(m_aControls)); }
+    else { memset(m_aControls, 0, sizeof(m_aControls)); }
+    m_Controllable = bool(paControls);
+
     m_xvel = 0.0;
     m_yvel = 0.0;
 }
@@ -49,11 +66,14 @@ void Character::Tick() {
 }
 
 void Character::Event(const SDL_Event& CurrentEvent) {
+    if (!m_Controllable)
+        return;
+
     if (CurrentEvent.type == SDL_KEYDOWN ||
         CurrentEvent.type == SDL_KEYUP) {
         bool State = CurrentEvent.type == SDL_KEYDOWN;
         for (int i = 0; i < NUM_CONTROLS; i++) {
-            if (CurrentEvent.key.keysym.scancode == m_Controls[i])
+            if (CurrentEvent.key.keysym.scancode == m_aControls[i])
                 m_Movement[i] = State;
         }
     }

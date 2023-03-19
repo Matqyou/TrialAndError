@@ -14,7 +14,8 @@ private:
         NUM_CONTROLS
     };
     bool m_Movement[NUM_CONTROLS];
-    int m_Controls[NUM_CONTROLS];
+    int m_aControls[NUM_CONTROLS];
+    bool m_Controllable;
 
     static int saControlsPlayer1[NUM_CONTROLS];
     static int saControlsPlayer2[NUM_CONTROLS];
