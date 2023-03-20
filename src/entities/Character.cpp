@@ -7,9 +7,9 @@
 
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 static int sNumCharacters = 0;
-const int Character::saControlsPlayer1[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
-const int Character::saControlsPlayer2[NUM_CONTROLS] = {SDL_SCANCODE_UP, SDL_SCANCODE_RIGHT, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT };
-const int Character::saControlsPlayer3[NUM_CONTROLS] = {SDL_SCANCODE_I, SDL_SCANCODE_L, SDL_SCANCODE_K, SDL_SCANCODE_J };
+const int Character::sControlsPlayer1[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
+const int Character::sControlsPlayer2[NUM_CONTROLS] = {SDL_SCANCODE_UP, SDL_SCANCODE_RIGHT, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT };
+const int Character::sControlsPlayer3[NUM_CONTROLS] = {SDL_SCANCODE_I, SDL_SCANCODE_L, SDL_SCANCODE_K, SDL_SCANCODE_J };
 
 Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
  : Entity(Renderer, start_x, start_y, 50, 50) {
@@ -23,17 +23,17 @@ Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
             paControls = nullptr;
         } break;
         case 1: {
-            paControls = saControlsPlayer1;
+            paControls = sControlsPlayer1;
         } break;
         case 2: {
-            paControls = saControlsPlayer2;
+            paControls = sControlsPlayer2;
         } break;
         case 3: {
-            paControls = saControlsPlayer3;
+            paControls = sControlsPlayer3;
         } break;
     }
-    if (paControls) { memcpy(m_aControls, paControls, sizeof(m_aControls)); }
-    else { memset(m_aControls, 0, sizeof(m_aControls)); }
+    if (paControls) { memcpy(m_Controls, paControls, sizeof(m_Controls)); }
+    else { memset(m_Controls, 0, sizeof(m_Controls)); }
     m_Controllable = bool(paControls);
 
     m_xvel = 0.0;
@@ -77,7 +77,7 @@ void Character::Event(const SDL_Event& CurrentEvent) {
         CurrentEvent.type == SDL_KEYUP) {
         bool State = CurrentEvent.type == SDL_KEYDOWN;
         for (int i = 0; i < NUM_CONTROLS; i++) {
-            if (CurrentEvent.key.keysym.scancode == m_aControls[i])
+            if (CurrentEvent.key.keysym.scancode == m_Controls[i])
                 m_Movement[i] = State;
         }
     }
