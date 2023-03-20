@@ -11,15 +11,14 @@
 
 class TextManager {
 private:
-    std::vector<std::pair<std::string, TTF_Font*>> sFonts;
+    std::vector<TTF_Font*> m_Fonts;
 
 public:
     TextManager();
     ~TextManager();
 
-    TTF_Font* LoadFont(const std::string& key, const char *filepath, int ptsize);
+    TTF_Font* LoadFont(const char *filepath, int ptsize);
+    void UnloadFonts();
 };
-
-extern TextManager TextHandler;
 
 #endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_TEXTMANAGER_H_

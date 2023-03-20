@@ -3,24 +3,26 @@
 //
 
 #include "TextManager.h"
-
-TextManager TextHandler;
+#include <iostream>
 
 TextManager::TextManager() {
 
 }
 
 TextManager::~TextManager() {
-    for (const auto& Pair : sFonts)
-        TTF_CloseFont(Pair.second);  // problem
+    for (TTF_Font* Font : m_Fonts)
+        TTF_CloseFont(Font);
 }
 
-TTF_Font* TextManager::LoadFont(const std::string& key, const char* filepath, int ptsize) {
+TTF_Font* TextManager::LoadFont(const char* filepath, int ptsize) {
     TTF_Font* NewFont = TTF_OpenFont(filepath, ptsize);
     if (!NewFont)
-        std::printf("TTF: There was an error while loading font '%s' %s", key.c_str(), TTF_GetError());
+        std::printf("TTF: There was an error while loading font %s", TTF_GetError());
 
-    std::pair<std::string, TTF_Font*> NewPair = { key, NewFont };
-    sFonts.push_back(NewPair);
+    m_Fonts.push_back(NewFont);
     return NewFont;
+}
+
+void TextManager::UnloadFonts() {
+
 }
