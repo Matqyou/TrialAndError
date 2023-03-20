@@ -13,11 +13,17 @@ private:
     SDL_GameController* m_Device;
     int m_InstanceID;
 
+    double m_Axis[4];
+
 public:
     GameController(int device_id);
     ~GameController();
 
     int InstanceID() const { return m_InstanceID; }
+    void GetJoystick1(double& get_x, double& get_y);
+    void GetJoystick2(double& get_x, double& get_y);
+
+    void Event(const SDL_Event& event);
 };
 
 class GameControllers {
@@ -30,6 +36,8 @@ public:
 
     GameController* OpenController(int device_id);
     void CloseController(int instance_id);
+
+    void Event(const SDL_Event& event);
 };
 
 #endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMECONTROLLERS_H_
