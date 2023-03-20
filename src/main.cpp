@@ -1,6 +1,9 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
 #include "technical stuff/Clock.h"
+#include "technical stuff/TextManager.h"
 #include "entities/Character.h"
 #include <vector>
 #include <iostream>
@@ -8,26 +11,40 @@
 SDL_Window* Window;
 SDL_Renderer* Renderer;
 Clock* Timer;
+TextManager* TextHandler;
+
 
 std::vector<Character*> aPlayers;
+SDL_Texture* TextTexture;
 
 bool Initialize() {
     int Result = SDL_Init(SDL_INIT_EVERYTHING);
     if (Result) {
-        std::printf("Error while initializing %s", SDL_GetError());
+        std::printf("Error while initializing main %s\n", SDL_GetError());
+        return false;
+    }
+    int ImageFlags = IMG_INIT_PNG | IMG_INIT_JPG;
+    int ResultImage = IMG_Init(ImageFlags);
+    if (ResultImage != ImageFlags) {
+        std::printf("Error while initializing Image %s\n", SDL_GetError());
+        return false;
+    }
+    int ResultTTF = TTF_Init();
+    if (ResultTTF) {
+        std::printf("Error while initializing TTF %s\n", SDL_GetError());
         return false;
     }
 
     Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               900, 700, 0);
     if (!Window) {
-        std::printf("Error while creating the window %s", SDL_GetError());
+        std::printf("Error while creating the window %s\n", SDL_GetError());
         return false;
     }
 
     Renderer = SDL_CreateRenderer(Window, -1, 0);
     if (!Renderer) {
-        std::printf("Error while creating the renderer %s", SDL_GetError());
+        std::printf("Error while creating the renderer %s\n", SDL_GetError());
         return false;
     }
 
@@ -35,6 +52,12 @@ bool Initialize() {
     aPlayers.push_back(new Character(Renderer, 100, 100));
     aPlayers.push_back(new Character(Renderer, 200, 100));
     aPlayers.push_back(new Character(Renderer, 300, 100));
+
+    TextHandler = new TextManager();
+    TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 24);
+    SDL_Surface* TempSurface = TTF_RenderText_Solid(Font1, "Text", SDL_Color{ 255, 255, 255, 255 });
+    TextTexture = SDL_CreateTextureFromSurface(Renderer, TempSurface);
+    SDL_FreeSurface(TempSurface);
 
     return true;
 }
@@ -74,15 +97,25 @@ int main() {
         for (Character* Player : aPlayers)
             Player->Draw();
 
+        SDL_Rect DestinationRect;
+        DestinationRect.x = 400;
+        DestinationRect.y = 400;
+        SDL_QueryTexture(TextTexture, nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
+        SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
+
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
 
+    SDL_DestroyTexture(TextTexture);
     for (Character* Player : aPlayers)
         delete Player;
-
+    delete TextHandler;
     delete Timer;
     SDL_DestroyRenderer(Renderer);
     SDL_DestroyWindow(Window);
+    TTF_Quit();
+    IMG_Quit();
+    SDL_Quit();
     return 0;
 }
