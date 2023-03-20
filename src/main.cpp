@@ -8,12 +8,14 @@
 #include "entities/Character.h"
 #include <vector>
 #include <iostream>
-
+SDL_DisplayMode dm;
 SDL_Window* Window;
 SDL_Renderer* Renderer;
 Clock* Timer;
 TextManager* TextHandler;
 GameControllers* Controllers;
+int width = 900;
+int height = 700;
 
 std::vector<Character*> Players;
 SDL_Texture* TextTexture;
@@ -37,7 +39,7 @@ bool Initialize() {
     }
 
     Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              900, 700, 0);
+                              width, height, 0);
     if (!Window) {
         std::printf("Error while creating the window %s\n", SDL_GetError());
         return false;
@@ -48,12 +50,10 @@ bool Initialize() {
         std::printf("Error while creating the renderer %s\n", SDL_GetError());
         return false;
     }
-
     // Initialize up to 3 controllers
     for (int i = 0; i < 3; i++) {
         SDL_GameControllerOpen(i);
     }
-
     Timer = new Clock(60);
     TextHandler = new TextManager();
 
@@ -140,7 +140,6 @@ int main() {
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
-
     for (Character* Player : Players)
         delete Player;
     delete Controllers;
