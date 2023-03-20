@@ -18,7 +18,6 @@ public:
     ~TextManager();
 
     TTF_Font* LoadFont(const char *filepath, int ptsize);
-    void UnloadFonts();
 };
 
 #endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_TEXTMANAGER_H_

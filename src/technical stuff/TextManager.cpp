@@ -22,7 +22,3 @@ TTF_Font* TextManager::LoadFont(const char* filepath, int ptsize) {
     m_Fonts.push_back(NewFont);
     return NewFont;
 }
-
-void TextManager::UnloadFonts() {
-
-}
