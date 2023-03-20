@@ -7,14 +7,15 @@
 #include "entities/Character.h"
 #include <vector>
 #include <iostream>
-
+SDL_DisplayMode dm;
 SDL_Window* Window;
 SDL_Renderer* Renderer;
 Clock* Timer;
 TextManager* TextHandler;
+int width = 900;
+int height = 700;
 
-
-std::vector<Character*> aPlayers;
+std::vector<Character*> Players;
 SDL_Texture* TextTexture;
 
 bool Initialize() {
@@ -36,7 +37,7 @@ bool Initialize() {
     }
 
     Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              900, 700, 0);
+                              width, height, 0);
     if (!Window) {
         std::printf("Error while creating the window %s\n", SDL_GetError());
         return false;
@@ -49,9 +50,9 @@ bool Initialize() {
     }
 
     Timer = new Clock(60);
-    aPlayers.push_back(new Character(Renderer, 100, 100));
-    aPlayers.push_back(new Character(Renderer, 200, 100));
-    aPlayers.push_back(new Character(Renderer, 300, 100));
+    Players.push_back(new Character(Renderer, 100, 100));
+    Players.push_back(new Character(Renderer, 200, 100));
+    Players.push_back(new Character(Renderer, 300, 100));
 
     TextHandler = new TextManager();
     TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 24);
@@ -72,7 +73,7 @@ int main() {
     while (Running) {
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
-            for (Character* Player : aPlayers)
+            for (Character* Player : Players)
                 Player->Event(CurrentEvent);
 
             switch (CurrentEvent.type) {
@@ -88,13 +89,14 @@ int main() {
             }
         }
 
-        for (Character* Player : aPlayers)
+        for (Character* Player : Players)
             Player->Tick();
+
 
         SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
         SDL_RenderClear(Renderer);
 
-        for (Character* Player : aPlayers)
+        for (Character* Player : Players)
             Player->Draw();
 
         SDL_Rect DestinationRect;
@@ -108,7 +110,7 @@ int main() {
     }
 
     SDL_DestroyTexture(TextTexture);
-    for (Character* Player : aPlayers)
+    for (Character* Player : Players)
         delete Player;
     delete TextHandler;
     delete Timer;
