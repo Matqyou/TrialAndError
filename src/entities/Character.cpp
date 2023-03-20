@@ -35,14 +35,18 @@ Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
     if (paControls) { memcpy(m_Controls, paControls, sizeof(m_Controls)); }
     else { memset(m_Controls, 0, sizeof(m_Controls)); }
     m_Controllable = bool(paControls);
+    m_GameController = nullptr;
 
     m_xvel = 0.0;
     m_yvel = 0.0;
 }
 
-void Character::TickControls() {
+void Character::SetGameController(GameController* gameController) {
+    m_GameController = gameController;
+}
+
+void Character::TickKeyboardControls() {
     // Check if buttons are held
-    const double Speed = 0.5;
     bool MoveUp = m_Movement[CONTROL_UP];
     bool MoveRight = m_Movement[CONTROL_RIGHT];
     bool MoveDown = m_Movement[CONTROL_DOWN];
@@ -53,10 +57,37 @@ void Character::TickControls() {
 
     // Accelerate when buttons are held
     double LengthPerAxis = (Horizontally && Vertically) ? sDiagonalLength : 1.0;
-    double SpeedPerAxis = Speed * LengthPerAxis;
+    double SpeedPerAxis = m_BaseAcceleration * LengthPerAxis;
 
     if (MoveDown != MoveUp) m_yvel += SpeedPerAxis * double(MoveDown ? 1 : -1);
     if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
+}
+
+void Character::TickGameControllerControls() {
+    // Check for current joystick values
+    double AxisX, AxisY;
+    m_GameController->GetJoystick1(AxisX, AxisY);
+
+    // AxisX**2 + AxisY**2 <= 1 (keep direction length of 1)
+    double Length = std::sqrt(std::pow(AxisX, 2) + std::pow(AxisY, 2));
+    if (Length <= 0.1) // Fix controller drifting
+        return;
+
+    if (Length > 0.0) {
+        AxisX /= Length;
+        AxisY /= Length;
+    }
+
+    // Accelerate in that direction
+    m_xvel += m_BaseAcceleration * AxisX;
+    m_yvel += m_BaseAcceleration * AxisY;
+}
+
+void Character::TickControls() {
+    if (m_GameController)
+        TickGameControllerControls();
+    else
+        TickKeyboardControls();
 }
 
 void Character::TickVelocity() {

@@ -15,7 +15,7 @@ Clock* Timer;
 TextManager* TextHandler;
 GameControllers* Controllers;
 
-std::vector<Character*> aPlayers;
+std::vector<Character*> Players;
 SDL_Texture* TextTexture;
 
 bool Initialize() {
@@ -64,9 +64,9 @@ bool Initialize() {
 
     Controllers = new GameControllers();
 
-    aPlayers.push_back(new Character(Renderer, 100, 100));
-    aPlayers.push_back(new Character(Renderer, 200, 100));
-    aPlayers.push_back(new Character(Renderer, 300, 100));
+    Players.push_back(new Character(Renderer, 100, 100));
+    Players.push_back(new Character(Renderer, 200, 100));
+    Players.push_back(new Character(Renderer, 300, 100));
 
     return true;
 }
@@ -95,7 +95,8 @@ int main() {
     while (Running) {
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
-            for (Character* Player : aPlayers)
+            Controllers->Event(CurrentEvent);
+            for (Character* Player : Players)
                 Player->Event(CurrentEvent);
 
             switch (CurrentEvent.type) {
@@ -110,7 +111,8 @@ int main() {
                 } break;
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
-                    Controllers->OpenController(DeviceID);
+                    GameController* CurrentController = Controllers->OpenController(DeviceID);
+                    Players[0]->SetGameController(CurrentController);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
@@ -119,13 +121,14 @@ int main() {
             }
         }
 
-        for (Character* Player : aPlayers)
+        for (Character* Player : Players)
             Player->Tick();
+
 
         SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
         SDL_RenderClear(Renderer);
 
-        for (Character* Player : aPlayers)
+        for (Character* Player : Players)
             Player->Draw();
 
         SDL_Rect DestinationRect;
@@ -138,7 +141,7 @@ int main() {
         Timer->Tick();
     }
 
-    for (Character* Player : aPlayers)
+    for (Character* Player : Players)
         delete Player;
     delete Controllers;
     SDL_DestroyTexture(TextTexture);
