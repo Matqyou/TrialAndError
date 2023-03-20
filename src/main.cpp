@@ -4,6 +4,7 @@
 #include <SDL_ttf.h>
 #include "technical stuff/Clock.h"
 #include "technical stuff/TextManager.h"
+#include "technical stuff/GameControllers.h"
 #include "entities/Character.h"
 #include <vector>
 #include <iostream>
@@ -12,7 +13,7 @@ SDL_Window* Window;
 SDL_Renderer* Renderer;
 Clock* Timer;
 TextManager* TextHandler;
-
+GameControllers* Controllers;
 
 std::vector<Character*> aPlayers;
 SDL_Texture* TextTexture;
@@ -54,15 +55,18 @@ bool Initialize() {
     }
 
     Timer = new Clock(60);
-    aPlayers.push_back(new Character(Renderer, 100, 100));
-    aPlayers.push_back(new Character(Renderer, 200, 100));
-    aPlayers.push_back(new Character(Renderer, 300, 100));
-
     TextHandler = new TextManager();
+
     TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 24);
     SDL_Surface* TempSurface = TTF_RenderText_Solid(Font1, "Text", SDL_Color{ 255, 255, 255, 255 });
     TextTexture = SDL_CreateTextureFromSurface(Renderer, TempSurface);
     SDL_FreeSurface(TempSurface);
+
+    Controllers = new GameControllers();
+
+    aPlayers.push_back(new Character(Renderer, 100, 100));
+    aPlayers.push_back(new Character(Renderer, 200, 100));
+    aPlayers.push_back(new Character(Renderer, 300, 100));
 
     return true;
 }
@@ -104,18 +108,14 @@ int main() {
                     else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                         SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
-
-                case SDL_CONTROLLERBUTTONDOWN:
-                    std::cout<<"SDL_CONTROLLERBUTTONDOWN ";
-
-                case SDL_CONTROLLERBUTTONUP:
-                    std::cout<<"SDL_CONTROLLERBUTTONUP ";
-
-                case SDL_CONTROLLERAXISMOTION:
-                    std::cout<<"SDL_CONTROLLERAXISMOTION ";
-
-                    handleControllerEvent(CurrentEvent);
-                    break;
+                case SDL_CONTROLLERDEVICEADDED: {
+                    int DeviceID = CurrentEvent.cdevice.which;
+                    Controllers->OpenController(DeviceID);
+                } break;
+                case SDL_CONTROLLERDEVICEREMOVED: {
+                    int InstanceID = CurrentEvent.cdevice.which;
+                    Controllers->CloseController(InstanceID);
+                } break;
             }
         }
 
@@ -138,9 +138,10 @@ int main() {
         Timer->Tick();
     }
 
-    SDL_DestroyTexture(TextTexture);
     for (Character* Player : aPlayers)
         delete Player;
+    delete Controllers;
+    SDL_DestroyTexture(TextTexture);
     delete TextHandler;
     delete Timer;
     SDL_DestroyRenderer(Renderer);
