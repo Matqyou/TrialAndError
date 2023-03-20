@@ -48,6 +48,11 @@ bool Initialize() {
         return false;
     }
 
+    // Initialize up to 3 controllers
+    for (int i = 0; i < 3; i++) {
+        SDL_GameControllerOpen(i);
+    }
+
     Timer = new Clock(60);
     aPlayers.push_back(new Character(Renderer, 100, 100));
     aPlayers.push_back(new Character(Renderer, 200, 100));
@@ -61,6 +66,20 @@ bool Initialize() {
 
     return true;
 }
+
+
+// Function to handle controller events
+void handleControllerEvent(SDL_Event event)
+{
+    if (event.type == SDL_CONTROLLERBUTTONDOWN) {
+        std::cout << "Button " << static_cast<int>(event.cbutton.button) << " on controller " << static_cast<int>(event.cbutton.which) << " was pressed" << std::endl;
+    } else if (event.type == SDL_CONTROLLERBUTTONUP) {
+        std::cout << "Button " << static_cast<int>(event.cbutton.button) << " on controller " << static_cast<int>(event.cbutton.which) << " was released" << std::endl;
+    } else if (event.type == SDL_CONTROLLERAXISMOTION) {
+        std::cout << "Axis " << static_cast<int>(event.caxis.axis) << " on controller " << static_cast<int>(event.caxis.which) << " moved to " << static_cast<int>(event.caxis.value) << std::endl;
+    }
+}
+
 
 int main() {
     if (!Initialize()) {
@@ -85,6 +104,18 @@ int main() {
                     else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                         SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
+
+                case SDL_CONTROLLERBUTTONDOWN:
+                    std::cout<<"SDL_CONTROLLERBUTTONDOWN ";
+
+                case SDL_CONTROLLERBUTTONUP:
+                    std::cout<<"SDL_CONTROLLERBUTTONUP ";
+
+                case SDL_CONTROLLERAXISMOTION:
+                    std::cout<<"SDL_CONTROLLERAXISMOTION ";
+
+                    handleControllerEvent(CurrentEvent);
+                    break;
             }
         }
 
@@ -114,6 +145,9 @@ int main() {
     delete Timer;
     SDL_DestroyRenderer(Renderer);
     SDL_DestroyWindow(Window);
+    for (int i = 0; i < 3; i++) {
+        SDL_GameControllerClose(SDL_GameControllerFromInstanceID(i));
+    }
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
