@@ -36,8 +36,8 @@ Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
             paControls = sControlsPlayer3;
         } break;
     }
-    if (paControls) { memcpy(m_Controls, paControls, sizeof(m_Controls)); }
-    else { memset(m_Controls, 0, sizeof(m_Controls)); }
+    if (paControls) { memcpy(m_Controls, paControls, sizeof(m_Controls)); }  // Controls are copied
+    else { memset(m_Controls, 0, sizeof(m_Controls)); }  // All controls are set to 0
     m_Controllable = bool(paControls);
 
     m_xvel = 0.0;
@@ -93,6 +93,9 @@ void Character::TickGameControllerControls() {
 }
 
 void Character::TickControls() {
+    if (!m_Controllable)
+        return;
+
     if (m_GameController)
         TickGameControllerControls();
     else
