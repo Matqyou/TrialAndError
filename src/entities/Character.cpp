@@ -15,6 +15,7 @@ Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
     sNumCharacters += 1;
     char Name[CHARACTER_MAX_NAME_LENGTH];
     std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", sNumCharacters);
+    m_Name = Name;
 
     m_GameController = nullptr;
     for (bool& State : m_Movement)
