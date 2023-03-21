@@ -2,22 +2,28 @@
 #define TRIALANDERROR_CHARACTER_H
 
 #include <SDL.h>
+#include <string>
+#include <iostream>
 #include "Entity.h"
 #include "../technical stuff/GameControllers.h"
 
 class Character : public Entity {
-private:
+public:
     enum {
         CONTROL_UP,
         CONTROL_RIGHT,
         CONTROL_DOWN,
         CONTROL_LEFT,
-        NUM_CONTROLS
+        NUM_CONTROLS,
+        CHARACTER_MAX_NAME_LENGTH = 32
     };
+
+private:
+    std::string m_Name;
+    GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS];
     int m_Controls[NUM_CONTROLS];
     bool m_Controllable;
-    GameController* m_GameController;
 
     static const int sControlsPlayer1[NUM_CONTROLS];
     static const int sControlsPlayer2[NUM_CONTROLS];

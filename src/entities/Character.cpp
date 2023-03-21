@@ -12,10 +12,15 @@ const int Character::sControlsPlayer3[NUM_CONTROLS] = {SDL_SCANCODE_I, SDL_SCANC
 
 Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
  : Entity(Renderer, start_x, start_y, 50, 50) {
+    sNumCharacters += 1;
+    char Name[CHARACTER_MAX_NAME_LENGTH];
+    std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", sNumCharacters);
+    m_Name = Name;
+
+    m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
 
-    sNumCharacters += 1;
     const int* paControls;
     switch (sNumCharacters) {
         default: {
@@ -31,10 +36,9 @@ Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
             paControls = sControlsPlayer3;
         } break;
     }
-    if (paControls) { memcpy(m_Controls, paControls, sizeof(m_Controls)); }
-    else { memset(m_Controls, 0, sizeof(m_Controls)); }
+    if (paControls) { memcpy(m_Controls, paControls, sizeof(m_Controls)); }  // Controls are copied
+    else { memset(m_Controls, 0, sizeof(m_Controls)); }  // All controls are set to 0
     m_Controllable = bool(paControls);
-    m_GameController = nullptr;
 
     m_xvel = 0.0;
     m_yvel = 0.0;
@@ -89,6 +93,9 @@ void Character::TickGameControllerControls() {
 }
 
 void Character::TickControls() {
+    if (!m_Controllable)
+        return;
+
     if (m_GameController)
         TickGameControllerControls();
     else
