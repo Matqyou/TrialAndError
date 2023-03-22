@@ -14,6 +14,7 @@ public:
         CONTROL_RIGHT,
         CONTROL_DOWN,
         CONTROL_LEFT,
+        CONTROL_WEAPON,
         NUM_CONTROLS,
         CHARACTER_MAX_NAME_LENGTH = 32
     };

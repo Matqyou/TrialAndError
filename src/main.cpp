@@ -6,9 +6,9 @@
 #include "technical stuff/TextManager.h"
 #include "technical stuff/GameControllers.h"
 #include "entities/Character.h"
+#include "entities/Bullets.h"
 #include <vector>
 #include <iostream>
-SDL_DisplayMode dm;
 SDL_Window* Window;
 SDL_Renderer* Renderer;
 Clock* Timer;
@@ -120,7 +120,6 @@ int main() {
                 } break;
             }
         }
-
         for (Character* Player : Players)
             Player->Tick();
 
@@ -136,9 +135,9 @@ int main() {
         DestinationRect.y = 400;
         SDL_QueryTexture(TextTexture, nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
         SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
-
         SDL_RenderPresent(Renderer);
         Timer->Tick();
+
     }
     for (Character* Player : Players)
         delete Player;

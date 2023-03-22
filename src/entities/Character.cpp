@@ -4,11 +4,14 @@
 #include "Character.h"
 #include <cmath>
 #include <iostream>
+#include "Bullets.h"
+#include <vector>
+std::vector<Bullets*> Bullet;
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 static int sNumCharacters = 0;
-const int Character::sControlsPlayer1[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
-const int Character::sControlsPlayer2[NUM_CONTROLS] = {SDL_SCANCODE_UP, SDL_SCANCODE_RIGHT, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT };
-const int Character::sControlsPlayer3[NUM_CONTROLS] = {SDL_SCANCODE_I, SDL_SCANCODE_L, SDL_SCANCODE_K, SDL_SCANCODE_J };
+const int Character::sControlsPlayer1[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_Q };
+const int Character::sControlsPlayer2[NUM_CONTROLS] = {SDL_SCANCODE_UP, SDL_SCANCODE_RIGHT, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_KP_ENTER};
+const int Character::sControlsPlayer3[NUM_CONTROLS] = {SDL_SCANCODE_I, SDL_SCANCODE_L, SDL_SCANCODE_K, SDL_SCANCODE_J, SDL_SCANCODE_U};
 
 Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
  : Entity(Renderer, start_x, start_y, 50, 50) {
@@ -42,6 +45,7 @@ Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
 
     m_xvel = 0.0;
     m_yvel = 0.0;
+
 }
 
 void Character::SetGameController(GameController* gameController) {
@@ -54,6 +58,7 @@ void Character::TickKeyboardControls() {
     bool MoveRight = m_Movement[CONTROL_RIGHT];
     bool MoveDown = m_Movement[CONTROL_DOWN];
     bool MoveLeft = m_Movement[CONTROL_LEFT];
+    bool Shoot = m_Movement[CONTROL_WEAPON];
 
     bool Horizontally = MoveLeft != MoveRight;
     bool Vertically = MoveUp != MoveDown;
@@ -70,6 +75,10 @@ void Character::TickKeyboardControls() {
         if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
     }
     else m_xvel = 0;
+    if (Shoot){
+        //Bullet.push_back(new Character(m_Renderer, m_x+30, m_y+30));
+    }
+
 }
 
 void Character::TickGameControllerControls() {
@@ -88,8 +97,16 @@ void Character::TickGameControllerControls() {
     }
 
     // Accelerate in that direction
-    m_xvel += m_BaseAcceleration * AxisX;
-    m_yvel += m_BaseAcceleration * AxisY;
+
+    if((m_x < 900-25) and (m_x > 0+25)){
+        m_xvel += m_BaseAcceleration * AxisX;
+    }
+    else m_xvel = 0;
+    if((m_y < 700-25) and (m_y > 0+25)){
+        m_yvel += m_BaseAcceleration * AxisY;
+    }
+    else m_yvel = 0;
+
 }
 
 void Character::TickControls() {
@@ -100,6 +117,7 @@ void Character::TickControls() {
         TickGameControllerControls();
     else
         TickKeyboardControls();
+
 }
 
 void Character::TickVelocity() {
@@ -115,6 +133,8 @@ void Character::TickVelocity() {
 void Character::Tick() {
     TickControls();  // Do stuff depending on the current held buttons
     TickVelocity();  // Move the chracter entity
+    //Bullet.TickBullets();
+
 }
 
 void Character::Event(const SDL_Event& CurrentEvent) {
