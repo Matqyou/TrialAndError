@@ -8,8 +8,8 @@ static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 static int sNumCharacters = 0;
 const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
 
-Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
- : Entity(Renderer, start_x, start_y, 50, 50) {
+Character::Character(GameReference* gameWindow, double start_x, double start_y)
+ : Entity(gameWindow, start_x, start_y, 50, 50) {
     sNumCharacters += 1;
     char Name[CHARACTER_MAX_NAME_LENGTH];
     std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", sNumCharacters);
@@ -130,17 +130,19 @@ void Character::TickVelocity() {
 }
 
 void Character::Draw() {
+    SDL_Renderer* Renderer = m_GameWindow->Renderer();
+
     SDL_FRect DrawRect = {float(m_x) - float(m_w/2),
                           float(m_y) - float(m_h/2),
                           float(m_w),
                           float(m_h)};
-    SDL_SetRenderDrawColor(m_Renderer, rand()%255, rand()%255, rand()%255, 255);
-    SDL_RenderFillRectF(m_Renderer, &DrawRect);
+    SDL_SetRenderDrawColor(Renderer, rand()%255, rand()%255, rand()%255, 255);
+    SDL_RenderFillRectF(Renderer, &DrawRect);
 
     double XLook = m_x + m_xlook * 100.0;
     double YLook = m_y + m_ylook * 100.0;
-    SDL_SetRenderDrawColor(m_Renderer, rand()%255, rand()%255, rand()%255, 255);
-    SDL_RenderDrawLine(m_Renderer, int(m_x), int(m_y), int(XLook), int(YLook));
+    SDL_SetRenderDrawColor(Renderer, rand()%255, rand()%255, rand()%255, 255);
+    SDL_RenderDrawLine(Renderer, int(m_x), int(m_y), int(XLook), int(YLook));
 }
 
 void Character::Tick() {

@@ -38,7 +38,7 @@ private:
     void TickVelocity();
 
 public:
-    Character(SDL_Renderer* Renderer, double start_x, double start_y);
+    Character(GameReference* gameWindow, double start_x, double start_y);
 
     void SetGameController(GameController* gameController);
     GameController* GetGameController() const { return m_GameController; }
