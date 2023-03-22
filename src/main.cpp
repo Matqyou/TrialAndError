@@ -50,10 +50,7 @@ bool Initialize() {
         std::printf("Error while creating the renderer %s\n", SDL_GetError());
         return false;
     }
-    // Initialize up to 3 controllers
-    for (int i = 0; i < 3; i++) {
-        SDL_GameControllerOpen(i);
-    }
+
     Timer = new Clock(60);
     TextHandler = new TextManager();
 
