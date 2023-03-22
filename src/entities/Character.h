@@ -28,6 +28,7 @@ private:
     static const int sDefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration = 0.5;
+    const double m_BaseDamping = 0.93;
     double m_xvel, m_yvel;  // velocity
     double m_xlook, m_ylook;  // direction
 

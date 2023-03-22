@@ -118,13 +118,15 @@ void Character::TickControls() {
 }
 
 void Character::TickVelocity() {
+    m_xvel *= m_BaseDamping;
+    m_yvel *= m_BaseDamping;
+
     if((m_x < 900-25) and (m_x > 25)) m_x += m_xvel; // if on screen
     else if (m_x >= 900-25) m_x -= 5; // if going to the right
     else if (m_x <= 25)m_x += 5; // if going to the left
     if((m_y < 700-25) and (m_y > 25)) m_y += m_yvel; // if on screen
     else if(m_y >= 700-25) m_y -= 5; // if going below screen
     else if (m_y <= 25)m_y += 5; // if going above screen
-
 }
 
 void Character::Draw() {
