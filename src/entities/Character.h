@@ -29,6 +29,7 @@ private:
 
     const double m_BaseAcceleration = 0.5;
     double m_xvel, m_yvel;  // velocity
+    double m_xlook, m_ylook;  // direction
 
     void TickKeyboardControls();
     void TickGameControllerControls();
@@ -41,7 +42,7 @@ public:
     void SetGameController(GameController* gameController);
     GameController* GetGameController() const { return m_GameController; }
 
-    // void Draw(); // remove comment if want to draw character differently
+    void Draw(); // remove comment if want to draw character differently
     void Tick();
     void Event(const SDL_Event& CurrentEvent);
 };

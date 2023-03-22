@@ -25,6 +25,8 @@ Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
 
     m_xvel = 0.0;
     m_yvel = 0.0;
+    m_xlook = 1.0;
+    m_ylook = 0.0;
 }
 
 void Character::SetGameController(GameController* gameController) {
@@ -53,6 +55,22 @@ void Character::TickKeyboardControls() {
         if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
     }
     else m_xvel = 0;
+
+    // Update look direction
+    int XMouse, YMouse;
+    SDL_GetMouseState(&XMouse, &YMouse);
+
+    m_xlook = XMouse - m_x;
+    m_ylook = YMouse - m_y;
+    double Distance = std::sqrt(std::pow(m_xlook, 2) + std::pow(m_ylook, 2));
+
+    if (Distance != 0.0) {
+        m_xlook /= Distance;
+        m_ylook /= Distance;
+    } else {
+        m_xlook = 1.0;
+        m_ylook = 0.0;
+    }
 }
 
 void Character::TickGameControllerControls() {
@@ -62,17 +80,31 @@ void Character::TickGameControllerControls() {
 
     // AxisX**2 + AxisY**2 <= 1 (keep direction length of 1)
     double Length = std::sqrt(std::pow(AxisX, 2) + std::pow(AxisY, 2));
-    if (Length <= 0.1) // Fix controller drifting
-        return;
+    if (Length > 0.1) {  // Fix controller drifting
+        if (Length > 0.0) {
+            AxisX /= Length;
+            AxisY /= Length;
+        }
 
-    if (Length > 0.0) {
-        AxisX /= Length;
-        AxisY /= Length;
+        // Accelerate in that direction
+        m_xvel += m_BaseAcceleration * AxisX;
+        m_yvel += m_BaseAcceleration * AxisY;
     }
 
-    // Accelerate in that direction
-    m_xvel += m_BaseAcceleration * AxisX;
-    m_yvel += m_BaseAcceleration * AxisY;
+    // Update look direction
+    double AxisX2, AxisY2;
+    m_GameController->GetJoystick2(AxisX2, AxisY2);
+
+    Length = std::sqrt(std::pow(AxisX2, 2) + std::pow(AxisY2, 2));
+    if (Length > 0.6) {  // Fix controller drifting
+        if (Length != 0.0) {
+            m_xlook = AxisX2 / Length;
+            m_ylook = AxisY2 / Length;
+        } else {
+            m_xlook = 1.0;
+            m_ylook = 0.0;
+        }
+    }
 }
 
 void Character::TickControls() {
@@ -93,6 +125,20 @@ void Character::TickVelocity() {
     else if(m_y >= 700-25) m_y -= 5; // if going below screen
     else if (m_y <= 25)m_y += 5; // if going above screen
 
+}
+
+void Character::Draw() {
+    SDL_FRect DrawRect = {float(m_x) - float(m_w/2),
+                          float(m_y) - float(m_h/2),
+                          float(m_w),
+                          float(m_h)};
+    SDL_SetRenderDrawColor(m_Renderer, rand()%255, rand()%255, rand()%255, 255);
+    SDL_RenderFillRectF(m_Renderer, &DrawRect);
+
+    double XLook = m_x + m_xlook * 100.0;
+    double YLook = m_y + m_ylook * 100.0;
+    SDL_SetRenderDrawColor(m_Renderer, rand()%255, rand()%255, rand()%255, 255);
+    SDL_RenderDrawLine(m_Renderer, int(m_x), int(m_y), int(XLook), int(YLook));
 }
 
 void Character::Tick() {
