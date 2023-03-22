@@ -28,6 +28,13 @@ void GameController::GetJoystick2(double& get_x, double& get_y) {
     get_y = m_Axis[3];
 }
 
+bool GameController::Vibrate(int low_frequency_rumble, int high_frequency_rumble, int duration_ms) {
+    SDL_GameControllerRumble(m_Device, low_frequency_rumble, high_frequency_rumble, duration_ms);
+}
+
+bool GameController::VibrateTriggers(int left_rumble, int right_rumble, int duration_ms) {
+    SDL_GameControllerRumbleTriggers(m_Device, left_rumble, right_rumble, duration_ms);
+}
 
 void GameController::Event(const SDL_Event& event) {
     switch (event.type) {

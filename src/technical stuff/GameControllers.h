@@ -23,6 +23,9 @@ public:
     void GetJoystick1(double& get_x, double& get_y);
     void GetJoystick2(double& get_x, double& get_y);
 
+    bool Vibrate(int low_frequency_rumble, int high_frequency_rumble, int duration_ms);
+    bool VibrateTriggers(int left_rumble, int right_rumble, int duration_ms);
+
     void Event(const SDL_Event& event);
 };
 

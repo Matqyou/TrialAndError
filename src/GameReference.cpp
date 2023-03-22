@@ -40,7 +40,7 @@ bool GameReference::Initialize() {
     }
 
     m_Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                m_Width, m_Height, 0);
+                                m_Width, m_Height, SDL_WINDOW_RESIZABLE);
     if (!m_Window) {
         std::printf("Error while creating the window %s\n", SDL_GetError());
         return false;

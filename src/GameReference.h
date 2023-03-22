@@ -18,8 +18,8 @@ private:
     Clock* m_Timer;
     TextManager* m_TextHandler;
 
-    const int m_Width = 900;
-    const int m_Height = 700;
+    const int m_Width = 960;
+    const int m_Height = 720;
 
 public:
     GameReference();
