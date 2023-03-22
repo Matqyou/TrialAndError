@@ -8,8 +8,8 @@ static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 static int sNumCharacters = 0;
 const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
 
-Character::Character(GameReference* gameWindow, double start_x, double start_y)
- : Entity(gameWindow, start_x, start_y, 50, 50) {
+Character::Character(GameWorld* world, double start_x, double start_y)
+ : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50) {
     sNumCharacters += 1;
     char Name[CHARACTER_MAX_NAME_LENGTH];
     std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", sNumCharacters);
@@ -129,8 +129,27 @@ void Character::TickVelocity() {
     else if (m_y <= 25)m_y += 5; // if going above screen
 }
 
+void Character::Event(const SDL_Event& currentEvent) {
+    if (!m_Controllable || m_GameController)
+        return;
+
+    if (currentEvent.type == SDL_KEYDOWN ||
+        currentEvent.type == SDL_KEYUP) {
+        bool State = currentEvent.type == SDL_KEYDOWN;
+        for (int i = 0; i < NUM_CONTROLS; i++) {
+            if (currentEvent.key.keysym.scancode == m_Controls[i])
+                m_Movement[i] = State;
+        }
+    }
+}
+
+void Character::Tick() {
+    TickControls();  // Do stuff depending on the current held buttons
+    TickVelocity();  // Move the chracter entity
+}
+
 void Character::Draw() {
-    SDL_Renderer* Renderer = m_GameWindow->Renderer();
+    SDL_Renderer* Renderer = m_World->GameWindow()->Renderer();
 
     SDL_FRect DrawRect = {float(m_x) - float(m_w/2),
                           float(m_y) - float(m_h/2),
@@ -143,23 +162,4 @@ void Character::Draw() {
     double YLook = m_y + m_ylook * 100.0;
     SDL_SetRenderDrawColor(Renderer, rand()%255, rand()%255, rand()%255, 255);
     SDL_RenderDrawLine(Renderer, int(m_x), int(m_y), int(XLook), int(YLook));
-}
-
-void Character::Tick() {
-    TickControls();  // Do stuff depending on the current held buttons
-    TickVelocity();  // Move the chracter entity
-}
-
-void Character::Event(const SDL_Event& CurrentEvent) {
-    if (!m_Controllable)
-        return;
-
-    if (CurrentEvent.type == SDL_KEYDOWN ||
-        CurrentEvent.type == SDL_KEYUP) {
-        bool State = CurrentEvent.type == SDL_KEYDOWN;
-        for (int i = 0; i < NUM_CONTROLS; i++) {
-            if (CurrentEvent.key.keysym.scancode == m_Controls[i])
-                m_Movement[i] = State;
-        }
-    }
 }

@@ -4,16 +4,28 @@
 
 #include "Entity.h"
 
-Entity::Entity(GameReference* gameWindow, double start_x, double start_y, double start_w, double start_h) {
-    m_GameWindow = gameWindow;
+Entity::Entity(GameWorld* world, GameWorld::EntityType entityType,
+               double start_x, double start_y, double start_w, double start_h) {
+    m_World = world;
+    m_EntityType = entityType;
     m_x = start_x;
     m_y = start_y;
     m_w = start_w;
     m_h = start_h;
+
+    m_World->AddEntity(this);
+}
+
+Entity::~Entity() {
+    m_World->RemoveEntity(this);
+}
+
+void Entity::Tick() {
+
 }
 
 void Entity::Draw() {
-    SDL_Renderer* Renderer = m_GameWindow->Renderer();
+    SDL_Renderer* Renderer = m_World->GameWindow()->Renderer();
 
     SDL_SetRenderDrawColor(Renderer, rand()%255, rand()%255, rand()%255, 255);
     SDL_FRect DrawRect = {float(m_x) - float(m_w/2),

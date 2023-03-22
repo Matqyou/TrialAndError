@@ -38,14 +38,14 @@ private:
     void TickVelocity();
 
 public:
-    Character(GameReference* gameWindow, double start_x, double start_y);
+    Character(GameWorld* world, double start_x, double start_y);
 
     void SetGameController(GameController* gameController);
     GameController* GetGameController() const { return m_GameController; }
 
-    void Draw(); // remove comment if want to draw character differently
+    void Event(const SDL_Event& currentEvent);
     void Tick();
-    void Event(const SDL_Event& CurrentEvent);
+    void Draw(); // remove comment if want to draw character differently
 };
 
 

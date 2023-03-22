@@ -5,11 +5,11 @@
 #ifndef TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMEREFERENCE_H_
 #define TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMEREFERENCE_H_
 
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include "Clock.h"
-#include "TextManager.h"
+#include "SDL.h"
+#include "SDL_image.h"
+#include "SDL_ttf.h"
+#include "technical stuff/Clock.h"
+#include "technical stuff/TextManager.h"
 
 class GameReference {
 private:

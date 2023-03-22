@@ -1,5 +1,6 @@
 #define SDL_MAIN_HANDLED
-#include "technical stuff/GameReference.h"
+#include "GameReference.h"
+#include "GameWorld.h"
 #include "technical stuff/GameControllers.h"
 #include "entities/Character.h"
 #include <vector>
@@ -7,14 +8,16 @@
 
 SDL_DisplayMode dm;
 GameReference* GameWindow;
+GameWorld* World;
 GameControllers* Controllers;
-std::vector<Character*> Players;
 SDL_Texture* TextTexture;
 
 bool Initialize() {
     GameWindow = new GameReference();
     if (!GameWindow->Initialize())
         return false;
+
+    World = new GameWorld(GameWindow, 1000, 1000);
 
     TextManager* TextHandler = GameWindow->TextHandler();
     SDL_Renderer* Renderer = GameWindow->Renderer();
@@ -25,7 +28,7 @@ bool Initialize() {
     SDL_FreeSurface(TempSurface);
 
     Controllers = new GameControllers();
-    Players.push_back(new Character(GameWindow, 100, 100));
+    new Character(World, 100, 100);
 
     return true;
 }
@@ -60,8 +63,7 @@ int main() {
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
             Controllers->Event(CurrentEvent);
-            for (Character* Player : Players)
-                Player->Event(CurrentEvent);
+            World->Event(CurrentEvent);
 
             switch (CurrentEvent.type) {
                 case SDL_QUIT: {
@@ -76,35 +78,37 @@ int main() {
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto* NewPlayer = new Character(GameWindow, 0, 0); // Add new player
-                    Players.push_back(NewPlayer);
+                    auto* NewPlayer = new Character(World, 0, 0); // Add new player
                     NewPlayer->SetGameController(CurrentController);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
                     GameController* DeletedController = Controllers->CloseController(InstanceID);
-                    for (auto Iterator = Players.begin(); Iterator != Players.end(); Iterator++) {
-                        Character* CurrentPlayer = *Iterator;
+                    Character* CorrespondingPlayer = nullptr;
+                    for (Entity* CurrentEntity : World->Entities()) {
+                        if (CurrentEntity->EntityType() != GameWorld::ENTTYPE_CHARACTER)
+                            continue;
+
+                        auto CurrentPlayer = (Character*)CurrentEntity;
                         if (CurrentPlayer->GetGameController() == DeletedController) {
-                            Players.erase(Iterator); // Remove old player
-                            delete CurrentPlayer;
+                            CorrespondingPlayer = CurrentPlayer;
                             break;
                         }
                     }
+
+                    delete CorrespondingPlayer;
                 } break;
             }
         }
 
         // Ticking
-        for (Character* Player : Players)
-            Player->Tick();
+        World->Tick();
 
         // Drawing
         SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
         SDL_RenderClear(Renderer);
 
-        for (Character* Player : Players)
-            Player->Draw();
+        World->Draw();
 
         SDL_Rect DestinationRect;
         DestinationRect.x = 400;
@@ -115,10 +119,9 @@ int main() {
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
-    for (Character* Player : Players)
-        delete Player;
     delete Controllers;
     SDL_DestroyTexture(TextTexture);
+    delete World;
     delete GameWindow;
     return 0;
 }
