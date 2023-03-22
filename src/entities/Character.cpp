@@ -6,6 +6,7 @@
 #include <iostream>
 #include "Bullets.h"
 #include <vector>
+
 std::vector<Bullets*> Bullet;
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 static int sNumCharacters = 0;

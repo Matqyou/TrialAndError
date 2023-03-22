@@ -5,22 +5,17 @@
 #ifndef TRIALANDERROR_BULLETS_H
 #define TRIALANDERROR_BULLETS_H
 
-#include <SDL.h>
-#include <string>
-#include <iostream>
 #include "Entity.h"
+#include <SDL.h>
 
 class Bullets : public Entity{
 private:
     double m_xvel, m_yvel;
+
 public:
-    Bullets(SDL_Renderer* Renderer, double start_x, double start_y);
+    Bullets(GameWorld* world, double start_x, double start_y);
     void TickBullets();
+
 };
-
-
-
-
-
 
 #endif //TRIALANDERROR_BULLETS_H
