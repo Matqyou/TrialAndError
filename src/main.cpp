@@ -3,6 +3,7 @@
 #include "GameWorld.h"
 #include "technical stuff/GameControllers.h"
 #include "entities/Character.h"
+#include "entities/Bullets.h"
 #include <vector>
 #include <iostream>
 
