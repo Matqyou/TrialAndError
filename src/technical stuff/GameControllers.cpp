@@ -31,6 +31,9 @@ void GameController::GetJoystick2(double& get_x, double& get_y) {
 
 void GameController::Event(const SDL_Event& event) {
     switch (event.type) {
+        case SDL_CONTROLLERBUTTONDOWN: {
+            SDL_GameControllerRumble(m_Device, 1000, 1000, 1000);
+        } break;
         case SDL_CONTROLLERAXISMOTION: {
             int AxisID = event.caxis.axis;
             double& CurrentAxis = m_Axis[AxisID];
