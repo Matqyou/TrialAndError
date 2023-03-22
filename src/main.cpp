@@ -1,58 +1,23 @@
 #define SDL_MAIN_HANDLED
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include "technical stuff/Clock.h"
-#include "technical stuff/TextManager.h"
+#include "technical stuff/GameReference.h"
 #include "technical stuff/GameControllers.h"
 #include "entities/Character.h"
 #include <vector>
 #include <iostream>
-SDL_DisplayMode dm;
-SDL_Window* Window;
-SDL_Renderer* Renderer;
-Clock* Timer;
-TextManager* TextHandler;
-GameControllers* Controllers;
-int width = 900;
-int height = 700;
 
+SDL_DisplayMode dm;
+GameReference* GameWindow;
+GameControllers* Controllers;
 std::vector<Character*> Players;
 SDL_Texture* TextTexture;
 
 bool Initialize() {
-    int Result = SDL_Init(SDL_INIT_EVERYTHING);
-    if (Result) {
-        std::printf("Error while initializing main %s\n", SDL_GetError());
+    GameWindow = new GameReference();
+    if (!GameWindow->Initialize())
         return false;
-    }
-    int ImageFlags = IMG_INIT_PNG | IMG_INIT_JPG;
-    int ResultImage = IMG_Init(ImageFlags);
-    if (ResultImage != ImageFlags) {
-        std::printf("Error while initializing Image %s\n", SDL_GetError());
-        return false;
-    }
-    int ResultTTF = TTF_Init();
-    if (ResultTTF) {
-        std::printf("Error while initializing TTF %s\n", SDL_GetError());
-        return false;
-    }
 
-    Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              width, height, 0);
-    if (!Window) {
-        std::printf("Error while creating the window %s\n", SDL_GetError());
-        return false;
-    }
-
-    Renderer = SDL_CreateRenderer(Window, -1, 0);
-    if (!Renderer) {
-        std::printf("Error while creating the renderer %s\n", SDL_GetError());
-        return false;
-    }
-
-    Timer = new Clock(60);
-    TextHandler = new TextManager();
+    TextManager* TextHandler = GameWindow->TextHandler();
+    SDL_Renderer* Renderer = GameWindow->Renderer();
 
     TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 24);
     SDL_Surface* TempSurface = TTF_RenderText_Solid(Font1, "Text", SDL_Color{ 255, 255, 255, 255 });
@@ -60,8 +25,7 @@ bool Initialize() {
     SDL_FreeSurface(TempSurface);
 
     Controllers = new GameControllers();
-
-    Players.push_back(new Character(Renderer, 100, 100));
+    Players.push_back(new Character(GameWindow, 100, 100));
 
     return true;
 }
@@ -86,8 +50,13 @@ int main() {
         exit(1);
     }
 
+    SDL_Window* Window = GameWindow->Window();
+    SDL_Renderer* Renderer = GameWindow->Renderer();
+    Clock* Timer = GameWindow->Timer();
+
     bool Running = true;
     while (Running) {
+        // Input and events
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
             Controllers->Event(CurrentEvent);
@@ -107,7 +76,7 @@ int main() {
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto* NewPlayer = new Character(Renderer, 0, 0); // Add new player
+                    auto* NewPlayer = new Character(GameWindow, 0, 0); // Add new player
                     Players.push_back(NewPlayer);
                     NewPlayer->SetGameController(CurrentController);
                 } break;
@@ -126,10 +95,11 @@ int main() {
             }
         }
 
+        // Ticking
         for (Character* Player : Players)
             Player->Tick();
 
-
+        // Drawing
         SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
         SDL_RenderClear(Renderer);
 
@@ -149,15 +119,6 @@ int main() {
         delete Player;
     delete Controllers;
     SDL_DestroyTexture(TextTexture);
-    delete TextHandler;
-    delete Timer;
-    SDL_DestroyRenderer(Renderer);
-    SDL_DestroyWindow(Window);
-    for (int i = 0; i < 3; i++) {
-        SDL_GameControllerClose(SDL_GameControllerFromInstanceID(i));
-    }
-    TTF_Quit();
-    IMG_Quit();
-    SDL_Quit();
+    delete GameWindow;
     return 0;
 }

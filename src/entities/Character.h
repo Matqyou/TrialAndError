@@ -28,6 +28,7 @@ private:
     static const int sDefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration = 0.5;
+    const double m_BaseDamping = 0.93;
     double m_xvel, m_yvel;  // velocity
     double m_xlook, m_ylook;  // direction
 
@@ -37,7 +38,7 @@ private:
     void TickVelocity();
 
 public:
-    Character(SDL_Renderer* Renderer, double start_x, double start_y);
+    Character(GameReference* gameWindow, double start_x, double start_y);
 
     void SetGameController(GameController* gameController);
     GameController* GetGameController() const { return m_GameController; }

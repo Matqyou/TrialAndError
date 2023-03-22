@@ -5,15 +5,15 @@
 #ifndef TRIALANDERROR_ENTITY_H
 #define TRIALANDERROR_ENTITY_H
 
-#include <SDL.h>
+#include "../technical stuff/GameReference.h"
 
 class Entity {
 protected:
-    SDL_Renderer* m_Renderer;
+    GameReference* m_GameWindow;
     double m_x, m_y, m_w, m_h;
 
 public:
-    Entity(SDL_Renderer* Renderer, double start_x, double start_y, double start_w, double start_h);
+    Entity(GameReference* gameWindow, double start_x, double start_y, double start_w, double start_h);
 
     virtual void Draw();
 };
