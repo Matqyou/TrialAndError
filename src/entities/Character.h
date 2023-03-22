@@ -25,12 +25,11 @@ private:
     int m_Controls[NUM_CONTROLS];
     bool m_Controllable;
 
-    static const int sControlsPlayer1[NUM_CONTROLS];
-    static const int sControlsPlayer2[NUM_CONTROLS];
-    static const int sControlsPlayer3[NUM_CONTROLS];
+    static const int sDefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration = 0.5;
     double m_xvel, m_yvel;  // velocity
+    double m_xlook, m_ylook;  // direction
 
     void TickKeyboardControls();
     void TickGameControllerControls();
@@ -41,8 +40,9 @@ public:
     Character(SDL_Renderer* Renderer, double start_x, double start_y);
 
     void SetGameController(GameController* gameController);
+    GameController* GetGameController() const { return m_GameController; }
 
-    // void Draw(); // remove comment if want to draw character differently
+    void Draw(); // remove comment if want to draw character differently
     void Tick();
     void Event(const SDL_Event& CurrentEvent);
 };

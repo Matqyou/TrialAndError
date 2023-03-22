@@ -6,9 +6,7 @@
 #include <iostream>
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 static int sNumCharacters = 0;
-const int Character::sControlsPlayer1[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
-const int Character::sControlsPlayer2[NUM_CONTROLS] = {SDL_SCANCODE_UP, SDL_SCANCODE_RIGHT, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT };
-const int Character::sControlsPlayer3[NUM_CONTROLS] = {SDL_SCANCODE_I, SDL_SCANCODE_L, SDL_SCANCODE_K, SDL_SCANCODE_J };
+const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
 
 Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
  : Entity(Renderer, start_x, start_y, 50, 50) {
@@ -21,27 +19,14 @@ Character::Character(SDL_Renderer* Renderer, double start_x, double start_y)
     for (bool& State : m_Movement)
         State = false;
 
-    const int* paControls;
-    switch (sNumCharacters) {
-        default: {
-            paControls = nullptr;
-        } break;
-        case 1: {
-            paControls = sControlsPlayer1;
-        } break;
-        case 2: {
-            paControls = sControlsPlayer2;
-        } break;
-        case 3: {
-            paControls = sControlsPlayer3;
-        } break;
-    }
-    if (paControls) { memcpy(m_Controls, paControls, sizeof(m_Controls)); }  // Controls are copied
+    if (sNumCharacters == 1) { memcpy(m_Controls, sDefaultControls, sizeof(m_Controls)); }  // Controls are copied
     else { memset(m_Controls, 0, sizeof(m_Controls)); }  // All controls are set to 0
-    m_Controllable = bool(paControls);
+    m_Controllable = true;
 
     m_xvel = 0.0;
     m_yvel = 0.0;
+    m_xlook = 1.0;
+    m_ylook = 0.0;
 }
 
 void Character::SetGameController(GameController* gameController) {
@@ -70,6 +55,22 @@ void Character::TickKeyboardControls() {
         if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
     }
     else m_xvel = 0;
+
+    // Update look direction
+    int XMouse, YMouse;
+    SDL_GetMouseState(&XMouse, &YMouse);
+
+    m_xlook = XMouse - m_x;
+    m_ylook = YMouse - m_y;
+    double Distance = std::sqrt(std::pow(m_xlook, 2) + std::pow(m_ylook, 2));
+
+    if (Distance != 0.0) {
+        m_xlook /= Distance;
+        m_ylook /= Distance;
+    } else {
+        m_xlook = 1.0;
+        m_ylook = 0.0;
+    }
 }
 
 void Character::TickGameControllerControls() {
@@ -79,17 +80,31 @@ void Character::TickGameControllerControls() {
 
     // AxisX**2 + AxisY**2 <= 1 (keep direction length of 1)
     double Length = std::sqrt(std::pow(AxisX, 2) + std::pow(AxisY, 2));
-    if (Length <= 0.1) // Fix controller drifting
-        return;
+    if (Length > 0.1) {  // Fix controller drifting
+        if (Length > 0.0) {
+            AxisX /= Length;
+            AxisY /= Length;
+        }
 
-    if (Length > 0.0) {
-        AxisX /= Length;
-        AxisY /= Length;
+        // Accelerate in that direction
+        m_xvel += m_BaseAcceleration * AxisX;
+        m_yvel += m_BaseAcceleration * AxisY;
     }
 
-    // Accelerate in that direction
-    m_xvel += m_BaseAcceleration * AxisX;
-    m_yvel += m_BaseAcceleration * AxisY;
+    // Update look direction
+    double AxisX2, AxisY2;
+    m_GameController->GetJoystick2(AxisX2, AxisY2);
+
+    Length = std::sqrt(std::pow(AxisX2, 2) + std::pow(AxisY2, 2));
+    if (Length > 0.6) {  // Fix controller drifting
+        if (Length != 0.0) {
+            m_xlook = AxisX2 / Length;
+            m_ylook = AxisY2 / Length;
+        } else {
+            m_xlook = 1.0;
+            m_ylook = 0.0;
+        }
+    }
 }
 
 void Character::TickControls() {
@@ -110,6 +125,20 @@ void Character::TickVelocity() {
     else if(m_y >= 700-25) m_y -= 5; // if going below screen
     else if (m_y <= 25)m_y += 5; // if going above screen
 
+}
+
+void Character::Draw() {
+    SDL_FRect DrawRect = {float(m_x) - float(m_w/2),
+                          float(m_y) - float(m_h/2),
+                          float(m_w),
+                          float(m_h)};
+    SDL_SetRenderDrawColor(m_Renderer, rand()%255, rand()%255, rand()%255, 255);
+    SDL_RenderFillRectF(m_Renderer, &DrawRect);
+
+    double XLook = m_x + m_xlook * 100.0;
+    double YLook = m_y + m_ylook * 100.0;
+    SDL_SetRenderDrawColor(m_Renderer, rand()%255, rand()%255, rand()%255, 255);
+    SDL_RenderDrawLine(m_Renderer, int(m_x), int(m_y), int(XLook), int(YLook));
 }
 
 void Character::Tick() {

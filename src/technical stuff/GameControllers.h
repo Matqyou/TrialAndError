@@ -35,7 +35,7 @@ public:
     ~GameControllers();
 
     GameController* OpenController(int device_id);
-    void CloseController(int instance_id);
+    GameController* CloseController(int instance_id);
 
     void Event(const SDL_Event& event);
 };
