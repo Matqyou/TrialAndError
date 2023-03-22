@@ -41,6 +41,7 @@ public:
     Character(SDL_Renderer* Renderer, double start_x, double start_y);
 
     void SetGameController(GameController* gameController);
+    GameController* GetGameController() const { return m_GameController; }
 
     // void Draw(); // remove comment if want to draw character differently
     void Tick();

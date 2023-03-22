@@ -62,8 +62,6 @@ bool Initialize() {
     Controllers = new GameControllers();
 
     Players.push_back(new Character(Renderer, 100, 100));
-    Players.push_back(new Character(Renderer, 200, 100));
-    Players.push_back(new Character(Renderer, 300, 100));
 
     return true;
 }
@@ -109,11 +107,21 @@ int main() {
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    Players[0]->SetGameController(CurrentController);
+                    auto* NewPlayer = new Character(Renderer, 0, 0); // Add new player
+                    Players.push_back(NewPlayer);
+                    NewPlayer->SetGameController(CurrentController);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
-                    Controllers->CloseController(InstanceID);
+                    GameController* DeletedController = Controllers->CloseController(InstanceID);
+                    for (auto Iterator = Players.begin(); Iterator != Players.end(); Iterator++) {
+                        Character* CurrentPlayer = *Iterator;
+                        if (CurrentPlayer->GetGameController() == DeletedController) {
+                            Players.erase(Iterator); // Remove old player
+                            delete CurrentPlayer;
+                            break;
+                        }
+                    }
                 } break;
             }
         }

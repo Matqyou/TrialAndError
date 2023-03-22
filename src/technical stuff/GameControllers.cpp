@@ -54,7 +54,7 @@ GameController *GameControllers::OpenController(int device_id) {
     return NewController;
 }
 
-void GameControllers::CloseController(int instance_id) {
+GameController* GameControllers::CloseController(int instance_id) {
     for (auto Iterator = m_Controllers.begin(); Iterator != m_Controllers.end(); Iterator++) {
         GameController* Controller = *Iterator;
         if (Controller->InstanceID() != instance_id)
@@ -62,8 +62,10 @@ void GameControllers::CloseController(int instance_id) {
 
         m_Controllers.erase(Iterator);
         delete Controller;
-        break;
+        return Controller;
     }
+
+    return nullptr;
 }
 
 void GameControllers::Event(const SDL_Event& event) {
