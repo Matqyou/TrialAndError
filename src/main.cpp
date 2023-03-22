@@ -73,8 +73,8 @@ int main() {
                 case SDL_KEYDOWN: {
                     if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
                         Running = false;
-                    else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
-                        SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
+                    // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
+                    //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
