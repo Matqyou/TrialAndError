@@ -12,6 +12,7 @@ protected:
     friend class GameWorld;
     GameWorld* m_World;
     double m_x, m_y, m_w, m_h;
+    double m_ExistsSince;
 
     GameWorld::EntityType m_EntityType; // .._. .. _.._   ._.. ._ _ . ._.
 

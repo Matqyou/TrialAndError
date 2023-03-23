@@ -6,6 +6,7 @@
 #include <iostream>
 #include "Entity.h"
 #include "../technical stuff/GameControllers.h"
+#include "../technical stuff/Colors.h"
 
 class Character : public Entity {
 public:
@@ -23,6 +24,7 @@ private:
     int m_PlayerIndex;
     std::string m_Name;
     SDL_Texture* m_Nameplate;
+    double m_ColorHue;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS];
     int m_Controls[NUM_CONTROLS];

@@ -12,6 +12,7 @@ Entity::Entity(GameWorld* world, GameWorld::EntityType entityType,
     m_y = start_y;
     m_w = start_w;
     m_h = start_h;
+    m_ExistsSince = m_World->GameWindow()->Timer()->GetTotalTimeElapsed();
 
     m_World->AddEntity(this);
 }

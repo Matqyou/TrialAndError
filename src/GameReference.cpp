@@ -9,6 +9,8 @@ GameReference::GameReference() {
     m_Renderer = nullptr;
     m_Timer = nullptr;
     m_TextHandler = nullptr;
+    m_Width = 0;
+    m_Height = 0;
 }
 
 GameReference::~GameReference() {
@@ -39,6 +41,8 @@ bool GameReference::Initialize() {
         return false;
     }
 
+    m_Width = 960;
+    m_Height = 720;
     m_Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                 m_Width, m_Height, SDL_WINDOW_RESIZABLE);
     if (!m_Window) {
@@ -55,4 +59,13 @@ bool GameReference::Initialize() {
     m_Timer = new Clock(60);
     m_TextHandler = new TextManager(m_Renderer);
     return true;
+}
+#include <iostream>
+void GameReference::Event(const SDL_Event& currentEvent) {
+    if (currentEvent.type != SDL_WINDOWEVENT ||
+        currentEvent.window.event != SDL_WINDOWEVENT_SIZE_CHANGED)
+        return;
+
+    m_Width = currentEvent.window.data1;
+    m_Height = currentEvent.window.data2;
 }

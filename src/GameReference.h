@@ -18,8 +18,7 @@ private:
     Clock* m_Timer;
     TextManager* m_TextHandler;
 
-    const int m_Width = 960;
-    const int m_Height = 720;
+    int m_Width, m_Height;
 
 public:
     GameReference();
@@ -33,6 +32,8 @@ public:
     int Height() const { return m_Height; }
 
     bool Initialize();
+
+    void Event(const SDL_Event& currentEvent);
 };
 
 #endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMEREFERENCE_H_

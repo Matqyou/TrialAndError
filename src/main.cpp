@@ -14,6 +14,7 @@ GameControllers* Controllers;
 SDL_Texture* TextTexture;
 
 bool Initialize() {
+    srand(time(nullptr));
     GameWindow = new GameReference();
     if (!GameWindow->Initialize())
         return false;
@@ -24,9 +25,7 @@ bool Initialize() {
     SDL_Renderer* Renderer = GameWindow->Renderer();
 
     TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
-    SDL_Surface* TempSurface = TTF_RenderText_Solid(Font1, "Text", SDL_Color{ 255, 255, 255, 255 });
-    TextTexture = SDL_CreateTextureFromSurface(Renderer, TempSurface);
-    SDL_FreeSurface(TempSurface);
+    TextTexture = TextHandler->Render(Font1, "get out or -.. .. .", { 255, 255, 255 });
 
     Controllers = new GameControllers();
     new Character(World, 100, 100);
@@ -63,8 +62,9 @@ int main() {
         // Input and events
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
-            Controllers->Event(CurrentEvent);
+            GameWindow->Event(CurrentEvent);
             World->Event(CurrentEvent);
+            Controllers->Event(CurrentEvent);
 
             switch (CurrentEvent.type) {
                 case SDL_QUIT: {
@@ -112,16 +112,15 @@ int main() {
         World->Draw();
 
         SDL_Rect DestinationRect;
-        DestinationRect.x = 400;
-        DestinationRect.y = 400;
         SDL_QueryTexture(TextTexture, nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
+        DestinationRect.x = 0;
+        DestinationRect.y = GameWindow->Height() - DestinationRect.h;
         SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
 
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
     delete Controllers;
-    SDL_DestroyTexture(TextTexture);
     delete World;
     delete GameWindow;
     return 0;
