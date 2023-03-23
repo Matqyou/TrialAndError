@@ -111,12 +111,12 @@ int main() {
                         if (x >= startButtonRect.x && x < startButtonRect.x + startButtonRect.w &&
                             y >= startButtonRect.y && y < startButtonRect.y + startButtonRect.h)
                         {
-                            std::cout << "Hy" << std::endl;
+                            std::cout << "Main" << std::endl;
                         }
                         else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
                                  y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
                         {
-                            std::cout << "Yh" << std::endl;
+                            std::cout << "Settings" << std::endl;
                         }
                     }
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
@@ -152,7 +152,7 @@ int main() {
         World->Tick();
 
         // Drawing
-        SDL_SetRenderDrawColor(Renderer, 100, 100, 100, 255);
+        SDL_SetRenderDrawColor(Renderer, 60, 100, 150, 255);
         SDL_RenderClear(Renderer);
 
         World->Draw();
@@ -163,19 +163,19 @@ int main() {
         DestinationRect.y = GameWindow->Height() - DestinationRect.h;
         SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
 
-        SDL_Rect connected = { 600, 300, 160, 90 };
-        SDL_Rect disconnected = { 300, 300, 160, 90 };
-        SDL_Rect Icon = { 50, 400, 600, 309 };
+        SDL_Rect connected = { 120, 375, 80, 44 };
+        SDL_Rect disconnected = { 200, 375, 80, 44 };
+        SDL_Rect Icon = { 100, 400, 200, 109 };
 
         SDL_RenderCopy(Renderer, texture_connected, NULL, &connected);
         SDL_RenderCopy(Renderer, texture_disconnected, NULL, &disconnected);
         SDL_RenderCopy(Renderer, texture_Icon, NULL, &Icon);
 
         // start
-        SDL_SetRenderDrawColor(Renderer, rand(), rand(), rand(), 255);
+        SDL_SetRenderDrawColor(Renderer, 90, 20, 20, 255);
         SDL_RenderFillRect(Renderer, &startButtonRect);
         // setting
-        SDL_SetRenderDrawColor(Renderer, rand(), rand(), rand(), 255);
+        SDL_SetRenderDrawColor(Renderer, 0, 80, 40, 255);
         SDL_RenderFillRect(Renderer, &settingsButtonRect);
 
         SDL_RenderPresent(Renderer);
