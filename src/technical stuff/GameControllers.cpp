@@ -49,6 +49,8 @@ void GameController::Event(const SDL_Event& event) {
         case SDL_CONTROLLERBUTTONDOWN: {
             bool Pressed = event.type == SDL_CONTROLLERBUTTONDOWN;
             m_Buttons[event.cbutton.button] = Pressed;
+            std::cout << int(event.cbutton.button) << "\n";
+
         } break;
         case SDL_CONTROLLERAXISMOTION: {
             int AxisID = event.caxis.axis;
