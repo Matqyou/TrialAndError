@@ -20,6 +20,7 @@ bool Initialize() {
         return false;
 
     World = new GameWorld(GameWindow, 1000, 1000);
+    World->SetPaused(true);
 
     TextManager* TextHandler = GameWindow->TextHandler();
     SDL_Renderer* Renderer = GameWindow->Renderer();
@@ -104,21 +105,6 @@ int main() {
                 case SDL_KEYDOWN: {
                     if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
                         Running = false;
-                    if (CurrentEvent.button.button == SDL_BUTTON_LEFT)
-                    {
-                        int x = CurrentEvent.button.x;
-                        int y = CurrentEvent.button.y;
-                        if (x >= startButtonRect.x && x < startButtonRect.x + startButtonRect.w &&
-                            y >= startButtonRect.y && y < startButtonRect.y + startButtonRect.h)
-                        {
-                            std::cout << "Main" << std::endl;
-                        }
-                        else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
-                                 y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
-                        {
-                            std::cout << "Settings" << std::endl;
-                        }
-                    }
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                     //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
@@ -144,6 +130,24 @@ int main() {
                     }
 
                     delete CorrespondingPlayer;
+                } break;
+                case SDL_MOUSEBUTTONDOWN: {
+                    if (CurrentEvent.button.button == SDL_BUTTON_LEFT)
+                    {
+                        int x = CurrentEvent.button.x;
+                        int y = CurrentEvent.button.y;
+                        if (x >= startButtonRect.x && x < startButtonRect.x + startButtonRect.w &&
+                            y >= startButtonRect.y && y < startButtonRect.y + startButtonRect.h)
+                        {
+                            std::cout << "Main" << std::endl;
+                            World->SetPaused(false);
+                        }
+                        else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
+                            y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
+                        {
+                            std::cout << "Settings" << std::endl;
+                        }
+                    }
                 } break;
             }
         }
@@ -171,12 +175,14 @@ int main() {
         SDL_RenderCopy(Renderer, texture_disconnected, NULL, &disconnected);
         SDL_RenderCopy(Renderer, texture_Icon, NULL, &Icon);
 
-        // start
-        SDL_SetRenderDrawColor(Renderer, 90, 20, 20, 255);
-        SDL_RenderFillRect(Renderer, &startButtonRect);
-        // setting
-        SDL_SetRenderDrawColor(Renderer, 0, 80, 40, 255);
-        SDL_RenderFillRect(Renderer, &settingsButtonRect);
+        if (World->Paused()) {
+            // start
+            SDL_SetRenderDrawColor(Renderer, 90, 20, 20, 255);
+            SDL_RenderFillRect(Renderer, &startButtonRect);
+            // setting
+            SDL_SetRenderDrawColor(Renderer, 0, 80, 40, 255);
+            SDL_RenderFillRect(Renderer, &settingsButtonRect);
+        }
 
         SDL_RenderPresent(Renderer);
         Timer->Tick();

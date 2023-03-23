@@ -10,6 +10,7 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_GameWindow = gameWindow;
     m_Width = width;
     m_Height = height;
+    m_Paused = false;
 }
 
 GameWorld::~GameWorld() {
@@ -52,6 +53,10 @@ void GameWorld::ShowNames() {
     m_ShowNames = true;
 }
 
+void GameWorld::SetPaused(bool state) {
+    m_Paused = state;
+}
+
 void GameWorld::Event(const SDL_Event& currentEvent) {
     for (Entity* CurrentEntity : m_Entities) {
         if (CurrentEntity->EntityType() != ENTTYPE_CHARACTER)
@@ -63,6 +68,9 @@ void GameWorld::Event(const SDL_Event& currentEvent) {
 }
 
 void GameWorld::Tick() {
+    if (m_Paused)
+        return;
+
     for (Entity* CurrentEntity : m_Entities)
         CurrentEntity->Tick();
 }

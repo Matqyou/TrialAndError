@@ -15,6 +15,7 @@ private:
 
     std::vector<Entity*> m_Entities;
     bool m_ShowNames;
+    bool m_Paused;
 
 public:
     enum EntityType {
@@ -31,11 +32,13 @@ public:
     double Width() const { return m_Width; }
     double Height() const { return m_Height; }
     bool NamesShown() const { return m_ShowNames; }
+    bool Paused() const { return m_Paused; }
     int NextPlayerIndex();
 
     void AddEntity(Entity* entity);
     void RemoveEntity(Entity* entity);
     void ShowNames();
+    void SetPaused(bool state);
 
     void Event(const SDL_Event& currentEvent);
     void Tick();
