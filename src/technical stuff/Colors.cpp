@@ -16,10 +16,10 @@ T Clamp(T value, T minimum, T maximum) {
     return value;
 }
 
-ColorRGB HSVtoRGB(const ColorHSL& color_hsl){
+SDL_Color HSLtoRGB(const ColorHSL& color_hsl) {
     double Hue = std::fmod(color_hsl.h, 360.0);
-    double Saturation = Clamp(color_hsl.s, 0.0, 100.0);
-    double Light = Clamp(color_hsl.l, 0.0, 100.0);
+    double Saturation = Clamp(color_hsl.s, 0.0, 1.0);
+    double Light = Clamp(color_hsl.l, 0.0, 1.0);
 
     double C = Saturation * Light;
     double X = C * (1-std::abs(std::fmod(Hue/60.0, 2)-1));
@@ -33,5 +33,5 @@ ColorRGB HSVtoRGB(const ColorHSL& color_hsl){
     else if(Hue >= 240 && Hue < 300) { r = X, g = 0, b = C; }
     else { r = C, g = 0, b = X; }
 
-    return {(int)((r+m)*255), (int)((g+m)*255), (int)((b+m)*255)};
+    return {(Uint8)((r+m)*255), (Uint8)((g+m)*255), (Uint8)((b+m)*255)};
 }

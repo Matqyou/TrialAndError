@@ -18,6 +18,8 @@ Character::Character(GameWorld* world, double start_x, double start_y)
     std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
     m_Name = Name;
 
+    m_ColorHue = double(rand()%360);
+
     TextManager* TextHandler = world->GameWindow()->TextHandler();
     TTF_Font* Font = TextHandler->FirstFont();
     m_Nameplate = TextHandler->Render(Font, Name, { 255, 255, 255 });
@@ -176,18 +178,23 @@ void Character::Tick() {
 }
 
 void Character::Draw() {
+    Clock* Timer = m_World->GameWindow()->Timer();
     SDL_Renderer* Renderer = m_World->GameWindow()->Renderer();
+
+    double Light = 0.5 + (std::sin(Timer->GetTotalTimeElapsed() - m_ExistsSince) + 1.0) / 4;
+    SDL_Color Color = HSLtoRGB({ m_ColorHue, 1.0, Light });
 
     SDL_FRect DrawRect = {float(m_x) - float(m_w/2),
                           float(m_y) - float(m_h/2),
                           float(m_w),
                           float(m_h)};
-    SDL_SetRenderDrawColor(Renderer, rand()%255, rand()%255, rand()%255, 255);
+    SDL_SetRenderDrawColor(Renderer, Color.r, Color.g, Color.b, 255);
     SDL_RenderFillRectF(Renderer, &DrawRect);
 
-    double XLook = m_x + m_xlook * 100.0;
-    double YLook = m_y + m_ylook * 100.0;
-    SDL_SetRenderDrawColor(Renderer, rand()%255, rand()%255, rand()%255, 255);
+    double XLook = m_x + m_xlook * 50.0;
+    double YLook = m_y + m_ylook * 50.0;
+    Color = HSLtoRGB({ m_ColorHue, 1.0 - Light, 1.0 });
+    SDL_SetRenderDrawColor(Renderer, Color.r, Color.g, Color.b, 255);
     SDL_RenderDrawLine(Renderer, int(m_x), int(m_y), int(XLook), int(YLook));
 
     if (!m_World->NamesShown())
@@ -195,6 +202,6 @@ void Character::Draw() {
 
     int w, h;
     SDL_QueryTexture(m_Nameplate, nullptr, nullptr, &w, &h);
-    SDL_Rect NameplateRect = { int(m_x - w / 2), int(m_y - m_h / 2 - h), w, h };
+    SDL_Rect NameplateRect = { int(m_x - w / 2.0), int(m_y - m_h / 2.0 - h), w, h };
     SDL_RenderCopy(Renderer, m_Nameplate, nullptr, &NameplateRect);
 }

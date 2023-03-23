@@ -12,6 +12,9 @@ GameController::GameController(int device_id) {
 
     for (auto& Axis : m_Axis)
         Axis = 0;
+
+    for (bool& Button : m_Buttons)
+        Button = false;
 }
 
 GameController::~GameController() {
