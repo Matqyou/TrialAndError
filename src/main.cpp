@@ -29,7 +29,6 @@ bool Initialize() {
 
     Controllers = new GameControllers();
     new Character(World, 100, 100);
-
     return true;
 }
 
@@ -121,7 +120,7 @@ int main() {
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto* NewPlayer = new Character(World, 0, 0); // Add new player
+                    auto* NewPlayer = new Character(World, 100, 100); // Add new player
                     NewPlayer->SetGameController(CurrentController);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {

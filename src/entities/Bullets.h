@@ -9,9 +9,6 @@
 #include <SDL.h>
 
 class Bullets : public Entity{
-private:
-    double m_xvel, m_yvel;
-
 public:
     Bullets(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
     void Tick();
