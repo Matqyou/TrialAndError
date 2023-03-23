@@ -17,6 +17,22 @@ GameWorld::~GameWorld() {
         delete CurrentEntity;
 }
 
+int GameWorld::NextPlayerIndex() {
+    int CurrentIndex = 1;
+    while (true) {
+        for (Entity *CurrentEntity : m_Entities) {
+            if (CurrentEntity->EntityType() != ENTTYPE_CHARACTER)
+                continue;
+
+            auto CurrentPlayer = (Character *)CurrentEntity;
+            if (CurrentIndex != CurrentPlayer->PlayerIndex())
+                return CurrentIndex;
+
+            CurrentIndex++;
+        }
+    }
+}
+
 void GameWorld::AddEntity(Entity* entity) {
     m_Entities.push_back(entity);
 }
@@ -30,6 +46,10 @@ void GameWorld::RemoveEntity(Entity* entity) {
         m_Entities.erase(Iterator);
         break;
     }
+}
+
+void GameWorld::ShowNames() {
+    m_ShowNames = true;
 }
 
 void GameWorld::Event(const SDL_Event& currentEvent) {
@@ -56,4 +76,6 @@ void GameWorld::Draw() {
 
     for (Entity* CurrentEntity : m_Entities)
         CurrentEntity->Draw();
+
+    m_ShowNames = false;
 }

@@ -23,7 +23,7 @@ bool Initialize() {
     TextManager* TextHandler = GameWindow->TextHandler();
     SDL_Renderer* Renderer = GameWindow->Renderer();
 
-    TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 24);
+    TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
     SDL_Surface* TempSurface = TTF_RenderText_Solid(Font1, "Text", SDL_Color{ 255, 255, 255, 255 });
     TextTexture = SDL_CreateTextureFromSurface(Renderer, TempSurface);
     SDL_FreeSurface(TempSurface);

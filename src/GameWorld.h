@@ -14,6 +14,7 @@ private:
     double m_Width, m_Height;  // maybe better if it was int
 
     std::vector<Entity*> m_Entities;
+    bool m_ShowNames;
 
 public:
     enum EntityType {
@@ -29,9 +30,12 @@ public:
     std::vector<Entity*> Entities() const { return m_Entities; }
     double Width() const { return m_Width; }
     double Height() const { return m_Height; }
+    bool NamesShown() const { return m_ShowNames; }
+    int NextPlayerIndex();
 
     void AddEntity(Entity* entity);
     void RemoveEntity(Entity* entity);
+    void ShowNames();
 
     void Event(const SDL_Event& currentEvent);
     void Tick();

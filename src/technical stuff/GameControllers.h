@@ -14,6 +14,7 @@ private:
     int m_InstanceID;
 
     double m_Axis[4];
+    bool m_Buttons[SDL_CONTROLLER_BUTTON_MAX];
 
 public:
     GameController(int device_id);
@@ -22,6 +23,7 @@ public:
     int InstanceID() const { return m_InstanceID; }
     void GetJoystick1(double& get_x, double& get_y);
     void GetJoystick2(double& get_x, double& get_y);
+    bool GetButton(int button);
 
     bool Vibrate(int low_frequency_rumble, int high_frequency_rumble, int duration_ms);
     bool VibrateTriggers(int left_rumble, int right_rumble, int duration_ms);
