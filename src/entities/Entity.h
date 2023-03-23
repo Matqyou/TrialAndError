@@ -11,10 +11,12 @@ class Entity {
 protected:
     friend class GameWorld;
     GameWorld* m_World;
+    Entity* m_PrevEntity, *m_NextEntity;
     double m_x, m_y, m_w, m_h;
     double m_BaseDamping;
     double m_xvel, m_yvel;
     double m_ExistsSince;
+    bool m_Destroy;
 
     GameWorld::EntityType m_EntityType; // .._. .. _.._   ._.. ._ _ . ._.
     void TickVelocity();

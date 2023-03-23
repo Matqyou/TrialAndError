@@ -60,7 +60,7 @@ bool GameReference::Initialize() {
     m_TextHandler = new TextManager(m_Renderer);
     return true;
 }
-#include <iostream>
+
 void GameReference::Event(const SDL_Event& currentEvent) {
     if (currentEvent.type != SDL_WINDOWEVENT ||
         currentEvent.window.event != SDL_WINDOWEVENT_SIZE_CHANGED)
