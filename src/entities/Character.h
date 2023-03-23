@@ -14,13 +14,15 @@ public:
         CONTROL_RIGHT,
         CONTROL_DOWN,
         CONTROL_LEFT,
-        CONTROL_WEAPON,
+        CONTROL_SHOWNAMES,
         NUM_CONTROLS,
         CHARACTER_MAX_NAME_LENGTH = 32
     };
 
 private:
+    int m_PlayerIndex;
     std::string m_Name;
+    SDL_Texture* m_Nameplate;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS];
     int m_Controls[NUM_CONTROLS];
@@ -40,13 +42,15 @@ private:
 
 public:
     Character(GameWorld* world, double start_x, double start_y);
+    ~Character();
 
     void SetGameController(GameController* gameController);
     GameController* GetGameController() const { return m_GameController; }
+    int PlayerIndex() const { return m_PlayerIndex; }
 
     void Event(const SDL_Event& currentEvent);
-    void Tick();
-    void Draw(); // remove comment if want to draw character differently
+    void Tick() override;
+    void Draw() override; // remove comment if want to draw character differently
 };
 
 

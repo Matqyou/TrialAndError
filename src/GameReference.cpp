@@ -53,6 +53,6 @@ bool GameReference::Initialize() {
     }
 
     m_Timer = new Clock(60);
-    m_TextHandler = new TextManager();
+    m_TextHandler = new TextManager(m_Renderer);
     return true;
 }

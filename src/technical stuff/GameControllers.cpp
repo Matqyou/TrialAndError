@@ -28,16 +28,25 @@ void GameController::GetJoystick2(double& get_x, double& get_y) {
     get_y = m_Axis[3];
 }
 
+bool GameController::GetButton(int button) {
+    return m_Buttons[button];
+}
+
 bool GameController::Vibrate(int low_frequency_rumble, int high_frequency_rumble, int duration_ms) {
-    SDL_GameControllerRumble(m_Device, low_frequency_rumble, high_frequency_rumble, duration_ms);
+    return SDL_GameControllerRumble(m_Device, low_frequency_rumble, high_frequency_rumble, duration_ms);
 }
 
 bool GameController::VibrateTriggers(int left_rumble, int right_rumble, int duration_ms) {
-    SDL_GameControllerRumbleTriggers(m_Device, left_rumble, right_rumble, duration_ms);
+    return SDL_GameControllerRumbleTriggers(m_Device, left_rumble, right_rumble, duration_ms);
 }
 
 void GameController::Event(const SDL_Event& event) {
     switch (event.type) {
+        case SDL_CONTROLLERBUTTONUP:
+        case SDL_CONTROLLERBUTTONDOWN: {
+            bool Pressed = event.type == SDL_CONTROLLERBUTTONDOWN;
+            m_Buttons[event.cbutton.button] = Pressed;
+        } break;
         case SDL_CONTROLLERAXISMOTION: {
             int AxisID = event.caxis.axis;
             double& CurrentAxis = m_Axis[AxisID];
