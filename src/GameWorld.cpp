@@ -13,7 +13,8 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
 }
 
 GameWorld::~GameWorld() {
-    for (Entity* CurrentEntity : m_Entities)
+    auto CopyEntities = m_Entities;
+    for (Entity* CurrentEntity : CopyEntities)
         delete CurrentEntity;
 }
 
@@ -24,7 +25,7 @@ int GameWorld::NextPlayerIndex() {
             if (CurrentEntity->EntityType() != ENTTYPE_CHARACTER)
                 continue;
 
-            auto CurrentPlayer = (Character *)CurrentEntity;
+            auto CurrentPlayer = (Character*)CurrentEntity;
             if (CurrentIndex != CurrentPlayer->PlayerIndex())
                 return CurrentIndex;
 

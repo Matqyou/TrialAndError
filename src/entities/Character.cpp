@@ -13,21 +13,14 @@ const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANC
 
 Character::Character(GameWorld* world, double start_x, double start_y)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50) {
-    m_PlayerIndex = world->NextPlayerIndex();
-    char Name[CHARACTER_MAX_NAME_LENGTH];
-    std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
-    m_Name = Name;
-
+    m_PlayerIndex = 0; // Must be initialized before assigning a new one
     m_ColorHue = double(rand()%360);
-
-    TextManager* TextHandler = world->GameWindow()->TextHandler();
-    TTF_Font* Font = TextHandler->FirstFont();
-    m_Nameplate = TextHandler->Render(Font, Name, { 255, 255, 255 });
 
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
 
+    m_PlayerIndex = world->NextPlayerIndex();
     if (m_PlayerIndex == 1) { memcpy(m_Controls, sDefaultControls, sizeof(m_Controls)); }  // Controls are copied
     else { memset(m_Controls, 0, sizeof(m_Controls)); }  // All controls are set to 0
     m_Controllable = true;
@@ -36,6 +29,13 @@ Character::Character(GameWorld* world, double start_x, double start_y)
     m_yvel = 0.0;
     m_xlook = 1.0;
     m_ylook = 0.0;
+
+    char Name[CHARACTER_MAX_NAME_LENGTH];
+    std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
+    m_Name = Name;
+    TextManager* TextHandler = world->GameWindow()->TextHandler();
+    TTF_Font* Font = TextHandler->FirstFont();
+    m_Nameplate = TextHandler->Render(Font, Name, { 255, 255, 255 });
 }
 
 Character::~Character() {
