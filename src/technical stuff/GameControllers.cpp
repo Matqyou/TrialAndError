@@ -3,7 +3,6 @@
 //
 
 #include "GameControllers.h"
-#include <iostream>
 
 GameController::GameController(int device_id) {
     m_Device = SDL_GameControllerOpen(device_id);
@@ -22,13 +21,13 @@ GameController::~GameController() {
 }
 
 void GameController::GetJoystick1(double& get_x, double& get_y) {
-    get_x = m_Axis[0];
-    get_y = m_Axis[1];
+    get_x = m_Axis[SDL_CONTROLLER_AXIS_LEFTX];
+    get_y = m_Axis[SDL_CONTROLLER_AXIS_LEFTY];
 }
 
 void GameController::GetJoystick2(double& get_x, double& get_y) {
-    get_x = m_Axis[2];
-    get_y = m_Axis[3];
+    get_x = m_Axis[SDL_CONTROLLER_AXIS_RIGHTX];
+    get_y = m_Axis[SDL_CONTROLLER_AXIS_RIGHTY];
 }
 
 bool GameController::GetButton(int button) {
@@ -49,13 +48,10 @@ void GameController::Event(const SDL_Event& event) {
         case SDL_CONTROLLERBUTTONDOWN: {
             bool Pressed = event.type == SDL_CONTROLLERBUTTONDOWN;
             m_Buttons[event.cbutton.button] = Pressed;
-            std::cout << int(event.cbutton.button) << "\n";
-
         } break;
         case SDL_CONTROLLERAXISMOTION: {
             int AxisID = event.caxis.axis;
-            double& CurrentAxis = m_Axis[AxisID];
-            CurrentAxis = double(event.caxis.value) / SDL_MAX_SINT16;
+            m_Axis[AxisID] = double(event.caxis.value) / SDL_MAX_SINT16;
         } break;
     }
 }

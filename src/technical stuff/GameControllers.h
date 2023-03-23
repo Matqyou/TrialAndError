@@ -13,7 +13,7 @@ private:
     SDL_GameController* m_Device;
     int m_InstanceID;
 
-    double m_Axis[4];
+    double m_Axis[SDL_CONTROLLER_AXIS_MAX];
     bool m_Buttons[SDL_CONTROLLER_BUTTON_MAX];
 
 public:
@@ -21,6 +21,8 @@ public:
     ~GameController();
 
     int InstanceID() const { return m_InstanceID; }
+    double GetLeftTrigger() const { return m_Axis[SDL_CONTROLLER_AXIS_TRIGGERLEFT]; }
+    double GetRightTrigger() const { return m_Axis[SDL_CONTROLLER_AXIS_TRIGGERRIGHT]; }
     void GetJoystick1(double& get_x, double& get_y);
     void GetJoystick2(double& get_x, double& get_y);
     bool GetButton(int button);

@@ -6,6 +6,7 @@
 #define TRIALANDERROR_SRC_GAMEWORLD_H_
 
 #include "GameReference.h"
+#include "technical stuff/GameControllers.h"
 
 class Entity;
 class GameWorld {
@@ -13,7 +14,7 @@ private:
     GameReference* m_GameWindow;
     double m_Width, m_Height;  // maybe better if it was int
 
-    std::vector<Entity*> m_Entities;
+    Entity* m_LastEntity;
     bool m_ShowNames;
     bool m_Paused;
 
@@ -28,7 +29,6 @@ public:
     ~GameWorld();
 
     GameReference* GameWindow() const { return m_GameWindow; }
-    std::vector<Entity*> Entities() const { return m_Entities; }
     double Width() const { return m_Width; }
     double Height() const { return m_Height; }
     bool NamesShown() const { return m_ShowNames; }
@@ -37,6 +37,7 @@ public:
 
     void AddEntity(Entity* entity);
     void RemoveEntity(Entity* entity);
+    void DestroyPlayerByController(GameController* DeletedController);
     void ShowNames();
     void SetPaused(bool state);
 
