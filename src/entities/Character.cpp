@@ -24,6 +24,7 @@ Character::Character(GameWorld* world, double start_x, double start_y)
     if (m_PlayerIndex == 1) { memcpy(m_Controls, sDefaultControls, sizeof(m_Controls)); }  // Controls are copied
     else { memset(m_Controls, 0, sizeof(m_Controls)); }  // All controls are set to 0
     m_Controllable = true;
+    m_Weapon = WEAPON_BURST;
 
     m_xvel = 0.0;
     m_yvel = 0.0;
@@ -125,8 +126,15 @@ void Character::TickGameControllerControls() {
 
     //Shooting
     bool Shoot = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-    if (Shoot)
-        new Bullets(m_World, m_x, m_y, m_xlook*10, m_ylook*10);
+    if (Shoot){
+        m_GameController->Vibrate(0xffff, 0xffff, 50);
+        if(m_Weapon == WEAPON_BURST){
+            for(int x = 0; x < 5; x++){
+
+                 new Bullets(m_World, m_x, m_y, m_xlook*10, m_ylook*10);
+            }
+        }
+    }
 }
 
 void Character::TickControls() {

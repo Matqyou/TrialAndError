@@ -55,6 +55,30 @@ void Entity::TickWalls() {
         m_yvel = 0.0;
     }
 }
+void Entity::TickBouncyWalls() {
+    double w2 = m_w / 2;
+    double h2 = m_h / 2;
+
+    double XWall = m_World->Width() - w2;
+    double YWall = m_World->Height() - h2;
+
+    if (m_x < w2) {
+        m_x = w2;
+        m_xvel *= -1;
+    }
+    if (m_x > XWall) {
+        m_x = XWall;
+        m_xvel *= -1;
+    }
+    if (m_y < h2) {
+        m_y = h2;
+        m_yvel *= -1;
+    }
+    if (m_y > YWall) {
+        m_y = YWall;
+        m_yvel *= -1;
+    }
+}
 
 void Entity::Tick() {
 

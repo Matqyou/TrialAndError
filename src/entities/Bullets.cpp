@@ -14,5 +14,5 @@ Bullets::Bullets(GameWorld* world, double start_x, double start_y, double start_
 
 void Bullets::Tick() {
     TickVelocity();
-    TickWalls();
+    TickBouncyWalls();
 }

@@ -19,6 +19,7 @@ protected:
     GameWorld::EntityType m_EntityType; // .._. .. _.._   ._.. ._ _ . ._.
     void TickVelocity();
     void TickWalls();
+    void TickBouncyWalls();
 
 public:
     Entity(GameWorld* world, GameWorld::EntityType entityType,

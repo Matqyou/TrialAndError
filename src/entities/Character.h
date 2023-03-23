@@ -10,6 +10,14 @@
 
 class Character : public Entity {
 public:
+    enum WeaponType{
+        WEAPON_NONE,
+        WEAPON_FIST,
+        WEAPON_GLOCK,
+        WEAPON_BURST,
+        WEAPON_SHOTGUN,
+        NUM_WEAPONS
+    };
     enum {
         CONTROL_UP,
         CONTROL_RIGHT,
@@ -29,7 +37,7 @@ private:
     bool m_Movement[NUM_CONTROLS];
     int m_Controls[NUM_CONTROLS];
     bool m_Controllable;
-
+    WeaponType m_Weapon;
     static const int sDefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration = 0.75;
