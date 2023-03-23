@@ -57,6 +57,14 @@ int main() {
     SDL_Renderer* Renderer = GameWindow->Renderer();
     Clock* Timer = GameWindow->Timer();
 
+    // Render the Start button
+    SDL_Rect startButtonRect = { 375, 100, 200, 50 };
+
+    // Render the Settings button
+    SDL_Rect settingsButtonRect = { 375, 200, 200, 50 };
+
+
+
     bool Running = true;
     while (Running) {
         // Input and events
@@ -73,6 +81,21 @@ int main() {
                 case SDL_KEYDOWN: {
                     if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
                         Running = false;
+                    if (CurrentEvent.button.button == SDL_BUTTON_LEFT)
+                    {
+                        int x = CurrentEvent.button.x;
+                        int y = CurrentEvent.button.y;
+                        if (x >= startButtonRect.x && x < startButtonRect.x + startButtonRect.w &&
+                            y >= startButtonRect.y && y < startButtonRect.y + startButtonRect.h)
+                        {
+                            std::cout << "Hy" << std::endl;
+                        }
+                        else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
+                                 y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
+                        {
+                            std::cout << "Yh" << std::endl;
+                        }
+                    }
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                     //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
@@ -116,6 +139,12 @@ int main() {
         DestinationRect.x = 0;
         DestinationRect.y = GameWindow->Height() - DestinationRect.h;
         SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
+
+        SDL_SetRenderDrawColor(Renderer, rand(), rand(), rand(), 255);
+        SDL_RenderFillRect(Renderer, &startButtonRect);
+
+        SDL_SetRenderDrawColor(Renderer, rand(), rand(), rand(), 255);
+        SDL_RenderFillRect(Renderer, &settingsButtonRect);
 
         SDL_RenderPresent(Renderer);
         Timer->Tick();
