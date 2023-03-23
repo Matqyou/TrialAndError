@@ -12,7 +12,34 @@ Bullets::Bullets(GameWorld* world, double start_x, double start_y, double start_
     m_yvel = start_yvel;
 }
 
+void Bullets::TickImpact() {
+    if (m_x < 0) MarkForDestruction();
+    if (m_x > m_World->Width()) MarkForDestruction();
+    if (m_y < 0) MarkForDestruction();
+    if (m_y > m_World->Height()) MarkForDestruction();
+}
+
 void Bullets::Tick() {
     TickVelocity();
-    TickWalls();
+    TickImpact();
+}
+
+void Bullets::Draw() {
+    SDL_Renderer* Renderer = m_World->GameWindow()->Renderer();
+
+    double XDirection = 1.0;
+    double YDirection = 0.0;
+    double Speed = std::sqrt(std::pow(m_xvel, 2) + std::pow(m_yvel, 2));
+    if (Speed != 0.0) {
+        XDirection = m_xvel / Speed;
+        YDirection = m_yvel / Speed;
+    }
+
+    XDirection *= m_w;
+    YDirection *= m_w;
+
+    SDL_SetRenderDrawColor(Renderer, rand()%255, rand()%255, rand()%255, 255);
+    SDL_RenderDrawLine(Renderer, int(m_x - XDirection), int(m_y - YDirection),
+                       int(m_x + XDirection), int(m_y + YDirection));
+    // we can only rotate textures so have lines for now
 }

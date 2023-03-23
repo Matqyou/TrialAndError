@@ -15,6 +15,7 @@ protected:
     double m_BaseDamping;
     double m_xvel, m_yvel;
     double m_ExistsSince;
+    bool m_Destroy;
 
     GameWorld::EntityType m_EntityType; // .._. .. _.._   ._.. ._ _ . ._.
     void TickVelocity();
@@ -27,6 +28,9 @@ public:
     ~Entity();
 
     GameWorld::EntityType EntityType() const { return m_EntityType; }
+
+    bool MarkedForDestruction() const { return m_Destroy; }
+    void MarkForDestruction();
 
     virtual void Tick();
     virtual void Draw();

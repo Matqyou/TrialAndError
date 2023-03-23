@@ -56,6 +56,14 @@ void Entity::TickWalls() {
     }
 }
 
+void Entity::MarkForDestruction() {
+    if (m_Destroy)
+        return;
+
+    m_Destroy = true;
+    m_World->MarkForDestruction(this);
+}
+
 void Entity::Tick() {
 
 }

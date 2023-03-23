@@ -13,6 +13,7 @@ private:
     GameReference* m_GameWindow;
     double m_Width, m_Height;  // maybe better if it was int
 
+    std::vector<Entity*> m_DestroyEntities;
     std::vector<Entity*> m_Entities;
     bool m_ShowNames;
 
@@ -35,6 +36,7 @@ public:
 
     void AddEntity(Entity* entity);
     void RemoveEntity(Entity* entity);
+    void MarkForDestruction(Entity* destroyEntity);
     void ShowNames();
 
     void Event(const SDL_Event& currentEvent);

@@ -49,6 +49,10 @@ void GameWorld::RemoveEntity(Entity* entity) {
     }
 }
 
+void GameWorld::MarkForDestruction(Entity* destroyEntity) {
+    m_DestroyEntities.push_back(destroyEntity);
+}
+
 void GameWorld::ShowNames() {
     m_ShowNames = true;
 }
@@ -66,6 +70,10 @@ void GameWorld::Event(const SDL_Event& currentEvent) {
 void GameWorld::Tick() {
     for (Entity* CurrentEntity : m_Entities)
         CurrentEntity->Tick();
+
+    for (Entity* DestroyEntity : m_DestroyEntities)
+        delete DestroyEntity;
+    m_DestroyEntities.clear();
 }
 
 void GameWorld::Draw() {
