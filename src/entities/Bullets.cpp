@@ -10,10 +10,9 @@ Bullets::Bullets(GameWorld* world, double start_x, double start_y)
  : Entity(world, GameWorld::ENTTYPE_BULLET, start_x, start_y, 100, 100){
     m_xvel = 10;
     m_yvel = 0;
-    TickBullets();
 }
 
-void Bullets::TickBullets() {
+void Bullets::Tick() {
     if((m_x < 900-25) and (m_x > 25)) m_x += m_xvel; // if on screen
     else if (m_x >= 900-25) m_x -= -m_xvel; // if going to the right
     else if (m_x <= 25)m_x += -m_xvel; // if going to the left

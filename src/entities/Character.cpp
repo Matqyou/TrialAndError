@@ -61,11 +61,11 @@ void Character::TickKeyboardControls() {
     double LengthPerAxis = (Horizontally && Vertically) ? sDiagonalLength : 1.0;
     double SpeedPerAxis = m_BaseAcceleration * LengthPerAxis;
 
-    if((m_y < 700-25) and (m_y > 0+25)){
+    if((m_y < m_World->Height()-25) and (m_y > 0+25)){
         if (MoveDown != MoveUp) m_yvel += SpeedPerAxis * double(MoveDown ? 1 : -1);
     }
     else m_yvel = 0;
-    if((m_x < 900-25) and (m_x > 0+25)){
+    if((m_x < m_World->Width()-25) and (m_x > 0+25)){
         if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
     }
     else m_xvel = 0;
@@ -105,10 +105,10 @@ void Character::TickGameControllerControls() {
         }
 
         // Accelerate in that direction
-        if ((m_x < 900 - 25) and (m_x > 0 + 25)) {
+        if ((m_x < m_World->Width() - 25) and (m_x > 0 + 25)) {
             m_xvel += m_BaseAcceleration * AxisX;
         } else m_xvel = 0;
-        if ((m_y < 700 - 25) and (m_y > 0 + 25)) {
+        if ((m_y < m_World->Height() - 25) and (m_y > 0 + 25)) {
             m_yvel += m_BaseAcceleration * AxisY;
         } else m_yvel = 0;
     }
@@ -148,11 +148,11 @@ void Character::TickVelocity() {
     m_xvel *= m_BaseDamping;
     m_yvel *= m_BaseDamping;
 
-    if((m_x < 900-25) and (m_x > 25)) m_x += m_xvel; // if on screen
-    else if (m_x >= 900-25) m_x -= 5; // if going to the right
+    if((m_x < m_World->Width()-25) and (m_x > 25)) m_x += m_xvel; // if on screen
+    else if (m_x >= m_World->Width()-25) m_x -= 5; // if going to the right
     else if (m_x <= 25)m_x += 5; // if going to the left
-    if((m_y < 700-25) and (m_y > 25)) m_y += m_yvel; // if on screen
-    else if(m_y >= 700-25) m_y -= 5; // if going below screen
+    if((m_y < m_World->Height()-25) and (m_y > 25)) m_y += m_yvel; // if on screen
+    else if(m_y >= m_World->Height()-25) m_y -= 5; // if going below screen
     else if (m_y <= 25)m_y += 5; // if going above screen
 
 }

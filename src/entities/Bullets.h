@@ -14,7 +14,7 @@ private:
 
 public:
     Bullets(GameWorld* world, double start_x, double start_y);
-    void TickBullets();
+    void Tick();
 
 };
 
