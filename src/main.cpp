@@ -57,9 +57,28 @@ int main() {
     SDL_Renderer* Renderer = GameWindow->Renderer();
     Clock* Timer = GameWindow->Timer();
 
+    // Load the PNG images
+    SDL_Surface* connected = IMG_Load("chain.png");
+    if (!connected)
+    {
+        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
+        return 1;
+    }
+    SDL_Surface* disconnected = IMG_Load("dis_chain.png");
+    if (!disconnected)
+    {
+        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
+        return 1;
+    }
+    SDL_Surface* Icon = IMG_Load("PS4_Controller_Icon.png");
+    if (!Icon)
+    {
+        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
+        return 1;
+    }
+
     // Render the Start button
     SDL_Rect startButtonRect = { 375, 100, 200, 50 };
-
     // Render the Settings button
     SDL_Rect settingsButtonRect = { 375, 200, 200, 50 };
 
@@ -149,6 +168,9 @@ int main() {
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
+    SDL_FreeSurface(connected);
+    SDL_FreeSurface(disconnected);
+    SDL_FreeSurface(Icon);
     delete Controllers;
     delete World;
     delete GameWindow;
