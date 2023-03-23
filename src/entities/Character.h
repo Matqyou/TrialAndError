@@ -32,15 +32,12 @@ private:
 
     static const int sDefaultControls[NUM_CONTROLS];
 
-    const double m_BaseAcceleration = 0.5;
-    const double m_BaseDamping = 0.93;
-    double m_xvel, m_yvel;  // velocity
+    const double m_BaseAcceleration = 0.75;
     double m_xlook, m_ylook;  // direction
 
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickControls();
-    void TickVelocity();
 
 public:
     Character(GameWorld* world, double start_x, double start_y);
@@ -52,7 +49,7 @@ public:
 
     void Event(const SDL_Event& currentEvent);
     void Tick() override;
-    void Draw() override; // remove comment if want to draw character differently
+    void Draw() override;
 };
 
 

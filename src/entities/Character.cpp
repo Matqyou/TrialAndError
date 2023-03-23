@@ -12,7 +12,7 @@ static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_SPACE };
 
 Character::Character(GameWorld* world, double start_x, double start_y)
- : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50) {
+ : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93) {
     m_PlayerIndex = 0; // Must be initialized before assigning a new one
     m_ColorHue = double(rand()%360);
 
@@ -61,14 +61,8 @@ void Character::TickKeyboardControls() {
     double LengthPerAxis = (Horizontally && Vertically) ? sDiagonalLength : 1.0;
     double SpeedPerAxis = m_BaseAcceleration * LengthPerAxis;
 
-    if((m_y < 700-25) and (m_y > 0+25)){
-        if (MoveDown != MoveUp) m_yvel += SpeedPerAxis * double(MoveDown ? 1 : -1);
-    }
-    else m_yvel = 0;
-    if((m_x < 900-25) and (m_x > 0+25)){
-        if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
-    }
-    else m_xvel = 0;
+    if (MoveDown != MoveUp) m_yvel += SpeedPerAxis * double(MoveDown ? 1 : -1);
+    if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
 
     // Show names button
     if (ShowNames)
@@ -105,12 +99,8 @@ void Character::TickGameControllerControls() {
         }
 
         // Accelerate in that direction
-        if ((m_x < 900 - 25) and (m_x > 0 + 25)) {
-            m_xvel += m_BaseAcceleration * AxisX;
-        } else m_xvel = 0;
-        if ((m_y < 700 - 25) and (m_y > 0 + 25)) {
-            m_yvel += m_BaseAcceleration * AxisY;
-        } else m_yvel = 0;
+        m_xvel += m_BaseAcceleration * AxisX;
+        m_yvel += m_BaseAcceleration * AxisY;
     }
 
     // Show names button
@@ -144,19 +134,6 @@ void Character::TickControls() {
         TickKeyboardControls();
 }
 
-void Character::TickVelocity() {
-    m_xvel *= m_BaseDamping;
-    m_yvel *= m_BaseDamping;
-
-    if((m_x < 900-25) and (m_x > 25)) m_x += m_xvel; // if on screen
-    else if (m_x >= 900-25) m_x -= 5; // if going to the right
-    else if (m_x <= 25)m_x += 5; // if going to the left
-    if((m_y < 700-25) and (m_y > 25)) m_y += m_yvel; // if on screen
-    else if(m_y >= 700-25) m_y -= 5; // if going below screen
-    else if (m_y <= 25)m_y += 5; // if going above screen
-
-}
-
 void Character::Event(const SDL_Event& currentEvent) {
     if (!m_Controllable || m_GameController)
         return;
@@ -174,7 +151,7 @@ void Character::Event(const SDL_Event& currentEvent) {
 void Character::Tick() {
     TickControls();  // Do stuff depending on the current held buttons
     TickVelocity();  // Move the chracter entity
-    //Bullet.TickBullets();
+    TickWalls();
 }
 
 void Character::Draw() {

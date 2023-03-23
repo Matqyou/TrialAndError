@@ -7,7 +7,7 @@
 #include <iostream>
 
 Bullets::Bullets(GameWorld* world, double start_x, double start_y)
- : Entity(world, GameWorld::ENTTYPE_BULLET, start_x, start_y, 100, 100){
+ : Entity(world, GameWorld::ENTTYPE_BULLET, start_x, start_y, 100, 100, 1.0){
     m_xvel = 10;
     m_yvel = 0;
     TickBullets();
