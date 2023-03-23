@@ -77,6 +77,10 @@ int main() {
         return 1;
     }
 
+    SDL_Texture * texture_connected = SDL_CreateTextureFromSurface(Renderer, connected);
+    SDL_Texture * texture_disconnected = SDL_CreateTextureFromSurface(Renderer, disconnected);
+    SDL_Texture * texture_Icon = SDL_CreateTextureFromSurface(Renderer, Icon);
+
     // Render the Start button
     SDL_Rect startButtonRect = { 375, 100, 200, 50 };
     // Render the Settings button
@@ -148,7 +152,7 @@ int main() {
         World->Tick();
 
         // Drawing
-        SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
+        SDL_SetRenderDrawColor(Renderer, 100, 100, 100, 255);
         SDL_RenderClear(Renderer);
 
         World->Draw();
@@ -159,15 +163,27 @@ int main() {
         DestinationRect.y = GameWindow->Height() - DestinationRect.h;
         SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
 
+        SDL_Rect connected = { 600, 300, 160, 90 };
+        SDL_Rect disconnected = { 300, 300, 160, 90 };
+        SDL_Rect Icon = { 50, 400, 600, 309 };
+
+        SDL_RenderCopy(Renderer, texture_connected, NULL, &connected);
+        SDL_RenderCopy(Renderer, texture_disconnected, NULL, &disconnected);
+        SDL_RenderCopy(Renderer, texture_Icon, NULL, &Icon);
+
+        // start
         SDL_SetRenderDrawColor(Renderer, rand(), rand(), rand(), 255);
         SDL_RenderFillRect(Renderer, &startButtonRect);
-
+        // setting
         SDL_SetRenderDrawColor(Renderer, rand(), rand(), rand(), 255);
         SDL_RenderFillRect(Renderer, &settingsButtonRect);
 
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
+    SDL_DestroyTexture(texture_connected);
+    SDL_DestroyTexture(texture_disconnected);
+    SDL_DestroyTexture(texture_Icon);
     SDL_FreeSurface(connected);
     SDL_FreeSurface(disconnected);
     SDL_FreeSurface(Icon);
