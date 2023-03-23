@@ -124,9 +124,8 @@ void Character::TickGameControllerControls() {
     }
 
     //Shooting
-    bool Shoot = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-    if (Shoot)
-        new Bullets(m_World, m_x, m_y, m_xlook*10, m_ylook*10);
+    bool Shoot = m_GameController->GetRightTrigger() > 0.7;
+        new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
 }
 
 void Character::TickControls() {
