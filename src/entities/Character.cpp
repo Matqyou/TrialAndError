@@ -118,6 +118,7 @@ void Character::TickGameControllerControls() {
     if (ShowNames)
         m_World->ShowNames();
 
+
     // Update look direction
     double AxisX2, AxisY2;
     m_GameController->GetJoystick2(AxisX2, AxisY2);
@@ -132,6 +133,10 @@ void Character::TickGameControllerControls() {
             m_ylook = 0.0;
         }
     }
+    //Shooting
+    bool Shoot = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+    if (Shoot)
+        new Bullets(m_World, m_x, m_y, m_xlook*10, m_ylook*10);
 }
 
 void Character::TickControls() {
