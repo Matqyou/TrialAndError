@@ -125,6 +125,7 @@ void Character::TickGameControllerControls() {
 
     //Shooting
     bool Shoot = m_GameController->GetRightTrigger() > 0.7;
+    if (Shoot)
         new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
 }
 
