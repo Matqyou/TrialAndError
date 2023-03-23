@@ -127,18 +127,8 @@ int main() {
                     int InstanceID = CurrentEvent.cdevice.which;
                     GameController* DeletedController = Controllers->CloseController(InstanceID);
                     Character* CorrespondingPlayer = nullptr;
-                    for (Entity* CurrentEntity : World->Entities()) {
-                        if (CurrentEntity->EntityType() != GameWorld::ENTTYPE_CHARACTER)
-                            continue;
 
-                        auto CurrentPlayer = (Character*)CurrentEntity;
-                        if (CurrentPlayer->GetGameController() == DeletedController) {
-                            CorrespondingPlayer = CurrentPlayer;
-                            break;
-                        }
-                    }
-
-                    delete CorrespondingPlayer;
+                    World->DestroyPlayerByController(DeletedController);
                 } break;
             }
         }

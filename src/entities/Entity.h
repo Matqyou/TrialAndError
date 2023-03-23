@@ -11,6 +11,7 @@ class Entity {
 protected:
     friend class GameWorld;
     GameWorld* m_World;
+    Entity* m_PrevEntity, *m_NextEntity;
     double m_x, m_y, m_w, m_h;
     double m_BaseDamping;
     double m_xvel, m_yvel;
@@ -28,9 +29,6 @@ public:
     ~Entity();
 
     GameWorld::EntityType EntityType() const { return m_EntityType; }
-
-    bool MarkedForDestruction() const { return m_Destroy; }
-    void MarkForDestruction();
 
     virtual void Tick();
     virtual void Draw();

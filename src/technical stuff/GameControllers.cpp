@@ -3,7 +3,6 @@
 //
 
 #include "GameControllers.h"
-#include <iostream>
 
 GameController::GameController(int device_id) {
     m_Device = SDL_GameControllerOpen(device_id);

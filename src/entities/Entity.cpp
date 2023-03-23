@@ -8,6 +8,8 @@ Entity::Entity(GameWorld* world, GameWorld::EntityType entityType,
                double start_x, double start_y, double start_w, double start_h,
                double base_damping = 0.90) {
     m_World = world;
+    m_PrevEntity = nullptr;
+    m_NextEntity = nullptr;
     m_EntityType = entityType;
     m_x = start_x;
     m_y = start_y;
@@ -54,14 +56,6 @@ void Entity::TickWalls() {
         m_y = YWall;
         m_yvel = 0.0;
     }
-}
-
-void Entity::MarkForDestruction() {
-    if (m_Destroy)
-        return;
-
-    m_Destroy = true;
-    m_World->MarkForDestruction(this);
 }
 
 void Entity::Tick() {

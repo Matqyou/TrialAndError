@@ -13,10 +13,10 @@ Bullets::Bullets(GameWorld* world, double start_x, double start_y, double start_
 }
 
 void Bullets::TickImpact() {
-    if (m_x < 0) MarkForDestruction();
-    if (m_x > m_World->Width()) MarkForDestruction();
-    if (m_y < 0) MarkForDestruction();
-    if (m_y > m_World->Height()) MarkForDestruction();
+    if (m_x < 0) delete this;
+    if (m_x > m_World->Width()) delete this;
+    if (m_y < 0) delete this;
+    if (m_y > m_World->Height()) delete this;
 }
 
 void Bullets::Tick() {
