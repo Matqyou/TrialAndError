@@ -43,30 +43,12 @@ int main() {
     SDL_Window* Window = GameWindow->Window();
     SDL_Renderer* Renderer = GameWindow->Renderer();
     Clock* Timer = GameWindow->Timer();
+    ImageManager* ImageHandler = GameWindow->ImageHandler();
 
     // Load the PNG images
-    SDL_Surface* connected = IMG_Load("chain.png");
-    if (!connected)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
-    SDL_Surface* disconnected = IMG_Load("dis_chain.png");
-    if (!disconnected)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
-    SDL_Surface* Icon = IMG_Load("PS4_Controller_Icon.png");
-    if (!Icon)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
-
-    SDL_Texture * texture_connected = SDL_CreateTextureFromSurface(Renderer, connected);
-    SDL_Texture * texture_disconnected = SDL_CreateTextureFromSurface(Renderer, disconnected);
-    SDL_Texture * texture_Icon = SDL_CreateTextureFromSurface(Renderer, Icon);
+    SDL_Texture* TextureConnected = ImageHandler->LoadTexture("chain.png");
+    SDL_Texture* TextureDisconnected = ImageHandler->LoadTexture("dis_chain.png");
+    SDL_Texture* TextureIcon = ImageHandler->LoadTexture("PS4_Controller_Icon.png");
 
     // Render the Start button
     SDL_Rect startButtonRect = { 350, 100, 250, 60 };
@@ -157,20 +139,17 @@ int main() {
             SDL_Rect disconnected = { 200, 375, 80, 44 };
             SDL_Rect Icon = { 100, 400, 200, 109 };
 
-            SDL_RenderCopy(Renderer, texture_connected, NULL, &connected);
-            SDL_RenderCopy(Renderer, texture_disconnected, NULL, &disconnected);
-            SDL_RenderCopy(Renderer, texture_Icon, NULL, &Icon);
+            SDL_RenderCopy(Renderer, TextureConnected, nullptr, &connected);
+            SDL_RenderCopy(Renderer, TextureDisconnected, nullptr, &disconnected);
+            SDL_RenderCopy(Renderer, TextureIcon, nullptr, &Icon);
         }
 
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
-    SDL_DestroyTexture(texture_connected);
-    SDL_DestroyTexture(texture_disconnected);
-    SDL_DestroyTexture(texture_Icon);
-    SDL_FreeSurface(connected);
-    SDL_FreeSurface(disconnected);
-    SDL_FreeSurface(Icon);
+    ImageHandler->UnloadTexture(TextureConnected);
+    ImageHandler->UnloadTexture(TextureDisconnected);
+    ImageHandler->UnloadTexture(TextureIcon);
     delete Controllers;
     delete World;
     delete GameWindow;

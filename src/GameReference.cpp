@@ -9,21 +9,27 @@ GameReference::GameReference() {
     m_Renderer = nullptr;
     m_Timer = nullptr;
     m_TextHandler = nullptr;
+    m_ImageHandler = nullptr;
     m_Width = 0;
     m_Height = 0;
+    m_Initialized = false;
 }
 
 GameReference::~GameReference() {
-    delete m_TextHandler;
-    delete m_Timer;
-    SDL_DestroyRenderer(m_Renderer);
-    SDL_DestroyWindow(m_Window);
-    TTF_Quit();
-    IMG_Quit();
-    SDL_Quit();
+    if (m_Initialized) {
+        delete m_ImageHandler;
+        delete m_TextHandler;
+        delete m_Timer;
+        SDL_DestroyRenderer(m_Renderer);
+        SDL_DestroyWindow(m_Window);
+        TTF_Quit();
+        IMG_Quit();
+        SDL_Quit();
+    }
 }
 
 bool GameReference::Initialize() {
+    m_Initialized = true;
     int Result = SDL_Init(SDL_INIT_EVERYTHING);
     if (Result) {
         std::printf("Error while initializing main %s\n", SDL_GetError());
@@ -58,6 +64,7 @@ bool GameReference::Initialize() {
 
     m_Timer = new Clock(60);
     m_TextHandler = new TextManager(m_Renderer);
+    m_ImageHandler = new ImageManager(m_Renderer);
     return true;
 }
 
