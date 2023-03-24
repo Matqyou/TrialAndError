@@ -6,18 +6,40 @@
 #include <cmath>
 #include <iostream>
 
-Bullets::Bullets(GameWorld* world, double start_x, double start_y)
- : Entity(world, GameWorld::ENTTYPE_BULLET, start_x, start_y, 100, 100){
-    m_xvel = 10;
-    m_yvel = 0;
-    TickBullets();
+Bullets::Bullets(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
+ : Entity(world, GameWorld::ENTTYPE_BULLET, start_x, start_y, 5, 12, 1.0){
+    m_xvel = start_xvel;
+    m_yvel = start_yvel;
 }
 
-void Bullets::TickBullets() {
-    if((m_x < 900-25) and (m_x > 25)) m_x += m_xvel; // if on screen
-    else if (m_x >= 900-25) m_x -= -m_xvel; // if going to the right
-    else if (m_x <= 25)m_x += -m_xvel; // if going to the left
-    if((m_y < 700-25) and (m_y > 25)) m_y += m_yvel; // if on screen
-    else if(m_y >= 700-25) m_y -= -m_yvel; // if going below screen
-    else if (m_y <= 25)m_y += -m_yvel; // if going above screen
+void Bullets::TickImpact() {
+    if (m_x < 0) delete this;
+    if (m_x > m_World->Width()) delete this;
+    if (m_y < 0) delete this;
+    if (m_y > m_World->Height()) delete this;
+}
+
+void Bullets::Tick() {
+    TickVelocity();
+    TickImpact();
+}
+
+void Bullets::Draw() {
+    SDL_Renderer* Renderer = m_World->GameWindow()->Renderer();
+
+    double XDirection = 1.0;
+    double YDirection = 0.0;
+    double Speed = std::sqrt(std::pow(m_xvel, 2) + std::pow(m_yvel, 2));
+    if (Speed != 0.0) {
+        XDirection = m_xvel / Speed;
+        YDirection = m_yvel / Speed;
+    }
+
+    XDirection *= m_w;
+    YDirection *= m_w;
+
+    SDL_SetRenderDrawColor(Renderer, rand()%255, rand()%255, rand()%255, 255);
+    SDL_RenderDrawLine(Renderer, int(m_x - XDirection), int(m_y - YDirection),
+                       int(m_x + XDirection), int(m_y + YDirection));
+    // we can only rotate textures so have lines for now
 }

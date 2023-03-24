@@ -10,22 +10,27 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_GameWindow = gameWindow;
     m_Width = width;
     m_Height = height;
+    m_LastEntity = nullptr;
     m_Paused = false;
 }
 
 GameWorld::~GameWorld() {
-    for (Entity* CurrentEntity : m_Entities)
+    Entity* CurrentEntity = m_LastEntity;
+    while (CurrentEntity) {
+        auto NextEntity = CurrentEntity->m_PrevEntity;
         delete CurrentEntity;
+        CurrentEntity = NextEntity;
+    }
 }
 
 int GameWorld::NextPlayerIndex() {
     int CurrentIndex = 1;
     while (true) {
-        for (Entity *CurrentEntity : m_Entities) {
+        for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = CurrentEntity->m_PrevEntity) {
             if (CurrentEntity->EntityType() != ENTTYPE_CHARACTER)
                 continue;
 
-            auto CurrentPlayer = (Character *)CurrentEntity;
+            auto CurrentPlayer = (Character*)CurrentEntity;
             if (CurrentIndex != CurrentPlayer->PlayerIndex())
                 return CurrentIndex;
 
@@ -35,17 +40,41 @@ int GameWorld::NextPlayerIndex() {
 }
 
 void GameWorld::AddEntity(Entity* entity) {
-    m_Entities.push_back(entity);
+    if (!m_LastEntity) {
+        m_LastEntity = entity;
+        entity->m_PrevEntity = nullptr;
+        entity->m_NextEntity = nullptr;
+    } else {
+        m_LastEntity->m_NextEntity = entity;
+        entity->m_PrevEntity = m_LastEntity;
+        m_LastEntity = entity;
+    }
 }
 
 void GameWorld::RemoveEntity(Entity* entity) {
-    for (auto Iterator = m_Entities.begin(); Iterator != m_Entities.end(); Iterator++) {
-        Entity* CurrentEntity = *Iterator;
-        if (CurrentEntity != entity)
+    if (m_LastEntity == entity) {
+        if (entity->m_PrevEntity) {
+            m_LastEntity = entity->m_PrevEntity;
+            m_LastEntity->m_NextEntity = nullptr;
+        } else { m_LastEntity = nullptr; }
+    } else {
+        Entity* TempNext = entity->m_NextEntity;
+        if (entity->m_NextEntity) { entity->m_NextEntity->m_PrevEntity = entity->m_PrevEntity; }
+        if (entity->m_PrevEntity) { entity->m_PrevEntity->m_NextEntity = TempNext; }
+    }
+}
+
+void GameWorld::DestroyPlayerByController(GameController* DeletedController) {
+    for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = CurrentEntity->m_PrevEntity) {
+        if (CurrentEntity->EntityType() != ENTTYPE_CHARACTER)
             continue;
 
-        m_Entities.erase(Iterator);
-        break;
+        auto CurrentPlayer = (Character*)CurrentEntity;
+        if (CurrentPlayer->GetGameController() != DeletedController)
+            continue;
+
+        delete CurrentEntity;
+        return;
     }
 }
 
@@ -58,7 +87,9 @@ void GameWorld::SetPaused(bool state) {
 }
 
 void GameWorld::Event(const SDL_Event& currentEvent) {
-    for (Entity* CurrentEntity : m_Entities) {
+    Entity* NextEntity; // allows deletion while looping
+    for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = NextEntity) {
+        NextEntity = CurrentEntity->m_PrevEntity;
         if (CurrentEntity->EntityType() != ENTTYPE_CHARACTER)
             continue;
 
@@ -71,8 +102,11 @@ void GameWorld::Tick() {
     if (m_Paused)
         return;
 
-    for (Entity* CurrentEntity : m_Entities)
+    Entity* NextEntity; // allows deletion while looping
+    for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = NextEntity) {
+        NextEntity = CurrentEntity->m_PrevEntity;
         CurrentEntity->Tick();
+    }
 }
 
 void GameWorld::Draw() {
@@ -82,7 +116,7 @@ void GameWorld::Draw() {
     SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 255);
     SDL_RenderDrawRect(Renderer, &DrawRect);
 
-    for (Entity* CurrentEntity : m_Entities)
+    for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = CurrentEntity->m_PrevEntity)
         CurrentEntity->Draw();
 
     m_ShowNames = false;

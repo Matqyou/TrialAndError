@@ -25,12 +25,11 @@ bool Initialize() {
     TextManager* TextHandler = GameWindow->TextHandler();
     SDL_Renderer* Renderer = GameWindow->Renderer();
 
-    TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 20);
-    TextTexture = TextHandler->Render(Font1, "I am in your walls, Jesse....", { 0, 0, 0 });
+    TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
+    TextTexture = TextHandler->Render(Font1, "get out or -.. .. .", { 255, 255, 255 });
 
     Controllers = new GameControllers();
     new Character(World, 500, -100);
-
     return true;
 }
 
@@ -111,25 +110,15 @@ int main() {
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto* NewPlayer = new Character(World, 0, 0); // Add new player
+                    auto* NewPlayer = new Character(World, 100, 100); // Add new player
                     NewPlayer->SetGameController(CurrentController);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
                     GameController* DeletedController = Controllers->CloseController(InstanceID);
                     Character* CorrespondingPlayer = nullptr;
-                    for (Entity* CurrentEntity : World->Entities()) {
-                        if (CurrentEntity->EntityType() != GameWorld::ENTTYPE_CHARACTER)
-                            continue;
 
-                        auto CurrentPlayer = (Character*)CurrentEntity;
-                        if (CurrentPlayer->GetGameController() == DeletedController) {
-                            CorrespondingPlayer = CurrentPlayer;
-                            break;
-                        }
-                    }
-
-                    delete CorrespondingPlayer;
+                    World->DestroyPlayerByController(DeletedController);
                 } break;
                 case SDL_MOUSEBUTTONDOWN: {
                     if (CurrentEvent.button.button == SDL_BUTTON_LEFT)

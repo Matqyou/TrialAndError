@@ -8,14 +8,15 @@
 #include "Entity.h"
 #include <SDL.h>
 
-class Bullets : public Entity{
+class Bullets : public Entity {
 private:
-    double m_xvel, m_yvel;
+    void TickImpact();
 
 public:
-    Bullets(GameWorld* world, double start_x, double start_y);
-    void TickBullets();
+    Bullets(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
 
+    void Tick() override;
+    void Draw() override;
 };
 
 #endif //TRIALANDERROR_BULLETS_H
