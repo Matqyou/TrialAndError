@@ -11,6 +11,7 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_Width = width;
     m_Height = height;
     m_LastEntity = nullptr;
+    m_Paused = false;
 }
 
 GameWorld::~GameWorld() {
@@ -81,6 +82,10 @@ void GameWorld::ShowNames() {
     m_ShowNames = true;
 }
 
+void GameWorld::SetPaused(bool state) {
+    m_Paused = state;
+}
+
 void GameWorld::Event(const SDL_Event& currentEvent) {
     Entity* NextEntity; // allows deletion while looping
     for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = NextEntity) {
@@ -94,6 +99,9 @@ void GameWorld::Event(const SDL_Event& currentEvent) {
 }
 
 void GameWorld::Tick() {
+    if (m_Paused)
+        return;
+
     Entity* NextEntity; // allows deletion while looping
     for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = NextEntity) {
         NextEntity = CurrentEntity->m_PrevEntity;
