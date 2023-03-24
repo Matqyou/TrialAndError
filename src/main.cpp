@@ -34,19 +34,6 @@ bool Initialize() {
 }
 
 
-// Function to handle controller events
-void handleControllerEvent(SDL_Event event)
-{
-    if (event.type == SDL_CONTROLLERBUTTONDOWN) {
-        std::cout << "Button " << static_cast<int>(event.cbutton.button) << " on controller " << static_cast<int>(event.cbutton.which) << " was pressed" << std::endl;
-    } else if (event.type == SDL_CONTROLLERBUTTONUP) {
-        std::cout << "Button " << static_cast<int>(event.cbutton.button) << " on controller " << static_cast<int>(event.cbutton.which) << " was released" << std::endl;
-    } else if (event.type == SDL_CONTROLLERAXISMOTION) {
-        std::cout << "Axis " << static_cast<int>(event.caxis.axis) << " on controller " << static_cast<int>(event.caxis.which) << " moved to " << static_cast<int>(event.caxis.value) << std::endl;
-    }
-}
-
-
 int main() {
     if (!Initialize()) {
         std::printf("Terminating..");
@@ -56,37 +43,21 @@ int main() {
     SDL_Window* Window = GameWindow->Window();
     SDL_Renderer* Renderer = GameWindow->Renderer();
     Clock* Timer = GameWindow->Timer();
+    ImageManager* ImageHandler = GameWindow->ImageHandler();
 
     // Load the PNG images
-    SDL_Surface* connected = IMG_Load("chain.png");
-    if (!connected)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
-    SDL_Surface* disconnected = IMG_Load("dis_chain.png");
-    if (!disconnected)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
-    SDL_Surface* Icon = IMG_Load("PS4_Controller_Icon.png");
-    if (!Icon)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
+    Texture* TextureConnected = ImageHandler->LoadTexture("chain.png");
+    Texture* TextureDisconnected = ImageHandler->LoadTexture("dis_chain.png");
+    Texture* TextureIcon = ImageHandler->LoadTexture("PS4_Controller_Icon.png");
 
-    SDL_Texture * texture_connected = SDL_CreateTextureFromSurface(Renderer, connected);
-    SDL_Texture * texture_disconnected = SDL_CreateTextureFromSurface(Renderer, disconnected);
-    SDL_Texture * texture_Icon = SDL_CreateTextureFromSurface(Renderer, Icon);
+    SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
+    SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
+    SDL_Rect IconRect = { 100, 400, 200, 109 };
 
     // Render the Start button
     SDL_Rect startButtonRect = { 350, 100, 250, 60 };
     // Render the Settings button
     //SDL_Rect settingsButtonRect = { 350, 200, 250, 60 };
-
-
 
     bool Running = true;
     while (Running) {
@@ -103,7 +74,7 @@ int main() {
                 } break;
                 case SDL_KEYDOWN: {
                     if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                        Running = false;
+                        World->SetPaused(!World->Paused());
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                     //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
@@ -144,11 +115,10 @@ int main() {
         World->Tick();
 
         // Drawing
-        SDL_SetRenderDrawColor(Renderer, 120, 200, 120, 255);
+        SDL_SetRenderDrawColor(Renderer, 120, 0, 120, 255);
         SDL_RenderClear(Renderer);
 
-        if (!World->Paused())
-            World->Draw();
+        World->Draw();
 
         SDL_Rect DestinationRect;
         SDL_QueryTexture(TextTexture, nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
@@ -157,6 +127,11 @@ int main() {
         SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
 
         if (World->Paused()) {
+            SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 200);
+            SDL_RenderFillRect(Renderer, nullptr);
+            SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
+
             // start
             SDL_SetRenderDrawColor(Renderer, 90, 20, 20, 255);
             SDL_RenderFillRect(Renderer, &startButtonRect);
@@ -164,24 +139,17 @@ int main() {
             //SDL_SetRenderDrawColor(Renderer, 0, 80, 40, 255);
             //SDL_RenderFillRect(Renderer, &settingsButtonRect);
 
-            SDL_Rect connected = { 120, 375, 80, 44 };
-            SDL_Rect disconnected = { 200, 375, 80, 44 };
-            SDL_Rect Icon = { 100, 400, 200, 109 };
-
-            SDL_RenderCopy(Renderer, texture_connected, NULL, &connected);
-            SDL_RenderCopy(Renderer, texture_disconnected, NULL, &disconnected);
-            SDL_RenderCopy(Renderer, texture_Icon, NULL, &Icon);
+            SDL_RenderCopy(Renderer, TextureConnected->SDLTexture(),
+                           nullptr, &ConnectedRect);
+            SDL_RenderCopy(Renderer, TextureDisconnected->SDLTexture(),
+                           nullptr, &DisconnectedRect);
+            SDL_RenderCopy(Renderer, TextureIcon->SDLTexture(),
+                           nullptr, &IconRect);
         }
 
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
-    SDL_DestroyTexture(texture_connected);
-    SDL_DestroyTexture(texture_disconnected);
-    SDL_DestroyTexture(texture_Icon);
-    SDL_FreeSurface(connected);
-    SDL_FreeSurface(disconnected);
-    SDL_FreeSurface(Icon);
     delete Controllers;
     delete World;
     delete GameWindow;
