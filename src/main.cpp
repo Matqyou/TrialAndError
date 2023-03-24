@@ -34,19 +34,6 @@ bool Initialize() {
 }
 
 
-// Function to handle controller events
-void handleControllerEvent(SDL_Event event)
-{
-    if (event.type == SDL_CONTROLLERBUTTONDOWN) {
-        std::cout << "Button " << static_cast<int>(event.cbutton.button) << " on controller " << static_cast<int>(event.cbutton.which) << " was pressed" << std::endl;
-    } else if (event.type == SDL_CONTROLLERBUTTONUP) {
-        std::cout << "Button " << static_cast<int>(event.cbutton.button) << " on controller " << static_cast<int>(event.cbutton.which) << " was released" << std::endl;
-    } else if (event.type == SDL_CONTROLLERAXISMOTION) {
-        std::cout << "Axis " << static_cast<int>(event.caxis.axis) << " on controller " << static_cast<int>(event.caxis.which) << " moved to " << static_cast<int>(event.caxis.value) << std::endl;
-    }
-}
-
-
 int main() {
     if (!Initialize()) {
         std::printf("Terminating..");
@@ -86,8 +73,6 @@ int main() {
     // Render the Settings button
     //SDL_Rect settingsButtonRect = { 350, 200, 250, 60 };
 
-
-
     bool Running = true;
     while (Running) {
         // Input and events
@@ -103,7 +88,7 @@ int main() {
                 } break;
                 case SDL_KEYDOWN: {
                     if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                        Running = false;
+                        World->SetPaused(!World->Paused());
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                     //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
@@ -144,11 +129,10 @@ int main() {
         World->Tick();
 
         // Drawing
-        SDL_SetRenderDrawColor(Renderer, 120, 200, 120, 255);
+        SDL_SetRenderDrawColor(Renderer, 120, 0, 120, 255);
         SDL_RenderClear(Renderer);
 
-        if (!World->Paused())
-            World->Draw();
+        World->Draw();
 
         SDL_Rect DestinationRect;
         SDL_QueryTexture(TextTexture, nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
@@ -157,6 +141,11 @@ int main() {
         SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
 
         if (World->Paused()) {
+            SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 200);
+            SDL_RenderFillRect(Renderer, nullptr);
+            SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
+
             // start
             SDL_SetRenderDrawColor(Renderer, 90, 20, 20, 255);
             SDL_RenderFillRect(Renderer, &startButtonRect);
