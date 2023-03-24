@@ -46,9 +46,9 @@ int main() {
     ImageManager* ImageHandler = GameWindow->ImageHandler();
 
     // Load the PNG images
-    SDL_Texture* TextureConnected = ImageHandler->LoadTexture("chain.png");
-    SDL_Texture* TextureDisconnected = ImageHandler->LoadTexture("dis_chain.png");
-    SDL_Texture* TextureIcon = ImageHandler->LoadTexture("PS4_Controller_Icon.png");
+    Texture* TextureConnected = ImageHandler->LoadTexture("chain.png");
+    Texture* TextureDisconnected = ImageHandler->LoadTexture("dis_chain.png");
+    Texture* TextureIcon = ImageHandler->LoadTexture("PS4_Controller_Icon.png");
 
     // Render the Start button
     SDL_Rect startButtonRect = { 350, 100, 250, 60 };
@@ -139,17 +139,17 @@ int main() {
             SDL_Rect disconnected = { 200, 375, 80, 44 };
             SDL_Rect Icon = { 100, 400, 200, 109 };
 
-            SDL_RenderCopy(Renderer, TextureConnected, nullptr, &connected);
-            SDL_RenderCopy(Renderer, TextureDisconnected, nullptr, &disconnected);
-            SDL_RenderCopy(Renderer, TextureIcon, nullptr, &Icon);
+            SDL_RenderCopy(Renderer, TextureConnected->SDLTexture(), nullptr, &connected);
+            SDL_RenderCopy(Renderer, TextureDisconnected->SDLTexture(), nullptr, &disconnected);
+            SDL_RenderCopy(Renderer, TextureIcon->SDLTexture(), nullptr, &Icon);
         }
 
         SDL_RenderPresent(Renderer);
         Timer->Tick();
     }
-    ImageHandler->UnloadTexture(TextureConnected);
-    ImageHandler->UnloadTexture(TextureDisconnected);
-    ImageHandler->UnloadTexture(TextureIcon);
+    // ImageHandler->UnloadTexture(TextureConnected);
+    // ImageHandler->UnloadTexture(TextureDisconnected); fix unloading uhhhhh
+    // ImageHandler->UnloadTexture(TextureIcon);
     delete Controllers;
     delete World;
     delete GameWindow;
