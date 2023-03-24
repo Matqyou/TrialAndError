@@ -148,7 +148,7 @@ int main() {
         Timer->Tick();
     }
     // ImageHandler->UnloadTexture(TextureConnected);
-    // ImageHandler->UnloadTexture(TextureDisconnected); fix unloading uhhhhh
+    ImageHandler->UnloadTexture(TextureDisconnected); // fix unloading uhhhhh
     // ImageHandler->UnloadTexture(TextureIcon);
     delete Controllers;
     delete World;

@@ -15,7 +15,7 @@ private:
     friend class ImageManager;
     SDL_Texture* m_SDLTexture;
     std::string m_Filepath;
-    Texture* m_PreviousTexture, *m_NextTexture;
+    Texture* m_NextTexture, *m_PrevTexture;
 
 public:
     explicit Texture(SDL_Texture* sdl_texture, std::string filepath);

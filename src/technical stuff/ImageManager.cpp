@@ -7,8 +7,8 @@
 Texture::Texture(SDL_Texture* sdl_texture, std::string filepath) {
     m_SDLTexture = sdl_texture;
     m_Filepath = filepath;
-    m_PreviousTexture = nullptr;
     m_NextTexture = nullptr;
+    m_PrevTexture = nullptr;
 }
 
 Texture::~Texture() {
@@ -35,26 +35,31 @@ Texture* ImageManager::LoadTexture(const char *filepath) {
     SDL_FreeSurface(TempSurface);
     auto NewTexture = new Texture(NewSDLTexture, filepath);
 
-    if (!m_FirstTexture) {
-        m_FirstTexture = NewTexture;
-    } else {
-        m_FirstTexture->m_PreviousTexture = NewTexture;
+    if (m_FirstTexture) {
+        m_FirstTexture->m_PrevTexture = NewTexture;
         NewTexture->m_NextTexture = m_FirstTexture;
         m_FirstTexture = NewTexture;
+    } else {
+        m_FirstTexture = NewTexture;
     }
+
     return NewTexture;
 }
 
 void ImageManager::UnloadTexture(Texture* texture) {
-    if (m_FirstTexture == texture) {
-        auto Next = m_FirstTexture->m_NextTexture;
-        if (Next) Next->m_PreviousTexture = nullptr;
-    } else {
-        auto Next = m_FirstTexture->m_NextTexture;
-        auto Previous = m_FirstTexture->m_PreviousTexture;
+    if (texture == nullptr)
+        return;
 
-        if (Next) Next->m_PreviousTexture = Previous;
-        if (Previous) Previous->m_NextTexture = Next;
+    if (m_FirstTexture == texture) {
+        m_FirstTexture = texture->m_PrevTexture;
+        m_FirstTexture->m_NextTexture = nullptr;
+    } else {
+        auto Next = texture->m_NextTexture;
+        auto Prev = texture->m_PrevTexture;
+
+        if (Next) Next->m_PrevTexture = Prev;
+        if (Prev) Prev->m_NextTexture = Next;
     }
+
     delete texture;
 }
