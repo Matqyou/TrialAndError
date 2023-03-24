@@ -144,7 +144,7 @@ int main() {
         World->Tick();
 
         // Drawing
-        SDL_SetRenderDrawColor(Renderer, 200, 200, 200, 255);
+        SDL_SetRenderDrawColor(Renderer, 120, 200, 120, 255);
         SDL_RenderClear(Renderer);
 
         World->Draw();
