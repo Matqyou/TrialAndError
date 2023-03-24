@@ -34,13 +34,15 @@ private:
 
     const double m_BaseAcceleration = 0.75;
     double m_xlook, m_ylook;  // direction
+    double m_LastVibrate;
+    int m_LastShot;
 
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickControls();
 
 public:
-    Character(GameWorld* world, double start_x, double start_y);
+    Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
     ~Character();
 
     void SetGameController(GameController* gameController);

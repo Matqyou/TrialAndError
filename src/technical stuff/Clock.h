@@ -22,10 +22,14 @@ private:
     HPoint VeryBeginning;
     HPoint Beginning;
 
+    int Ticks;
+
 public:
     Clock(double framerate);
     double GetTimeElapsed() const { return (double)(NanoElapsed) / 1.0e9; }
     double GetTotalTimeElapsed() const { return (double)(TotalNanoElapsed) / 1.0e9; }
+    int CurrentTick() const { return Ticks; }
+
     void SetFramerate(double framerate);
 
     void Tick();

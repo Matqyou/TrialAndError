@@ -12,6 +12,7 @@ Clock::Clock(double framerate) {
     NanoElapsed = 0;
     VeryBeginning = HNow();
     Beginning = VeryBeginning;
+    Ticks = 0;
 
     SetFramerate(framerate);
 }
@@ -25,6 +26,7 @@ void Clock::Tick() {
     }
     TotalNanoElapsed = MeasureNanoseconds(VeryBeginning, Ending);
     Beginning = HNow();
+    Ticks++;
 }
 
 void Clock::SetFramerate(double framerate) {

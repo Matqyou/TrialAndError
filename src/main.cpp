@@ -29,7 +29,7 @@ bool Initialize() {
     TextTexture = TextHandler->Render(Font1, "get out or -.. .. .", { 255, 255, 255 });
 
     Controllers = new GameControllers();
-    new Character(World, 500, -100);
+    new Character(World, 30, 30, 10, 10);
     return true;
 }
 
@@ -110,7 +110,7 @@ int main() {
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto* NewPlayer = new Character(World, 100, 100); // Add new player
+                    auto* NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
                     NewPlayer->SetGameController(CurrentController);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
@@ -147,7 +147,8 @@ int main() {
         SDL_SetRenderDrawColor(Renderer, 120, 200, 120, 255);
         SDL_RenderClear(Renderer);
 
-        World->Draw();
+        if (!World->Paused())
+            World->Draw();
 
         SDL_Rect DestinationRect;
         SDL_QueryTexture(TextTexture, nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
