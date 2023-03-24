@@ -4,16 +4,18 @@
 
 #include "ImageManager.h"
 
-Texture::Texture(SDL_Texture* sdl_texture, std::string filepath) {
+Texture::Texture(SDL_Texture* sdl_texture) {
     m_SDLTexture = sdl_texture;
-    m_Filepath = filepath;
     m_NextTexture = nullptr;
     m_PrevTexture = nullptr;
 }
 
 Texture::~Texture() {
     SDL_DestroyTexture(m_SDLTexture);
-    std::printf("Deconstructor for '%s'\n", m_Filepath.c_str());
+}
+
+void Texture::Query(Uint32* format, int* access, int* w, int* h) {
+    SDL_QueryTexture(m_SDLTexture, format, access, w, h);
 }
 
 ImageManager::ImageManager(SDL_Renderer* renderer) {
@@ -33,7 +35,7 @@ Texture* ImageManager::LoadTexture(const char *filepath) {
     SDL_Surface* TempSurface = IMG_Load(filepath);
     SDL_Texture* NewSDLTexture = SDL_CreateTextureFromSurface(m_Renderer, TempSurface);
     SDL_FreeSurface(TempSurface);
-    auto NewTexture = new Texture(NewSDLTexture, filepath);
+    auto NewTexture = new Texture(NewSDLTexture);
 
     if (m_FirstTexture) {
         m_FirstTexture->m_PrevTexture = NewTexture;

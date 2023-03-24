@@ -14,14 +14,14 @@ class Texture {
 private:
     friend class ImageManager;
     SDL_Texture* m_SDLTexture;
-    std::string m_Filepath;
     Texture* m_NextTexture, *m_PrevTexture;
 
 public:
-    explicit Texture(SDL_Texture* sdl_texture, std::string filepath);
+    explicit Texture(SDL_Texture* sdl_texture);
     ~Texture();
 
     SDL_Texture* SDLTexture() const { return m_SDLTexture; }
+    void Query(Uint32* format, int* access, int* w, int* h);
 };
 
 class ImageManager {
