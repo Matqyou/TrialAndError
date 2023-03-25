@@ -10,8 +10,11 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_GameWindow = gameWindow;
     m_Width = width;
     m_Height = height;
-    m_LastEntity = nullptr;
     m_Paused = false;
+
+    m_LastEntity = nullptr;
+    for (auto& i : m_LastEntityType)
+        i = nullptr;
 }
 
 GameWorld::~GameWorld() {
@@ -23,7 +26,36 @@ GameWorld::~GameWorld() {
     }
 }
 
+Character* GameWorld::GetPlayerByIndex(int index) {
+    for (auto Current = m_LastEntityType[ENTTYPE_CHARACTER]; Current != nullptr; Current = Current->m_PrevEntityType) {
+        auto Player = (Character*)Current;
+        if (Player->PlayerIndex() == index)
+            return Player;
+    }
+
+    return nullptr;
+}
+
+void GameWorld::GetNextPlayerIndex(Character* player) {
+    int Index = 1;
+    while (GetPlayerByIndex(Index))
+        Index++;
+
+    player->m_PlayerIndex = Index;
+}
+
 void GameWorld::AddEntity(Entity* entity) {
+    EntityType Enttype = entity->EntityType();
+    if (!m_LastEntityType[Enttype]) {
+        m_LastEntityType[Enttype] = entity;
+        entity->m_PrevEntityType = nullptr;
+        entity->m_NextEntityType = nullptr;
+    } else {
+        m_LastEntityType[Enttype]->m_NextEntityType = entity;
+        entity->m_PrevEntityType = m_LastEntityType[Enttype];
+        m_LastEntityType[Enttype] = entity;
+    }
+
     if (!m_LastEntity) {
         m_LastEntity = entity;
         entity->m_PrevEntity = nullptr;
@@ -36,6 +68,18 @@ void GameWorld::AddEntity(Entity* entity) {
 }
 
 void GameWorld::RemoveEntity(Entity* entity) {
+    EntityType Enttype = entity->EntityType();
+    if (m_LastEntityType[Enttype] == entity) {
+        if (entity->m_PrevEntityType) {
+            m_LastEntityType[Enttype] = entity->m_PrevEntityType;
+            m_LastEntityType[Enttype]->m_NextEntityType = nullptr;
+        } else { m_LastEntityType[Enttype] = nullptr; }
+    } else {
+        Entity* TempNext = entity->m_NextEntityType;
+        if (entity->m_NextEntityType) { entity->m_NextEntityType->m_PrevEntityType = entity->m_PrevEntityType; }
+        if (entity->m_PrevEntityType) { entity->m_PrevEntityType->m_NextEntityType = TempNext; }
+    }
+
     if (m_LastEntity == entity) {
         if (entity->m_PrevEntity) {
             m_LastEntity = entity->m_PrevEntity;

@@ -13,13 +13,14 @@ const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANC
 
 Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93) {
-    m_PlayerIndex = 1; // fix
+    m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
 
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
 
+    m_World->GetNextPlayerIndex(this);
     if (m_PlayerIndex == 1) { memcpy(m_Controls, sDefaultControls, sizeof(m_Controls)); }  // Controls are copied
     else { memset(m_Controls, 0, sizeof(m_Controls)); }  // All controls are set to 0
     m_Controllable = true;
@@ -30,7 +31,6 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_ylook = 0.0;
     m_LastVibrate = 0.0;
     m_LastShot = 0;
-
 
     char Name[CHARACTER_MAX_NAME_LENGTH];
     std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
@@ -134,11 +134,10 @@ void Character::TickGameControllerControls() {
 
         m_LastShot = CurrentTick;
         new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
-        m_xvel += -m_xlook * 0.5;
-        m_yvel += -m_ylook * 0.5;
+        m_xvel += -m_xlook * 10;
+        m_yvel += -m_ylook * 10;
 
         double Time = m_World->GameWindow()->Timer()->GetTotalTimeElapsed();
-
         m_GameController->Vibrate(0xFFFF, 0xFFFF, 30);
 
     }
