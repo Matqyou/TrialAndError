@@ -23,7 +23,7 @@ public:
 private:
     int m_PlayerIndex;
     std::string m_Name;
-    SDL_Texture* m_Nameplate;
+    Texture* m_Nameplate;
     double m_ColorHue;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS];
