@@ -1,4 +1,4 @@
-name: windows-latest
+name: windows-release
 
 on: [push, pull_request]
 
@@ -13,7 +13,7 @@ jobs:
     - name: Configure and Build
       run: |
         mkdir build && cd build
-        cmake ..
+        cmake .. -DCMAKE_BUILD_TYPE=Release
         cmake --build .
     - name: Run Unit Tests
       run: |
