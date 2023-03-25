@@ -1,20 +1,23 @@
-name: C/C++ CI
+name: Build and Test
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - name: run-cmake
-  # You may pin to the exact commit or the version.
-  # uses: lukka/run-cmake@2d1ee0acb9c4f656ec9128fc7387d82ac4539816
-      uses: lukka/run-cmake@v10.3
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Setup CMake
+      uses: actions/setup-cmake@v1
       with:
-        cmakeListsTxtPath: ${{ github.workspace }}/CMakeLists.txt
+        cmake-version: '3.20.0'
+    - name: Configure and Build
+      run: |
+        mkdir build && cd build
+        cmake ..
+        make
+    - name: Run Unit Tests
+      run: |
+        cd build
+        ctest
