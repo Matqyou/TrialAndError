@@ -8,15 +8,49 @@ link_directories(deps/SDL2/lib/x64 deps/SDL2_image/lib/x64 deps/SDL2_mixer/lib/x
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(BUILD_OPTIONS WIN32)
-endif()
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(BUILD_OPTIONS)
-endif()
-
-add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} src/main.cpp "src/technical stuff/Clock.cpp" "src/technical stuff/Clock.h" deps/icon_resource.rc "src/technical stuff/Colors.cpp" "src/technical stuff/Colors.h" src/entities/Character.cpp src/entities/Character.h src/entities/Entity.cpp src/entities/Entity.h "src/technical stuff/TextManager.cpp" "src/technical stuff/TextManager.h" "src/technical stuff/GameControllers.cpp" "src/technical stuff/GameControllers.h" "src/GameReference.cpp" "src/GameReference.h" src/GameWorld.cpp src/GameWorld.h src/entities/Bullets.cpp src/entities/Bullets.h "src/technical stuff/ImageManager.cpp" "src/technical stuff/ImageManager.h")
+set(PROJECT_FILES
+        "src/main.cpp"
+        "src/technical stuff/Clock.cpp"
+        "src/technical stuff/Clock.h"
+        "deps/icon_resource.rc"
+        "src/technical stuff/Colors.cpp"
+        "src/technical stuff/Colors.h"
+        "src/entities/Character.cpp"
+        "src/entities/Character.h"
+        "src/entities/Entity.cpp"
+        "src/entities/Entity.h"
+        "src/technical stuff/TextManager.cpp"
+        "src/technical stuff/TextManager.h"
+        "src/technical stuff/GameControllers.cpp"
+        "src/technical stuff/GameControllers.h"
+        "src/GameReference.cpp"
+        "src/GameReference.h"
+        "src/GameWorld.cpp"
+        "src/GameWorld.h"
+        "src/entities/Bullets.cpp"
+        "src/entities/Bullets.h"
+        "src/technical stuff/ImageManager.cpp"
+        "src/technical stuff/ImageManager.h")
+add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 target_link_libraries(${PROJECT_NAME} SDL2main SDL2 SDL2_image SDL2_mixer SDL2_ttf)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(WIN32)
+        target_compile_options(${PROJECT_NAME} PRIVATE "-mconsole")
+    elseif(APPLE)
+        target_link_options(${PROJECT_NAME} PRIVATE "-Wl,-export-dynamic")
+    else()
+        # No special configuration needed for console output on Linux
+    endif()
+else()
+    if(WIN32)
+        set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+    elseif(APPLE)
+        set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE TRUE)
+    else()
+        set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+    endif()
+endif()
 
 file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
