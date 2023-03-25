@@ -7,11 +7,10 @@
 #include <vector>
 #include <iostream>
 
-SDL_DisplayMode dm;
 GameReference* GameWindow;
 GameWorld* World;
 GameControllers* Controllers;
-SDL_Texture* TextTexture;
+Texture* TextTexture;
 
 bool Initialize() {
     srand(time(nullptr));
@@ -23,7 +22,6 @@ bool Initialize() {
     World->SetPaused(true);
 
     TextManager* TextHandler = GameWindow->TextHandler();
-    SDL_Renderer* Renderer = GameWindow->Renderer();
 
     TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
     TextTexture = TextHandler->Render(Font1, "get out or -.. .. .", { 255, 255, 255 });
@@ -40,7 +38,6 @@ int main() {
         exit(1);
     }
 
-    SDL_Window* Window = GameWindow->Window();
     SDL_Renderer* Renderer = GameWindow->Renderer();
     Clock* Timer = GameWindow->Timer();
     ImageManager* ImageHandler = GameWindow->ImageHandler();
@@ -87,7 +84,6 @@ int main() {
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
                     GameController* DeletedController = Controllers->CloseController(InstanceID);
-                    Character* CorrespondingPlayer = nullptr;
 
                     World->DestroyPlayerByController(DeletedController);
                 } break;
@@ -121,10 +117,10 @@ int main() {
         World->Draw();
 
         SDL_Rect DestinationRect;
-        SDL_QueryTexture(TextTexture, nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
+        TextTexture->Query(nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
         DestinationRect.x = 0;
         DestinationRect.y = GameWindow->Height() - DestinationRect.h;
-        SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
+        SDL_RenderCopy(Renderer, TextTexture->SDLTexture(), nullptr, &DestinationRect);
 
         if (World->Paused()) {
             SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);

@@ -4,18 +4,28 @@
 
 #include "ImageManager.h"
 
-Texture::Texture(SDL_Texture* sdl_texture) {
+Texture::Texture(ImageManager* image_handler, SDL_Texture* sdl_texture, bool auto_cleanup) {
+    m_ImageHandler = image_handler;
     m_SDLTexture = sdl_texture;
     m_NextTexture = nullptr;
     m_PrevTexture = nullptr;
+    m_AutoCleanup = false;
+
+    this->SetAutoCleanup(auto_cleanup);
 }
 
 Texture::~Texture() {
+    m_ImageHandler->RemoveTextureAutoCleanup(this);
     SDL_DestroyTexture(m_SDLTexture);
 }
 
 void Texture::Query(Uint32* format, int* access, int* w, int* h) {
     SDL_QueryTexture(m_SDLTexture, format, access, w, h);
+}
+
+void Texture::SetAutoCleanup(bool auto_cleanup) {
+    if (auto_cleanup) m_ImageHandler->AddTextureAutoCleanup(this);
+    else m_ImageHandler->RemoveTextureAutoCleanup(this);
 }
 
 ImageManager::ImageManager(SDL_Renderer* renderer) {
@@ -31,30 +41,30 @@ ImageManager::~ImageManager() {
     }
 }
 
-Texture* ImageManager::LoadTexture(const char *filepath) {
-    SDL_Surface* TempSurface = IMG_Load(filepath);
-    SDL_Texture* NewSDLTexture = SDL_CreateTextureFromSurface(m_Renderer, TempSurface);
-    SDL_FreeSurface(TempSurface);
-    auto NewTexture = new Texture(NewSDLTexture);
-
-    if (m_FirstTexture) {
-        m_FirstTexture->m_PrevTexture = NewTexture;
-        NewTexture->m_NextTexture = m_FirstTexture;
-        m_FirstTexture = NewTexture;
-    } else {
-        m_FirstTexture = NewTexture;
-    }
-
-    return NewTexture;
-}
-
-void ImageManager::UnloadTexture(Texture* texture) {
-    if (texture == nullptr)
+void ImageManager::AddTextureAutoCleanup(Texture* texture) {
+    if (texture->m_AutoCleanup)
         return;
 
+    texture->m_AutoCleanup = true;
+    if (m_FirstTexture) {
+        m_FirstTexture->m_PrevTexture = texture;
+        texture->m_NextTexture = m_FirstTexture;
+        m_FirstTexture = texture;
+    } else {
+        m_FirstTexture = texture;
+    }
+}
+
+void ImageManager::RemoveTextureAutoCleanup(Texture* texture) {
+    if (texture == nullptr || !texture->m_AutoCleanup)
+        return;
+
+    texture->m_AutoCleanup = false;
     if (m_FirstTexture == texture) {
-        m_FirstTexture = texture->m_PrevTexture;
-        m_FirstTexture->m_NextTexture = nullptr;
+        auto Next = texture->m_NextTexture;
+
+        m_FirstTexture = Next;
+        if (Next) Next->m_PrevTexture = nullptr;
     } else {
         auto Next = texture->m_NextTexture;
         auto Prev = texture->m_PrevTexture;
@@ -62,6 +72,16 @@ void ImageManager::UnloadTexture(Texture* texture) {
         if (Next) Next->m_PrevTexture = Prev;
         if (Prev) Prev->m_NextTexture = Next;
     }
+}
 
-    delete texture;
+Texture* ImageManager::LoadTexture(const char *filepath, bool auto_cleanup) {
+    SDL_Surface* TempSurface = IMG_Load(filepath);
+    SDL_Texture* NewSDLTexture = SDL_CreateTextureFromSurface(m_Renderer, TempSurface);
+    SDL_FreeSurface(TempSurface);
+    return new Texture(this, NewSDLTexture, auto_cleanup);
+}
+
+Texture* ImageManager::TextureFromSurface(SDL_Surface* sdl_surface, bool auto_cleanup) {
+    SDL_Texture* NewSDLTexture = SDL_CreateTextureFromSurface(m_Renderer, sdl_surface);
+    return new Texture(this, NewSDLTexture, auto_cleanup);
 }

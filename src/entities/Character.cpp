@@ -199,7 +199,7 @@ void Character::Draw() {
         return;
 
     int w, h;
-    SDL_QueryTexture(m_Nameplate, nullptr, nullptr, &w, &h);
+    m_Nameplate->Query(nullptr, nullptr, &w, &h);
     SDL_Rect NameplateRect = { int(m_x - w / 2.0), int(m_y - m_h / 2.0 - h), w, h };
-    SDL_RenderCopy(Renderer, m_Nameplate, nullptr, &NameplateRect);
+    SDL_RenderCopy(Renderer, m_Nameplate->SDLTexture(), nullptr, &NameplateRect);
 }
