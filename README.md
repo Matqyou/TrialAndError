@@ -2,4 +2,4 @@
 [![linux-latest](https://github.com/Matq2064/TrialAndError/actions/workflows/linux-latest.yml/badge.svg)](https://github.com/Matq2064/TrialAndError/actions/workflows/linux-latest.yml)
 
 # TrialAndError
-Error
+Yes
