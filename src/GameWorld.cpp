@@ -24,19 +24,22 @@ GameWorld::~GameWorld() {
 }
 
 int GameWorld::NextPlayerIndex() {
-    int CurrentIndex = 1;
+    int Index = 1;
     while (true) {
-        for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = CurrentEntity->m_PrevEntity) {
-            if (CurrentEntity->EntityType() != ENTTYPE_CHARACTER)
+        for (auto Current = m_LastEntity; Current != nullptr; Current = Current->m_NextEntity) {
+            if (Current->EntityType() != ENTTYPE_CHARACTER)
                 continue;
 
-            auto CurrentPlayer = (Character*)CurrentEntity;
-            if (CurrentIndex != CurrentPlayer->PlayerIndex())
-                return CurrentIndex;
+            auto CurrentPlayer = (Character *) Current;
+            if (CurrentPlayer->PlayerIndex() == Index) {
+                Index++;
+                continue;
+            }
 
-            CurrentIndex++;
+            return Index;
         }
     }
+    lol;
 }
 
 void GameWorld::AddEntity(Entity* entity) {
