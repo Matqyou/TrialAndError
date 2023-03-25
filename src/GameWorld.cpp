@@ -23,25 +23,6 @@ GameWorld::~GameWorld() {
     }
 }
 
-int GameWorld::NextPlayerIndex() {
-    int Index = 1;
-    while (true) {
-        for (auto Current = m_LastEntity; Current != nullptr; Current = Current->m_NextEntity) {
-            if (Current->EntityType() != ENTTYPE_CHARACTER)
-                continue;
-
-            auto CurrentPlayer = (Character *) Current;
-            if (CurrentPlayer->PlayerIndex() == Index) {
-                Index++;
-                continue;
-            }
-
-            return Index;
-        }
-    }
-    lol;
-}
-
 void GameWorld::AddEntity(Entity* entity) {
     if (!m_LastEntity) {
         m_LastEntity = entity;

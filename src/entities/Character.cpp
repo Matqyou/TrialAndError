@@ -13,14 +13,13 @@ const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANC
 
 Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93) {
-    m_PlayerIndex = 0; // Must be initialized before assigning a new one
+    m_PlayerIndex = 1; // fix
     m_ColorHue = double(rand()%360);
 
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
 
-    m_PlayerIndex = world->NextPlayerIndex();
     if (m_PlayerIndex == 1) { memcpy(m_Controls, sDefaultControls, sizeof(m_Controls)); }  // Controls are copied
     else { memset(m_Controls, 0, sizeof(m_Controls)); }  // All controls are set to 0
     m_Controllable = true;

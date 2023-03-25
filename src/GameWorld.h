@@ -33,7 +33,6 @@ public:
     double Height() const { return m_Height; }
     double NamesShown() const { return m_ShowNames; }
     bool Paused() const { return m_Paused; }
-    int NextPlayerIndex();
 
     void AddEntity(Entity* entity);
     void RemoveEntity(Entity* entity);
