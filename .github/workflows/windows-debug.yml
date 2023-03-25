@@ -1,0 +1,21 @@
+name: windows-debug
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Setup CMake
+      uses: jwlawson/actions-setup-cmake@v1
+    - name: Configure and Build
+      run: |
+        mkdir build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Debug
+        cmake --build .
+    - name: Run Unit Tests
+      run: |
+        cd build
+        ctest
