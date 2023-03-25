@@ -2,8 +2,7 @@
 #define TRIALANDERROR_CHARACTER_H
 
 #include <SDL.h>
-#include <string>
-#include <iostream>
+#include <cstring>
 #include "Entity.h"
 #include "../technical stuff/GameControllers.h"
 #include "../technical stuff/Colors.h"
