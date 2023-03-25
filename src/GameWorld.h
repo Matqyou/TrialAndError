@@ -15,7 +15,7 @@ private:
     double m_Width, m_Height;  // maybe better if it was int
 
     Entity* m_LastEntity;
-    bool m_ShowNames;
+    double m_ShowNames;
     bool m_Paused;
 
 public:
@@ -31,7 +31,7 @@ public:
     GameReference* GameWindow() const { return m_GameWindow; }
     double Width() const { return m_Width; }
     double Height() const { return m_Height; }
-    bool NamesShown() const { return m_ShowNames; }
+    double NamesShown() const { return m_ShowNames; }
     bool Paused() const { return m_Paused; }
     int NextPlayerIndex();
 

@@ -79,7 +79,7 @@ void GameWorld::DestroyPlayerByController(GameController* DeletedController) {
 }
 
 void GameWorld::ShowNames() {
-    m_ShowNames = true;
+    m_ShowNames = 1.0;
 }
 
 void GameWorld::SetPaused(bool state) {
@@ -102,6 +102,8 @@ void GameWorld::Tick() {
     if (m_Paused)
         return;
 
+    m_ShowNames *= 0.95;
+
     Entity* NextEntity; // allows deletion while looping
     for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = NextEntity) {
         NextEntity = CurrentEntity->m_PrevEntity;
@@ -118,6 +120,4 @@ void GameWorld::Draw() {
 
     for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = CurrentEntity->m_PrevEntity)
         CurrentEntity->Draw();
-
-    m_ShowNames = false;
 }

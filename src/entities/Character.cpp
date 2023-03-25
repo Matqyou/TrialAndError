@@ -195,11 +195,12 @@ void Character::Draw() {
     SDL_SetRenderDrawColor(Renderer, Color.r, Color.g, Color.b, 255);
     SDL_RenderDrawLine(Renderer, int(m_x), int(m_y), int(XLook), int(YLook));
 
-    if (!m_World->NamesShown())
+    if (m_World->NamesShown() == 0.0)
         return;
 
     int w, h;
     m_Nameplate->Query(nullptr, nullptr, &w, &h);
     SDL_Rect NameplateRect = { int(m_x - w / 2.0), int(m_y - m_h / 2.0 - h), w, h };
+    SDL_SetTextureAlphaMod(m_Nameplate->SDLTexture(), int(m_World->NamesShown() * 255.0));
     SDL_RenderCopy(Renderer, m_Nameplate->SDLTexture(), nullptr, &NameplateRect);
 }
