@@ -12,12 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+    - name: run-cmake
+  # You may pin to the exact commit or the version.
+  # uses: lukka/run-cmake@2d1ee0acb9c4f656ec9128fc7387d82ac4539816
+      uses: lukka/run-cmake@v10.3
+      with:
+        cmakeListsTxtPath: CMakeLists.txt
