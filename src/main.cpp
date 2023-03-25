@@ -19,7 +19,6 @@ bool Initialize() {
         return false;
 
     World = new GameWorld(GameWindow, 1000, 1000);
-    World->SetPaused(true);
 
     TextManager* TextHandler = GameWindow->TextHandler();
 

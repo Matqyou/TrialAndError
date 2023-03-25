@@ -11,6 +11,7 @@ class Entity {
 protected:
     friend class GameWorld;
     GameWorld* m_World;
+    Entity* m_PrevEntityType, *m_NextEntityType;
     Entity* m_PrevEntity, *m_NextEntity;
     double m_x, m_y, m_w, m_h;
     double m_BaseDamping;

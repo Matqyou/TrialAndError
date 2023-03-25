@@ -20,6 +20,7 @@ public:
     };
 
 private:
+    friend class GameWorld;
     int m_PlayerIndex;
     std::string m_Name;
     Texture* m_Nameplate;

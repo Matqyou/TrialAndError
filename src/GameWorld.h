@@ -9,15 +9,8 @@
 #include "technical stuff/GameControllers.h"
 
 class Entity;
+class Character;
 class GameWorld {
-private:
-    GameReference* m_GameWindow;
-    double m_Width, m_Height;  // maybe better if it was int
-
-    Entity* m_LastEntity;
-    bool m_ShowNames;
-    bool m_Paused;
-
 public:
     enum EntityType {
         ENTTYPE_CHARACTER,
@@ -25,15 +18,25 @@ public:
         NUM_ENTTYPES
     };
 
+private:
+    GameReference* m_GameWindow;
+    double m_Width, m_Height;  // maybe better if it was int
+    double m_ShowNames{};
+    bool m_Paused;
+    Entity* m_LastEntityType[NUM_ENTTYPES]{};
+    Entity* m_LastEntity;
+
+public:
     GameWorld(GameReference* gameWindow, double width, double height);
     ~GameWorld();
 
     GameReference* GameWindow() const { return m_GameWindow; }
     double Width() const { return m_Width; }
     double Height() const { return m_Height; }
-    bool NamesShown() const { return m_ShowNames; }
+    double NamesShown() const { return m_ShowNames; }
     bool Paused() const { return m_Paused; }
-    int NextPlayerIndex();
+    Character* GetPlayerByIndex(int index);
+    void GetNextPlayerIndex(Character* player);
 
     void AddEntity(Entity* entity);
     void RemoveEntity(Entity* entity);
