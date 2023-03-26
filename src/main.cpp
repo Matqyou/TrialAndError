@@ -37,14 +37,15 @@ int main() {
         exit(1);
     }
 
-    SDL_Renderer* Renderer = GameWindow->Renderer();
     Clock* Timer = GameWindow->Timer();
+    Drawing* Draw = GameWindow->Draw();
     ImageManager* ImageHandler = GameWindow->ImageHandler();
 
     // Load the PNG images
     Texture* TextureConnected = ImageHandler->LoadTexture("assets/chain.png");
     Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/dis_chain.png");
     Texture* TextureIcon = ImageHandler->LoadTexture("assets/PS4_Controller_Icon.png");
+    Texture* Vignette = ImageHandler->LoadTexture("assets/vignette.png");
 
     SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
     SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
@@ -110,39 +111,38 @@ int main() {
         World->Tick();
 
         // Drawing
-        SDL_SetRenderDrawColor(Renderer, 120, 0, 120, 255);
-        SDL_RenderClear(Renderer);
+        Draw->SetColor(120, 0, 120, 255);
+        Draw->Clear();
 
         World->Draw();
+
+        Draw->RenderTexture(Vignette->SDLTexture(), nullptr, nullptr);
 
         SDL_Rect DestinationRect;
         TextTexture->Query(nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
         DestinationRect.x = 0;
         DestinationRect.y = GameWindow->Height() - DestinationRect.h;
-        SDL_RenderCopy(Renderer, TextTexture->SDLTexture(), nullptr, &DestinationRect);
+        Draw->RenderTexture(TextTexture->SDLTexture(), nullptr, &DestinationRect);
 
         if (World->Paused()) {
-            SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 200);
-            SDL_RenderFillRect(Renderer, nullptr);
-            SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
+            Draw->SetBlendingMode(SDL_BLENDMODE_BLEND);
+            Draw->SetColor(0, 0, 0, 200);
+            Draw->FillRect(nullptr);
+            Draw->SetBlendingMode(SDL_BLENDMODE_NONE);
 
             // start
-            SDL_SetRenderDrawColor(Renderer, 90, 20, 20, 255);
-            SDL_RenderFillRect(Renderer, &startButtonRect);
+            Draw->SetColor(90, 20, 20, 255);
+            Draw->FillRect(&startButtonRect);
             // setting
             //SDL_SetRenderDrawColor(Renderer, 0, 80, 40, 255);
             //SDL_RenderFillRect(Renderer, &settingsButtonRect);
 
-            SDL_RenderCopy(Renderer, TextureConnected->SDLTexture(),
-                           nullptr, &ConnectedRect);
-            SDL_RenderCopy(Renderer, TextureDisconnected->SDLTexture(),
-                           nullptr, &DisconnectedRect);
-            SDL_RenderCopy(Renderer, TextureIcon->SDLTexture(),
-                           nullptr, &IconRect);
+            Draw->RenderTexture(TextureConnected->SDLTexture(), nullptr, &ConnectedRect);
+            Draw->RenderTexture(TextureDisconnected->SDLTexture(), nullptr, &DisconnectedRect);
+            Draw->RenderTexture(TextureIcon->SDLTexture(), nullptr, &IconRect);
         }
 
-        SDL_RenderPresent(Renderer);
+        Draw->UpdateWindow();
         Timer->Tick();
     }
     delete Controllers;

@@ -37,9 +37,11 @@ set(PROJECT_FILES
         "src/entities/Bullets.cpp"
         "src/entities/Bullets.h"
         "src/technical stuff/ImageManager.cpp"
-        "src/technical stuff/ImageManager.h")
+        "src/technical stuff/ImageManager.h"
+        "src/technical stuff/Drawing.cpp"
+        "src/technical stuff/Drawing.h")
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
-target_link_libraries(${PROJECT_NAME} SDL2main SDL2 SDL2_image SDL2_mixer SDL2_ttf)
+target_link_libraries(${PROJECT_NAME} SDL2 SDL2_image SDL2_mixer SDL2_ttf)
 
 file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
