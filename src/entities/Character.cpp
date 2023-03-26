@@ -174,7 +174,7 @@ void Character::Tick() {
 
 void Character::Draw() {
     Clock* Timer = m_World->GameWindow()->Timer();
-    SDL_Renderer* Renderer = m_World->GameWindow()->Renderer();
+    Drawing* Render = m_World->GameWindow()->Draw();
 
     double Light = 0.5 + (std::sin(Timer->GetTotalTimeElapsed() - m_ExistsSince) + 1.0) / 4;
     SDL_Color Color = HSLtoRGB({ m_ColorHue, 1.0, Light });
@@ -183,14 +183,14 @@ void Character::Draw() {
                           float(m_y) - float(m_h/2),
                           float(m_w),
                           float(m_h)};
-    SDL_SetRenderDrawColor(Renderer, Color.r, Color.g, Color.b, 255);
-    SDL_RenderFillRectF(Renderer, &DrawRect);
+    Render->SetColor(Color.r, Color.g, Color.b, 255);
+    Render->FillRectF(&DrawRect);
 
     double XLook = m_x + m_xlook * 50.0;
     double YLook = m_y + m_ylook * 50.0;
     Color = HSLtoRGB({ m_ColorHue, 1.0 - Light, 1.0 });
-    SDL_SetRenderDrawColor(Renderer, Color.r, Color.g, Color.b, 255);
-    SDL_RenderDrawLine(Renderer, int(m_x), int(m_y), int(XLook), int(YLook));
+    Render->SetColor(Color.r, Color.g, Color.b, 255);
+    Render->Line(int(m_x), int(m_y), int(XLook), int(YLook));
 
     if (m_World->NamesShown() == 0.0)
         return;
@@ -199,5 +199,5 @@ void Character::Draw() {
     m_Nameplate->Query(nullptr, nullptr, &w, &h);
     SDL_Rect NameplateRect = { int(m_x - w / 2.0), int(m_y - m_h / 2.0 - h), w, h };
     SDL_SetTextureAlphaMod(m_Nameplate->SDLTexture(), int(m_World->NamesShown() * 255.0));
-    SDL_RenderCopy(Renderer, m_Nameplate->SDLTexture(), nullptr, &NameplateRect);
+    Render->RenderTexture(m_Nameplate->SDLTexture(), nullptr, &NameplateRect);
 }

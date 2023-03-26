@@ -25,7 +25,7 @@ void Bullets::Tick() {
 }
 
 void Bullets::Draw() {
-    SDL_Renderer* Renderer = m_World->GameWindow()->Renderer();
+    Drawing* Render = m_World->GameWindow()->Draw();
 
     double XDirection = 1.0;
     double YDirection = 0.0;
@@ -38,8 +38,8 @@ void Bullets::Draw() {
     XDirection *= m_w;
     YDirection *= m_w;
 
-    SDL_SetRenderDrawColor(Renderer, rand()%255, rand()%255, rand()%255, 255);
-    SDL_RenderDrawLine(Renderer, int(m_x - XDirection), int(m_y - YDirection),
-                       int(m_x + XDirection), int(m_y + YDirection));
+    Render->SetColor(rand()%255, rand()%255, rand()%255, 255);
+    Render->Line(int(m_x - XDirection), int(m_y - YDirection),
+                 int(m_x + XDirection), int(m_y + YDirection));
     // we can only rotate textures so have lines for now
 }

@@ -20,7 +20,9 @@ public:
 
     void SetCameraPos(double x, double y);
     void SetBlendingMode(SDL_BlendMode blend_mode);
+    void Line(int x1, int y1, int x2, int y2);
     void FillRect(SDL_Rect* rect);
+    void FillRectF(SDL_FRect* rect);
     void RenderTexture(SDL_Texture* texture, SDL_Rect* srcrect, SDL_Rect* dstrect);
     void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
     void Clear();

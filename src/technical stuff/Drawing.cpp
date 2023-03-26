@@ -23,8 +23,16 @@ void Drawing::SetBlendingMode(SDL_BlendMode blend_mode) {
     SDL_SetRenderDrawBlendMode(m_Renderer, blend_mode);
 }
 
+void Drawing::Line(int x1, int y1, int x2, int y2) {
+    SDL_RenderDrawLine(m_Renderer, x1, y1, x2, y2);
+}
+
 void Drawing::FillRect(SDL_Rect* rect) {
     SDL_RenderFillRect(m_Renderer, rect);
+}
+
+void Drawing::FillRectF(SDL_FRect* rect) {
+    SDL_RenderFillRectF(m_Renderer, rect);
 }
 
 void Drawing::RenderTexture(SDL_Texture* texture, SDL_Rect* srcrect, SDL_Rect* dstrect) {
