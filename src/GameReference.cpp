@@ -8,6 +8,7 @@ GameReference::GameReference() {
     m_Window = nullptr;
     m_Renderer = nullptr;
     m_Timer = nullptr;
+    m_Draw = nullptr;
     m_TextHandler = nullptr;
     m_ImageHandler = nullptr;
     m_Width = 0;
@@ -17,8 +18,9 @@ GameReference::GameReference() {
 
 GameReference::~GameReference() {
     if (m_Initialized) {
-        delete m_TextHandler;
         delete m_ImageHandler;
+        delete m_TextHandler;
+        delete m_Draw;
         delete m_Timer;
         SDL_DestroyRenderer(m_Renderer);
         SDL_DestroyWindow(m_Window);
@@ -66,6 +68,7 @@ bool GameReference::Initialize() {
     }
 
     m_Timer = new Clock(60);
+    m_Draw = new Drawing(m_Renderer);
     m_ImageHandler = new ImageManager(m_Renderer);
     m_TextHandler = new TextManager(m_ImageHandler);
     return true;
