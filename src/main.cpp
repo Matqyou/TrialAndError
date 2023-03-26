@@ -45,6 +45,7 @@ int main() {
     Texture* TextureConnected = ImageHandler->LoadTexture("assets/chain.png");
     Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/dis_chain.png");
     Texture* TextureIcon = ImageHandler->LoadTexture("assets/PS4_Controller_Icon.png");
+    Texture* Vignette = ImageHandler->LoadTexture("assets/vignette.png");
 
     SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
     SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
@@ -114,6 +115,8 @@ int main() {
         SDL_RenderClear(Renderer);
 
         World->Draw();
+
+        SDL_RenderCopy(Renderer, Vignette->SDLTexture(), nullptr, nullptr);
 
         SDL_Rect DestinationRect;
         TextTexture->Query(nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);

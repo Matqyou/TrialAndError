@@ -7,7 +7,6 @@
 #include "Bullets.h"
 #include <vector>
 
-std::vector<Bullets*> Bullet;
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_SPACE };
 

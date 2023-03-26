@@ -50,7 +50,7 @@ bool GameReference::Initialize() {
         return false;
     }
 
-    m_Width = 960;
+    m_Width = 1280;
     m_Height = 720;
     m_Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                 m_Width, m_Height, SDL_WINDOW_RESIZABLE);
