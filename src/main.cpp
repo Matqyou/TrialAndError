@@ -7,11 +7,10 @@
 #include <vector>
 #include <iostream>
 
-SDL_DisplayMode dm;
 GameReference* GameWindow;
 GameWorld* World;
 GameControllers* Controllers;
-SDL_Texture* TextTexture;
+Texture* TextTexture;
 
 bool Initialize() {
     srand(time(nullptr));
@@ -22,27 +21,13 @@ bool Initialize() {
     World = new GameWorld(GameWindow, 1000, 1000);
 
     TextManager* TextHandler = GameWindow->TextHandler();
-    SDL_Renderer* Renderer = GameWindow->Renderer();
 
     TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
     TextTexture = TextHandler->Render(Font1, "get out or -.. .. .", { 255, 255, 255 });
 
     Controllers = new GameControllers();
-    new Character(World, 100, 100);
+    new Character(World, 30, 30, 10, 10);
     return true;
-}
-
-
-// Function to handle controller events
-void handleControllerEvent(SDL_Event event)
-{
-    if (event.type == SDL_CONTROLLERBUTTONDOWN) {
-        std::cout << "Button " << static_cast<int>(event.cbutton.button) << " on controller " << static_cast<int>(event.cbutton.which) << " was pressed" << std::endl;
-    } else if (event.type == SDL_CONTROLLERBUTTONUP) {
-        std::cout << "Button " << static_cast<int>(event.cbutton.button) << " on controller " << static_cast<int>(event.cbutton.which) << " was released" << std::endl;
-    } else if (event.type == SDL_CONTROLLERAXISMOTION) {
-        std::cout << "Axis " << static_cast<int>(event.caxis.axis) << " on controller " << static_cast<int>(event.caxis.which) << " moved to " << static_cast<int>(event.caxis.value) << std::endl;
-    }
 }
 
 
@@ -52,36 +37,24 @@ int main() {
         exit(1);
     }
 
-    SDL_Window* Window = GameWindow->Window();
-    SDL_Renderer* Renderer = GameWindow->Renderer();
     Clock* Timer = GameWindow->Timer();
+    Drawing* Draw = GameWindow->Draw();
+    ImageManager* ImageHandler = GameWindow->ImageHandler();
 
     // Load the PNG images
-    SDL_Surface* connected = IMG_Load("chain.png");
-    if (!connected)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
-    SDL_Surface* disconnected = IMG_Load("dis_chain.png");
-    if (!disconnected)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
-    SDL_Surface* Icon = IMG_Load("PS4_Controller_Icon.png");
-    if (!Icon)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
+    Texture* TextureConnected = ImageHandler->LoadTexture("assets/chain.png");
+    Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/dis_chain.png");
+    Texture* TextureIcon = ImageHandler->LoadTexture("assets/PS4_Controller_Icon.png");
+    Texture* Vignette = ImageHandler->LoadTexture("assets/vignette.png");
+
+    SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
+    SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
+    SDL_Rect IconRect = { 100, 400, 200, 109 };
 
     // Render the Start button
-    SDL_Rect startButtonRect = { 375, 100, 200, 50 };
+    SDL_Rect startButtonRect = { 350, 100, 250, 60 };
     // Render the Settings button
-    SDL_Rect settingsButtonRect = { 375, 200, 200, 50 };
-
-
+    //SDL_Rect settingsButtonRect = { 350, 200, 250, 60 };
 
     bool Running = true;
     while (Running) {
@@ -98,7 +71,23 @@ int main() {
                 } break;
                 case SDL_KEYDOWN: {
                     if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                        Running = false;
+                        World->SetPaused(!World->Paused());
+                    // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
+                    //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
+                } break;
+                case SDL_CONTROLLERDEVICEADDED: {
+                    int DeviceID = CurrentEvent.cdevice.which;
+                    GameController* CurrentController = Controllers->OpenController(DeviceID);
+                    auto* NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
+                    NewPlayer->SetGameController(CurrentController);
+                } break;
+                case SDL_CONTROLLERDEVICEREMOVED: {
+                    int InstanceID = CurrentEvent.cdevice.which;
+                    GameController* DeletedController = Controllers->CloseController(InstanceID);
+
+                    World->DestroyPlayerByController(DeletedController);
+                } break;
+                case SDL_MOUSEBUTTONDOWN: {
                     if (CurrentEvent.button.button == SDL_BUTTON_LEFT)
                     {
                         int x = CurrentEvent.button.x;
@@ -106,39 +95,14 @@ int main() {
                         if (x >= startButtonRect.x && x < startButtonRect.x + startButtonRect.w &&
                             y >= startButtonRect.y && y < startButtonRect.y + startButtonRect.h)
                         {
-                            std::cout << "Hy" << std::endl;
+                            World->SetPaused(false);
                         }
-                        else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
-                                 y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
-                        {
-                            std::cout << "Yh" << std::endl;
-                        }
+                        //else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
+                        //    y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
+                        //{
+                        //    std::cout << "Settings" << std::endl;
+                        //}
                     }
-                    // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
-                    //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
-                } break;
-                case SDL_CONTROLLERDEVICEADDED: {
-                    int DeviceID = CurrentEvent.cdevice.which;
-                    GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto* NewPlayer = new Character(World, 100, 100); // Add new player
-                    NewPlayer->SetGameController(CurrentController);
-                } break;
-                case SDL_CONTROLLERDEVICEREMOVED: {
-                    int InstanceID = CurrentEvent.cdevice.which;
-                    GameController* DeletedController = Controllers->CloseController(InstanceID);
-                    Character* CorrespondingPlayer = nullptr;
-                    for (Entity* CurrentEntity : World->Entities()) {
-                        if (CurrentEntity->EntityType() != GameWorld::ENTTYPE_CHARACTER)
-                            continue;
-
-                        auto CurrentPlayer = (Character*)CurrentEntity;
-                        if (CurrentPlayer->GetGameController() == DeletedController) {
-                            CorrespondingPlayer = CurrentPlayer;
-                            break;
-                        }
-                    }
-
-                    delete CorrespondingPlayer;
                 } break;
             }
         }
@@ -147,29 +111,40 @@ int main() {
         World->Tick();
 
         // Drawing
-        SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
-        SDL_RenderClear(Renderer);
+        Draw->SetColor(120, 0, 120, 255);
+        Draw->Clear();
 
         World->Draw();
 
+        Draw->RenderTexture(Vignette->SDLTexture(), nullptr, nullptr);
+
         SDL_Rect DestinationRect;
-        SDL_QueryTexture(TextTexture, nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
+        TextTexture->Query(nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
         DestinationRect.x = 0;
         DestinationRect.y = GameWindow->Height() - DestinationRect.h;
-        SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
+        Draw->RenderTexture(TextTexture->SDLTexture(), nullptr, &DestinationRect);
 
-        SDL_SetRenderDrawColor(Renderer, rand(), rand(), rand(), 255);
-        SDL_RenderFillRect(Renderer, &startButtonRect);
+        if (World->Paused()) {
+            Draw->SetBlendingMode(SDL_BLENDMODE_BLEND);
+            Draw->SetColor(0, 0, 0, 200);
+            Draw->FillRect(nullptr);
+            Draw->SetBlendingMode(SDL_BLENDMODE_NONE);
 
-        SDL_SetRenderDrawColor(Renderer, rand(), rand(), rand(), 255);
-        SDL_RenderFillRect(Renderer, &settingsButtonRect);
+            // start
+            Draw->SetColor(90, 20, 20, 255);
+            Draw->FillRect(&startButtonRect);
+            // setting
+            //SDL_SetRenderDrawColor(Renderer, 0, 80, 40, 255);
+            //SDL_RenderFillRect(Renderer, &settingsButtonRect);
 
-        SDL_RenderPresent(Renderer);
+            Draw->RenderTexture(TextureConnected->SDLTexture(), nullptr, &ConnectedRect);
+            Draw->RenderTexture(TextureDisconnected->SDLTexture(), nullptr, &DisconnectedRect);
+            Draw->RenderTexture(TextureIcon->SDLTexture(), nullptr, &IconRect);
+        }
+
+        Draw->UpdateWindow();
         Timer->Tick();
     }
-    SDL_FreeSurface(connected);
-    SDL_FreeSurface(disconnected);
-    SDL_FreeSurface(Icon);
     delete Controllers;
     delete World;
     delete GameWindow;

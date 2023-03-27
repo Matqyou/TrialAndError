@@ -2,8 +2,7 @@
 #define TRIALANDERROR_CHARACTER_H
 
 #include <SDL.h>
-#include <string>
-#include <iostream>
+#include <cstring>
 #include "Entity.h"
 #include "../technical stuff/GameControllers.h"
 #include "../technical stuff/Colors.h"
@@ -29,9 +28,10 @@ public:
     };
 
 private:
+    friend class GameWorld;
     int m_PlayerIndex;
     std::string m_Name;
-    SDL_Texture* m_Nameplate;
+    Texture* m_Nameplate;
     double m_ColorHue;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS];
@@ -42,13 +42,15 @@ private:
 
     const double m_BaseAcceleration = 0.75;
     double m_xlook, m_ylook;  // direction
+    double m_LastVibrate;
+    int m_LastShot;
 
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickControls();
 
 public:
-    Character(GameWorld* world, double start_x, double start_y);
+    Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
     ~Character();
 
     void SetGameController(GameController* gameController);

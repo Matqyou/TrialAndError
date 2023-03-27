@@ -8,6 +8,10 @@ Entity::Entity(GameWorld* world, GameWorld::EntityType entityType,
                double start_x, double start_y, double start_w, double start_h,
                double base_damping = 0.90) {
     m_World = world;
+    m_PrevEntityType = nullptr;
+    m_NextEntityType = nullptr;
+    m_PrevEntity = nullptr;
+    m_NextEntity = nullptr;
     m_EntityType = entityType;
     m_x = start_x;
     m_y = start_y;
@@ -85,12 +89,12 @@ void Entity::Tick() {
 }
 
 void Entity::Draw() {
-    SDL_Renderer* Renderer = m_World->GameWindow()->Renderer();
+    Drawing* Render = m_World->GameWindow()->Draw();
 
-    SDL_SetRenderDrawColor(Renderer, rand()%255, rand()%255, rand()%255, 255);
+    Render->SetColor(rand()%255, rand()%255, rand()%255, 255);
     SDL_FRect DrawRect = {float(m_x) - float(m_w/2),
                           float(m_y) - float(m_h/2),
                           float(m_w),
                           float(m_h)};
-    SDL_RenderFillRectF(Renderer, &DrawRect);
+    Render->FillRectF(&DrawRect);
 }

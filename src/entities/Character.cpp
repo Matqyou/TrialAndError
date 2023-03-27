@@ -7,29 +7,29 @@
 #include "Bullets.h"
 #include <vector>
 
-std::vector<Bullets*> Bullet;
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_SPACE };
 
-Character::Character(GameWorld* world, double start_x, double start_y)
+Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93) {
-    m_PlayerIndex = 0; // Must be initialized before assigning a new one
+    m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
 
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
 
-    m_PlayerIndex = world->NextPlayerIndex();
+    m_World->GetNextPlayerIndex(this);
     if (m_PlayerIndex == 1) { memcpy(m_Controls, sDefaultControls, sizeof(m_Controls)); }  // Controls are copied
     else { memset(m_Controls, 0, sizeof(m_Controls)); }  // All controls are set to 0
     m_Controllable = true;
-    m_Weapon = WEAPON_BURST;
 
-    m_xvel = 0.0;
-    m_yvel = 0.0;
+    m_xvel = start_xvel;
+    m_yvel = start_yvel;
     m_xlook = 1.0;
     m_ylook = 0.0;
+    m_LastVibrate = 0.0;
+    m_LastShot = 0;
 
     char Name[CHARACTER_MAX_NAME_LENGTH];
     std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
@@ -84,6 +84,26 @@ void Character::TickKeyboardControls() {
         m_xlook = 1.0;
         m_ylook = 0.0;
     }
+
+    double magnitude = std::sqrt(m_xlook * m_xlook + m_ylook * m_ylook);
+    m_xlook /= magnitude;
+    m_ylook /= magnitude;
+    bool Shoot = false;
+    if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+        Shoot = true;
+    }
+    if (Shoot) {
+        int CurrentTick = m_World->GameWindow()->Timer()->CurrentTick();
+        if (CurrentTick - m_LastShot < 24)
+            return;
+        m_LastShot = CurrentTick;
+        new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
+        m_xvel += -m_xlook * 10;
+        m_yvel += -m_ylook * 10;
+
+        double Time = m_World->GameWindow()->Timer()->GetTotalTimeElapsed();
+
+        }
 }
 
 void Character::TickGameControllerControls() {
@@ -125,15 +145,20 @@ void Character::TickGameControllerControls() {
     }
 
     //Shooting
-    bool Shoot = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-    if (Shoot){
-        m_GameController->Vibrate(0xffff, 0xffff, 50);
-        if(m_Weapon == WEAPON_BURST){
-            for(int x = 0; x < 5; x++){
+    bool Shoot = m_GameController->GetRightTrigger() > 0.7;
+    if (Shoot) {
+        int CurrentTick = m_World->GameWindow()->Timer()->CurrentTick();
+        if (CurrentTick - m_LastShot < 24)
+            return;
 
-                 new Bullets(m_World, m_x, m_y, m_xlook*10, m_ylook*10);
-            }
-        }
+        m_LastShot = CurrentTick;
+        new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
+        m_xvel += -m_xlook * 10;
+        m_yvel += -m_ylook * 10;
+
+        double Time = m_World->GameWindow()->Timer()->GetTotalTimeElapsed();
+        m_GameController->Vibrate(0xFFFF, 0xFFFF, 30);
+
     }
 }
 
@@ -169,7 +194,7 @@ void Character::Tick() {
 
 void Character::Draw() {
     Clock* Timer = m_World->GameWindow()->Timer();
-    SDL_Renderer* Renderer = m_World->GameWindow()->Renderer();
+    Drawing* Render = m_World->GameWindow()->Draw();
 
     double Light = 0.5 + (std::sin(Timer->GetTotalTimeElapsed() - m_ExistsSince) + 1.0) / 4;
     SDL_Color Color = HSLtoRGB({ m_ColorHue, 1.0, Light });
@@ -178,20 +203,21 @@ void Character::Draw() {
                           float(m_y) - float(m_h/2),
                           float(m_w),
                           float(m_h)};
-    SDL_SetRenderDrawColor(Renderer, Color.r, Color.g, Color.b, 255);
-    SDL_RenderFillRectF(Renderer, &DrawRect);
+    Render->SetColor(Color.r, Color.g, Color.b, 255);
+    Render->FillRectF(&DrawRect);
 
     double XLook = m_x + m_xlook * 50.0;
     double YLook = m_y + m_ylook * 50.0;
     Color = HSLtoRGB({ m_ColorHue, 1.0 - Light, 1.0 });
-    SDL_SetRenderDrawColor(Renderer, Color.r, Color.g, Color.b, 255);
-    SDL_RenderDrawLine(Renderer, int(m_x), int(m_y), int(XLook), int(YLook));
+    Render->SetColor(Color.r, Color.g, Color.b, 255);
+    Render->Line(int(m_x), int(m_y), int(XLook), int(YLook));
 
-    if (!m_World->NamesShown())
+    if (m_World->NamesShown() == 0.0)
         return;
 
     int w, h;
-    SDL_QueryTexture(m_Nameplate, nullptr, nullptr, &w, &h);
+    m_Nameplate->Query(nullptr, nullptr, &w, &h);
     SDL_Rect NameplateRect = { int(m_x - w / 2.0), int(m_y - m_h / 2.0 - h), w, h };
-    SDL_RenderCopy(Renderer, m_Nameplate, nullptr, &NameplateRect);
+    SDL_SetTextureAlphaMod(m_Nameplate->SDLTexture(), int(m_World->NamesShown() * 255.0));
+    Render->RenderTexture(m_Nameplate->SDLTexture(), nullptr, &NameplateRect);
 }
