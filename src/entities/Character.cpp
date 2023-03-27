@@ -14,7 +14,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
-
+    m_Weapon = WEAPON_SHOTGUN;
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
@@ -92,17 +92,41 @@ void Character::TickKeyboardControls() {
     if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
         Shoot = true;
     }
-    if (Shoot) {
+    if (Shoot){
         int CurrentTick = m_World->GameWindow()->Timer()->CurrentTick();
-        if (CurrentTick - m_LastShot < 24)
-            return;
-        m_LastShot = CurrentTick;
-        new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
-        m_xvel += -m_xlook * 10;
-        m_yvel += -m_ylook * 10;
+        if (m_Weapon == WEAPON_GLOCK) {
+            if (CurrentTick - m_LastShot < 24)
+                return;
+            m_LastShot = CurrentTick;
+            new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
+            m_xvel += -m_xlook * 10;
+            m_yvel += -m_ylook * 10;
+            double Time = m_World->GameWindow()->Timer()->GetTotalTimeElapsed();
+        }
+        else if (m_Weapon == WEAPON_BURST) {
+            if (CurrentTick - m_LastShot < 64)
+                return;
+            m_LastShot = CurrentTick;
+            new Bullets(m_World, m_x , m_y , m_xlook * 10, m_ylook * 10);
+            new Bullets(m_World, m_x*1.1 , m_y*1.1 , m_xlook * 10, m_ylook * 10);
+            new Bullets(m_World, m_x*1.05 , m_y*1.05 , m_xlook * 10, m_ylook * 10);
+            m_xvel += -m_xlook;
+            m_yvel += -m_ylook;
+        }
+        else if (m_Weapon == WEAPON_SHOTGUN){
+            if (CurrentTick - m_LastShot < 128)
+                return;
+            m_LastShot = CurrentTick;
 
-        double Time = m_World->GameWindow()->Timer()->GetTotalTimeElapsed();
-
+            new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
+            new Bullets(m_World, m_x, m_y, (m_xlook+0.25) * 10, (m_ylook+0.25) * 10);
+            new Bullets(m_World, m_x, m_y, (m_xlook+0.50) * 10, (m_ylook+0.50) * 10);
+            new Bullets(m_World, m_x, m_y, (m_xlook-0.25) * 10, (m_ylook-0.25) * 10);
+            new Bullets(m_World, m_x, m_y, (m_xlook-0.50) * 10, (m_ylook-0.50) * 10);
+            m_xvel += -m_xlook * 30;
+            m_yvel += -m_ylook * 30;
+            }
+            double Time = m_World->GameWindow()->Timer()->GetTotalTimeElapsed();
         }
 }
 
