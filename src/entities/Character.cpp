@@ -84,6 +84,26 @@ void Character::TickKeyboardControls() {
         m_xlook = 1.0;
         m_ylook = 0.0;
     }
+
+    double magnitude = std::sqrt(m_xlook * m_xlook + m_ylook * m_ylook);
+    m_xlook /= magnitude;
+    m_ylook /= magnitude;
+    bool Shoot = false;
+    if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+        Shoot = true;
+    }
+    if (Shoot) {
+        int CurrentTick = m_World->GameWindow()->Timer()->CurrentTick();
+        if (CurrentTick - m_LastShot < 24)
+            return;
+        m_LastShot = CurrentTick;
+        new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
+        m_xvel += -m_xlook * 10;
+        m_yvel += -m_ylook * 10;
+
+        double Time = m_World->GameWindow()->Timer()->GetTotalTimeElapsed();
+
+        }
 }
 
 void Character::TickGameControllerControls() {
