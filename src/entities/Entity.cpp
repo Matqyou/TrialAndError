@@ -89,12 +89,12 @@ void Entity::Tick() {
 }
 
 void Entity::Draw() {
-    Drawing* Render = m_World->GameWindow()->Draw();
+    Drawing* Render = m_World->GameWindow()->RenderClass();
 
     Render->SetColor(rand()%255, rand()%255, rand()%255, 255);
     SDL_FRect DrawRect = {float(m_x) - float(m_w/2),
                           float(m_y) - float(m_h/2),
                           float(m_w),
                           float(m_h)};
-    Render->FillRectF(&DrawRect);
+    Render->FillRectFWorld(DrawRect);
 }

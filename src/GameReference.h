@@ -32,7 +32,7 @@ public:
     SDL_Window* Window() const { return m_Window; }
     SDL_Renderer* Renderer() const { return m_Renderer; }
     Clock* Timer() const { return m_Timer; }
-    Drawing* Draw() const { return m_Draw; }
+    Drawing* RenderClass() const { return m_Draw; }
     ImageManager* ImageHandler() const { return m_ImageHandler; }
     TextManager* TextHandler() const { return m_TextHandler; }
     int Width() const { return m_Width; }

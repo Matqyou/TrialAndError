@@ -44,6 +44,16 @@ void GameWorld::GetNextPlayerIndex(Character* player) {
     player->m_PlayerIndex = Index;
 }
 
+void GameWorld::GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const {
+    out_x = relative_x - m_x;
+    out_x = relative_y - m_y;
+}
+
+void GameWorld::SetCameraPos(double x, double y) {
+    m_x = x;
+    m_y = y;
+}
+
 void GameWorld::AddEntity(Entity* entity) {
     EntityType Enttype = entity->EntityType();
     if (!m_LastEntityType[Enttype]) {
@@ -140,11 +150,11 @@ void GameWorld::Tick() {
 }
 
 void GameWorld::Draw() {
-    SDL_Renderer* Renderer = m_GameWindow->Renderer();
+    Drawing* Render = m_GameWindow->RenderClass();
 
     SDL_Rect DrawRect = { 0, 0, int(m_Width), int(m_Height) };
-    SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 255);
-    SDL_RenderDrawRect(Renderer, &DrawRect);
+    Render->SetColor(255, 0, 0, 255);
+    Render->DrawRectWorld(DrawRect);
 
     for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = CurrentEntity->m_PrevEntity)
         CurrentEntity->Draw();
