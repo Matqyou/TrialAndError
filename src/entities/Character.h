@@ -49,6 +49,7 @@ private:
     double m_xvelHook, m_yvelHook;
     bool m_HookDeployed;
     bool m_Hook, m_LastHook;
+    bool m_HookGrabbedWall;
 
     void TickKeyboardControls();
     void TickGameControllerControls();

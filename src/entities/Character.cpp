@@ -38,7 +38,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_HookDeployed = false;
     m_Hook = false;
     m_LastHook = false;
-
+    m_HookGrabbedWall = false;
 
     char Name[CHARACTER_MAX_NAME_LENGTH];
     std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
@@ -94,7 +94,7 @@ void Character::TickKeyboardControls() {
         m_yLook = 0.0;
     }
 
-    int MouseState = SDL_GetMouseState(nullptr, nullptr);
+    auto MouseState = SDL_GetMouseState(nullptr, nullptr);
     m_Shoot = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
     m_Hook = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
 }
@@ -159,6 +159,7 @@ void Character::TickHook() {
         m_yvelHook = m_yLook * 35;
     } else if (m_HookDeployed && !m_Hook && m_LastHook) {  // Instant retraction for now
         m_HookDeployed = false;
+        m_HookGrabbedWall = false;
     }
 
     if (!m_HookDeployed)
@@ -170,12 +171,45 @@ void Character::TickHook() {
     double TravelX = m_xHook - m_x;
     double TravelY = m_yHook - m_y;
     double Length = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
-    const double MaxLength = 300.0;
-    if (Length > MaxLength) {
-        m_xHook = m_x + TravelX / Length * MaxLength;
-        m_yHook = m_y + TravelY / Length * MaxLength;
-        m_xvelHook -= TravelX / Length * 2.0;
-        m_yvelHook -= TravelY / Length * 2.0;
+    if (Length != 0.0) {
+        TravelX /= Length;
+        TravelY /= Length;
+    }
+
+    if (!m_HookGrabbedWall) {
+        const double MaxLength = 300.0;
+        if (Length > MaxLength) {
+            m_xHook = m_x + TravelX * MaxLength;
+            m_yHook = m_y + TravelY * MaxLength;
+            m_xvelHook -= TravelX * 2.0;
+            m_yvelHook -= TravelY * 2.0;
+        }
+
+        // Hook snaps to wall - fix later cus ugly
+        if (m_xHook < 0.0) {
+            m_xHook = 0.0;
+            m_xvelHook = 0.0;
+            m_yvelHook = 0.0;
+            m_HookGrabbedWall = true;
+        } else if (m_yHook < 0.0) {
+            m_yHook = 0.0;
+            m_xvelHook = 0.0;
+            m_yvelHook = 0.0;
+            m_HookGrabbedWall = true;
+        } else if (m_xHook > m_World->Width()) {
+            m_xHook = m_World->Width();
+            m_xvelHook = 0.0;
+            m_yvelHook = 0.0;
+            m_HookGrabbedWall = true;
+        } else if (m_yHook > m_World->Height()) {
+            m_yHook = m_World->Height();
+            m_xvelHook = 0.0;
+            m_yvelHook = 0.0;
+            m_HookGrabbedWall = true;
+        }
+    } else {
+        m_xvel += TravelX * 1.5;
+        m_yvel += TravelY * 1.5;
     }
 }
 
