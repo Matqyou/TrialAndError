@@ -3,40 +3,82 @@
 //
 
 #include "Drawing.h"
+#include "../GameWorld.h"
 
-Drawing::Drawing(SDL_Renderer* renderer) {
-    m_Renderer = renderer;
-    m_x = 0.0;
-    m_y = 0.0;
+Drawing::Drawing(GameReference* game_window) {
+    m_GameWindow = game_window;
+    m_World = nullptr;
+    m_Renderer = m_GameWindow->Renderer();
 }
 
 Drawing::~Drawing() {
 
 }
 
-void Drawing::SetCameraPos(double x, double y) {
-    m_x = x;
-    m_y = y;
+double Drawing::TranslateX(double x) {
+    return x - m_World->CameraX() + m_World->GameWindow()->Width() / 2.0;
+}
+
+double Drawing::TranslateY(double y) {
+    return y - m_World->CameraY() + m_World->GameWindow()->Height() / 2.0;
+}
+
+
+SDL_Rect Drawing::TranslateRect(const SDL_Rect& rect) {
+    return { int(TranslateX(rect.x)),
+             int(TranslateY(rect.y)),
+             rect.w, rect.h };
+}
+
+SDL_FRect Drawing::TranslateFRect(const SDL_FRect& rect) {
+    return { float(TranslateX(rect.x)),
+             float(TranslateY(rect.y)),
+             rect.w, rect.h };
+}
+
+void Drawing::SetWorld(GameWorld* world) {
+    m_World = world;
 }
 
 void Drawing::SetBlendingMode(SDL_BlendMode blend_mode) {
     SDL_SetRenderDrawBlendMode(m_Renderer, blend_mode);
 }
 
-void Drawing::Line(int x1, int y1, int x2, int y2) {
-    SDL_RenderDrawLine(m_Renderer, x1, y1, x2, y2);
+void Drawing::LineWorld(double x1, double y1, double x2, double y2) {
+    SDL_RenderDrawLine(m_Renderer, int(TranslateX(x1)), int(TranslateY(y1)),
+                       int(TranslateX(x2)), int(TranslateY(y2)));
 }
 
-void Drawing::FillRect(SDL_Rect* rect) {
-    SDL_RenderFillRect(m_Renderer, rect);
+void Drawing::DrawRectWorld(const SDL_Rect &rect) {
+    SDL_Rect MovedRect = TranslateRect(rect);
+    SDL_RenderDrawRect(m_Renderer, &MovedRect);
 }
 
-void Drawing::FillRectF(SDL_FRect* rect) {
-    SDL_RenderFillRectF(m_Renderer, rect);
+void Drawing::FillRect(const SDL_Rect& rect) {
+    SDL_RenderFillRect(m_Renderer, &rect);
 }
 
-void Drawing::RenderTexture(SDL_Texture* texture, SDL_Rect* srcrect, SDL_Rect* dstrect) {
-    SDL_RenderCopy(m_Renderer, texture, srcrect, dstrect);
+void Drawing::FillRectWorld(const SDL_Rect& rect) {
+    SDL_Rect MovedRect = TranslateRect(rect);
+    SDL_RenderFillRect(m_Renderer, &MovedRect);
+}
+
+void Drawing::FillRectFWorld(const SDL_FRect& rect) {
+    SDL_FRect MovedRect = TranslateFRect(rect);
+    SDL_RenderFillRectF(m_Renderer, &MovedRect);
+}
+
+void Drawing::RenderTexture(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_Rect& dstrect) {
+    SDL_RenderCopy(m_Renderer, texture, srcrect, &dstrect);
+}
+
+void Drawing::RenderTextureWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_Rect& dstrect) {
+    SDL_Rect MovedRect = TranslateRect(dstrect);
+    SDL_RenderCopy(m_Renderer, texture, srcrect, &MovedRect);
+}
+
+void Drawing::RenderTextureFullscreen(SDL_Texture* texture, SDL_Rect* srcrect) {
+    SDL_RenderCopy(m_Renderer, texture, srcrect, nullptr);
 }
 
 void Drawing::SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
@@ -45,6 +87,10 @@ void Drawing::SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 
 void Drawing::Clear() {
     SDL_RenderClear(m_Renderer);
+}
+
+void Drawing::BlendFullscreen() {
+    SDL_RenderDrawRect(m_Renderer, nullptr);
 }
 
 void Drawing::UpdateWindow() {

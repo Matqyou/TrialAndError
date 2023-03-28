@@ -25,7 +25,7 @@ void Bullets::Tick() {
 }
 
 void Bullets::Draw() {
-    Drawing* Render = m_World->GameWindow()->Draw();
+    Drawing* Render = m_World->GameWindow()->RenderClass();
 
     double XDirection = 1.0;
     double YDirection = 0.0;
@@ -39,7 +39,7 @@ void Bullets::Draw() {
     YDirection *= m_w;
 
     Render->SetColor(rand()%255, rand()%255, rand()%255, 255);
-    Render->Line(int(m_x - XDirection), int(m_y - YDirection),
-                 int(m_x + XDirection), int(m_y + YDirection));
+    Render->LineWorld(int(m_x - XDirection), int(m_y - YDirection),
+                      int(m_x + XDirection), int(m_y + YDirection));
     // we can only rotate textures so have lines for now
 }

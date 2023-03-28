@@ -19,9 +19,10 @@ bool Initialize() {
         return false;
 
     World = new GameWorld(GameWindow, 1000, 1000);
+    World->SetCameraPos(World->Width() / 2.0, World->Height() / 2.0);
+    GameWindow->RenderClass()->SetWorld(World);
 
     TextManager* TextHandler = GameWindow->TextHandler();
-
     TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
     TextTexture = TextHandler->Render(Font1, "get out or -.. .. .", { 255, 255, 255 });
 
@@ -38,7 +39,7 @@ int main() {
     }
 
     Clock* Timer = GameWindow->Timer();
-    Drawing* Draw = GameWindow->Draw();
+    Drawing* Draw = GameWindow->RenderClass();
     ImageManager* ImageHandler = GameWindow->ImageHandler();
 
     // Load the PNG images
@@ -116,30 +117,30 @@ int main() {
 
         World->Draw();
 
-        Draw->RenderTexture(Vignette->SDLTexture(), nullptr, nullptr);
+        Draw->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
         SDL_Rect DestinationRect;
         TextTexture->Query(nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
         DestinationRect.x = 0;
         DestinationRect.y = GameWindow->Height() - DestinationRect.h;
-        Draw->RenderTexture(TextTexture->SDLTexture(), nullptr, &DestinationRect);
+        Draw->RenderTexture(TextTexture->SDLTexture(), nullptr, DestinationRect);
 
         if (World->Paused()) {
             Draw->SetBlendingMode(SDL_BLENDMODE_BLEND);
             Draw->SetColor(0, 0, 0, 200);
-            Draw->FillRect(nullptr);
+            Draw->BlendFullscreen();
             Draw->SetBlendingMode(SDL_BLENDMODE_NONE);
 
             // start
             Draw->SetColor(90, 20, 20, 255);
-            Draw->FillRect(&startButtonRect);
+            Draw->FillRect(startButtonRect);
             // setting
             //SDL_SetRenderDrawColor(Renderer, 0, 80, 40, 255);
             //SDL_RenderFillRect(Renderer, &settingsButtonRect);
 
-            Draw->RenderTexture(TextureConnected->SDLTexture(), nullptr, &ConnectedRect);
-            Draw->RenderTexture(TextureDisconnected->SDLTexture(), nullptr, &DisconnectedRect);
-            Draw->RenderTexture(TextureIcon->SDLTexture(), nullptr, &IconRect);
+            Draw->RenderTexture(TextureConnected->SDLTexture(), nullptr, ConnectedRect);
+            Draw->RenderTexture(TextureDisconnected->SDLTexture(), nullptr, DisconnectedRect);
+            Draw->RenderTexture(TextureIcon->SDLTexture(), nullptr, IconRect);
         }
 
         Draw->UpdateWindow();

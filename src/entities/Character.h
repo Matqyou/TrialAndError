@@ -38,16 +38,18 @@ private:
     int m_Controls[NUM_CONTROLS];
     bool m_Controllable;
     WeaponType m_Weapon;
+    bool m_Shoot;
     static const int sDefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration = 0.75;
     double m_xlook, m_ylook;  // direction
     double m_LastVibrate;
-    int m_LastShot;
+    unsigned long long m_LastShot;
 
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickControls();
+    void TickWeapon();
 
 public:
     Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);

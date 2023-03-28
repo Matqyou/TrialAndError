@@ -68,7 +68,7 @@ bool GameReference::Initialize() {
     }
 
     m_Timer = new Clock(60);
-    m_Draw = new Drawing(m_Renderer);
+    m_Draw = new Drawing(this);
     m_ImageHandler = new ImageManager(m_Renderer);
     m_TextHandler = new TextManager(m_ImageHandler);
     return true;

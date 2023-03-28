@@ -15,6 +15,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
     m_Weapon = WEAPON_SHOTGUN;
+    m_Shoot = false;
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
@@ -73,8 +74,8 @@ void Character::TickKeyboardControls() {
     int XMouse, YMouse;
     SDL_GetMouseState(&XMouse, &YMouse);
 
-    m_xlook = XMouse - m_x;
-    m_ylook = YMouse - m_y;
+    m_xlook = m_World->CameraX() - m_x + XMouse - m_World->GameWindow()->Width() / 2.0;
+    m_ylook = m_World->CameraY() - m_y + YMouse - m_World->GameWindow()->Height() / 2.0;
     double Distance = std::sqrt(std::pow(m_xlook, 2) + std::pow(m_ylook, 2));
 
     if (Distance != 0.0) {
@@ -88,46 +89,8 @@ void Character::TickKeyboardControls() {
     double magnitude = std::sqrt(m_xlook * m_xlook + m_ylook * m_ylook);
     m_xlook /= magnitude;
     m_ylook /= magnitude;
-    bool Shoot = false;
-    if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-        Shoot = true;
-    }
-    if (Shoot){
-        int CurrentTick = m_World->GameWindow()->Timer()->CurrentTick();
-        if (m_Weapon == WEAPON_GLOCK) {
-            if (CurrentTick - m_LastShot < 24)
-                return;
-            m_LastShot = CurrentTick;
-            new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
-            m_xvel += -m_xlook * 10;
-            m_yvel += -m_ylook * 10;
-            double Time = m_World->GameWindow()->Timer()->GetTotalTimeElapsed();
-        }
-        else if (m_Weapon == WEAPON_BURST) {
-            if (CurrentTick - m_LastShot < 64)
-                return;
-            m_LastShot = CurrentTick;
-            new Bullets(m_World, m_x , m_y , m_xlook * 10, m_ylook * 10);
-            new Bullets(m_World, m_x*1.1 , m_y*1.1 , m_xlook * 10, m_ylook * 10);
-            new Bullets(m_World, m_x*1.05 , m_y*1.05 , m_xlook * 10, m_ylook * 10);
-            m_xvel += -m_xlook;
-            m_yvel += -m_ylook;
-        }
-        else if (m_Weapon == WEAPON_SHOTGUN){
-            if (CurrentTick - m_LastShot < 128)
-                return;
-            m_LastShot = CurrentTick;
 
-            new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
-            new Bullets(m_World, m_x, m_y, (m_xlook+0.25) * 10, (m_ylook+0.25) * 10);
-            new Bullets(m_World, m_x, m_y, (m_xlook+0.50) * 10, (m_ylook+0.50) * 10);
-            new Bullets(m_World, m_x, m_y, (m_xlook-0.25) * 10, (m_ylook-0.25) * 10);
-            new Bullets(m_World, m_x, m_y, (m_xlook-0.50) * 10, (m_ylook-0.50) * 10);
-            m_xvel += -m_xlook * 30;
-            m_yvel += -m_ylook * 30;
-            }
-            double Time = m_World->GameWindow()->Timer()->GetTotalTimeElapsed();
-        }
+    m_Shoot = SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
 }
 
 void Character::TickGameControllerControls() {
@@ -169,31 +132,52 @@ void Character::TickGameControllerControls() {
     }
 
     //Shooting
-    bool Shoot = m_GameController->GetRightTrigger() > 0.7;
-    if (Shoot) {
-        int CurrentTick = m_World->GameWindow()->Timer()->CurrentTick();
-        if (CurrentTick - m_LastShot < 24)
-            return;
-
-        m_LastShot = CurrentTick;
-        new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
-        m_xvel += -m_xlook * 10;
-        m_yvel += -m_ylook * 10;
-
-        double Time = m_World->GameWindow()->Timer()->GetTotalTimeElapsed();
-        m_GameController->Vibrate(0xFFFF, 0xFFFF, 30);
-
-    }
+    m_Shoot = m_GameController->GetRightTrigger() > 0.7;
 }
 
 void Character::TickControls() {
     if (!m_Controllable)
         return;
 
-    if (m_GameController)
-        TickGameControllerControls();
-    else
-        TickKeyboardControls();
+    if (m_GameController) TickGameControllerControls();
+    else TickKeyboardControls();
+}
+
+void Character::TickWeapon() {
+    if (!m_Shoot || m_Weapon == WEAPON_NONE)
+        return;
+
+    auto CurrentTick = m_World->CurrentTick();
+    if (m_Weapon == WEAPON_GLOCK) {
+        if (CurrentTick - m_LastShot < 24)
+            return;
+        m_LastShot = CurrentTick;
+        new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
+        m_xvel += -m_xlook * 10;
+        m_yvel += -m_ylook * 10;
+    }
+    else if (m_Weapon == WEAPON_BURST) {
+        if (CurrentTick - m_LastShot < 64)
+            return;
+        m_LastShot = CurrentTick;
+        new Bullets(m_World, m_x , m_y , m_xlook * 10, m_ylook * 10);
+        new Bullets(m_World, m_x*1.1 , m_y*1.1 , m_xlook * 10, m_ylook * 10);
+        new Bullets(m_World, m_x*1.05 , m_y*1.05 , m_xlook * 10, m_ylook * 10);
+        m_xvel += -m_xlook;
+        m_yvel += -m_ylook;
+    }
+    else if (m_Weapon == WEAPON_SHOTGUN){
+        if (CurrentTick - m_LastShot < 128)
+            return;
+        m_LastShot = CurrentTick;
+        new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
+        new Bullets(m_World, m_x, m_y, (m_xlook+0.25) * 10, (m_ylook+0.25) * 10);
+        new Bullets(m_World, m_x, m_y, (m_xlook+0.50) * 10, (m_ylook+0.50) * 10);
+        new Bullets(m_World, m_x, m_y, (m_xlook-0.25) * 10, (m_ylook-0.25) * 10);
+        new Bullets(m_World, m_x, m_y, (m_xlook-0.50) * 10, (m_ylook-0.50) * 10);
+        m_xvel += -m_xlook * 30;
+        m_yvel += -m_ylook * 30;
+    }
 }
 
 void Character::Event(const SDL_Event& currentEvent) {
@@ -214,11 +198,14 @@ void Character::Tick() {
     TickControls();  // Do stuff depending on the current held buttons
     TickVelocity();  // Move the chracter entity
     TickWalls();
+    TickWeapon();
+
+    m_Shoot = false;  // Reset shooting at end of each tick
 }
 
 void Character::Draw() {
     Clock* Timer = m_World->GameWindow()->Timer();
-    Drawing* Render = m_World->GameWindow()->Draw();
+    Drawing* Render = m_World->GameWindow()->RenderClass();
 
     double Light = 0.5 + (std::sin(Timer->GetTotalTimeElapsed() - m_ExistsSince) + 1.0) / 4;
     SDL_Color Color = HSLtoRGB({ m_ColorHue, 1.0, Light });
@@ -228,13 +215,13 @@ void Character::Draw() {
                           float(m_w),
                           float(m_h)};
     Render->SetColor(Color.r, Color.g, Color.b, 255);
-    Render->FillRectF(&DrawRect);
+    Render->FillRectFWorld(DrawRect);
 
     double XLook = m_x + m_xlook * 50.0;
     double YLook = m_y + m_ylook * 50.0;
     Color = HSLtoRGB({ m_ColorHue, 1.0 - Light, 1.0 });
     Render->SetColor(Color.r, Color.g, Color.b, 255);
-    Render->Line(int(m_x), int(m_y), int(XLook), int(YLook));
+    Render->LineWorld(int(m_x), int(m_y), int(XLook), int(YLook));
 
     if (m_World->NamesShown() == 0.0)
         return;
@@ -243,5 +230,5 @@ void Character::Draw() {
     m_Nameplate->Query(nullptr, nullptr, &w, &h);
     SDL_Rect NameplateRect = { int(m_x - w / 2.0), int(m_y - m_h / 2.0 - h), w, h };
     SDL_SetTextureAlphaMod(m_Nameplate->SDLTexture(), int(m_World->NamesShown() * 255.0));
-    Render->RenderTexture(m_Nameplate->SDLTexture(), nullptr, &NameplateRect);
+    Render->RenderTextureWorld(m_Nameplate->SDLTexture(), nullptr, NameplateRect);
 }
