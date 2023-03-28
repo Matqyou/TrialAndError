@@ -35,7 +35,6 @@ bool GameReference::Initialize() {
         return false;
 
     m_Initialized = true;
-    SDL_SetMainReady();
     int Result = SDL_Init(SDL_INIT_EVERYTHING);
     if (Result) {
         std::printf("Error while initializing main %s\n", SDL_GetError());
