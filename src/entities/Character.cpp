@@ -27,10 +27,18 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
 
     m_xvel = start_xvel;
     m_yvel = start_yvel;
-    m_xlook = 1.0;
-    m_ylook = 0.0;
-    m_LastVibrate = 0.0;
+    m_xLook = 1.0;
+    m_yLook = 0.0;
     m_LastShot = 0;
+
+    m_xHook = 0.0;
+    m_yHook = 0.0;
+    m_xvelHook = 0.0;
+    m_yvelHook = 0.0;
+    m_HookDeployed = false;
+    m_Hook = false;
+    m_LastHook = false;
+
 
     char Name[CHARACTER_MAX_NAME_LENGTH];
     std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
@@ -74,23 +82,21 @@ void Character::TickKeyboardControls() {
     int XMouse, YMouse;
     SDL_GetMouseState(&XMouse, &YMouse);
 
-    m_xlook = m_World->CameraX() - m_x + XMouse - m_World->GameWindow()->Width() / 2.0;
-    m_ylook = m_World->CameraY() - m_y + YMouse - m_World->GameWindow()->Height() / 2.0;
-    double Distance = std::sqrt(std::pow(m_xlook, 2) + std::pow(m_ylook, 2));
+    m_xLook = m_World->CameraX() - m_x + XMouse - m_World->GameWindow()->Width() / 2.0;
+    m_yLook = m_World->CameraY() - m_y + YMouse - m_World->GameWindow()->Height() / 2.0;
+    double Distance = std::sqrt(std::pow(m_xLook, 2) + std::pow(m_yLook, 2));
 
     if (Distance != 0.0) {
-        m_xlook /= Distance;
-        m_ylook /= Distance;
+        m_xLook /= Distance;
+        m_yLook /= Distance;
     } else {
-        m_xlook = 1.0;
-        m_ylook = 0.0;
+        m_xLook = 1.0;
+        m_yLook = 0.0;
     }
 
-    double magnitude = std::sqrt(m_xlook * m_xlook + m_ylook * m_ylook);
-    m_xlook /= magnitude;
-    m_ylook /= magnitude;
-
-    m_Shoot = SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
+    int MouseState = SDL_GetMouseState(nullptr, nullptr);
+    m_Shoot = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
+    m_Hook = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
 }
 
 void Character::TickGameControllerControls() {
@@ -123,16 +129,17 @@ void Character::TickGameControllerControls() {
     Length = std::sqrt(std::pow(AxisX2, 2) + std::pow(AxisY2, 2));
     if (Length > 0.6) {  // Fix controller drifting
         if (Length != 0.0) {
-            m_xlook = AxisX2 / Length;
-            m_ylook = AxisY2 / Length;
+            m_xLook = AxisX2 / Length;
+            m_yLook = AxisY2 / Length;
         } else {
-            m_xlook = 1.0;
-            m_ylook = 0.0;
+            m_xLook = 1.0;
+            m_yLook = 0.0;
         }
     }
 
     //Shooting
     m_Shoot = m_GameController->GetRightTrigger() > 0.7;
+    m_Hook = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
 }
 
 void Character::TickControls() {
@@ -141,6 +148,35 @@ void Character::TickControls() {
 
     if (m_GameController) TickGameControllerControls();
     else TickKeyboardControls();
+}
+
+void Character::TickHook() {
+    if (!m_HookDeployed && m_Hook && !m_LastHook) {
+        m_HookDeployed = true;
+        m_xHook = m_x;
+        m_yHook = m_y;
+        m_xvelHook = m_xLook * 35;
+        m_yvelHook = m_yLook * 35;
+    } else if (m_HookDeployed && !m_Hook && m_LastHook) {  // Instant retraction for now
+        m_HookDeployed = false;
+    }
+
+    if (!m_HookDeployed)
+        return;
+
+    m_xHook += m_xvelHook;
+    m_yHook += m_yvelHook;
+
+    double TravelX = m_xHook - m_x;
+    double TravelY = m_yHook - m_y;
+    double Length = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
+    const double MaxLength = 300.0;
+    if (Length > MaxLength) {
+        m_xHook = m_x + TravelX / Length * MaxLength;
+        m_yHook = m_y + TravelY / Length * MaxLength;
+        m_xvelHook -= TravelX / Length * 2.0;
+        m_yvelHook -= TravelY / Length * 2.0;
+    }
 }
 
 void Character::TickWeapon() {
@@ -152,31 +188,31 @@ void Character::TickWeapon() {
         if (CurrentTick - m_LastShot < 24)
             return;
         m_LastShot = CurrentTick;
-        new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
-        m_xvel += -m_xlook * 10;
-        m_yvel += -m_ylook * 10;
+        new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
+        m_xvel += -m_xLook * 10;
+        m_yvel += -m_yLook * 10;
     }
     else if (m_Weapon == WEAPON_BURST) {
         if (CurrentTick - m_LastShot < 64)
             return;
         m_LastShot = CurrentTick;
-        new Bullets(m_World, m_x , m_y , m_xlook * 10, m_ylook * 10);
-        new Bullets(m_World, m_x*1.1 , m_y*1.1 , m_xlook * 10, m_ylook * 10);
-        new Bullets(m_World, m_x*1.05 , m_y*1.05 , m_xlook * 10, m_ylook * 10);
-        m_xvel += -m_xlook;
-        m_yvel += -m_ylook;
+        new Bullets(m_World, m_x , m_y , m_xLook * 10, m_yLook * 10);
+        new Bullets(m_World, m_x*1.1 , m_y*1.1 , m_xLook * 10, m_yLook * 10);
+        new Bullets(m_World, m_x*1.05 , m_y*1.05 , m_xLook * 10, m_yLook * 10);
+        m_xvel += -m_xLook;
+        m_yvel += -m_yLook;
     }
     else if (m_Weapon == WEAPON_SHOTGUN){
         if (CurrentTick - m_LastShot < 128)
             return;
         m_LastShot = CurrentTick;
-        new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
-        new Bullets(m_World, m_x, m_y, (m_xlook+0.25) * 10, (m_ylook+0.25) * 10);
-        new Bullets(m_World, m_x, m_y, (m_xlook+0.50) * 10, (m_ylook+0.50) * 10);
-        new Bullets(m_World, m_x, m_y, (m_xlook-0.25) * 10, (m_ylook-0.25) * 10);
-        new Bullets(m_World, m_x, m_y, (m_xlook-0.50) * 10, (m_ylook-0.50) * 10);
-        m_xvel += -m_xlook * 30;
-        m_yvel += -m_ylook * 30;
+        new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
+        new Bullets(m_World, m_x, m_y, (m_xLook+0.25) * 10, (m_yLook+0.25) * 10);
+        new Bullets(m_World, m_x, m_y, (m_xLook+0.50) * 10, (m_yLook+0.50) * 10);
+        new Bullets(m_World, m_x, m_y, (m_xLook-0.25) * 10, (m_yLook-0.25) * 10);
+        new Bullets(m_World, m_x, m_y, (m_xLook-0.50) * 10, (m_yLook-0.50) * 10);
+        m_xvel += -m_xLook * 30;
+        m_yvel += -m_yLook * 30;
     }
 }
 
@@ -198,9 +234,11 @@ void Character::Tick() {
     TickControls();  // Do stuff depending on the current held buttons
     TickVelocity();  // Move the chracter entity
     TickWalls();
+    TickHook();
     TickWeapon();
 
     m_Shoot = false;  // Reset shooting at end of each tick
+    m_LastHook = m_Hook;
 }
 
 void Character::Draw() {
@@ -208,17 +246,23 @@ void Character::Draw() {
     Drawing* Render = m_World->GameWindow()->RenderClass();
 
     double Light = 0.5 + (std::sin(Timer->GetTotalTimeElapsed() - m_ExistsSince) + 1.0) / 4;
-    SDL_Color Color = HSLtoRGB({ m_ColorHue, 1.0, Light });
+    SDL_Color Color = HSLtoRGB({ m_ColorHue, Light, 1.0 });
+
+    if (m_HookDeployed) {
+        Render->SetColor(Color.r, Color.g, Color.b, 255);
+        Render->LineWorld(m_x, m_y, m_xHook, m_yHook);
+    }
 
     SDL_FRect DrawRect = {float(m_x) - float(m_w/2),
                           float(m_y) - float(m_h/2),
                           float(m_w),
                           float(m_h)};
+    Color = HSLtoRGB({ m_ColorHue, 1.0, Light });
     Render->SetColor(Color.r, Color.g, Color.b, 255);
     Render->FillRectFWorld(DrawRect);
 
-    double XLook = m_x + m_xlook * 50.0;
-    double YLook = m_y + m_ylook * 50.0;
+    double XLook = m_x + m_xLook * 50.0;
+    double YLook = m_y + m_yLook * 50.0;
     Color = HSLtoRGB({ m_ColorHue, 1.0 - Light, 1.0 });
     Render->SetColor(Color.r, Color.g, Color.b, 255);
     Render->LineWorld(int(m_x), int(m_y), int(XLook), int(YLook));

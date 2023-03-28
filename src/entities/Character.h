@@ -42,13 +42,18 @@ private:
     static const int sDefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration = 0.75;
-    double m_xlook, m_ylook;  // direction
-    double m_LastVibrate;
+    double m_xLook, m_yLook;  // direction
     unsigned long long m_LastShot;
+
+    double m_xHook, m_yHook;
+    double m_xvelHook, m_yvelHook;
+    bool m_HookDeployed;
+    bool m_Hook, m_LastHook;
 
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickControls();
+    void TickHook();
     void TickWeapon();
 
 public:
