@@ -47,6 +47,7 @@ int main() {
     Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/dis_chain.png");
     Texture* TextureIcon = ImageHandler->LoadTexture("assets/PS4_Controller_Icon.png");
     Texture* Vignette = ImageHandler->LoadTexture("assets/vignette.png");
+    SDL_SetTextureAlphaMod(Vignette->SDLTexture(), 200);
 
     SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
     SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
