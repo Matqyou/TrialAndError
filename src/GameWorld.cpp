@@ -11,6 +11,9 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_Width = width;
     m_Height = height;
     m_Paused = false;
+    m_x = 0.0;
+    m_y = 0.0;
+    m_CurrentTick = 0;
 
     m_LastEntity = nullptr;
     for (auto& i : m_LastEntityType)
@@ -147,6 +150,8 @@ void GameWorld::Tick() {
         NextEntity = CurrentEntity->m_PrevEntity;
         CurrentEntity->Tick();
     }
+
+    m_CurrentTick++;
 }
 
 void GameWorld::Draw() {

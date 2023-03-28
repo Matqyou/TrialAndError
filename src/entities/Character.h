@@ -44,7 +44,7 @@ private:
     const double m_BaseAcceleration = 0.75;
     double m_xlook, m_ylook;  // direction
     double m_LastVibrate;
-    int m_LastShot;
+    unsigned long long m_LastShot;
 
     void TickKeyboardControls();
     void TickGameControllerControls();

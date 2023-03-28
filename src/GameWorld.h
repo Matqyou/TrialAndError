@@ -26,6 +26,7 @@ private:
     Entity* m_LastEntityType[NUM_ENTTYPES]{};
     Entity* m_LastEntity;
     double m_x, m_y;
+    unsigned long long m_CurrentTick;
 
 public:
     GameWorld(GameReference* gameWindow, double width, double height);
@@ -41,6 +42,7 @@ public:
     double CameraX() const { return m_x; }
     double CameraY() const { return m_y; }
     void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
+    unsigned long long CurrentTick() const { return m_CurrentTick; }
 
     void SetCameraPos(double x, double y);  // Move the camera to a position
     void AddEntity(Entity* entity);

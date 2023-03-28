@@ -144,10 +144,10 @@ void Character::TickControls() {
 }
 
 void Character::TickWeapon() {
-    if (!m_Shoot)
+    if (!m_Shoot || m_Weapon == WEAPON_NONE)
         return;
 
-    int CurrentTick = m_World->GameWindow()->Timer()->CurrentTick();
+    auto CurrentTick = m_World->CurrentTick();
     if (m_Weapon == WEAPON_GLOCK) {
         if (CurrentTick - m_LastShot < 24)
             return;
@@ -170,7 +170,6 @@ void Character::TickWeapon() {
         if (CurrentTick - m_LastShot < 128)
             return;
         m_LastShot = CurrentTick;
-
         new Bullets(m_World, m_x, m_y, m_xlook * 10, m_ylook * 10);
         new Bullets(m_World, m_x, m_y, (m_xlook+0.25) * 10, (m_ylook+0.25) * 10);
         new Bullets(m_World, m_x, m_y, (m_xlook+0.50) * 10, (m_ylook+0.50) * 10);
