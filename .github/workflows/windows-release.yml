@@ -8,8 +8,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Setup CMake
+    - name: Setup CMake, ninja, and g++
       uses: jwlawson/actions-setup-cmake@v1
+      with:
+        cmake-version: '3.23'
+        generator: 'Ninja'
+        toolset: 'msvc'
+        cxx_compiler: 'g++'
     - name: Configure and Build
       run: |
         mkdir build && cd build
