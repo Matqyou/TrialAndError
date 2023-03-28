@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 project(TrialAndError)
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_EXE_LINKER_FLAGS "-static")
 
 include_directories(deps/SDL2/include deps/SDL2_image/include deps/SDL2_mixer/include deps/SDL2_ttf/include)
 link_directories(deps/SDL2/lib/x64 deps/SDL2_image/lib/x64 deps/SDL2_mixer/lib/x64 deps/SDL2_ttf/lib/x64)
@@ -41,7 +40,8 @@ set(PROJECT_FILES
         "src/technical stuff/Drawing.cpp"
         "src/technical stuff/Drawing.h")
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
-target_link_libraries(${PROJECT_NAME} SDL2 SDL2_image SDL2_mixer SDL2_ttf)
+target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)
+target_link_options(${PROJECT_NAME} PRIVATE "-static")
 
 file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
