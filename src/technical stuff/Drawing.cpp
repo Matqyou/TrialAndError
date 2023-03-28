@@ -90,7 +90,7 @@ void Drawing::Clear() {
 }
 
 void Drawing::BlendFullscreen() {
-    SDL_RenderDrawRect(m_Renderer, nullptr);
+    SDL_RenderFillRect(m_Renderer, nullptr);
 }
 
 void Drawing::UpdateWindow() {

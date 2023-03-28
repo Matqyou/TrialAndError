@@ -28,6 +28,10 @@ private:
     double m_x, m_y;
     unsigned long long m_CurrentTick;
 
+    // Cool scrolling background
+    Texture* m_Background;
+    int m_BackgroundW, m_BackgroundH;
+
 public:
     GameWorld(GameReference* gameWindow, double width, double height);
     ~GameWorld();

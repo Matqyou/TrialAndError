@@ -18,6 +18,11 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_LastEntity = nullptr;
     for (auto& i : m_LastEntityType)
         i = nullptr;
+
+    m_Background = GameWindow()->ImageHandler()->LoadTexture("assets/background_pattern.png");
+    m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
+    SDL_SetTextureAlphaMod(m_Background->SDLTexture(), 10);
+    SDL_SetTextureBlendMode(m_Background->SDLTexture(), SDL_BLENDMODE_BLEND);
 }
 
 GameWorld::~GameWorld() {
@@ -181,6 +186,9 @@ void GameWorld::Tick() {
 
 void GameWorld::Draw() {
     Drawing* Render = m_GameWindow->RenderClass();
+
+    SDL_Rect DestinationRect = {0, 0, int(m_Width), int(m_Height) };
+    Render->RenderTextureWorld(m_Background->SDLTexture(), nullptr, DestinationRect);
 
     SDL_Rect DrawRect = { 0, 0, int(m_Width), int(m_Height) };
     Render->SetColor(255, 0, 0, 255);
