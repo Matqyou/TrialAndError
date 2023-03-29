@@ -220,7 +220,7 @@ void Character::TickWeapon() {
 
     auto CurrentTick = m_World->CurrentTick();
     if (m_Weapon == WEAPON_GLOCK) {
-        if (CurrentTick - m_LastShot < 24)
+        if (CurrentTick - m_LastShot < 5)
             return;
         m_LastShot = CurrentTick;
         m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
