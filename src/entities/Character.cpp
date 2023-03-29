@@ -14,9 +14,10 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
-    m_Weapon = WEAPON_GLOCK;
-    m_Shoot = false;
+    m_Weapon = WEAPON_MACHINEGUN;
     m_ShootSound = m_World->GameWindow()->SoundHandler()->LoadSound("assets/Shoot1.wav", true); // TODO: Shouldn't load sounds here
+    m_Shoot = false;
+    m_MachinegunTick = 0.0;
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
@@ -215,20 +216,24 @@ void Character::TickHook() {
 }
 
 void Character::TickWeapon() {
-    if (!m_Shoot || m_Weapon == WEAPON_NONE)
+    if (!m_Shoot) {
+        m_MachinegunTick -= 0.5;
+        return;
+    }
+
+    if (m_Weapon == WEAPON_NONE)
         return;
 
     auto CurrentTick = m_World->CurrentTick();
     if (m_Weapon == WEAPON_GLOCK) {
-        if (CurrentTick - m_LastShot < 5)
+        if (CurrentTick - m_LastShot < 24)
             return;
         m_LastShot = CurrentTick;
         m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
         new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
         m_xvel += -m_xLook * 10;
         m_yvel += -m_yLook * 10;
-    }
-    else if (m_Weapon == WEAPON_BURST) {
+    } else if (m_Weapon == WEAPON_BURST) {
         if (CurrentTick - m_LastShot < 64)
             return;
         m_LastShot = CurrentTick;
@@ -238,8 +243,7 @@ void Character::TickWeapon() {
         new Bullets(m_World, m_x*1.05 , m_y*1.05 , m_xLook * 10, m_yLook * 10);
         m_xvel += -m_xLook;
         m_yvel += -m_yLook;
-    }
-    else if (m_Weapon == WEAPON_SHOTGUN){
+    } else if (m_Weapon == WEAPON_SHOTGUN) {
         if (CurrentTick - m_LastShot < 128)
             return;
         m_LastShot = CurrentTick;
@@ -251,6 +255,18 @@ void Character::TickWeapon() {
         new Bullets(m_World, m_x, m_y, (m_xLook-0.50) * 10, (m_yLook-0.50) * 10);
         m_xvel += -m_xLook * 30;
         m_yvel += -m_yLook * 30;
+    } else if (m_Weapon == WEAPON_MACHINEGUN) {
+        if (m_MachinegunTick > 10)
+            m_MachinegunTick = 10;
+
+        if (CurrentTick - m_LastShot < 15 - int(m_MachinegunTick))
+            return;
+        m_LastShot = CurrentTick;
+        m_MachinegunTick += 1.4;
+        m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
+        new Bullets(m_World, m_x, m_y, m_xLook * 30, m_yLook * 30);
+        m_xvel += -m_xLook * 7;
+        m_yvel += -m_yLook * 7;
     }
 }
 

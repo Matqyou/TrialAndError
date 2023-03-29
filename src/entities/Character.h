@@ -15,6 +15,7 @@ public:
         WEAPON_GLOCK,
         WEAPON_BURST,
         WEAPON_SHOTGUN,
+        WEAPON_MACHINEGUN,
         NUM_WEAPONS
     };
     enum {
@@ -40,6 +41,7 @@ private:
     WeaponType m_Weapon;
     Sound* m_ShootSound;
     bool m_Shoot;
+    double m_MachinegunTick;
     static const int sDefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration = 0.75;
