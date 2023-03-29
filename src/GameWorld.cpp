@@ -156,25 +156,19 @@ void GameWorld::Tick() {
         CurrentEntity->Tick();
     }
 
-    auto PrevPlayer = (Character*)m_LastEntityType[ENTTYPE_CHARACTER];
-    if (PrevPlayer) {
-        double LastX = PrevPlayer->m_x;
-        double LastY = PrevPlayer->m_y;
+    if (m_LastEntityType[ENTTYPE_CHARACTER]) {
+        int num_player = 0;
 
-        double CameraX = LastX;
-        double CameraY = LastY;
-        Character* NextPlayer;
-        for (PrevPlayer; PrevPlayer != nullptr; PrevPlayer = NextPlayer) {
-            NextPlayer = (Character*)PrevPlayer->m_PrevEntityType;
-            if (NextPlayer) {
-                double CurrentX = NextPlayer->m_x;
-                double CurrentY = NextPlayer->m_y;
+        double CameraX = 0.0;
+        double CameraY = 0.0;
+        for (auto Player = (Character*) m_LastEntityType[ENTTYPE_CHARACTER]; Player != nullptr; Player = (Character*)Player->m_PrevEntityType) {
+            num_player++;
 
-                CameraX -= (LastX - CurrentX) / 2.0;
-                CameraY -= (LastY - CurrentY) / 2.0;
-            }
+            CameraX += Player->m_x;
+            CameraY += Player->m_y;
         }
-
+        CameraX /= num_player;
+        CameraY /= num_player;
         // Accelerate camera closer to the midpoint of characters
         // TODO: Zoom value
         m_x += (-m_x + CameraX) * 0.1;

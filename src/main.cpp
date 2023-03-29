@@ -18,8 +18,8 @@ bool Initialize() {
     if (!GameWindow->Initialize())
         return false;
 
-    World = new GameWorld(GameWindow, 1000, 1000);
-    World->SetCameraPos(World->Width() / 2.0, World->Height() / 2.0);
+    World = new GameWorld(GameWindow, 1000000, 1000000);
+    World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
     TextManager* TextHandler = GameWindow->TextHandler();
@@ -81,6 +81,10 @@ int main() {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
                     auto* NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
+                    NewPlayer->SetGameController(CurrentController);
+                    NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
+                    NewPlayer->SetGameController(CurrentController);
+                    NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
                     NewPlayer->SetGameController(CurrentController);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
