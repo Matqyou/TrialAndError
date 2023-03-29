@@ -18,7 +18,7 @@ bool Initialize() {
     if (!GameWindow->Initialize())
         return false;
 
-    World = new GameWorld(GameWindow, 1000000, 1000000);
+    World = new GameWorld(GameWindow, 10000, 10000);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 

@@ -190,4 +190,19 @@ void GameWorld::Draw() {
 
     for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = CurrentEntity->m_PrevEntity)
         CurrentEntity->Draw();
+
+    if (m_ShowNames <= 0.05)
+        return;
+
+    int Opacity = int(m_ShowNames * 255.0);
+    TextManager* TextHandler = m_GameWindow->TextHandler();
+    char msg[64];
+    std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
+    auto CoordinateTexture = TextHandler->Render(TextHandler->FirstFont(), msg, { 127, 127, 127, 255 });
+    int coordinate_w, coordinate_h;
+    CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
+    SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(m_y - coordinate_h / 2.0), coordinate_w, coordinate_h };
+    SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
+    Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
+    delete CoordinateTexture;
 }
