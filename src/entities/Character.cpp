@@ -14,7 +14,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
-    m_Weapon = WEAPON_SHOTGUN;
+    m_Weapon = WEAPON_GLOCK;
     m_Shoot = false;
     m_GameController = nullptr;
     for (bool& State : m_Movement)
