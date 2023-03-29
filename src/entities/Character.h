@@ -38,6 +38,7 @@ private:
     int m_Controls[NUM_CONTROLS];
     bool m_Controllable;
     WeaponType m_Weapon;
+    Sound* m_ShootSound;
     bool m_Shoot;
     static const int sDefaultControls[NUM_CONTROLS];
 

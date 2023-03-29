@@ -16,6 +16,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_ColorHue = double(rand()%360);
     m_Weapon = WEAPON_GLOCK;
     m_Shoot = false;
+    m_ShootSound = m_World->GameWindow()->SoundHandler()->LoadSound("assets/Shoot1.wav", true); // TODO: Shouldn't load sounds here
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
@@ -222,6 +223,7 @@ void Character::TickWeapon() {
         if (CurrentTick - m_LastShot < 24)
             return;
         m_LastShot = CurrentTick;
+        m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
         new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
         m_xvel += -m_xLook * 10;
         m_yvel += -m_yLook * 10;
@@ -230,6 +232,7 @@ void Character::TickWeapon() {
         if (CurrentTick - m_LastShot < 64)
             return;
         m_LastShot = CurrentTick;
+        m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
         new Bullets(m_World, m_x , m_y , m_xLook * 10, m_yLook * 10);
         new Bullets(m_World, m_x*1.1 , m_y*1.1 , m_xLook * 10, m_yLook * 10);
         new Bullets(m_World, m_x*1.05 , m_y*1.05 , m_xLook * 10, m_yLook * 10);
@@ -240,6 +243,7 @@ void Character::TickWeapon() {
         if (CurrentTick - m_LastShot < 128)
             return;
         m_LastShot = CurrentTick;
+        m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
         new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
         new Bullets(m_World, m_x, m_y, (m_xLook+0.25) * 10, (m_yLook+0.25) * 10);
         new Bullets(m_World, m_x, m_y, (m_xLook+0.50) * 10, (m_yLook+0.50) * 10);
