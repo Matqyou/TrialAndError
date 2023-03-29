@@ -82,10 +82,6 @@ int main() {
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
                     auto* NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
                     NewPlayer->SetGameController(CurrentController);
-                    NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
-                    NewPlayer->SetGameController(CurrentController);
-                    NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
-                    NewPlayer->SetGameController(CurrentController);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;

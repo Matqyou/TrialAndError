@@ -301,12 +301,25 @@ void Character::Draw() {
     Render->SetColor(Color.r, Color.g, Color.b, 255);
     Render->LineWorld(int(m_x), int(m_y), int(XLook), int(YLook));
 
-    if (m_World->NamesShown() == 0.0)
+    if (m_World->NamesShown() <= 0.05)  // Visibility under 5% - don't render
         return;
 
-    int w, h;
-    m_Nameplate->Query(nullptr, nullptr, &w, &h);
-    SDL_Rect NameplateRect = { int(m_x - w / 2.0), int(m_y - m_h / 2.0 - h), w, h };
-    SDL_SetTextureAlphaMod(m_Nameplate->SDLTexture(), int(m_World->NamesShown() * 255.0));
+    int Opacity = int(m_World->NamesShown() * 255.0);
+
+    int nameplate_w, nameplate_h;
+    m_Nameplate->Query(nullptr, nullptr, &nameplate_w, &nameplate_h);
+    SDL_Rect NameplateRect = { int(m_x - nameplate_w / 2.0), int(m_y - m_h / 2.0 - nameplate_h), nameplate_w, nameplate_h };
+    SDL_SetTextureAlphaMod(m_Nameplate->SDLTexture(), Opacity);
     Render->RenderTextureWorld(m_Nameplate->SDLTexture(), nullptr, NameplateRect);
+
+    TextManager* TextHandler = m_World->GameWindow()->TextHandler();
+    char msg[64];
+    std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
+    auto CoordinateTexture = TextHandler->Render(TextHandler->FirstFont(), msg, { Color.r, Color.g, Color.b, 255 });
+    int coordinate_w, coordinate_h;
+    CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
+    SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(NameplateRect.y - coordinate_h), coordinate_w, coordinate_h };
+    SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
+    Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
+    delete CoordinateTexture;
 }

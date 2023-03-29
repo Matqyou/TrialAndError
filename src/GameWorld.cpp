@@ -148,7 +148,7 @@ void GameWorld::Tick() {
     if (m_Paused)
         return;
 
-    m_ShowNames *= 0.95;
+    m_ShowNames *= 0.98;
 
     Entity* NextEntity; // allows deletion while looping
     for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = NextEntity) {
