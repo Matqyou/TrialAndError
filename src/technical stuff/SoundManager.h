@@ -28,9 +28,10 @@ public:
 class SoundManager {
 private:
     Sound* m_FirstSound;
+    bool m_Enabled;
 
 public:
-    SoundManager();
+    SoundManager(bool enabled);
     ~SoundManager();
 
     void AddSoundAutoCleanup(Sound* sound);
