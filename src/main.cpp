@@ -50,6 +50,8 @@ int main() {
     Texture* Vignette = ImageHandler->LoadTexture("assets/vignette.png", true);
     Vignette->SetAlpha(200);
 
+    Sound* LowSound = SoundHandler->LoadSound("assets/Low.wav", true);
+    Sound* HighSound = SoundHandler->LoadSound("assets/High.wav", true);
     Sound* QuitSound = SoundHandler->LoadSound("assets/Quit.wav", true);
 
     SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
@@ -85,12 +87,13 @@ int main() {
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
                     auto* NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
                     NewPlayer->SetGameController(CurrentController);
+                    SoundHandler->PlaySound(HighSound);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
                     GameController* DeletedController = Controllers->CloseController(InstanceID);
-
                     World->DestroyPlayerByController(DeletedController);
+                    SoundHandler->PlaySound(LowSound);
                 } break;
                 case SDL_MOUSEBUTTONDOWN: {
                     if (CurrentEvent.button.button == SDL_BUTTON_LEFT)

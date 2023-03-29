@@ -15,13 +15,6 @@
 #include "technical stuff/TextManager.h"
 
 class GameReference {
-public:
-    enum GameState {
-        STATE_NONE,
-        STATE_SOUND_ONLY,
-        STATE_ALL
-    };
-
 private:
     SDL_Window* m_Window;
     SDL_Renderer* m_Renderer;
@@ -32,7 +25,8 @@ private:
     TextManager* m_TextHandler;
 
     int m_Width, m_Height;
-    GameState m_State;
+    bool m_InitializedBase;
+    bool m_InitializedSound;
 
 public:
     GameReference();

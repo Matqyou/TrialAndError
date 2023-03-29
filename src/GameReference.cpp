@@ -14,7 +14,8 @@ GameReference::GameReference() {
     m_TextHandler = nullptr;
     m_Width = 0;
     m_Height = 0;
-    m_State = STATE_NONE;
+    m_InitializedBase = false;
+    m_InitializedSound = false;
 }
 
 GameReference::~GameReference() {
@@ -22,10 +23,10 @@ GameReference::~GameReference() {
 }
 
 bool GameReference::Initialize() {
-    if (m_State != STATE_NONE)
+    if (m_InitializedBase || m_InitializedSound)
         return false;
 
-    m_State = STATE_ALL;
+    m_InitializedBase = true;
     int Result = SDL_Init(SDL_INIT_EVERYTHING);
     if (Result) {
         std::printf("Error while initializing main %s\n", SDL_GetError());
@@ -38,9 +39,9 @@ bool GameReference::Initialize() {
         return false;
     }
     int ResultMix = Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+    m_InitializedSound = !ResultMix;
     if (ResultMix) {
-        std::printf("Error while opening audio %s\n", Mix_GetError());
-        return false;
+        std::printf("Warning while opening audio %s\n", Mix_GetError());
     }
     int ImageFlags = IMG_INIT_PNG | IMG_INIT_JPG;
     int ResultImageFlags = IMG_Init(ImageFlags);
@@ -71,14 +72,15 @@ bool GameReference::Initialize() {
 
     m_Timer = new Clock(60);
     m_Draw = new Drawing(this);
-    m_SoundHandler = new SoundManager();
+    m_SoundHandler = new SoundManager(m_InitializedSound);
     m_ImageHandler = new ImageManager(m_Renderer);
     m_TextHandler = new TextManager(m_ImageHandler);
     return true;
 }
 
 void GameReference::Deinitialize(bool keep_sound) {
-    if (m_State == STATE_ALL) {
+    if (m_InitializedBase) {
+        m_InitializedBase = false;
         delete m_TextHandler;
         delete m_ImageHandler;
         delete m_Draw;
@@ -87,17 +89,9 @@ void GameReference::Deinitialize(bool keep_sound) {
         SDL_DestroyWindow(m_Window);
         TTF_Quit();
         IMG_Quit();
-        if (!keep_sound) {
-            m_State = STATE_NONE;
-            delete m_SoundHandler;
-            Mix_CloseAudio();
-            Mix_Quit();
-            SDL_Quit();
-        } else {
-            m_State = STATE_SOUND_ONLY;
-        }
-    } else if (m_State == STATE_SOUND_ONLY && !keep_sound) {
-        m_State = STATE_NONE;
+    }
+    if (!keep_sound && m_InitializedSound) {
+        m_InitializedSound = false;
         delete m_SoundHandler;
         Mix_CloseAudio();
         Mix_Quit();

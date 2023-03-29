@@ -16,6 +16,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_ColorHue = double(rand()%360);
     m_Weapon = WEAPON_MACHINEGUN;
     m_ShootSound = m_World->GameWindow()->SoundHandler()->LoadSound("assets/Shoot1.wav", true); // TODO: Shouldn't load sounds here
+    Mix_VolumeChunk(m_ShootSound->MixChunk(), 50);
     m_Shoot = false;
     m_MachinegunTick = 0.0;
     m_GameController = nullptr;
@@ -218,6 +219,8 @@ void Character::TickHook() {
 void Character::TickWeapon() {
     if (!m_Shoot) {
         m_MachinegunTick -= 0.5;
+        if (m_MachinegunTick < 0.0)
+            m_MachinegunTick = 0.0;
         return;
     }
 
@@ -256,9 +259,7 @@ void Character::TickWeapon() {
         m_xvel += -m_xLook * 30;
         m_yvel += -m_yLook * 30;
     } else if (m_Weapon == WEAPON_MACHINEGUN) {
-        if (m_MachinegunTick > 10)
-            m_MachinegunTick = 10;
-
+        if (m_MachinegunTick > 10) m_MachinegunTick = 10;
         if (CurrentTick - m_LastShot < 15 - int(m_MachinegunTick))
             return;
         m_LastShot = CurrentTick;

@@ -3,6 +3,7 @@
 //
 
 #include "SoundManager.h"
+#include <iostream>
 
 Sound::Sound(SoundManager* sound_handler, Mix_Chunk* mix_chunk, bool auto_cleanup) {
     m_SoundHandler = sound_handler;
@@ -17,6 +18,7 @@ Sound::Sound(SoundManager* sound_handler, Mix_Chunk* mix_chunk, bool auto_cleanu
 Sound::~Sound() {
     m_SoundHandler->RemoveSoundAutoCleanup(this);
     Mix_FreeChunk(m_MixChunk);
+    std::printf("Unloaded sound\n");
 }
 
 void Sound::SetAutoCleanup(bool auto_cleanup) {
@@ -24,8 +26,9 @@ void Sound::SetAutoCleanup(bool auto_cleanup) {
     else m_SoundHandler->RemoveSoundAutoCleanup(this);
 }
 
-SoundManager::SoundManager() {
+SoundManager::SoundManager(bool enabled) {
     m_FirstSound = nullptr;
+    m_Enabled = enabled;
 }
 
 SoundManager::~SoundManager() {
@@ -71,9 +74,18 @@ void SoundManager::RemoveSoundAutoCleanup(Sound* sound) {
 
 Sound* SoundManager::LoadSound(const char *filepath, bool auto_cleanup) {
     Mix_Chunk* NewMixChunk = Mix_LoadWAV(filepath);
+    if (!NewMixChunk) {
+        std::printf("Failed to load sound '%s'\n", filepath);
+        return new Sound(this, nullptr, true);
+    }
+
+    std::printf("Loaded sound: '%s'\n", filepath);
     return new Sound(this, NewMixChunk, auto_cleanup);
 }
 
 void SoundManager::PlaySound(Sound* sound) {
+    if (!m_Enabled)
+        return;
+
     Mix_PlayChannel(-1, sound->MixChunk(), 0);
 }
