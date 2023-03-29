@@ -19,7 +19,7 @@ public:
     TextManager(ImageManager* image_handler);
     ~TextManager();
 
-    Texture* Render(TTF_Font* font, const char* text, SDL_Color color);
+    Texture* Render(TTF_Font* font, const char* text, SDL_Color color, bool auto_cleanup);
 
     TTF_Font* LoadFont(const char *filepath, int ptsize);
     TTF_Font* FirstFont() const { return m_Fonts[0]; }

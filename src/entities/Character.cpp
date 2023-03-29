@@ -45,7 +45,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_Name = Name;
     TextManager* TextHandler = world->GameWindow()->TextHandler();
     TTF_Font* Font = TextHandler->FirstFont();
-    m_Nameplate = TextHandler->Render(Font, Name, { 255, 255, 255 });
+    m_Nameplate = TextHandler->Render(Font, Name, { 255, 255, 255 }, true);
 }
 
 Character::~Character() {
@@ -315,7 +315,7 @@ void Character::Draw() {
     TextManager* TextHandler = m_World->GameWindow()->TextHandler();
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
-    auto CoordinateTexture = TextHandler->Render(TextHandler->FirstFont(), msg, { Color.r, Color.g, Color.b, 255 });
+    auto CoordinateTexture = TextHandler->Render(TextHandler->FirstFont(), msg, { Color.r, Color.g, Color.b, 255 }, false);
     int coordinate_w, coordinate_h;
     CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
     SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(NameplateRect.y - coordinate_h), coordinate_w, coordinate_h };

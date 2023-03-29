@@ -24,9 +24,9 @@ public:
     ~Texture();
 
     SDL_Texture* SDLTexture() const { return m_SDLTexture; }
-    bool GetAutoCleanup() const { return m_AutoCleanup; }
     void Query(Uint32* format, int* access, int* w, int* h);
 
+    void SetAlpha(int alpha);
     void SetAutoCleanup(bool auto_cleanup);
 };
 
@@ -45,8 +45,8 @@ public:
 
     void AddTextureAutoCleanup(Texture* texture);
     void RemoveTextureAutoCleanup(Texture* texture);
-    Texture* LoadTexture(const char* filepath, bool auto_cleanup = true);
-    Texture* TextureFromSurface(SDL_Surface* sdl_surface, bool auto_cleanup = true);
+    Texture* LoadTexture(const char* filepath, bool auto_cleanup);
+    Texture* TextureFromSurface(SDL_Surface* sdl_surface, bool auto_cleanup);
 };
 
 #endif //TRIALANDERROR_IMAGEMANAGER_H

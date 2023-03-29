@@ -14,9 +14,9 @@ TextManager::~TextManager() {
         TTF_CloseFont(Font);
 }
 
-Texture* TextManager::Render(TTF_Font* font, const char* text, SDL_Color color) {
+Texture* TextManager::Render(TTF_Font* font, const char* text, SDL_Color color, bool auto_cleanup) {
     SDL_Surface* TempSurface = TTF_RenderText_Blended(font, text, color);
-    Texture* NewTexture = m_ImageHandler->TextureFromSurface(TempSurface);
+    Texture* NewTexture = m_ImageHandler->TextureFromSurface(TempSurface, auto_cleanup);
     SDL_FreeSurface(TempSurface);
     return NewTexture;
 }

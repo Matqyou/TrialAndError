@@ -38,7 +38,7 @@ set(PROJECT_FILES
         "src/technical stuff/ImageManager.cpp"
         "src/technical stuff/ImageManager.h"
         "src/technical stuff/Drawing.cpp"
-        "src/technical stuff/Drawing.h")
+        "src/technical stuff/Drawing.h" "src/technical stuff/SoundManager.cpp" "src/technical stuff/SoundManager.h")
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
 target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)
 target_link_options(${PROJECT_NAME} PRIVATE "-static")

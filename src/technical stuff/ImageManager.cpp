@@ -23,6 +23,10 @@ void Texture::Query(Uint32* format, int* access, int* w, int* h) {
     SDL_QueryTexture(m_SDLTexture, format, access, w, h);
 }
 
+void Texture::SetAlpha(int alpha) {
+    SDL_SetTextureAlphaMod(m_SDLTexture, alpha);
+}
+
 void Texture::SetAutoCleanup(bool auto_cleanup) {
     if (auto_cleanup) m_ImageHandler->AddTextureAutoCleanup(this);
     else m_ImageHandler->RemoveTextureAutoCleanup(this);

@@ -19,7 +19,7 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     for (auto& i : m_LastEntityType)
         i = nullptr;
 
-    m_Background = GameWindow()->ImageHandler()->LoadTexture("assets/background_pattern.png");
+    m_Background = GameWindow()->ImageHandler()->LoadTexture("assets/background_pattern.png", true);
     m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
     SDL_SetTextureAlphaMod(m_Background->SDLTexture(), 10);
     SDL_SetTextureBlendMode(m_Background->SDLTexture(), SDL_BLENDMODE_BLEND);
@@ -198,7 +198,7 @@ void GameWorld::Draw() {
     TextManager* TextHandler = m_GameWindow->TextHandler();
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
-    auto CoordinateTexture = TextHandler->Render(TextHandler->FirstFont(), msg, { 127, 127, 127, 255 });
+    auto CoordinateTexture = TextHandler->Render(TextHandler->FirstFont(), msg, { 127, 127, 127, 255 }, false);
     int coordinate_w, coordinate_h;
     CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
     SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(m_y - coordinate_h / 2.0), coordinate_w, coordinate_h };

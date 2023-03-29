@@ -24,7 +24,7 @@ bool Initialize() {
 
     TextManager* TextHandler = GameWindow->TextHandler();
     TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
-    TextTexture = TextHandler->Render(Font1, "get out or -.. .. .", { 255, 255, 255 });
+    TextTexture = TextHandler->Render(Font1, "get out or -.. .. .", { 255, 255, 255 }, true);
 
     Controllers = new GameControllers();
     new Character(World, 30, 30, 10, 10);
@@ -40,14 +40,17 @@ int main() {
 
     Clock* Timer = GameWindow->Timer();
     Drawing* Draw = GameWindow->RenderClass();
+    SoundManager* SoundHandler = GameWindow->SoundHandler();
     ImageManager* ImageHandler = GameWindow->ImageHandler();
 
     // Load the PNG images
-    Texture* TextureConnected = ImageHandler->LoadTexture("assets/chain.png");
-    Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/dis_chain.png");
-    Texture* TextureIcon = ImageHandler->LoadTexture("assets/PS4_Controller_Icon.png");
-    Texture* Vignette = ImageHandler->LoadTexture("assets/vignette.png");
-    SDL_SetTextureAlphaMod(Vignette->SDLTexture(), 200);
+    Texture* TextureConnected = ImageHandler->LoadTexture("assets/chain.png", true);
+    Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/dis_chain.png", true);
+    Texture* TextureIcon = ImageHandler->LoadTexture("assets/PS4_Controller_Icon.png", true);
+    Texture* Vignette = ImageHandler->LoadTexture("assets/vignette.png", true);
+    Vignette->SetAlpha(200);
+
+    Sound* QuitSound = SoundHandler->LoadSound("assets/Quit.wav", true);
 
     SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
     SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
@@ -147,8 +150,13 @@ int main() {
         Draw->UpdateWindow();
         Timer->Tick();
     }
+
+    SoundHandler->PlaySound(QuitSound);
+    GameWindow->Deinitialize(true); // close everything except sound
+
     delete Controllers;
     delete World;
+    while(Mix_Playing(-1)) { }  // wait until last sound is done playing
     delete GameWindow;
     return 0;
 }
