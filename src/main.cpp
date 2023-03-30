@@ -2,8 +2,8 @@
 #include "GameReference.h"
 #include "GameWorld.h"
 #include "technical stuff/GameControllers.h"
-#include "entities/Character.h"
-#include "entities/Bullets.h"
+#include "game/entities/Character.h"
+#include "game/entities/Bullets.h"
 #include <vector>
 #include <iostream>
 
@@ -49,9 +49,9 @@ int main() {
     Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/images/dis_chain.png", true);
     Texture* TextureIcon = ImageHandler->LoadTexture("assets/images/PS4_Controller_Icon.png", true);
     Texture* Vignette = ImageHandler->LoadTexture("assets/images/vignette.png", true);
-
     Vignette->SetAlpha(200);
 
+    // Load sounds
     Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
     Sound* Fail_Death = SoundHandler->LoadSound("assets/sounds/fail_death.mp3", true);
     Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);
@@ -62,10 +62,17 @@ int main() {
     Sound* LowUISound = SoundHandler->LoadSound("assets/sounds/LowUI.wav", true);
     Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
     Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
+    Sound* GlockShootSound = SoundHandler->LoadSound("assets/sounds/Shoot1.wav", true);
+    GlockShootSound->SetVolume(64); // max 128
+    Sound* GlockClickSound = SoundHandler->LoadSound("assets/sounds/GunClick.wav", true);
+    GlockClickSound->SetVolume(64); // max 128
 
-    SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
-    SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
-    SDL_Rect IconRect = { 100, 400, 200, 109 };
+    WeaponGlock::ms_ShootSound = GlockShootSound;
+    WeaponGlock::ms_ClickSound = GlockClickSound;
+
+    // SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
+    // SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
+    // SDL_Rect IconRect = { 100, 400, 200, 109 };
 
     bool Running = true;
     bool m_Config = true;

@@ -3,8 +3,8 @@
 //
 
 #include "GameWorld.h"
-#include "entities/Entity.h"
-#include "entities/Character.h"
+#include "game/entities/Entity.h"
+#include "game/entities/Character.h"
 
 GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_GameWindow = gameWindow;
