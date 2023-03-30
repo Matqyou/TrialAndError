@@ -117,12 +117,13 @@ int main() {
                             y >= startButtonRect.y && y < startButtonRect.y + startButtonRect.h)
                         {
                             World->SetPaused(false);
-                            SoundHandler->PlaySound(MidUISound);
+                            SoundHandler->PlaySound(LowUISound);
                         }
                         else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
                             y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
                         {
                             m_Config = !m_Config;
+                            SoundHandler->PlaySound(MidUISound);
                         }
                     }
                 } break;
