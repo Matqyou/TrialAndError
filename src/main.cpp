@@ -44,15 +44,18 @@ int main() {
     ImageManager* ImageHandler = GameWindow->ImageHandler();
 
     // Load the PNG images
-    Texture* TextureConnected = ImageHandler->LoadTexture("assets/chain.png", true);
-    Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/dis_chain.png", true);
-    Texture* TextureIcon = ImageHandler->LoadTexture("assets/PS4_Controller_Icon.png", true);
-    Texture* Vignette = ImageHandler->LoadTexture("assets/vignette.png", true);
+    Texture* TextureConnected = ImageHandler->LoadTexture("assets/images/chain.png", true);
+    Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/images/dis_chain.png", true);
+    Texture* TextureIcon = ImageHandler->LoadTexture("assets/images/PS4_Controller_Icon.png", true);
+    Texture* Vignette = ImageHandler->LoadTexture("assets/images/vignette.png", true);
     Vignette->SetAlpha(200);
 
-    Sound* LowSound = SoundHandler->LoadSound("assets/Low.wav", true);
-    Sound* HighSound = SoundHandler->LoadSound("assets/High.wav", true);
-    Sound* QuitSound = SoundHandler->LoadSound("assets/Quit.wav", true);
+    Sound* LowSound = SoundHandler->LoadSound("assets/sounds/Low.wav", true);
+    Sound* HighSound = SoundHandler->LoadSound("assets/sounds/High.wav", true);
+    Sound* QuitSound = SoundHandler->LoadSound("assets/sounds/Quit.wav", true);
+    Sound* LowUISound = SoundHandler->LoadSound("assets/sounds/LowUI.wav", true);
+    Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
+    Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
 
     SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
     SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
@@ -77,8 +80,12 @@ int main() {
                     Running = false;
                 } break;
                 case SDL_KEYDOWN: {
-                    if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                        World->SetPaused(!World->Paused());
+                    if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                        bool Pause = !World->Paused();
+                        World->SetPaused(Pause);
+                        if (Pause) SoundHandler->PlaySound(MidUISound);
+                        else SoundHandler->PlaySound(LowUISound);
+                    }
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                     //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
@@ -104,6 +111,7 @@ int main() {
                             y >= startButtonRect.y && y < startButtonRect.y + startButtonRect.h)
                         {
                             World->SetPaused(false);
+                            SoundHandler->PlaySound(MidUISound);
                         }
                         //else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
                         //    y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)

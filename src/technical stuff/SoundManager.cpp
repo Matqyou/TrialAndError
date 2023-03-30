@@ -18,7 +18,6 @@ Sound::Sound(SoundManager* sound_handler, Mix_Chunk* mix_chunk, bool auto_cleanu
 Sound::~Sound() {
     m_SoundHandler->RemoveSoundAutoCleanup(this);
     Mix_FreeChunk(m_MixChunk);
-    std::printf("Unloaded sound\n");
 }
 
 void Sound::SetAutoCleanup(bool auto_cleanup) {
@@ -79,7 +78,6 @@ Sound* SoundManager::LoadSound(const char *filepath, bool auto_cleanup) {
         return new Sound(this, nullptr, true);
     }
 
-    std::printf("Loaded sound: '%s'\n", filepath);
     return new Sound(this, NewMixChunk, auto_cleanup);
 }
 

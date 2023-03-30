@@ -19,7 +19,7 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     for (auto& i : m_LastEntityType)
         i = nullptr;
 
-    m_Background = GameWindow()->ImageHandler()->LoadTexture("assets/background_pattern.png", true);
+    m_Background = GameWindow()->ImageHandler()->LoadTexture("assets/images/background_pattern.png", true);
     m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
     SDL_SetTextureAlphaMod(m_Background->SDLTexture(), 10);
     SDL_SetTextureBlendMode(m_Background->SDLTexture(), SDL_BLENDMODE_BLEND);

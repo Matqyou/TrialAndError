@@ -17,7 +17,6 @@ Texture::Texture(ImageManager* image_handler, SDL_Texture* sdl_texture, bool aut
 Texture::~Texture() {
     m_ImageHandler->RemoveTextureAutoCleanup(this);
     SDL_DestroyTexture(m_SDLTexture);
-    std::printf("Unloaded texture\n");
 }
 
 void Texture::Query(Uint32* format, int* access, int* w, int* h) {
@@ -89,13 +88,11 @@ Texture* ImageManager::LoadTexture(const char *filepath, bool auto_cleanup) {
     SDL_Texture* NewSDLTexture = SDL_CreateTextureFromSurface(m_Renderer, TempSurface);
     SDL_FreeSurface(TempSurface);
 
-    std::printf("Loaded texture: '%s'\n", filepath);
     return new Texture(this, NewSDLTexture, auto_cleanup);
 }
 
 Texture* ImageManager::TextureFromSurface(SDL_Surface* sdl_surface, bool auto_cleanup) {
     SDL_Texture* NewSDLTexture = SDL_CreateTextureFromSurface(m_Renderer, sdl_surface);
 
-    std::printf("Loaded texture from surface\n");
     return new Texture(this, NewSDLTexture, auto_cleanup);
 }
