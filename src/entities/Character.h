@@ -23,7 +23,6 @@ public:
         CONTROL_RIGHT,
         CONTROL_DOWN,
         CONTROL_LEFT,
-        CONTROL_SHOWNAMES,
         NUM_CONTROLS,
         CHARACTER_MAX_NAME_LENGTH = 32
     };
@@ -44,7 +43,7 @@ private:
     double m_MachinegunTick;
     unsigned long long burst_ticks;
     int m_BurstShots;
-    int base_burst_shots;
+    int m_StartBurstShots;
     static const int sDefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration = 0.75;

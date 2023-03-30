@@ -8,7 +8,7 @@
 #include <vector>
 
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
-const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_SPACE };
+const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
 
 Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93) {
@@ -21,7 +21,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_MachinegunTick = 0.0;
     burst_ticks = 0;
     m_BurstShots = 0;
-    base_burst_shots = 3;
+    m_StartBurstShots = 3;
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
@@ -68,7 +68,6 @@ void Character::TickKeyboardControls() {
     bool MoveRight = m_Movement[CONTROL_RIGHT];
     bool MoveDown = m_Movement[CONTROL_DOWN];
     bool MoveLeft = m_Movement[CONTROL_LEFT];
-    bool ShowNames = m_Movement[CONTROL_SHOWNAMES];
 
     bool Horizontally = MoveLeft != MoveRight;
     bool Vertically = MoveUp != MoveDown;
@@ -223,8 +222,8 @@ void Character::TickWeapon() {
         burst_ticks = CurrentTick;
         m_BurstShots--;
         new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
-        m_xvel += -m_xLook*2;
-        m_yvel += -m_yLook*2;
+        m_xvel += -m_xLook * 2;
+        m_yvel += -m_yLook * 2;
     }
 
     if (!m_Shoot) {
@@ -252,7 +251,7 @@ void Character::TickWeapon() {
             return;
         m_LastShot = CurrentTick;
         m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
-        m_BurstShots = 2;
+        m_BurstShots = m_StartBurstShots - 1;
         burst_ticks = CurrentTick;
 
         new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
