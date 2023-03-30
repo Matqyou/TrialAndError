@@ -10,10 +10,8 @@ TextManager::TextManager(ImageManager* image_handler) {
 }
 
 TextManager::~TextManager() {
-    for (TTF_Font* Font : m_Fonts) {
+    for (TTF_Font* Font : m_Fonts)
         TTF_CloseFont(Font);
-        std::printf("Unloaded font\n");
-    }
 }
 
 Texture* TextManager::Render(TTF_Font* font, const char* text, SDL_Color color, bool auto_cleanup) {
@@ -31,6 +29,5 @@ TTF_Font* TextManager::LoadFont(const char* filepath, int ptsize) {
     }
 
     m_Fonts.push_back(NewFont);
-    std::printf("Loaded font: '%s'\n", filepath);
     return NewFont;
 }

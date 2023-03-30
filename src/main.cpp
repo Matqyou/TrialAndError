@@ -18,7 +18,7 @@ bool Initialize() {
     if (!GameWindow->Initialize())
         return false;
 
-    World = new GameWorld(GameWindow, 10000, 1000);
+    World = new GameWorld(GameWindow, 4000, 2000);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
@@ -43,21 +43,25 @@ int main() {
     ImageManager* ImageHandler = GameWindow->ImageHandler();
 
     // Load the PNG images
-    Texture* TextureStart = ImageHandler->LoadTexture("assets/Start.png", true);
-    Texture* TextureSettings = ImageHandler->LoadTexture("assets/Settings.png", true);
-    Texture* TextureConnected = ImageHandler->LoadTexture("assets/chain.png", true);
-    Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/dis_chain.png", true);
-    Texture* TextureIcon = ImageHandler->LoadTexture("assets/PS4_Controller_Icon.png", true);
-    Texture* Vignette = ImageHandler->LoadTexture("assets/vignette.png", true);
+    Texture* TextureStart = ImageHandler->LoadTexture("assets/images/Start.png", true);
+    Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/Settings.png", true);
+    Texture* TextureConnected = ImageHandler->LoadTexture("assets/images/chain.png", true);
+    Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/images/dis_chain.png", true);
+    Texture* TextureIcon = ImageHandler->LoadTexture("assets/images/PS4_Controller_Icon.png", true);
+    Texture* Vignette = ImageHandler->LoadTexture("assets/images/vignette.png", true);
+
     Vignette->SetAlpha(200);
 
-    Sound* Background = SoundHandler->LoadSound("assets/background_theme.mp3", true);
-    Sound* Fail_Death = SoundHandler->LoadSound("assets/fail_death.mp3", true);
-    Sound* Basic_Death = SoundHandler->LoadSound("assets/basic_death.wav", true);
-    Sound* Epic_Death = SoundHandler->LoadSound("assets/epic_death.wav", true);
-    Sound* LowSound = SoundHandler->LoadSound("assets/Low.wav", true);
-    Sound* HighSound = SoundHandler->LoadSound("assets/High.wav", true);
-    Sound* QuitSound = SoundHandler->LoadSound("assets/Quit.wav", true);
+    Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
+    Sound* Fail_Death = SoundHandler->LoadSound("assets/sounds/fail_death.mp3", true);
+    Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);
+    Sound* Epic_Death = SoundHandler->LoadSound("assets/sounds/epic_death.wav", true);
+    Sound* LowSound = SoundHandler->LoadSound("assets/sounds/Low.wav", true);
+    Sound* HighSound = SoundHandler->LoadSound("assets/sounds/High.wav", true);
+    Sound* QuitSound = SoundHandler->LoadSound("assets/sounds/Quit.wav", true);
+    Sound* LowUISound = SoundHandler->LoadSound("assets/sounds/LowUI.wav", true);
+    Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
+    Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
 
     SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
     SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
@@ -82,8 +86,12 @@ int main() {
                     Running = false;
                 } break;
                 case SDL_KEYDOWN: {
-                    if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                        World->SetPaused(!World->Paused());
+                    if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                        bool Pause = !World->Paused();
+                        World->SetPaused(Pause);
+                        if (Pause) SoundHandler->PlaySound(MidUISound);
+                        else SoundHandler->PlaySound(LowUISound);
+                    }
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                     //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
@@ -92,13 +100,13 @@ int main() {
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
                     auto* NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
                     NewPlayer->SetGameController(CurrentController);
-                    SoundHandler->PlaySound(Epic_Death);
+                    SoundHandler->PlaySound(HighSound);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
                     GameController* DeletedController = Controllers->CloseController(InstanceID);
                     World->DestroyPlayerByController(DeletedController);
-                    SoundHandler->PlaySound(Fail_Death);
+                    SoundHandler->PlaySound(LowSound);
                 } break;
                 case SDL_MOUSEBUTTONDOWN: {
                     if (CurrentEvent.button.button == SDL_BUTTON_LEFT)
@@ -109,6 +117,7 @@ int main() {
                             y >= startButtonRect.y && y < startButtonRect.y + startButtonRect.h)
                         {
                             World->SetPaused(false);
+                            SoundHandler->PlaySound(MidUISound);
                         }
                         else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
                             y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)

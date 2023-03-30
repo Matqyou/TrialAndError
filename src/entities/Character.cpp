@@ -15,7 +15,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
     m_Weapon = WEAPON_GLOCK;
-    m_ShootSound = m_World->GameWindow()->SoundHandler()->LoadSound("assets/Shoot1.wav", true); // TODO: Shouldn't load sounds here
+    m_ShootSound = m_World->GameWindow()->SoundHandler()->LoadSound("assets/sounds/Shoot1.wav", true); // TODO: Shouldn't load sounds here
     Mix_VolumeChunk(m_ShootSound->MixChunk(), 50);
     m_Shoot = false;
     m_MachinegunTick = 0.0;
