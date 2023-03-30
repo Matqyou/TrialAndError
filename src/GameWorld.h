@@ -21,7 +21,8 @@ public:
 private:
     GameReference* m_GameWindow;
     double m_Width, m_Height;  // maybe better if it was int
-    double m_ShowNames{};
+    double m_ShowNamesVisibility;
+    bool m_ShowNames;
     bool m_Paused;
     Entity* m_LastEntityType[NUM_ENTTYPES]{};
     Entity* m_LastEntity;
@@ -39,7 +40,7 @@ public:
     GameReference* GameWindow() const { return m_GameWindow; }
     double Width() const { return m_Width; }
     double Height() const { return m_Height; }
-    double NamesShown() const { return m_ShowNames; }
+    double NamesShown() const { return m_ShowNamesVisibility; }
     bool Paused() const { return m_Paused; }
     Character* GetPlayerByIndex(int index);
     void GetNextPlayerIndex(Character* player);
@@ -52,9 +53,8 @@ public:
     void AddEntity(Entity* entity);
     void RemoveEntity(Entity* entity);
     void DestroyPlayerByController(GameController* DeletedController);
-    void ShowNames();
+    void ToggleShowNames();
     void SetPaused(bool state);
-    void SetConfig(bool state);
 
     void Event(const SDL_Event& currentEvent);
     void Tick();

@@ -20,7 +20,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_Shoot = false;
     m_MachinegunTick = 0.0;
     burst_ticks = 0;
-    burst_shots = 0;
+    m_BurstShots = 0;
     base_burst_shots = 3;
     m_GameController = nullptr;
     for (bool& State : m_Movement)
@@ -80,10 +80,6 @@ void Character::TickKeyboardControls() {
     if (MoveDown != MoveUp) m_yvel += SpeedPerAxis * double(MoveDown ? 1 : -1);
     if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
 
-    // Show names button
-    if (ShowNames)
-        m_World->ShowNames();
-
     // Update look direction
     int XMouse, YMouse;
     SDL_GetMouseState(&XMouse, &YMouse);
@@ -123,11 +119,6 @@ void Character::TickGameControllerControls() {
         m_yvel += m_BaseAcceleration * AxisY;
     }
 
-    // Show names button
-    bool ShowNames = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_Y);  // triangle
-    if (ShowNames)
-        m_World->ShowNames();
-
     // Update look direction
     double AxisX2, AxisY2;
     m_GameController->GetJoystick2(AxisX2, AxisY2);
@@ -143,9 +134,15 @@ void Character::TickGameControllerControls() {
         }
     }
 
-    //Shooting
+    // Shooting
     m_Shoot = m_GameController->GetRightTrigger() > 0.7;
     m_Hook = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+
+    // Switch weapons
+    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP)) m_Weapon = WEAPON_GLOCK;
+    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) m_Weapon = WEAPON_SHOTGUN;
+    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)) m_Weapon = WEAPON_BURST;
+    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)) m_Weapon = WEAPON_MACHINEGUN;
 }
 
 void Character::TickControls() {
@@ -221,12 +218,13 @@ void Character::TickHook() {
 
 void Character::TickWeapon() {
     auto CurrentTick = m_World->CurrentTick();
-    if(burst_shots && CurrentTick - burst_ticks>5) {
+    if(m_BurstShots && CurrentTick - burst_ticks > 5) {
+        m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
         burst_ticks = CurrentTick;
-        burst_shots --;
+        m_BurstShots--;
+        new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
         m_xvel += -m_xLook*2;
         m_yvel += -m_yLook*2;
-        new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
     }
 
     if (!m_Shoot) {
@@ -254,9 +252,12 @@ void Character::TickWeapon() {
             return;
         m_LastShot = CurrentTick;
         m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
-        burst_shots = 3;
+        m_BurstShots = 2;
         burst_ticks = CurrentTick;
 
+        new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
+        m_xvel += -m_xLook*2;
+        m_yvel += -m_yLook*2;
     }
     else if (m_Weapon == WEAPON_SHOTGUN) {
         if (CurrentTick - m_LastShot < 72)
@@ -302,9 +303,9 @@ void Character::Event(const SDL_Event& currentEvent) {
         currentEvent.type == SDL_KEYUP) {
         bool State = currentEvent.type == SDL_KEYDOWN;
         if (currentEvent.key.keysym.scancode == SDL_SCANCODE_1) m_Weapon = WEAPON_GLOCK;
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2) m_Weapon = WEAPON_SHOTGUN;
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3) m_Weapon = WEAPON_BURST;
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4) m_Weapon = WEAPON_MACHINEGUN;
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2) m_Weapon = WEAPON_SHOTGUN;
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3) m_Weapon = WEAPON_BURST;
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4) m_Weapon = WEAPON_MACHINEGUN;
 
         for (int i = 0; i < NUM_CONTROLS; i++) {
             if (currentEvent.key.keysym.scancode == m_Controls[i])

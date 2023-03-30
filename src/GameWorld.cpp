@@ -10,6 +10,8 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_GameWindow = gameWindow;
     m_Width = width;
     m_Height = height;
+    m_ShowNamesVisibility = 0.0;
+    m_ShowNames = false;
     m_Paused = false;
     m_x = 0.0;
     m_y = 0.0;
@@ -124,8 +126,10 @@ void GameWorld::DestroyPlayerByController(GameController* DeletedController) {
     }
 }
 
-void GameWorld::ShowNames() {
-    m_ShowNames = 1.0;
+void GameWorld::ToggleShowNames() {
+    m_ShowNames = !m_ShowNames;
+    if (m_ShowNames)
+        m_ShowNamesVisibility = 1.0;
 }
 
 void GameWorld::SetPaused(bool state) {
@@ -133,6 +137,10 @@ void GameWorld::SetPaused(bool state) {
 }
 
 void GameWorld::Event(const SDL_Event& currentEvent) {
+    if (currentEvent.type == SDL_KEYDOWN &&
+        currentEvent.key.keysym.scancode == SDL_SCANCODE_SPACE)
+        ToggleShowNames();
+
     Entity* NextEntity; // allows deletion while looping
     for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = NextEntity) {
         NextEntity = CurrentEntity->m_PrevEntity;
@@ -148,7 +156,8 @@ void GameWorld::Tick() {
     if (m_Paused)
         return;
 
-    m_ShowNames *= 0.98;
+    if (!m_ShowNames)
+        m_ShowNamesVisibility *= 0.98;
 
     Entity* NextEntity; // allows deletion while looping
     for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = NextEntity) {
@@ -191,10 +200,10 @@ void GameWorld::Draw() {
     for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = CurrentEntity->m_PrevEntity)
         CurrentEntity->Draw();
 
-    if (m_ShowNames <= 0.05)
+    if (m_ShowNamesVisibility <= 0.05)
         return;
 
-    int Opacity = int(m_ShowNames * 255.0);
+    int Opacity = int(m_ShowNamesVisibility * 255.0);
     TextManager* TextHandler = m_GameWindow->TextHandler();
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));

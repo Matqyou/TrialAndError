@@ -162,12 +162,7 @@ int main() {
             Draw->RenderTexture(TextureStart->SDLTexture(), nullptr, startButtonRect);
             Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, settingsButtonRect);
 
-            if (m_Config == false) {
-                Draw->SetBlendingMode(SDL_BLENDMODE_BLEND);
-                Draw->SetColor(0, 0, 0, 100);
-                Draw->BlendFullscreen();
-                Draw->SetBlendingMode(SDL_BLENDMODE_NONE);
-
+            if (!m_Config) {
                 //   setting
                 Draw->SetColor(20, 20, 90, 255);
                 Draw->FillRect(settingsButtonRect);

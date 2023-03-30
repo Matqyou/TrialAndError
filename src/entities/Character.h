@@ -42,8 +42,8 @@ private:
     Sound* m_ShootSound;
     bool m_Shoot;
     double m_MachinegunTick;
-    int burst_ticks;
-    int burst_shots;
+    unsigned long long burst_ticks;
+    int m_BurstShots;
     int base_burst_shots;
     static const int sDefaultControls[NUM_CONTROLS];
 
