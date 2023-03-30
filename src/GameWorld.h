@@ -54,6 +54,7 @@ public:
     void DestroyPlayerByController(GameController* DeletedController);
     void ShowNames();
     void SetPaused(bool state);
+    void SetConfig(bool state);
 
     void Event(const SDL_Event& currentEvent);
     void Tick();
