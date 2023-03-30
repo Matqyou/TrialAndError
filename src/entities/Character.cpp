@@ -14,11 +14,14 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
-    m_Weapon = WEAPON_MACHINEGUN;
+    m_Weapon = WEAPON_GLOCK;
     m_ShootSound = m_World->GameWindow()->SoundHandler()->LoadSound("assets/Shoot1.wav", true); // TODO: Shouldn't load sounds here
     Mix_VolumeChunk(m_ShootSound->MixChunk(), 50);
     m_Shoot = false;
     m_MachinegunTick = 0.0;
+    burst_ticks = 0;
+    burst_shots = 0;
+    base_burst_shots = 3;
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
@@ -217,6 +220,15 @@ void Character::TickHook() {
 }
 
 void Character::TickWeapon() {
+    auto CurrentTick = m_World->CurrentTick();
+    if(burst_shots && CurrentTick - burst_ticks>5) {
+        burst_ticks = CurrentTick;
+        burst_shots --;
+        m_xvel += -m_xLook*2;
+        m_yvel += -m_yLook*2;
+        new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
+    }
+
     if (!m_Shoot) {
         m_MachinegunTick -= 0.5;
         if (m_MachinegunTick < 0.0)
@@ -227,7 +239,7 @@ void Character::TickWeapon() {
     if (m_Weapon == WEAPON_NONE)
         return;
 
-    auto CurrentTick = m_World->CurrentTick();
+
     if (m_Weapon == WEAPON_GLOCK) {
         if (CurrentTick - m_LastShot < 24)
             return;
@@ -236,38 +248,49 @@ void Character::TickWeapon() {
         new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
         m_xvel += -m_xLook * 10;
         m_yvel += -m_yLook * 10;
+
     } else if (m_Weapon == WEAPON_BURST) {
-        if (CurrentTick - m_LastShot < 64)
+        if (CurrentTick - m_LastShot < 48)
             return;
         m_LastShot = CurrentTick;
         m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
-        new Bullets(m_World, m_x , m_y , m_xLook * 10, m_yLook * 10);
-        new Bullets(m_World, m_x*1.1 , m_y*1.1 , m_xLook * 10, m_yLook * 10);
-        new Bullets(m_World, m_x*1.05 , m_y*1.05 , m_xLook * 10, m_yLook * 10);
-        m_xvel += -m_xLook;
-        m_yvel += -m_yLook;
-    } else if (m_Weapon == WEAPON_SHOTGUN) {
-        if (CurrentTick - m_LastShot < 128)
+        burst_shots = 3;
+        burst_ticks = CurrentTick;
+
+    }
+    else if (m_Weapon == WEAPON_SHOTGUN) {
+        if (CurrentTick - m_LastShot < 72)
             return;
+
         m_LastShot = CurrentTick;
         m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
-        new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
-        new Bullets(m_World, m_x, m_y, (m_xLook+0.25) * 10, (m_yLook+0.25) * 10);
-        new Bullets(m_World, m_x, m_y, (m_xLook+0.50) * 10, (m_yLook+0.50) * 10);
-        new Bullets(m_World, m_x, m_y, (m_xLook-0.25) * 10, (m_yLook-0.25) * 10);
-        new Bullets(m_World, m_x, m_y, (m_xLook-0.50) * 10, (m_yLook-0.50) * 10);
+        const int bullet_count = 8;
+        const double spread_angle = 75.0/180.0*M_PI;
+        const double spacing = spread_angle / bullet_count;
+        double radians =  atan2(m_yLook, m_xLook);
+        double start_angle = radians - spread_angle/2;
+        double end_angle = radians + spread_angle/2;
+
+        for(double current_angle=start_angle; current_angle<end_angle; current_angle += spacing){
+            double direction_x = cos(current_angle);
+            double direction_y = sin(current_angle);
+            double speed_multi = (double((rand()%20)-10))/10 + 10;
+            new Bullets(m_World, m_x, m_y,  direction_x * speed_multi, direction_y * speed_multi);
+        }
         m_xvel += -m_xLook * 30;
         m_yvel += -m_yLook * 30;
-    } else if (m_Weapon == WEAPON_MACHINEGUN) {
-        if (m_MachinegunTick > 10) m_MachinegunTick = 10;
-        if (CurrentTick - m_LastShot < 15 - int(m_MachinegunTick))
+
+    }
+    else if (m_Weapon == WEAPON_MACHINEGUN) {
+        if (m_MachinegunTick > 15) m_MachinegunTick = 15;
+        if (CurrentTick - m_LastShot < 10+15 - int(m_MachinegunTick))
             return;
         m_LastShot = CurrentTick;
         m_MachinegunTick += 1.4;
         m_World->GameWindow()->SoundHandler()->PlaySound(m_ShootSound);
         new Bullets(m_World, m_x, m_y, m_xLook * 30, m_yLook * 30);
-        m_xvel += -m_xLook * 7;
-        m_yvel += -m_yLook * 7;
+        m_xvel += -m_xLook * 4;
+        m_yvel += -m_yLook * 4;
     }
 }
 
@@ -278,6 +301,11 @@ void Character::Event(const SDL_Event& currentEvent) {
     if (currentEvent.type == SDL_KEYDOWN ||
         currentEvent.type == SDL_KEYUP) {
         bool State = currentEvent.type == SDL_KEYDOWN;
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_1) m_Weapon = WEAPON_GLOCK;
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2) m_Weapon = WEAPON_SHOTGUN;
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3) m_Weapon = WEAPON_BURST;
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4) m_Weapon = WEAPON_MACHINEGUN;
+
         for (int i = 0; i < NUM_CONTROLS; i++) {
             if (currentEvent.key.keysym.scancode == m_Controls[i])
                 m_Movement[i] = State;

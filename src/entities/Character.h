@@ -42,6 +42,9 @@ private:
     Sound* m_ShootSound;
     bool m_Shoot;
     double m_MachinegunTick;
+    int burst_ticks;
+    int burst_shots;
+    int base_burst_shots;
     static const int sDefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration = 0.75;
