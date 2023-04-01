@@ -4,7 +4,10 @@
 #include "SDL.h"
 #include <cstring>
 #include "Entity.h"
-#include "../weapons/Weapon.h"
+#include "../weapons/WeaponGlock.h"
+#include "../weapons/WeaponShotgun.h"
+#include "../weapons/WeaponBurst.h"
+#include "../weapons/WeaponMinigun.h"
 #include "../../technical stuff/GameControllers.h"
 #include "../../technical stuff/Colors.h"
 
@@ -30,7 +33,7 @@ public:
 
 private:
     friend class GameWorld;
-    friend class Weapon;
+    friend class ProjectileWeapon;
     int m_PlayerIndex;
     std::string m_Name;
     Texture* m_Nameplate;
@@ -39,20 +42,16 @@ private:
     bool m_Movement[NUM_CONTROLS];
     int m_Controls[NUM_CONTROLS];
     bool m_Controllable;
-    WeaponType m_Weapon;
+    WeaponType m_Weapon; // TODO: Make this a pointer and store available guns in a list/vector
     bool m_Shoot, m_LastShoot;
     WeaponGlock m_Glock;
     WeaponShotgun m_Shotgun;
     WeaponBurst m_Burst;
-    //double m_MachinegunTick;
-    //unsigned long long m_BurstTick;
-    //int m_BurstShots;
-    //int m_StartBurstShots;
+    WeaponMinigun m_Minigun;
     static const int sDefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration = 0.75;
     double m_xLook, m_yLook;  // direction
-    unsigned long long m_LastShot;
 
     double m_xHook, m_yHook;
     double m_xvelHook, m_yvelHook;

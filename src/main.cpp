@@ -27,7 +27,7 @@ bool Initialize() {
     TextTexture = TextHandler->Render(Font1, "Jesse -.. .. .", { 255, 255, 255 }, true);
 
     Controllers = new GameControllers();
-    new Character(World, 30, 30, 10, 10);
+    // new Character(World, 30, 30, 10, 10);
     return true;
 }
 
@@ -69,13 +69,17 @@ int main() {
     GlockShootSound->SetVolume(64); // max 128
     Sound* GlockClickSound = SoundHandler->LoadSound("assets/sounds/GunClick.wav", true);
     GlockClickSound->SetVolume(32); // max 128
+    Sound* ShotgunShootSound = SoundHandler->LoadSound("assets/sounds/ShootShotgun.wav", true);
+    Sound* BurstShootSound = SoundHandler->LoadSound("assets/sounds/ShootBurst.wav", true);
 
     WeaponGlock::ms_ShootSound = GlockShootSound;
     WeaponGlock::ms_ClickSound = GlockClickSound;
-    WeaponShotgun::ms_ShootSound = GlockShootSound;
+    WeaponShotgun::ms_ShootSound = ShotgunShootSound;
     WeaponShotgun::ms_ClickSound = GlockClickSound;
-    WeaponBurst::ms_ShootSound = GlockShootSound;
+    WeaponBurst::ms_ShootSound = BurstShootSound;
     WeaponBurst::ms_ClickSound = GlockClickSound;
+    WeaponMinigun::ms_ShootSound = BurstShootSound;
+    WeaponMinigun::ms_ClickSound = GlockClickSound;
 
     // SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
     // SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };

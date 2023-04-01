@@ -38,7 +38,7 @@ set(PROJECT_FILES
         "src/technical stuff/ImageManager.cpp"
         "src/technical stuff/ImageManager.h"
         "src/technical stuff/Drawing.cpp"
-        "src/technical stuff/Drawing.h" "src/technical stuff/SoundManager.cpp" "src/technical stuff/SoundManager.h" src/game/weapons/Weapon.cpp src/game/weapons/Weapon.h)
+        "src/technical stuff/Drawing.h" "src/technical stuff/SoundManager.cpp" "src/technical stuff/SoundManager.h" src/game/weapons/ProjectileWeapon.cpp src/game/weapons/ProjectileWeapon.h src/game/weapons/WeaponGlock.cpp src/game/weapons/WeaponGlock.h src/game/weapons/WeaponShotgun.cpp src/game/weapons/WeaponShotgun.h src/game/weapons/WeaponBurst.cpp src/game/weapons/WeaponBurst.h src/game/weapons/WeaponMinigun.cpp src/game/weapons/WeaponMinigun.h)
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
 target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)
 target_link_options(${PROJECT_NAME} PRIVATE "-static")
