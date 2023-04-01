@@ -32,8 +32,8 @@ public:
 };
 
 class WeaponGlock : public Weapon {
-protected:
-    double m_BulletSpeed;
+private:
+    double m_ProjectileSpeed;
     double m_RecoilForce;
 
 public:
@@ -41,6 +41,34 @@ public:
     static Sound* ms_ClickSound;
 
     WeaponGlock(Character* owner);
+
+    void Tick() override;
+};
+
+class WeaponShotgun : public Weapon {
+private:
+    int m_PelletCount;
+    double m_PelletSpeed;
+    double m_RecoilForce;
+
+    double m_RandomSpreadDivisor;
+    double m_HalfRandomSpread;
+    int m_FullRandomSpread;
+    double m_RandomPelletSpeedDivisor;
+    double m_NegativeRandomPelletSpeed;
+    int m_FullRandomPelletSpeed;
+
+    double GenerateSpreadAngle() const;
+    double GenerateRandomPelletSpeed() const;
+public:
+    static Sound* ms_ShootSound;
+    static Sound* ms_ClickSound;
+
+    WeaponShotgun(Character* owner);
+
+    void SetSpread(double degrees, int decimal_places);
+    void SetRandomPelletSpeed(double delta_speed, double delta_percentage_negative, int delta_decimal_places);
+    void SetPelletSpeeds(double base_speed, double delta_speed, double delta_percentage_negative, int delta_decimal_places);
 
     void Tick() override;
 };

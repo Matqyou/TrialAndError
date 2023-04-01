@@ -39,9 +39,10 @@ private:
     bool m_Movement[NUM_CONTROLS];
     int m_Controls[NUM_CONTROLS];
     bool m_Controllable;
-    //WeaponType m_Weapon;
+    WeaponType m_Weapon;
     bool m_Shoot, m_LastShoot;
     WeaponGlock m_Glock;
+    WeaponShotgun m_Shotgun;
     //double m_MachinegunTick;
     //unsigned long long m_BurstTick;
     //int m_BurstShots;

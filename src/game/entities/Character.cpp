@@ -12,10 +12,11 @@ const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANC
 
 Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93),
-   m_Glock(this) {
+   m_Glock(this),
+   m_Shotgun(this) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
-    //m_Weapon = WEAPON_GLOCK;
+    m_Weapon = WEAPON_GLOCK;
     m_Shoot = false;
     m_LastShoot = false;
     //m_MachinegunTick = 0.0;
@@ -143,10 +144,10 @@ void Character::TickGameControllerControls() {
     m_Hook = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
 
     // Switch weapons
-    //if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP)) m_Weapon = WEAPON_GLOCK;
-    //if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) m_Weapon = WEAPON_SHOTGUN;
-    //if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)) m_Weapon = WEAPON_BURST;
-    //if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)) m_Weapon = WEAPON_MACHINEGUN;
+    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP)) m_Weapon = WEAPON_GLOCK;
+    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) m_Weapon = WEAPON_SHOTGUN;
+    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)) m_Weapon = WEAPON_BURST;
+    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)) m_Weapon = WEAPON_MACHINEGUN;
 }
 
 void Character::TickControls() {
@@ -221,7 +222,8 @@ void Character::TickHook() {
 }
 
 void Character::TickWeapon() {
-    m_Glock.Tick();
+    if (m_Weapon == WEAPON_GLOCK) m_Glock.Tick();
+    else if (m_Weapon == WEAPON_SHOTGUN) m_Shotgun.Tick();
     //auto CurrentTick = m_World->CurrentTick();
     //if(m_BurstShots && CurrentTick - m_BurstTick > 5) {
     //    m_BurstTick = CurrentTick;
@@ -303,10 +305,10 @@ void Character::Event(const SDL_Event& currentEvent) {
     if (currentEvent.type == SDL_KEYDOWN ||
         currentEvent.type == SDL_KEYUP) {
         bool State = currentEvent.type == SDL_KEYDOWN;
-        //if (currentEvent.key.keysym.scancode == SDL_SCANCODE_1) m_Weapon = WEAPON_GLOCK;
-        //else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2) m_Weapon = WEAPON_SHOTGUN;
-        //else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3) m_Weapon = WEAPON_BURST;
-        //else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4) m_Weapon = WEAPON_MACHINEGUN;
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_1) m_Weapon = WEAPON_GLOCK;
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2) m_Weapon = WEAPON_SHOTGUN;
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3) m_Weapon = WEAPON_BURST;
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4) m_Weapon = WEAPON_MACHINEGUN;
 
         for (int i = 0; i < NUM_CONTROLS; i++) {
             if (currentEvent.key.keysym.scancode == m_Controls[i])
