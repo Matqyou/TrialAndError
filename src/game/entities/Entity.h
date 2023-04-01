@@ -5,7 +5,7 @@
 #ifndef TRIALANDERROR_ENTITY_H
 #define TRIALANDERROR_ENTITY_H
 
-#include "../GameWorld.h"
+#include "../../GameWorld.h"
 
 class Entity {
 protected:
@@ -30,6 +30,7 @@ public:
            double base_damping);
     ~Entity();
 
+    GameWorld* World() const { return m_World; }
     GameWorld::EntityType EntityType() const { return m_EntityType; }
 
     virtual void Tick();

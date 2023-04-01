@@ -20,6 +20,10 @@ Sound::~Sound() {
     Mix_FreeChunk(m_MixChunk);
 }
 
+void Sound::SetVolume(int volume) {
+    Mix_VolumeChunk(m_MixChunk, volume);
+}
+
 void Sound::SetAutoCleanup(bool auto_cleanup) {
     if (auto_cleanup) m_SoundHandler->AddSoundAutoCleanup(this);
     else m_SoundHandler->RemoveSoundAutoCleanup(this);
@@ -81,7 +85,7 @@ Sound* SoundManager::LoadSound(const char *filepath, bool auto_cleanup) {
     return new Sound(this, NewMixChunk, auto_cleanup);
 }
 
-void SoundManager::PlaySound(Sound* sound) {
+void SoundManager::PlaySound(Sound* sound) const {
     if (!m_Enabled)
         return;
 

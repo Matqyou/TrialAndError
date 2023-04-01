@@ -22,6 +22,7 @@ public:
 
     Mix_Chunk* MixChunk() const { return m_MixChunk; }
 
+    void SetVolume(int volume);
     void SetAutoCleanup(bool auto_cleanup);
 };
 
@@ -38,7 +39,7 @@ public:
     void RemoveSoundAutoCleanup(Sound* sound);
     Sound* LoadSound(const char* filepath, bool auto_cleanup);
 
-    void PlaySound(Sound* sound);
+    void PlaySound(Sound* sound) const;
 };
 
 #endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_SOUNDMANAGER_H_
