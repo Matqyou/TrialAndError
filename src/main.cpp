@@ -74,6 +74,8 @@ int main() {
     WeaponGlock::ms_ClickSound = GlockClickSound;
     WeaponShotgun::ms_ShootSound = GlockShootSound;
     WeaponShotgun::ms_ClickSound = GlockClickSound;
+    WeaponBurst::ms_ShootSound = GlockShootSound;
+    WeaponBurst::ms_ClickSound = GlockClickSound;
 
     // SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
     // SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };

@@ -20,8 +20,9 @@ protected:
 
     Character* m_Owner;
 
-    void TickTrigger();
-    void GetPosition(double& out_x, double& out_y, double& out_x_dir, double& out_y_dir);
+    virtual void TickTrigger();
+    void GetOwnerPosition(double& out_x, double& out_y, double& out_x_dir, double& out_y_dir);
+    void GetOwnerShooting(bool& out_shoot, bool& out_last_shoot);
 
 public:
     Weapon(Character* owner, int tick_cooldown, int ammo_capacity, bool automatic);
@@ -69,6 +70,24 @@ public:
     void SetSpread(double degrees, int decimal_places);
     void SetRandomPelletSpeed(double delta_speed, double delta_percentage_negative, int delta_decimal_places);
     void SetPelletSpeeds(double base_speed, double delta_speed, double delta_percentage_negative, int delta_decimal_places);
+
+    void Tick() override;
+};
+
+class WeaponBurst : public Weapon {
+private:
+    double m_ProjectileSpeed;
+    double m_RecoilForce;
+    unsigned long long m_BurstTick;
+    int m_BurstCooldown;
+    int m_BurstShots;
+    int m_BurstShotsLeft;
+
+public:
+    static Sound* ms_ShootSound;
+    static Sound* ms_ClickSound;
+
+    WeaponBurst(Character* owner);
 
     void Tick() override;
 };

@@ -21,19 +21,27 @@ Weapon::Weapon(Character* owner, int tick_cooldown, int ammo_capacity, bool auto
 
 void Weapon::TickTrigger() {
     if (m_Owner) {
-        m_Triggered = m_Owner->m_Shoot && !m_Owner->m_LastShoot;  // Always trigger on semi
+        bool Shoot, LastShoot;
+        GetOwnerShooting(Shoot, LastShoot);
+
+        m_Triggered = Shoot && !LastShoot;  // Always trigger on semi
         if (!m_Triggered) {
-            bool Auto = m_Owner->m_Shoot && m_Automatic;
+            bool Auto = Shoot && m_Automatic;
             m_Triggered = Auto && (m_Ammo || m_LastShot);
         }
     }
 }
 
-void Weapon::GetPosition(double& out_x, double& out_y, double& out_x_dir, double& out_y_dir) {
+void Weapon::GetOwnerPosition(double& out_x, double& out_y, double& out_x_dir, double& out_y_dir) {
     out_x = m_Owner->m_x;
     out_y = m_Owner->m_y;
     out_x_dir = m_Owner->m_xLook;
     out_y_dir = m_Owner->m_yLook;
+}
+
+void Weapon::GetOwnerShooting(bool& out_shoot, bool& out_last_shoot) {
+    out_shoot = m_Owner->m_Shoot;
+    out_last_shoot = m_Owner->m_LastShoot;
 }
 
 void Weapon::Tick() {
@@ -55,7 +63,7 @@ void WeaponGlock::Tick() {
     if (m_Owner && m_Triggered) { // If want to trigger without an owner, need to save world somewhere
         GameWorld* World = m_Owner->World();
         auto CurrentTick = World->CurrentTick();
-        if (CurrentTick - m_LastShotAt < m_TickCooldown)
+        if (CurrentTick - m_LastShotAt <= m_TickCooldown)
             return;
 
         SoundManager* SoundHandler = World->GameWindow()->SoundHandler();
@@ -67,7 +75,7 @@ void WeaponGlock::Tick() {
             SoundHandler->PlaySound(ms_ShootSound);
 
             double SpawnX, SpawnY, DirectionX, DirectionY;
-            GetPosition(SpawnX, SpawnY, DirectionX, DirectionY);
+            GetOwnerPosition(SpawnX, SpawnY, DirectionX, DirectionY);
 
             double VelocityX = DirectionX * m_ProjectileSpeed;
             double VelocityY = DirectionY * m_ProjectileSpeed;
@@ -135,7 +143,7 @@ void WeaponShotgun::Tick() {
     if (m_Owner && m_Triggered) {  // If want to trigger without an owner, need to save world somewhere
         GameWorld* World = m_Owner->World();
         auto CurrentTick = World->CurrentTick();
-        if (CurrentTick - m_LastShotAt < m_TickCooldown)
+        if (CurrentTick - m_LastShotAt <= m_TickCooldown)
             return;
 
         SoundManager* SoundHandler = World->GameWindow()->SoundHandler();
@@ -147,7 +155,7 @@ void WeaponShotgun::Tick() {
             SoundHandler->PlaySound(ms_ShootSound);
 
             double SpawnX, SpawnY, DirectionX, DirectionY;
-            GetPosition(SpawnX, SpawnY, DirectionX, DirectionY);
+            GetOwnerPosition(SpawnX, SpawnY, DirectionX, DirectionY);
 
             double LookAngle = atan2(DirectionY, DirectionX);
             for (int i = 0; i < m_PelletCount; i++) {
@@ -164,6 +172,79 @@ void WeaponShotgun::Tick() {
             m_Owner->Accelerate(RecoilX, RecoilY);
         } else {
             SoundHandler->PlaySound(ms_ClickSound);
+        }
+    }
+}
+
+Sound* WeaponBurst::ms_ShootSound = nullptr;
+Sound* WeaponBurst::ms_ClickSound = nullptr;
+
+WeaponBurst::WeaponBurst(Character* owner)
+ : Weapon(owner, 24, 18, false) {
+    m_ProjectileSpeed = 35.0;
+    m_RecoilForce = 8.0;
+    m_BurstCooldown = 5;
+    m_BurstShots = 3;
+
+    // Will get rewritten by other code
+    m_BurstTick = 0;
+    m_BurstShotsLeft = 0;
+}
+
+void WeaponBurst::Tick() {
+    TickTrigger();
+
+    if (m_Owner) {
+        GameWorld* World = m_Owner->World();
+        SoundManager* SoundHandler = World->GameWindow()->SoundHandler();
+        auto CurrentTick = World->CurrentTick();
+        if (m_BurstShotsLeft && CurrentTick - m_BurstTick > m_BurstCooldown) {
+            m_BurstTick = CurrentTick;
+            m_BurstShotsLeft--;
+            if (m_Ammo) {
+                m_Ammo--;
+                SoundHandler->PlaySound(ms_ShootSound);
+
+                double SpawnX, SpawnY, DirectionX, DirectionY;
+                GetOwnerPosition(SpawnX, SpawnY, DirectionX, DirectionY);
+
+                double VelocityX = DirectionX * m_ProjectileSpeed;
+                double VelocityY = DirectionY * m_ProjectileSpeed;
+                new Bullets(World, SpawnX, SpawnY, VelocityX, VelocityY);
+
+                double RecoilX = DirectionX * -m_RecoilForce;
+                double RecoilY = DirectionY * -m_RecoilForce;
+                m_Owner->Accelerate(RecoilX, RecoilY);
+            } else {
+                SoundHandler->PlaySound(ms_ClickSound);
+            }
+        }
+
+        if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere
+            if (CurrentTick - m_LastShotAt <= m_TickCooldown)
+                return;
+
+            m_BurstTick = CurrentTick;
+            m_BurstShotsLeft = m_BurstShots - 1;
+            m_LastShot = m_Ammo == 1;
+            if (m_Ammo) {
+                m_Ammo--;
+                m_LastShotAt = CurrentTick;
+                SoundHandler->PlaySound(ms_ShootSound);
+
+                double SpawnX, SpawnY, DirectionX, DirectionY;
+                GetOwnerPosition(SpawnX, SpawnY, DirectionX, DirectionY);
+
+                double VelocityX = DirectionX * m_ProjectileSpeed;
+                double VelocityY = DirectionY * m_ProjectileSpeed;
+                new Bullets(World, SpawnX, SpawnY, VelocityX, VelocityY);
+
+                double RecoilX = DirectionX * -m_RecoilForce;
+                double RecoilY = DirectionY * -m_RecoilForce;
+                m_Owner->Accelerate(RecoilX, RecoilY);
+            } else {
+                SoundHandler->PlaySound(ms_ClickSound);
+            }
         }
     }
 }

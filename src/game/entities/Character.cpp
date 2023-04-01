@@ -13,7 +13,8 @@ const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANC
 Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93),
    m_Glock(this),
-   m_Shotgun(this) {
+   m_Shotgun(this),
+   m_Burst(this) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
     m_Weapon = WEAPON_GLOCK;
@@ -224,6 +225,7 @@ void Character::TickHook() {
 void Character::TickWeapon() {
     if (m_Weapon == WEAPON_GLOCK) m_Glock.Tick();
     else if (m_Weapon == WEAPON_SHOTGUN) m_Shotgun.Tick();
+    else if (m_Weapon == WEAPON_BURST) m_Burst.Tick();
     //auto CurrentTick = m_World->CurrentTick();
     //if(m_BurstShots && CurrentTick - m_BurstTick > 5) {
     //    m_BurstTick = CurrentTick;

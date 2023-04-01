@@ -43,6 +43,7 @@ private:
     bool m_Shoot, m_LastShoot;
     WeaponGlock m_Glock;
     WeaponShotgun m_Shotgun;
+    WeaponBurst m_Burst;
     //double m_MachinegunTick;
     //unsigned long long m_BurstTick;
     //int m_BurstShots;
