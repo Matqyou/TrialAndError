@@ -21,6 +21,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_Weapon = WEAPON_GLOCK;
     m_Shoot = false;
     m_LastShoot = false;
+    hp = 100;
     //m_MachinegunTick = 0.0;
     //m_BurstTick = 0;
     //m_BurstShots = 0;
@@ -330,6 +331,7 @@ void Character::Tick() {
     m_LastShoot = m_Shoot;
     m_Shoot = false;  // Reset shooting at end of each tick
     m_LastHook = m_Hook;
+    if(hp == 0){delete this;}
 }
 
 void Character::Draw() {

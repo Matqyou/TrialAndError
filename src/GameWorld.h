@@ -55,7 +55,7 @@ public:
     void DestroyPlayerByController(GameController* DeletedController);
     void ToggleShowNames();
     void SetPaused(bool state);
-
+    Character* GetPlayers() const{return (Character*)m_LastEntityType[ENTTYPE_CHARACTER];}
     void Event(const SDL_Event& currentEvent);
     void Tick();
     void Draw();

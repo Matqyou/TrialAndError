@@ -35,6 +35,7 @@ public:
 
     virtual void Tick();
     virtual void Draw();
+    void TickContact(double m_x, double m_y);
 };
 
 #endif //TRIALANDERROR_ENTITY_H

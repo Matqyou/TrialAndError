@@ -34,6 +34,7 @@ public:
 private:
     friend class GameWorld;
     friend class ProjectileWeapon;
+    friend class Bullets;
     int m_PlayerIndex;
     std::string m_Name;
     Texture* m_Nameplate;
@@ -52,13 +53,12 @@ private:
 
     const double m_BaseAcceleration = 0.75;
     double m_xLook, m_yLook;  // direction
-
+    int hp;
     double m_xHook, m_yHook;
     double m_xvelHook, m_yvelHook;
     bool m_HookDeployed;
     bool m_Hook, m_LastHook;
     bool m_HookGrabbedWall;
-
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickControls();
@@ -78,6 +78,8 @@ public:
     void Event(const SDL_Event& currentEvent);
     void Tick() override;
     void Draw() override;
+
+
 };
 
 
