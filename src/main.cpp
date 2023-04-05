@@ -80,6 +80,8 @@ int main() {
     WeaponBurst::ms_ClickSound = GlockClickSound;
     WeaponMinigun::ms_ShootSound = BurstShootSound;
     WeaponMinigun::ms_ClickSound = GlockClickSound;
+    Character::ch_DeathSound = Basic_Death;
+    Character::ch_HitSound = LowSound; //Have to change it to a shorter sound, otherwise broken
 
     // SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
     // SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };

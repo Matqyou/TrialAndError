@@ -33,6 +33,8 @@ void Bullets::TickImpact() {
             ycurrent += yslice;
             if ((Current->m_x-25 < xcurrent) & (Current->m_x+25 > xcurrent) & (Current->m_y-25 < ycurrent) & (Current->m_y+25 > ycurrent)){
                 Current->hp -= 10; //Primitive dmg function
+                Current->is_hit = 7;
+                //Play sounds of getting hit
                 delete this;
                 break;
             }

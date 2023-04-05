@@ -58,6 +58,7 @@ private:
     bool m_HookDeployed;
     bool m_Hook, m_LastHook;
     bool m_HookGrabbedWall;
+    int is_hit;
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickControls();
@@ -65,6 +66,8 @@ private:
     void TickWeapon();
 
 public:
+    static Sound* ch_HitSound;
+    static Sound* ch_DeathSound;
     Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
     ~Character();
 

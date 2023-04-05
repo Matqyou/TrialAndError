@@ -14,7 +14,6 @@ private:
 
 public:
     static Texture* ms_Texture;
-
     Bullets(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
     void Tick() override;
     void Draw() override;

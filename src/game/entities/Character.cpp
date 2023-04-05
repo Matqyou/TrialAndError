@@ -6,7 +6,8 @@
 #include <iostream>
 #include "Bullets.h"
 #include <vector>
-
+Sound* Character::ch_HitSound = nullptr;
+Sound* Character::ch_DeathSound = nullptr;
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
 
@@ -55,6 +56,8 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     TextManager* TextHandler = world->GameWindow()->TextHandler();
     TTF_Font* Font = TextHandler->FirstFont();
     m_Nameplate = TextHandler->Render(Font, Name, { 255, 255, 255 }, true);
+
+    is_hit = false;
 }
 
 Character::~Character() {
@@ -358,11 +361,15 @@ void Character::Tick() {
     TickWalls();
     TickHook();
     TickWeapon();
-
+    SoundManager *SoundHandler = m_World->GameWindow()->SoundHandler();
     m_LastShoot = m_Shoot;
     m_Shoot = false;  // Reset shooting at end of each tick
     m_LastHook = m_Hook;
-    if(hp == 0){delete this;}
+    if(hp == 0){
+        delete this;
+        SoundHandler->PlaySound(ch_DeathSound);
+        //Play sound of dying
+    }
 }
 
 void Character::Draw() {
@@ -382,7 +389,16 @@ void Character::Draw() {
                           float(m_w),
                           float(m_h)};
     Color = HSLtoRGB({ m_ColorHue, 1.0, Light });
-    Render->SetColor(Color.r, Color.g, Color.b, 255);
+    SoundManager *SoundHandler = m_World->GameWindow()->SoundHandler();
+    if(is_hit > 0) {
+        Render->SetColor(255, 0, 0, 255);
+        // SoundHandler->PlaySound(ch_HitSound);
+        // Need to decide if that's needed, since that's alot of sound, if it's going to be eery bullet and every hit
+        is_hit -=1;
+    }
+    //Can later make it so the less hp the more red the character
+    else Render->SetColor(Color.r, Color.g, Color.b, 255);
+
     Render->FillRectFWorld(DrawRect);
 
     double XLook = m_x + m_xLook * 50.0;
