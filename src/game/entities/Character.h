@@ -50,7 +50,6 @@ private:
     WeaponBurst m_Burst;
     WeaponMinigun m_Minigun;
     static const int sDefaultControls[NUM_CONTROLS];
-
     const double m_BaseAcceleration = 0.75;
     double m_xLook, m_yLook;  // direction
     int hp;

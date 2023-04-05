@@ -15,9 +15,11 @@ Bullets::Bullets(GameWorld* world, double start_x, double start_y, double start_
 }
 
 void Bullets::TickImpact() {
+    //Deletes the bullet if it hits the border
     if (m_x < 0 || m_x > m_World->Width() ||
         m_y < 0 || m_y > m_World->Height())
         delete this;
+    //Deletes the bullet if it hits another player and also damages them
     else
         for (auto Current = m_World->GetPlayers(); Current != nullptr; Current = (Character*)Current->m_PrevEntityType) {
 
@@ -30,8 +32,7 @@ void Bullets::TickImpact() {
             xcurrent += xslice;
             ycurrent += yslice;
             if ((Current->m_x-25 < xcurrent) & (Current->m_x+25 > xcurrent) & (Current->m_y-25 < ycurrent) & (Current->m_y+25 > ycurrent)){
-                Current->hp -= 10;
-
+                Current->hp -= 10; //Primitive dmg function
                 delete this;
                 break;
             }

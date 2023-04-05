@@ -72,7 +72,6 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed, double delta
     m_NegativeRandomProjectileSpeed = FullSpeed * delta_percentage_negative;
     m_FullRandomProjectileSpeed = int(FullSpeed) + 1;
 }
-
 void ProjectileWeapon::Tick() {
     TickTrigger();
 }

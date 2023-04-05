@@ -150,6 +150,22 @@ void Character::TickGameControllerControls() {
     else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) m_Weapon = WEAPON_SHOTGUN;
     else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)) m_Weapon = WEAPON_BURST;
     else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)) m_Weapon = WEAPON_MACHINEGUN;
+    //Reloads weapon on square button press on controller
+    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X)){
+        //Change later to single pointer to weapon
+        if(m_Weapon == WEAPON_GLOCK){
+            m_Glock.Reload();
+        }
+        else if(m_Weapon == WEAPON_BURST){
+            m_Burst.Reload();
+        }
+        else if(m_Weapon == WEAPON_MACHINEGUN){
+            m_Minigun.Reload();
+        }
+        else if(m_Weapon == WEAPON_SHOTGUN){
+            m_Shotgun.Reload();
+        }
+    }
 }
 
 void Character::TickControls() {
@@ -313,7 +329,22 @@ void Character::Event(const SDL_Event& currentEvent) {
         else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2) m_Weapon = WEAPON_SHOTGUN;
         else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3) m_Weapon = WEAPON_BURST;
         else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4) m_Weapon = WEAPON_MACHINEGUN;
-
+        //Reloads weapon on keyboard player with R button press
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R){
+            //Change later to single pointer to weapon
+            if(m_Weapon == WEAPON_GLOCK){
+                m_Glock.Reload();
+            }
+            else if(m_Weapon == WEAPON_BURST){
+                m_Burst.Reload();
+            }
+            else if(m_Weapon == WEAPON_MACHINEGUN){
+                m_Minigun.Reload();
+            }
+            else if(m_Weapon == WEAPON_SHOTGUN){
+                m_Shotgun.Reload();
+            }
+        }
         for (int i = 0; i < NUM_CONTROLS; i++) {
             if (currentEvent.key.keysym.scancode == m_Controls[i])
                 m_Movement[i] = State;
