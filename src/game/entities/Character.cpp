@@ -393,7 +393,7 @@ void Character::Draw() {
     if(is_hit > 0) {
         Render->SetColor(255, 0, 0, 255);
         // SoundHandler->PlaySound(ch_HitSound);
-        // Need to decide if that's needed, since that's alot of sound, if it's going to be eery bullet and every hit
+        // Need to decide if that's needed, since that's alot of sound, if it's going to be every bullet and every hit
         is_hit -=1;
     }
     //Can later make it so the less hp the more red the character
