@@ -8,36 +8,75 @@
 #include "Character.h"
 Texture* Bullets::ms_Texture = nullptr;
 
-Bullets::Bullets(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
+Bullets::Bullets(GameWorld* world, Entity* shooter, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_BULLET, start_x, start_y, 8, 8, 1.0){
+    m_Shooter = shooter;
+    m_StillCollidesShooter = true;
     m_xvel = start_xvel;
     m_yvel = start_yvel;
 }
 
+void Bullets::TickVelocity() {
+    m_xvel *= m_BaseDamping;
+    m_yvel *= m_BaseDamping;
+
+    double CurrentX = m_x;
+    double CurrentY = m_x;
+    double Distance = std::sqrt(std::pow(m_xvel, 2) + std::pow(m_yvel, 2));
+    double SliceX = m_xvel / Distance;
+    double SliceY = m_yvel / Distance;
+    int Iterations = (int)(Distance);
+    double RemainingDistance = Distance - (double)(Iterations);
+
+    // Slowly move toward the end point
+    bool Hit;
+    for (int i = 0; i < Iterations; i++) {
+        CurrentX += SliceX;
+        CurrentY += SliceY;
+
+        Hit = TickHitPoint(CurrentX, CurrentY);
+        if (Hit) break;
+    }
+
+    if (!Hit && RemainingDistance > 0.0) {
+        CurrentX += SliceX * RemainingDistance;
+        CurrentY += SliceY * RemainingDistance;
+
+        if (TickHitPoint(CurrentX, CurrentY))
+            return;
+    }
+
+    m_x += m_xvel;
+    m_y += m_yvel;
+
+    // m_Destroy = Hit; //
+}
+
+bool Bullets::TickHitPoint(double x, double y) {
+    // Check if position collides any of the players
+    auto Player = m_World->FirstPlayer();
+    for (; Player; Player = (Character*)(Player->NextType())) {
+        bool Shooter = m_Shooter == Player;
+        bool Collides = (Player->m_x - 25 < x) &&
+                        (Player->m_x + 25 > x) &&
+                        (Player->m_y - 25 < y) &&
+                        (Player->m_y + 25 > y);
+
+        if (Shooter && !Collides) { m_StillCollidesShooter = false; }
+        else if (Collides && !Shooter || (Shooter && !m_StillCollidesShooter)) {
+            Player->m_Health -= 10; // Primitive dmg function
+            delete this;
+            return true;
+        }
+    }
+    return false;
+}
+
 void Bullets::TickImpact() {
-    //Deletes the bullet if it hits the border
+    // Deletes the bullet if it hits the border
     if (m_x < 0 || m_x > m_World->Width() ||
         m_y < 0 || m_y > m_World->Height())
         delete this;
-    //Deletes the bullet if it hits another player and also damages them
-    else
-        for (auto Current = m_World->GetPlayers(); Current != nullptr; Current = (Character*)Current->m_PrevEntityType) {
-
-        double distance = sqrt(pow(m_x, 2)+ pow(m_y,2));
-        double xslice = m_xvel / distance;
-        double yslice = m_yvel / distance;
-        double xcurrent = m_x;
-        double ycurrent = m_y;
-        for(int i = 0; i<distance; i++){
-            xcurrent += xslice;
-            ycurrent += yslice;
-            if ((Current->m_x-25 < xcurrent) & (Current->m_x+25 > xcurrent) & (Current->m_y-25 < ycurrent) & (Current->m_y+25 > ycurrent)){
-                Current->m_Health -= 10; // Primitive dmg function
-                delete this;
-                break;
-            }
-        }
-    }
 }
 
 void Bullets::Tick() {

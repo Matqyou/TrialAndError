@@ -46,7 +46,7 @@ void WeaponShotgun::Tick() {
                 double VelocityX = cos(ProjectileAngle) * ProjectileSpeed;
                 double VelocityY = sin(ProjectileAngle) * ProjectileSpeed;
 
-                new Bullets(World, SpawnX, SpawnY, VelocityX, VelocityY);
+                new Bullets(World, m_Owner, SpawnX, SpawnY, VelocityX, VelocityY);
             }
 
             double RecoilX = DirectionX * -m_RecoilForce;

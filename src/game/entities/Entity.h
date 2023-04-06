@@ -11,12 +11,13 @@ class Entity {
 protected:
     friend class GameWorld;
     GameWorld* m_World;
-    Entity* m_PrevEntityType, *m_NextEntityType;
-    Entity* m_PrevEntity, *m_NextEntity;
+    Entity* m_PrevType, *m_NextType;
+    Entity* m_Prev, *m_Next;
     double m_x, m_y, m_w, m_h;
     double m_BaseDamping;
     double m_xvel, m_yvel;
     double m_ExistsSince;
+    // bool m_Destroy; //
 
     GameWorld::EntityType m_EntityType; // .._. .. _.._   ._.. ._ _ . ._.
     void TickVelocity();
@@ -31,6 +32,10 @@ public:
 
     GameWorld* World() const { return m_World; }
     GameWorld::EntityType EntityType() const { return m_EntityType; }
+    Entity* Next() const { return m_Next; }
+    Entity* Prev() const { return m_Prev; }
+    Entity* NextType() const { return m_NextType; }
+    Entity* PrevType() const { return m_PrevType; }
 
     virtual void Tick();
     virtual void Draw();

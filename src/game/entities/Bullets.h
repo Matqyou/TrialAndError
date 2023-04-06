@@ -10,12 +10,17 @@
 
 class Bullets : public Entity {
 private:
+    Entity* m_Shooter;
+    bool m_StillCollidesShooter;
+
     void TickImpact();
+    void TickVelocity();
+    bool TickHitPoint(double x, double y);
 
 public:
     static Texture* ms_Texture;
 
-    Bullets(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
+    Bullets(GameWorld* world, Entity* shooter, double start_x, double start_y, double start_xvel, double start_yvel);
     void Tick() override;
     void Draw() override;
 };

@@ -252,83 +252,6 @@ void Character::TickWeapon() {
         return;
 
     m_CurrentWeapon->Tick();
-
-    // if (m_Weapon == WEAPON_GLOCK) m_Glock.Tick();
-    // else if (m_Weapon == WEAPON_SHOTGUN) m_Shotgun.Tick();
-    // else if (m_Weapon == WEAPON_BURST) m_Burst.Tick();
-    // else if (m_Weapon == WEAPON_MACHINEGUN) m_Minigun.Tick();
-    //auto CurrentTick = m_World->CurrentTick();
-    //if(m_BurstShots && CurrentTick - m_BurstTick > 5) {
-    //    m_BurstTick = CurrentTick;
-    //    m_BurstShots--;
-    //    new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
-    //    m_xvel += -m_xLook * 2;
-    //    m_yvel += -m_yLook * 2;
-    //}
-//
-    //if (!m_Shooting) {
-    //    m_MachinegunTick -= 0.5;
-    //    if (m_MachinegunTick < 0.0)
-    //        m_MachinegunTick = 0.0;
-    //    return;
-    //}
-//
-    //if (m_Weapon == WEAPON_NONE)
-    //    return;
-//
-//
-    //if (m_Weapon == WEAPON_GLOCK) {
-    //    if (CurrentTick - m_LastShot < 24)
-    //        return;
-    //    m_LastShot = CurrentTick;
-    //    new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
-    //    m_xvel += -m_xLook * 10;
-    //    m_yvel += -m_yLook * 10;
-//
-    //} else if (m_Weapon == WEAPON_BURST) {
-    //    if (CurrentTick - m_LastShot < 48)
-    //        return;
-//
-    //    m_LastShot = CurrentTick;
-    //    m_BurstShots = m_StartBurstShots - 1;
-    //    m_BurstTick = CurrentTick;
-//
-    //    new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
-    //    m_xvel += -m_xLook*2;
-    //    m_yvel += -m_yLook*2;
-    //}
-    //else if (m_Weapon == WEAPON_SHOTGUN) {
-    //    if (CurrentTick - m_LastShot < 72)
-    //        return;
-//
-    //    m_LastShot = CurrentTick;
-    //    const int bullet_count = 8;
-    //    const double spread_angle = 75.0/180.0*M_PI;
-    //    const double spacing = spread_angle / bullet_count;
-    //    double radians =  atan2(m_yLook, m_xLook);
-    //    double start_angle = radians - spread_angle/2;
-    //    double end_angle = radians + spread_angle/2;
-//
-    //    for(double current_angle=start_angle; current_angle<end_angle; current_angle += spacing){
-    //        double direction_x = cos(current_angle);
-    //        double direction_y = sin(current_angle);
-    //        double speed_multi = (double((rand()%20)-10))/10 + 10;
-    //        new Bullets(m_World, m_x, m_y,  direction_x * speed_multi, direction_y * speed_multi);
-    //    }
-    //    m_xvel += -m_xLook * 30;
-    //    m_yvel += -m_yLook * 30;
-//
-    //}
-    //else if (m_Weapon == WEAPON_MACHINEGUN) {
-    //    if (m_MachinegunTick > 15) m_MachinegunTick = 15;
-    //    if (CurrentTick - m_LastShot < 10+15 - int(m_MachinegunTick))
-    //        return;
-    //    m_LastShot = CurrentTick;
-    //    m_MachinegunTick += 1.4;
-    //    new Bullets(m_World, m_x, m_y, m_xLook * 30, m_yLook * 30);
-    //    m_xvel += -m_xLook * 4;
-    //    m_yvel += -m_yLook * 4;
-    //}
 }
 
 void Character::Event(const SDL_Event& currentEvent) {
@@ -361,14 +284,14 @@ void Character::Event(const SDL_Event& currentEvent) {
 void Character::Tick() {
     TickControls();  // Do stuff depending on the current held buttons
     TickVelocity();  // Move the chracter entity
-    TickWalls();
-    TickHook();
-    TickWeapon();
+    TickHook();  // Move hook and or player etc.
+    TickWalls();  // Check if colliding with walls
+    TickWeapon(); // Shoot accelerate reload etc.
 
     m_LastShoot = m_Shooting;
     m_Shooting = false;  // Reset shooting at end of each tick
     m_LastHooking = m_Hooking;
-    if(m_Health <= 0.0){delete this;}
+    if (m_Health <= 0.0) delete this;
 }
 
 void Character::Draw() {
