@@ -17,7 +17,6 @@ protected:
     double m_BaseDamping;
     double m_xvel, m_yvel;
     double m_ExistsSince;
-    bool m_Destroy;
 
     GameWorld::EntityType m_EntityType; // .._. .. _.._   ._.. ._ _ . ._.
     void TickVelocity();
@@ -35,7 +34,6 @@ public:
 
     virtual void Tick();
     virtual void Draw();
-    void TickContact(double m_x, double m_y);
 };
 
 #endif //TRIALANDERROR_ENTITY_H

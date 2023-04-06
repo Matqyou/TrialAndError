@@ -57,7 +57,7 @@ void ProjectileWeapon::GetOwnerPosition(double& out_x, double& out_y, double& ou
 }
 
 void ProjectileWeapon::GetOwnerShooting(bool& out_shoot, bool& out_last_shoot) const {
-    out_shoot = m_Owner->m_Shoot;
+    out_shoot = m_Owner->m_Shooting;
     out_last_shoot = m_Owner->m_LastShoot;
 }
 
