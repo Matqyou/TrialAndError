@@ -11,17 +11,24 @@ static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
 
 Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
- : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93),
-   m_Glock(this),
-   m_Shotgun(this),
-   m_Burst(this),
-   m_Minigun(this) {
+ : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
-    m_Weapon = WEAPON_GLOCK;
     m_Shoot = false;
     m_LastShoot = false;
-    hp = 100;
+
+    m_CurrentWeapon = nullptr; // Start by holding nothing
+
+    // Always set to null, cuz player should spawn without weapons
+    memset(m_Weapons, 0, sizeof(m_Weapons));
+
+    // But this is Latvia and we give the character free guns
+    m_Weapons[WEAPON_GLOCK] = new WeaponGlock(this);
+    m_Weapons[WEAPON_BURST] = new WeaponBurst(this);
+    m_Weapons[WEAPON_SHOTGUN] = new WeaponShotgun(this);
+    m_Weapons[WEAPON_MACHINEGUN] = new WeaponMinigun(this);
+
+    m_Health = 100.0;
     //m_MachinegunTick = 0.0;
     //m_BurstTick = 0;
     //m_BurstShots = 0;
@@ -146,25 +153,32 @@ void Character::TickGameControllerControls() {
     m_Hook = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
 
     // Switch weapons
-    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP)) m_Weapon = WEAPON_GLOCK;
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) m_Weapon = WEAPON_SHOTGUN;
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)) m_Weapon = WEAPON_BURST;
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)) m_Weapon = WEAPON_MACHINEGUN;
+    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP) && m_Weapons[WEAPON_GLOCK])
+        m_CurrentWeapon = m_Weapons[WEAPON_GLOCK];
+    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT) && m_Weapons[WEAPON_SHOTGUN])
+        m_CurrentWeapon = m_Weapons[WEAPON_SHOTGUN];
+    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN) && m_Weapons[WEAPON_BURST])
+        m_CurrentWeapon = m_Weapons[WEAPON_BURST];
+    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT) && m_Weapons[WEAPON_MACHINEGUN])
+        m_CurrentWeapon = m_Weapons[WEAPON_MACHINEGUN];
+
     //Reloads weapon on square button press on controller
-    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X)){
+    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X) && m_CurrentWeapon){
+        m_CurrentWeapon->Reload();
+
         //Change later to single pointer to weapon
-        if(m_Weapon == WEAPON_GLOCK){
-            m_Glock.Reload();
-        }
-        else if(m_Weapon == WEAPON_BURST){
-            m_Burst.Reload();
-        }
-        else if(m_Weapon == WEAPON_MACHINEGUN){
-            m_Minigun.Reload();
-        }
-        else if(m_Weapon == WEAPON_SHOTGUN){
-            m_Shotgun.Reload();
-        }
+        // if(m_Weapon == WEAPON_GLOCK){
+        //     m_Glock.Reload();
+        // }
+        // else if(m_Weapon == WEAPON_BURST){
+        //     m_Burst.Reload();
+        // }
+        // else if(m_Weapon == WEAPON_MACHINEGUN){
+        //     m_Minigun.Reload();
+        // }
+        // else if(m_Weapon == WEAPON_SHOTGUN){
+        //     m_Shotgun.Reload();
+        // }
     }
 }
 
@@ -240,10 +254,15 @@ void Character::TickHook() {
 }
 
 void Character::TickWeapon() {
-    if (m_Weapon == WEAPON_GLOCK) m_Glock.Tick();
-    else if (m_Weapon == WEAPON_SHOTGUN) m_Shotgun.Tick();
-    else if (m_Weapon == WEAPON_BURST) m_Burst.Tick();
-    else if (m_Weapon == WEAPON_MACHINEGUN) m_Minigun.Tick();
+    if (!m_CurrentWeapon)
+        return;
+
+    m_CurrentWeapon->Tick();
+
+    // if (m_Weapon == WEAPON_GLOCK) m_Glock.Tick();
+    // else if (m_Weapon == WEAPON_SHOTGUN) m_Shotgun.Tick();
+    // else if (m_Weapon == WEAPON_BURST) m_Burst.Tick();
+    // else if (m_Weapon == WEAPON_MACHINEGUN) m_Minigun.Tick();
     //auto CurrentTick = m_World->CurrentTick();
     //if(m_BurstShots && CurrentTick - m_BurstTick > 5) {
     //    m_BurstTick = CurrentTick;
@@ -325,26 +344,34 @@ void Character::Event(const SDL_Event& currentEvent) {
     if (currentEvent.type == SDL_KEYDOWN ||
         currentEvent.type == SDL_KEYUP) {
         bool State = currentEvent.type == SDL_KEYDOWN;
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_1) m_Weapon = WEAPON_GLOCK;
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2) m_Weapon = WEAPON_SHOTGUN;
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3) m_Weapon = WEAPON_BURST;
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4) m_Weapon = WEAPON_MACHINEGUN;
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_1 && m_Weapons[WEAPON_GLOCK])
+            m_CurrentWeapon = m_Weapons[WEAPON_GLOCK];
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2 && m_Weapons[WEAPON_SHOTGUN])
+            m_CurrentWeapon = m_Weapons[WEAPON_SHOTGUN];
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3 && m_Weapons[WEAPON_BURST])
+            m_CurrentWeapon = m_Weapons[WEAPON_BURST];
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4 && m_Weapons[WEAPON_MACHINEGUN])
+            m_CurrentWeapon = m_Weapons[WEAPON_MACHINEGUN];
+
         //Reloads weapon on keyboard player with R button press
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R){
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R && m_CurrentWeapon){
+            m_CurrentWeapon->Reload();
+
             //Change later to single pointer to weapon
-            if(m_Weapon == WEAPON_GLOCK){
-                m_Glock.Reload();
-            }
-            else if(m_Weapon == WEAPON_BURST){
-                m_Burst.Reload();
-            }
-            else if(m_Weapon == WEAPON_MACHINEGUN){
-                m_Minigun.Reload();
-            }
-            else if(m_Weapon == WEAPON_SHOTGUN){
-                m_Shotgun.Reload();
-            }
+            // if(m_Weapon == WEAPON_GLOCK){
+            //     m_Glock.Reload();
+            // }
+            // else if(m_Weapon == WEAPON_BURST){
+            //     m_Burst.Reload();
+            // }
+            // else if(m_Weapon == WEAPON_MACHINEGUN){
+            //     m_Minigun.Reload();
+            // }
+            // else if(m_Weapon == WEAPON_SHOTGUN){
+            //     m_Shotgun.Reload();
+            // }
         }
+
         for (int i = 0; i < NUM_CONTROLS; i++) {
             if (currentEvent.key.keysym.scancode == m_Controls[i])
                 m_Movement[i] = State;
@@ -362,7 +389,7 @@ void Character::Tick() {
     m_LastShoot = m_Shoot;
     m_Shoot = false;  // Reset shooting at end of each tick
     m_LastHook = m_Hook;
-    if(hp == 0){delete this;}
+    if(m_Health <= 0.0){delete this;}
 }
 
 void Character::Draw() {

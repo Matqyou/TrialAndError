@@ -13,15 +13,6 @@
 
 class Character : public Entity {
 public:
-    enum WeaponType{
-        WEAPON_NONE,
-        WEAPON_FIST,
-        WEAPON_GLOCK,
-        WEAPON_BURST,
-        WEAPON_SHOTGUN,
-        WEAPON_MACHINEGUN,
-        NUM_WEAPONS
-    };
     enum {
         CONTROL_UP,
         CONTROL_RIGHT,
@@ -43,16 +34,19 @@ private:
     bool m_Movement[NUM_CONTROLS];
     int m_Controls[NUM_CONTROLS];
     bool m_Controllable;
-    WeaponType m_Weapon; // TODO: Make this a pointer and store available guns in a list/vector
+    // WeaponType m_Weapon; // TODO: Make this a pointer and store available guns in a list/vector
     bool m_Shoot, m_LastShoot;
-    WeaponGlock m_Glock;
-    WeaponShotgun m_Shotgun;
-    WeaponBurst m_Burst;
-    WeaponMinigun m_Minigun;
+    ProjectileWeapon* m_Weapons[NUM_WEAPONS];
+    ProjectileWeapon* m_CurrentWeapon;
+    double m_Health;
+    // std::vector<ProjectileWeapon*> m_Weapons; // Option to have multiple weapons of same type
+    // WeaponGlock m_Glock;
+    // WeaponShotgun m_Shotgun;
+    // WeaponBurst m_Burst;
+    // WeaponMinigun m_Minigun;
     static const int sDefaultControls[NUM_CONTROLS];
     const double m_BaseAcceleration = 0.75;
     double m_xLook, m_yLook;  // direction
-    int hp;
     double m_xHook, m_yHook;
     double m_xvelHook, m_yvelHook;
     bool m_HookDeployed;

@@ -10,7 +10,7 @@ Sound* WeaponGlock::ms_ShootSound = nullptr;
 Sound* WeaponGlock::ms_ClickSound = nullptr;
 
 WeaponGlock::WeaponGlock(Character* owner)
- : ProjectileWeapon(owner, 10, 15, 35.0, false) {
+ : ProjectileWeapon(owner, WEAPON_GLOCK, 10, 15, 35.0, false) {
     m_RecoilForce = 10.0;
 }
 

@@ -28,11 +28,11 @@ void Bullets::TickImpact() {
         double yslice = m_yvel / distance;
         double xcurrent = m_x;
         double ycurrent = m_y;
-        for(int i=0;i<distance; i++){
+        for(int i = 0; i<distance; i++){
             xcurrent += xslice;
             ycurrent += yslice;
             if ((Current->m_x-25 < xcurrent) & (Current->m_x+25 > xcurrent) & (Current->m_y-25 < ycurrent) & (Current->m_y+25 > ycurrent)){
-                Current->hp -= 10; //Primitive dmg function
+                Current->m_Health -= 10; // Primitive dmg function
                 delete this;
                 break;
             }
