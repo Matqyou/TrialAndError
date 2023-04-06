@@ -50,7 +50,7 @@ int main() {
     Texture* TextureIcon = ImageHandler->LoadTexture("assets/images/UI/PS4_Controller_Icon.png", true);
     Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
     Vignette->SetAlpha(200);
-    Texture* Pellet = ImageHandler->LoadTexture("assets/images/gun/Pellet.png", true);
+    Texture* Pellet = ImageHandler->LoadTexture("assets/images/Bullets/Pellet.png", true);
 
     Bullets::ms_Texture = Pellet;
 
@@ -80,11 +80,13 @@ int main() {
     WeaponBurst::ms_ClickSound = GlockClickSound;
     WeaponMinigun::ms_ShootSound = BurstShootSound;
     WeaponMinigun::ms_ClickSound = GlockClickSound;
+    Character::ch_DeathSound = Basic_Death;
+    Character::ch_HitSound = LowSound; //Have to change it to a shorter sound, otherwise broken
 
     // SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
     // SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
     // SDL_Rect IconRect = { 100, 400, 200, 109 };
-
+    int ignore_ticks = 5;
     bool Running = true;
     bool m_Config = true;
     while (Running) {
@@ -134,14 +136,17 @@ int main() {
                         if (x >= startButtonRect.x && x < startButtonRect.x + startButtonRect.w &&
                             y >= startButtonRect.y && y < startButtonRect.y + startButtonRect.h)
                         {
+                            if(World->Paused()) {
+                                SoundHandler->PlaySound(LowUISound);
+                                ignore_ticks = 5; //Minimum ticks it has to skip to not shoot on resume
+                            }
                             World->SetPaused(false);
-                            SoundHandler->PlaySound(LowUISound);
                         }
                         else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
                             y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
                         {
                             m_Config = !m_Config;
-                            SoundHandler->PlaySound(MidUISound);
+                            if(World->Paused())SoundHandler->PlaySound(MidUISound);
                         }
                     }
                 } break;
@@ -149,7 +154,8 @@ int main() {
         }
 
         // Ticking
-        World->Tick();
+        if(!ignore_ticks)World->Tick();
+        else ignore_ticks -=1;
 
         // Drawing
         Draw->SetColor(120, 0, 120, 255);

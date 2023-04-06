@@ -24,14 +24,14 @@ private:
     double m_ShowNamesVisibility;
     bool m_ShowNames;
     bool m_Paused;
-    Entity* m_LastEntityType[NUM_ENTTYPES]{};
-    Entity* m_LastEntity;
+    Entity* m_FirstType[NUM_ENTTYPES] {}, *m_LastType[NUM_ENTTYPES] {};
+    Entity* m_First, *m_Last;
     double m_x, m_y;
     unsigned long long m_CurrentTick;
 
-    // Cool scrolling background
+    // Cool scrolling background                                        cap
     Texture* m_Background;
-    int m_BackgroundW, m_BackgroundH;
+    int m_BackgroundW{}, m_BackgroundH{};
 
 public:
     GameWorld(GameReference* gameWindow, double width, double height);
@@ -42,12 +42,12 @@ public:
     double Height() const { return m_Height; }
     double NamesShown() const { return m_ShowNamesVisibility; }
     bool Paused() const { return m_Paused; }
-    Character* GetPlayerByIndex(int index);
-    void GetNextPlayerIndex(Character* player);
     double CameraX() const { return m_x; }
     double CameraY() const { return m_y; }
-    void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
     unsigned long long CurrentTick() const { return m_CurrentTick; }
+    Character* GetPlayerByIndex(int index);
+    void GetNextPlayerIndex(Character* player);
+    void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
     void SetCameraPos(double x, double y);  // Move the camera to a position
     void AddEntity(Entity* entity);
@@ -55,7 +55,14 @@ public:
     void DestroyPlayerByController(GameController* DeletedController);
     void ToggleShowNames();
     void SetPaused(bool state);
-    Character* GetPlayers() const{return (Character*)m_LastEntityType[ENTTYPE_CHARACTER];}
+    Entity* FirstEntity() const { return m_First; }
+    Entity* LastEntity() const { return m_Last; }
+    Entity* FirstEntityType(EntityType type) const { return m_FirstType[type]; }
+    Entity* LastEntityType(EntityType type) const { return m_LastType[type]; }
+
+    Character* FirstPlayer() const { return (Character*)(FirstEntityType(ENTTYPE_CHARACTER)); }
+    Character* LastPlayer() const { return (Character*)(LastEntityType(ENTTYPE_CHARACTER)); }
+
     void Event(const SDL_Event& currentEvent);
     void Tick();
     void Draw();
