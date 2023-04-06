@@ -7,6 +7,14 @@
 
 #include "../../GameWorld.h"
 
+enum WeaponType {
+    WEAPON_GLOCK,
+    WEAPON_BURST,
+    WEAPON_SHOTGUN,
+    WEAPON_MACHINEGUN,
+    NUM_WEAPONS
+};
+
 class Character;
 class ProjectileWeapon {
 protected:
@@ -28,6 +36,7 @@ protected:
     int m_FullRandomProjectileSpeed;
 
     Character* m_Owner;
+    WeaponType m_Type;
 
     virtual void TickTrigger();
     void GetOwnerPosition(double& out_x, double& out_y, double& out_x_dir, double& out_y_dir) const;
@@ -35,7 +44,9 @@ protected:
     double GenerateSpreadAngle() const;
     double GenerateRandomProjectileSpeed() const;
 public:
-    ProjectileWeapon(Character* owner, int tick_cooldown, int ammo_capacity, double projectile_speed, bool automatic);
+    ProjectileWeapon(Character* owner, WeaponType type, int tick_cooldown, int ammo_capacity, double projectile_speed, bool automatic);
+
+    WeaponType Type() const { return m_Type; }
 
     void SetSpread(double degrees, int decimal_places);
     void SetRandomProjectileSpeed(double delta_speed, double delta_percentage_negative, int delta_decimal_places);

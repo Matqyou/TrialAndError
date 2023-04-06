@@ -17,9 +17,10 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_y = 0.0;
     m_CurrentTick = 0;
 
-    m_LastEntity = nullptr;
-    for (auto& i : m_LastEntityType)
-        i = nullptr;
+    m_First = nullptr;
+    m_Last = nullptr;
+    for (auto& i : m_FirstType) i = nullptr;
+    for (auto& i : m_LastType) i = nullptr;
 
     m_Background = GameWindow()->ImageHandler()->LoadTexture("assets/images/background_pattern.png", true);
     m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
@@ -28,20 +29,19 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
 }
 
 GameWorld::~GameWorld() {
-    Entity* CurrentEntity = m_LastEntity;
+    Entity* CurrentEntity = m_Last;
     while (CurrentEntity) {
-        auto NextEntity = CurrentEntity->m_PrevEntity;
+        auto NextEntity = CurrentEntity->m_Prev;
         delete CurrentEntity;
         CurrentEntity = NextEntity;
     }
 }
 
 Character* GameWorld::GetPlayerByIndex(int index) {
-    for (auto Current = m_LastEntityType[ENTTYPE_CHARACTER]; Current != nullptr; Current = Current->m_PrevEntityType) {
-        auto Player = (Character*)Current;
+    auto Player = (Character*)(m_LastType[ENTTYPE_CHARACTER]);
+    for (; Player; Player = (typeof(Player))(Player->PrevType()))
         if (Player->PlayerIndex() == index)
             return Player;
-    }
 
     return nullptr;
 }
@@ -66,63 +66,57 @@ void GameWorld::SetCameraPos(double x, double y) {
 
 void GameWorld::AddEntity(Entity* entity) {
     EntityType Enttype = entity->EntityType();
-    if (!m_LastEntityType[Enttype]) {
-        m_LastEntityType[Enttype] = entity;
-        entity->m_PrevEntityType = nullptr;
-        entity->m_NextEntityType = nullptr;
-    } else {
-        m_LastEntityType[Enttype]->m_NextEntityType = entity;
-        entity->m_PrevEntityType = m_LastEntityType[Enttype];
-        m_LastEntityType[Enttype] = entity;
+    Entity*& FirstType = m_FirstType[Enttype];
+    Entity*& LastType = m_LastType[Enttype];
+
+    if (!FirstType) { // Then there also shouldn't be a last type
+        FirstType = entity;
+        LastType = entity;
+        entity->m_PrevType = nullptr;
+        entity->m_NextType = nullptr;
+    } else { // Then there also should be a last type
+        LastType->m_NextType = entity;
+        entity->m_PrevType = LastType;
+        LastType = entity;
     }
 
-    if (!m_LastEntity) {
-        m_LastEntity = entity;
-        entity->m_PrevEntity = nullptr;
-        entity->m_NextEntity = nullptr;
+    if (!m_Last) {
+        m_Last = entity;
+        entity->m_Prev = nullptr;
+        entity->m_Next = nullptr;
     } else {
-        m_LastEntity->m_NextEntity = entity;
-        entity->m_PrevEntity = m_LastEntity;
-        m_LastEntity = entity;
+        m_Last->m_Next = entity;
+        entity->m_Prev = m_Last;
+        m_Last = entity;
     }
 }
 
+// ::RemoveEntity() doesn't reset entities Previous and Next entity pointers
 void GameWorld::RemoveEntity(Entity* entity) {
-    EntityType Enttype = entity->EntityType();
-    if (m_LastEntityType[Enttype] == entity) {
-        if (entity->m_PrevEntityType) {
-            m_LastEntityType[Enttype] = entity->m_PrevEntityType;
-            m_LastEntityType[Enttype]->m_NextEntityType = nullptr;
-        } else { m_LastEntityType[Enttype] = nullptr; }
-    } else {
-        Entity* TempNext = entity->m_NextEntityType;
-        if (entity->m_NextEntityType) { entity->m_NextEntityType->m_PrevEntityType = entity->m_PrevEntityType; }
-        if (entity->m_PrevEntityType) { entity->m_PrevEntityType->m_NextEntityType = TempNext; }
-    }
+    EntityType Type = entity->EntityType();
+    Entity*& FirstType = m_FirstType[Type];
+    Entity*& LastType = m_LastType[Type];
 
-    if (m_LastEntity == entity) {
-        if (entity->m_PrevEntity) {
-            m_LastEntity = entity->m_PrevEntity;
-            m_LastEntity->m_NextEntity = nullptr;
-        } else { m_LastEntity = nullptr; }
-    } else {
-        Entity* TempNext = entity->m_NextEntity;
-        if (entity->m_NextEntity) { entity->m_NextEntity->m_PrevEntity = entity->m_PrevEntity; }
-        if (entity->m_PrevEntity) { entity->m_PrevEntity->m_NextEntity = TempNext; }
-    }
+    // Remove entity from list of same type
+    if (entity->m_PrevType) entity->m_PrevType->m_NextType = entity->m_NextType;
+    if (entity->m_NextType) entity->m_NextType->m_PrevType = entity->m_PrevType;
+    if (FirstType == entity) FirstType = entity->m_NextType;
+    if (LastType == entity) LastType = entity->m_PrevType;
+
+    // Remove entity from list of all entities
+    if (entity->m_Prev) entity->m_Prev->m_Next = entity->m_Next;
+    if (entity->m_Next) entity->m_Next->m_Prev = entity->m_Prev;
+    if (m_First == entity) m_First = entity->m_Next;
+    if (m_Last == entity) m_Last = entity->m_Prev;
 }
 
 void GameWorld::DestroyPlayerByController(GameController* DeletedController) {
-    for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = CurrentEntity->m_PrevEntity) {
-        if (CurrentEntity->EntityType() != ENTTYPE_CHARACTER)
-            continue;
-
-        auto CurrentPlayer = (Character*)CurrentEntity;
-        if (CurrentPlayer->GetGameController() != DeletedController)
-            continue;
-
-        delete CurrentEntity;
-        return;
+    auto Player = (Character*)(m_LastType[ENTTYPE_CHARACTER]);
+    for (; Player; Player = (typeof(Player))(Player->NextType())) {
+        if (Player->GetGameController() == DeletedController) {
+            delete Player;
+            return;
+        }
     }
 }
 
@@ -141,14 +135,12 @@ void GameWorld::Event(const SDL_Event& currentEvent) {
         currentEvent.key.keysym.scancode == SDL_SCANCODE_SPACE)
         ToggleShowNames();
 
-    Entity* NextEntity; // allows deletion while looping
-    for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = NextEntity) {
-        NextEntity = CurrentEntity->m_PrevEntity;
-        if (CurrentEntity->EntityType() != ENTTYPE_CHARACTER)
-            continue;
-
-        auto CurrentPlayer = (Character*)CurrentEntity;
-        CurrentPlayer->Event(currentEvent);
+    // Loop allows self-destruction in the ::Event() method
+    auto Current = (Character*)(m_LastType[ENTTYPE_CHARACTER]);
+    typeof(Current) Next;
+    for (; Current; Current = Next) {
+        Next = (typeof(Current))(Current->PrevType());
+        Current->Event(currentEvent);
     }
 }
 
@@ -159,18 +151,21 @@ void GameWorld::Tick() {
     if (!m_ShowNames)
         m_ShowNamesVisibility *= 0.98;
 
-    Entity* NextEntity; // allows deletion while looping
-    for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = NextEntity) {
-        NextEntity = CurrentEntity->m_PrevEntity;
-        CurrentEntity->Tick();
+    // Loop allows self-destruction in the ::Tick() method
+    Entity* Next, *Current = m_Last;
+    for (; Current; Current = Next) {
+        Next = Current->Prev();
+        Current->Tick();
     }
 
-    if (m_LastEntityType[ENTTYPE_CHARACTER]) {
+    if (m_LastType[ENTTYPE_CHARACTER]) {
         int num_player = 0;
 
         double CameraX = 0.0;
         double CameraY = 0.0;
-        for (auto Player = (Character*) m_LastEntityType[ENTTYPE_CHARACTER]; Player != nullptr; Player = (Character*)Player->m_PrevEntityType) {
+
+        auto Player = (Character*)(m_LastType[ENTTYPE_CHARACTER]);
+        for (; Player; Player = (Character*)Player->PrevType()) {
             num_player++;
 
             CameraX += Player->m_x;
@@ -197,8 +192,9 @@ void GameWorld::Draw() {
     Render->SetColor(255, 0, 0, 255);
     Render->DrawRectWorld(DrawRect);
 
-    for (Entity* CurrentEntity = m_LastEntity; CurrentEntity != nullptr; CurrentEntity = CurrentEntity->m_PrevEntity)
-        CurrentEntity->Draw();
+    Entity* Current = m_Last;
+    for (; Current; Current = Current->Prev())
+        Current->Draw();
 
     if (m_ShowNamesVisibility <= 0.05)
         return;

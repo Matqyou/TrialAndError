@@ -8,10 +8,10 @@ Entity::Entity(GameWorld* world, GameWorld::EntityType entityType,
                double start_x, double start_y, double start_w, double start_h,
                double base_damping = 0.90) {
     m_World = world;
-    m_PrevEntityType = nullptr;
-    m_NextEntityType = nullptr;
-    m_PrevEntity = nullptr;
-    m_NextEntity = nullptr;
+    m_PrevType = nullptr;
+    m_NextType = nullptr;
+    m_Prev = nullptr;
+    m_Next = nullptr;
     m_EntityType = entityType;
     m_x = start_x;
     m_y = start_y;

@@ -16,8 +16,9 @@ double ProjectileWeapon::GenerateRandomProjectileSpeed() const {
         - m_NegativeRandomProjectileSpeed) / m_RandomProjectileSpeedDivisor;
 }
 
-ProjectileWeapon::ProjectileWeapon(Character* owner, int tick_cooldown, int ammo_capacity, double projectile_speed, bool automatic) {
+ProjectileWeapon::ProjectileWeapon(Character* owner, WeaponType type, int tick_cooldown, int ammo_capacity, double projectile_speed, bool automatic) {
     m_Owner = owner;
+    m_Type = type;
     m_LastShotAt = 0;
     m_TickCooldown = tick_cooldown;
     m_AmmoCapacity = ammo_capacity;
@@ -56,7 +57,7 @@ void ProjectileWeapon::GetOwnerPosition(double& out_x, double& out_y, double& ou
 }
 
 void ProjectileWeapon::GetOwnerShooting(bool& out_shoot, bool& out_last_shoot) const {
-    out_shoot = m_Owner->m_Shoot;
+    out_shoot = m_Owner->m_Shooting;
     out_last_shoot = m_Owner->m_LastShoot;
 }
 

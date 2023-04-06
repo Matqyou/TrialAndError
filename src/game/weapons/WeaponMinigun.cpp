@@ -11,7 +11,7 @@ Sound* WeaponMinigun::ms_ShootSound = nullptr;
 Sound* WeaponMinigun::ms_ClickSound = nullptr;
 
 WeaponMinigun::WeaponMinigun(Character* owner)
- : ProjectileWeapon(owner, 14, 64, 35.0, true) {
+ : ProjectileWeapon(owner, WEAPON_MACHINEGUN, 14, 64, 35.0, true) {
     m_RecoilForce = 4.0;
 
     m_FullRate = 10.0;
@@ -55,7 +55,7 @@ void WeaponMinigun::Tick() {
 
                 double VelocityX = cos(Angle) * m_ProjectileSpeed;
                 double VelocityY = sin(Angle) * m_ProjectileSpeed;
-                new Bullets(World, SpawnX, SpawnY, VelocityX, VelocityY);
+                new Bullets(World, m_Owner, SpawnX, SpawnY, VelocityX, VelocityY);
 
                 double RecoilX = DirectionX * -m_RecoilForce;
                 double RecoilY = DirectionY * -m_RecoilForce;
