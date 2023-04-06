@@ -43,14 +43,14 @@ int main() {
     ImageManager* ImageHandler = GameWindow->ImageHandler();
 
     // Load the PNG images
-    Texture* TextureStart = ImageHandler->LoadTexture("assets/images/Start.png", true);
-    Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/Settings.png", true);
-    Texture* TextureConnected = ImageHandler->LoadTexture("assets/images/chain.png", true);
-    Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/images/dis_chain.png", true);
-    Texture* TextureIcon = ImageHandler->LoadTexture("assets/images/PS4_Controller_Icon.png", true);
-    Texture* Vignette = ImageHandler->LoadTexture("assets/images/vignette.png", true);
+    Texture* TextureStart = ImageHandler->LoadTexture("assets/images/UI/Start.png", true);
+    Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/UI/Settings.png", true);
+    Texture* TextureConnected = ImageHandler->LoadTexture("assets/images/UI/chain.png", true);
+    Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/images/UI/dis_chain.png", true);
+    Texture* TextureIcon = ImageHandler->LoadTexture("assets/images/UI/PS4_Controller_Icon.png", true);
+    Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
     Vignette->SetAlpha(200);
-    Texture* Pellet = ImageHandler->LoadTexture("assets/images/Pellet.png", true);
+    Texture* Pellet = ImageHandler->LoadTexture("assets/images/Bullets/Pellet.png", true);
 
     Bullets::ms_Texture = Pellet;
 
