@@ -5,7 +5,7 @@
 #include "Bullets.h"
 #include <cmath>
 #include <iostream>
-
+#include "Character.h"
 Texture* Bullets::ms_Texture = nullptr;
 
 Bullets::Bullets(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
@@ -15,9 +15,29 @@ Bullets::Bullets(GameWorld* world, double start_x, double start_y, double start_
 }
 
 void Bullets::TickImpact() {
+    //Deletes the bullet if it hits the border
     if (m_x < 0 || m_x > m_World->Width() ||
         m_y < 0 || m_y > m_World->Height())
         delete this;
+    //Deletes the bullet if it hits another player and also damages them
+    else
+        for (auto Current = m_World->GetPlayers(); Current != nullptr; Current = (Character*)Current->m_PrevEntityType) {
+
+        double distance = sqrt(pow(m_x, 2)+ pow(m_y,2));
+        double xslice = m_xvel / distance;
+        double yslice = m_yvel / distance;
+        double xcurrent = m_x;
+        double ycurrent = m_y;
+        for(int i=0;i<distance; i++){
+            xcurrent += xslice;
+            ycurrent += yslice;
+            if ((Current->m_x-25 < xcurrent) & (Current->m_x+25 > xcurrent) & (Current->m_y-25 < ycurrent) & (Current->m_y+25 > ycurrent)){
+                Current->hp -= 10; //Primitive dmg function
+                delete this;
+                break;
+            }
+        }
+    }
 }
 
 void Bullets::Tick() {

@@ -27,7 +27,7 @@ bool Initialize() {
     TextTexture = TextHandler->Render(Font1, "Jesse -.. .. .", { 255, 255, 255 }, true);
 
     Controllers = new GameControllers();
-    // new Character(World, 30, 30, 10, 10);
+    new Character(World, 30, 30, 10, 10);
     return true;
 }
 

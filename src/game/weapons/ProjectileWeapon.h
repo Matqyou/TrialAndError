@@ -39,7 +39,7 @@ public:
 
     void SetSpread(double degrees, int decimal_places);
     void SetRandomProjectileSpeed(double delta_speed, double delta_percentage_negative, int delta_decimal_places);
-
+    void Reload(){m_Ammo = m_AmmoCapacity;}
     virtual void Tick();
 };
 
