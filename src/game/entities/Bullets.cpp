@@ -20,34 +20,40 @@ void Bullets::TickVelocity() {
     m_xvel *= m_BaseDamping;
     m_yvel *= m_BaseDamping;
 
-    double CurrentX = m_x;
-    double CurrentY = m_x;
-    double Distance = std::sqrt(std::pow(m_xvel, 2) + std::pow(m_yvel, 2));
-    double SliceX = m_xvel / Distance;
-    double SliceY = m_yvel / Distance;
-    int Iterations = (int)(Distance);
-    double RemainingDistance = Distance - (double)(Iterations);
-
-    // Slowly move toward the end point
-    bool Hit;
-    for (int i = 0; i < Iterations; i++) {
-        CurrentX += SliceX;
-        CurrentY += SliceY;
-
-        Hit = TickHitPoint(CurrentX, CurrentY);
-        if (Hit) break;
-    }
-
-    if (!Hit && RemainingDistance > 0.0) {
-        CurrentX += SliceX * RemainingDistance;
-        CurrentY += SliceY * RemainingDistance;
-
-        if (TickHitPoint(CurrentX, CurrentY))
-            return;
-    }
-
     m_x += m_xvel;
     m_y += m_yvel;
+
+    TickHitPoint(m_x, m_y);
+    // Problems with code below :::::::)
+
+//    double CurrentX = m_x;
+//    double CurrentY = m_x;
+//    double Distance = std::sqrt(std::pow(m_xvel, 2) + std::pow(m_yvel, 2));
+//    double SliceX = m_xvel / Distance;
+//    double SliceY = m_yvel / Distance;
+//    int Iterations = (int)(Distance);
+//    double RemainingDistance = Distance - (double)(Iterations);
+//
+//    // Slowly move toward the end point
+//    bool Hit;
+//    for (int i = 0; i < Iterations; i++) {
+//        CurrentX += SliceX;
+//        CurrentY += SliceY;
+//
+//        Hit = TickHitPoint(CurrentX, CurrentY);
+//        if (Hit) break;
+//    }
+//
+//    if (!Hit && RemainingDistance > 0.0) {
+//        CurrentX += SliceX * RemainingDistance;
+//        CurrentY += SliceY * RemainingDistance;
+//
+//        if (TickHitPoint(CurrentX, CurrentY))
+//            return;
+//    }
+//
+//    m_x += m_xvel;
+//    m_y += m_yvel;
 
     // m_Destroy = Hit; //
 }
