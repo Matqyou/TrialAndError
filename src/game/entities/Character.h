@@ -11,17 +11,22 @@
 #include "../../technical stuff/GameControllers.h"
 #include "../../technical stuff/Colors.h"
 
+class Character;
+struct Hook {
+    Character* m_Parent;
+    double m_x, m_y;
+    double m_xvel, m_yvel;
+    double m_MaxLength;
+    bool m_Deployed;
+    bool m_GrabbedWall;
+
+    Hook(Character* parent);
+
+    void Tick(bool hooking, bool last_hooking);
+};
+
 class Character : public Entity {
 public:
-    enum WeaponType{
-        WEAPON_NONE,
-        WEAPON_FIST,
-        WEAPON_GLOCK,
-        WEAPON_BURST,
-        WEAPON_SHOTGUN,
-        WEAPON_MACHINEGUN,
-        NUM_WEAPONS
-    };
     enum {
         CONTROL_UP,
         CONTROL_RIGHT,
@@ -35,29 +40,25 @@ private:
     friend class GameWorld;
     friend class ProjectileWeapon;
     friend class Bullets;
+    friend class Hook;
     int m_PlayerIndex;
     std::string m_Name;
     Texture* m_Nameplate;
     double m_ColorHue;
     GameController* m_GameController;
-    bool m_Movement[NUM_CONTROLS];
-    int m_Controls[NUM_CONTROLS];
+    bool m_Movement[NUM_CONTROLS] {};
+    int m_Controls[NUM_CONTROLS] {};
     bool m_Controllable;
-    WeaponType m_Weapon; // TODO: Make this a pointer and store available guns in a list/vector
-    bool m_Shoot, m_LastShoot;
-    WeaponGlock m_Glock;
-    WeaponShotgun m_Shotgun;
-    WeaponBurst m_Burst;
-    WeaponMinigun m_Minigun;
+    bool m_Shooting, m_LastShoot;
+    // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
+    ProjectileWeapon* m_Weapons[NUM_WEAPONS] {};
+    ProjectileWeapon* m_CurrentWeapon;
+    double m_Health;
     static const int sDefaultControls[NUM_CONTROLS];
-    const double m_BaseAcceleration = 0.75;
+    const double m_BaseAcceleration;
     double m_xLook, m_yLook;  // direction
-    int hp;
-    double m_xHook, m_yHook;
-    double m_xvelHook, m_yvelHook;
-    bool m_HookDeployed;
-    bool m_Hook, m_LastHook;
-    bool m_HookGrabbedWall;
+    Hook m_Hook;
+    bool m_Hooking, m_LastHooking;
     int is_hit;
     void TickKeyboardControls();
     void TickGameControllerControls();

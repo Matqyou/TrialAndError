@@ -11,22 +11,103 @@ Sound* Character::ch_DeathSound = nullptr;
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
 
+Hook::Hook(Character* parent) {
+    m_Parent = parent;
+    m_x = 0.0;
+    m_y = 0.0;
+    m_xvel = 0.0;
+    m_yvel = 0.0;
+    m_MaxLength = 300.0;
+    m_Deployed = false;
+    m_GrabbedWall = false;
+}
+
+void Hook::Tick(bool hooking, bool last_hooking) {
+    GameWorld* World = m_Parent->World();
+
+    if (!m_Deployed && hooking && !last_hooking) {
+        m_Deployed = true;
+        m_x = m_Parent->m_x;
+        m_y = m_Parent->m_y;
+        m_xvel = m_Parent->m_xLook * 35;
+        m_yvel = m_Parent->m_yLook * 35;
+    } else if (m_Deployed && !hooking && last_hooking) {  // Instant retraction for now
+        m_Deployed = false;
+        m_GrabbedWall = false;
+    }
+
+    if (!m_Deployed)
+        return;
+
+    m_x += m_xvel;
+    m_y += m_yvel;
+
+    double TravelX = m_x - m_Parent->m_x;
+    double TravelY = m_y - m_Parent->m_y;
+    double Length = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
+    if (Length != 0.0) {
+        TravelX /= Length;
+        TravelY /= Length;
+    }
+
+    if (!m_GrabbedWall) {
+        if (Length > m_MaxLength) {
+            m_x = m_Parent->m_x + TravelX * m_MaxLength;
+            m_y = m_Parent->m_y + TravelY * m_MaxLength;
+            m_xvel -= TravelX * 2.0;
+            m_yvel -= TravelY * 2.0;
+        }
+
+        // Hook snaps to wall - fix later cus ugly
+        if (m_x < 0.0) {
+            m_x = 0.0;
+            m_xvel = 0.0;
+            m_yvel = 0.0;
+            m_GrabbedWall = true;
+        } else if (m_y < 0.0) {
+            m_y = 0.0;
+            m_xvel = 0.0;
+            m_yvel = 0.0;
+            m_GrabbedWall = true;
+        } else if (m_x > World->Width()) {
+            m_x = World->Width();
+            m_xvel = 0.0;
+            m_yvel = 0.0;
+            m_GrabbedWall = true;
+        } else if (m_y > World->Height()) {
+            m_y = World->Height();
+            m_xvel = 0.0;
+            m_yvel = 0.0;
+            m_GrabbedWall = true;
+        }
+    } else {
+        m_Parent->m_xvel += TravelX * 1.5;
+        m_Parent->m_yvel += TravelY * 1.5;
+    }
+}
+
 Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93),
-   m_Glock(this),
-   m_Shotgun(this),
-   m_Burst(this),
-   m_Minigun(this) {
+   m_Hook(this),
+   m_BaseAcceleration(0.75) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
-    m_Weapon = WEAPON_GLOCK;
-    m_Shoot = false;
+    m_Shooting = false;
     m_LastShoot = false;
-    hp = 100;
-    //m_MachinegunTick = 0.0;
-    //m_BurstTick = 0;
-    //m_BurstShots = 0;
-    //m_StartBurstShots = 3;
+
+    m_CurrentWeapon = nullptr; // Start by holding nothing
+
+    // Always set to null, cuz player should spawn without weapons
+    memset(m_Weapons, 0, sizeof(m_Weapons));
+
+    // But this is Latvia and we give the character free guns
+    m_Weapons[WEAPON_GLOCK] = new WeaponGlock(this);
+    m_Weapons[WEAPON_BURST] = new WeaponBurst(this);
+    m_Weapons[WEAPON_SHOTGUN] = new WeaponShotgun(this);
+    m_Weapons[WEAPON_MACHINEGUN] = new WeaponMinigun(this);
+
+    m_Health = 100.0;
+
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
@@ -41,14 +122,8 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_xLook = 1.0;
     m_yLook = 0.0;
 
-    m_xHook = 0.0;
-    m_yHook = 0.0;
-    m_xvelHook = 0.0;
-    m_yvelHook = 0.0;
-    m_HookDeployed = false;
-    m_Hook = false;
-    m_LastHook = false;
-    m_HookGrabbedWall = false;
+    m_Hooking = false;
+    m_LastHooking = false;
 
     char Name[CHARACTER_MAX_NAME_LENGTH];
     std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
@@ -107,8 +182,8 @@ void Character::TickKeyboardControls() {
     }
 
     auto MouseState = SDL_GetMouseState(nullptr, nullptr);
-    m_Shoot = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
-    m_Hook = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
+    m_Shooting = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
+    m_Hooking = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
 }
 
 void Character::TickGameControllerControls() {
@@ -145,30 +220,22 @@ void Character::TickGameControllerControls() {
     }
 
     // Shooting
-    m_Shoot = m_GameController->GetRightTrigger() > 0.7;
-    m_Hook = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+    m_Shooting = m_GameController->GetRightTrigger() > 0.7;
+    m_Hooking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
 
     // Switch weapons
-    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP)) m_Weapon = WEAPON_GLOCK;
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) m_Weapon = WEAPON_SHOTGUN;
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)) m_Weapon = WEAPON_BURST;
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)) m_Weapon = WEAPON_MACHINEGUN;
+    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP) && m_Weapons[WEAPON_GLOCK])
+        m_CurrentWeapon = m_Weapons[WEAPON_GLOCK];
+    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT) && m_Weapons[WEAPON_SHOTGUN])
+        m_CurrentWeapon = m_Weapons[WEAPON_SHOTGUN];
+    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN) && m_Weapons[WEAPON_BURST])
+        m_CurrentWeapon = m_Weapons[WEAPON_BURST];
+    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT) && m_Weapons[WEAPON_MACHINEGUN])
+        m_CurrentWeapon = m_Weapons[WEAPON_MACHINEGUN];
+
     //Reloads weapon on square button press on controller
-    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X)){
-        //Change later to single pointer to weapon
-        if(m_Weapon == WEAPON_GLOCK){
-            m_Glock.Reload();
-        }
-        else if(m_Weapon == WEAPON_BURST){
-            m_Burst.Reload();
-        }
-        else if(m_Weapon == WEAPON_MACHINEGUN){
-            m_Minigun.Reload();
-        }
-        else if(m_Weapon == WEAPON_SHOTGUN){
-            m_Shotgun.Reload();
-        }
-    }
+    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X) && m_CurrentWeapon)
+        m_CurrentWeapon->Reload();
 }
 
 void Character::TickControls() {
@@ -180,145 +247,14 @@ void Character::TickControls() {
 }
 
 void Character::TickHook() {
-    if (!m_HookDeployed && m_Hook && !m_LastHook) {
-        m_HookDeployed = true;
-        m_xHook = m_x;
-        m_yHook = m_y;
-        m_xvelHook = m_xLook * 35;
-        m_yvelHook = m_yLook * 35;
-    } else if (m_HookDeployed && !m_Hook && m_LastHook) {  // Instant retraction for now
-        m_HookDeployed = false;
-        m_HookGrabbedWall = false;
-    }
-
-    if (!m_HookDeployed)
-        return;
-
-    m_xHook += m_xvelHook;
-    m_yHook += m_yvelHook;
-
-    double TravelX = m_xHook - m_x;
-    double TravelY = m_yHook - m_y;
-    double Length = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
-    if (Length != 0.0) {
-        TravelX /= Length;
-        TravelY /= Length;
-    }
-
-    if (!m_HookGrabbedWall) {
-        const double MaxLength = 300.0;
-        if (Length > MaxLength) {
-            m_xHook = m_x + TravelX * MaxLength;
-            m_yHook = m_y + TravelY * MaxLength;
-            m_xvelHook -= TravelX * 2.0;
-            m_yvelHook -= TravelY * 2.0;
-        }
-
-        // Hook snaps to wall - fix later cus ugly
-        if (m_xHook < 0.0) {
-            m_xHook = 0.0;
-            m_xvelHook = 0.0;
-            m_yvelHook = 0.0;
-            m_HookGrabbedWall = true;
-        } else if (m_yHook < 0.0) {
-            m_yHook = 0.0;
-            m_xvelHook = 0.0;
-            m_yvelHook = 0.0;
-            m_HookGrabbedWall = true;
-        } else if (m_xHook > m_World->Width()) {
-            m_xHook = m_World->Width();
-            m_xvelHook = 0.0;
-            m_yvelHook = 0.0;
-            m_HookGrabbedWall = true;
-        } else if (m_yHook > m_World->Height()) {
-            m_yHook = m_World->Height();
-            m_xvelHook = 0.0;
-            m_yvelHook = 0.0;
-            m_HookGrabbedWall = true;
-        }
-    } else {
-        m_xvel += TravelX * 1.5;
-        m_yvel += TravelY * 1.5;
-    }
+    m_Hook.Tick(m_Hooking, m_LastHooking);
 }
 
 void Character::TickWeapon() {
-    if (m_Weapon == WEAPON_GLOCK) m_Glock.Tick();
-    else if (m_Weapon == WEAPON_SHOTGUN) m_Shotgun.Tick();
-    else if (m_Weapon == WEAPON_BURST) m_Burst.Tick();
-    else if (m_Weapon == WEAPON_MACHINEGUN) m_Minigun.Tick();
-    //auto CurrentTick = m_World->CurrentTick();
-    //if(m_BurstShots && CurrentTick - m_BurstTick > 5) {
-    //    m_BurstTick = CurrentTick;
-    //    m_BurstShots--;
-    //    new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
-    //    m_xvel += -m_xLook * 2;
-    //    m_yvel += -m_yLook * 2;
-    //}
-//
-    //if (!m_Shoot) {
-    //    m_MachinegunTick -= 0.5;
-    //    if (m_MachinegunTick < 0.0)
-    //        m_MachinegunTick = 0.0;
-    //    return;
-    //}
-//
-    //if (m_Weapon == WEAPON_NONE)
-    //    return;
-//
-//
-    //if (m_Weapon == WEAPON_GLOCK) {
-    //    if (CurrentTick - m_LastShot < 24)
-    //        return;
-    //    m_LastShot = CurrentTick;
-    //    new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
-    //    m_xvel += -m_xLook * 10;
-    //    m_yvel += -m_yLook * 10;
-//
-    //} else if (m_Weapon == WEAPON_BURST) {
-    //    if (CurrentTick - m_LastShot < 48)
-    //        return;
-//
-    //    m_LastShot = CurrentTick;
-    //    m_BurstShots = m_StartBurstShots - 1;
-    //    m_BurstTick = CurrentTick;
-//
-    //    new Bullets(m_World, m_x, m_y, m_xLook * 10, m_yLook * 10);
-    //    m_xvel += -m_xLook*2;
-    //    m_yvel += -m_yLook*2;
-    //}
-    //else if (m_Weapon == WEAPON_SHOTGUN) {
-    //    if (CurrentTick - m_LastShot < 72)
-    //        return;
-//
-    //    m_LastShot = CurrentTick;
-    //    const int bullet_count = 8;
-    //    const double spread_angle = 75.0/180.0*M_PI;
-    //    const double spacing = spread_angle / bullet_count;
-    //    double radians =  atan2(m_yLook, m_xLook);
-    //    double start_angle = radians - spread_angle/2;
-    //    double end_angle = radians + spread_angle/2;
-//
-    //    for(double current_angle=start_angle; current_angle<end_angle; current_angle += spacing){
-    //        double direction_x = cos(current_angle);
-    //        double direction_y = sin(current_angle);
-    //        double speed_multi = (double((rand()%20)-10))/10 + 10;
-    //        new Bullets(m_World, m_x, m_y,  direction_x * speed_multi, direction_y * speed_multi);
-    //    }
-    //    m_xvel += -m_xLook * 30;
-    //    m_yvel += -m_yLook * 30;
-//
-    //}
-    //else if (m_Weapon == WEAPON_MACHINEGUN) {
-    //    if (m_MachinegunTick > 15) m_MachinegunTick = 15;
-    //    if (CurrentTick - m_LastShot < 10+15 - int(m_MachinegunTick))
-    //        return;
-    //    m_LastShot = CurrentTick;
-    //    m_MachinegunTick += 1.4;
-    //    new Bullets(m_World, m_x, m_y, m_xLook * 30, m_yLook * 30);
-    //    m_xvel += -m_xLook * 4;
-    //    m_yvel += -m_yLook * 4;
-    //}
+    if (!m_CurrentWeapon)
+        return;
+
+    m_CurrentWeapon->Tick();
 }
 
 void Character::Event(const SDL_Event& currentEvent) {
@@ -328,26 +264,19 @@ void Character::Event(const SDL_Event& currentEvent) {
     if (currentEvent.type == SDL_KEYDOWN ||
         currentEvent.type == SDL_KEYUP) {
         bool State = currentEvent.type == SDL_KEYDOWN;
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_1) m_Weapon = WEAPON_GLOCK;
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2) m_Weapon = WEAPON_SHOTGUN;
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3) m_Weapon = WEAPON_BURST;
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4) m_Weapon = WEAPON_MACHINEGUN;
-        //Reloads weapon on keyboard player with R button press
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R){
-            //Change later to single pointer to weapon
-            if(m_Weapon == WEAPON_GLOCK){
-                m_Glock.Reload();
-            }
-            else if(m_Weapon == WEAPON_BURST){
-                m_Burst.Reload();
-            }
-            else if(m_Weapon == WEAPON_MACHINEGUN){
-                m_Minigun.Reload();
-            }
-            else if(m_Weapon == WEAPON_SHOTGUN){
-                m_Shotgun.Reload();
-            }
-        }
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_1 && m_Weapons[WEAPON_GLOCK])
+            m_CurrentWeapon = m_Weapons[WEAPON_GLOCK];
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2 && m_Weapons[WEAPON_SHOTGUN])
+            m_CurrentWeapon = m_Weapons[WEAPON_SHOTGUN];
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3 && m_Weapons[WEAPON_BURST])
+            m_CurrentWeapon = m_Weapons[WEAPON_BURST];
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4 && m_Weapons[WEAPON_MACHINEGUN])
+            m_CurrentWeapon = m_Weapons[WEAPON_MACHINEGUN];
+
+        // Reloads weapon on keyboard player with R button press
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R && m_CurrentWeapon)
+            m_CurrentWeapon->Reload();
+
         for (int i = 0; i < NUM_CONTROLS; i++) {
             if (currentEvent.key.keysym.scancode == m_Controls[i])
                 m_Movement[i] = State;
@@ -358,17 +287,16 @@ void Character::Event(const SDL_Event& currentEvent) {
 void Character::Tick() {
     TickControls();  // Do stuff depending on the current held buttons
     TickVelocity();  // Move the chracter entity
-    TickWalls();
-    TickHook();
-    TickWeapon();
-    SoundManager *SoundHandler = m_World->GameWindow()->SoundHandler();
-    m_LastShoot = m_Shoot;
-    m_Shoot = false;  // Reset shooting at end of each tick
-    m_LastHook = m_Hook;
-    if(hp == 0){
+    TickHook();  // Move hook and or player etc.
+    TickWalls();  // Check if colliding with walls
+    TickWeapon(); // Shoot accelerate reload etc.
+
+    m_LastShoot = m_Shooting;
+    m_Shooting = false;  // Reset shooting at end of each tick
+    m_LastHooking = m_Hooking;
+    if (m_Health <= 0.0) {
+        m_World->GameWindow()->SoundHandler()->PlaySound(ch_DeathSound);
         delete this;
-        SoundHandler->PlaySound(ch_DeathSound);
-        //Play sound of dying
     }
 }
 
@@ -379,9 +307,9 @@ void Character::Draw() {
     double Light = 0.5 + (std::sin(Timer->GetTotalTimeElapsed() - m_ExistsSince) + 1.0) / 4;
     SDL_Color Color = HSLtoRGB({ m_ColorHue, Light, 1.0 });
 
-    if (m_HookDeployed) {
+    if (m_Hook.m_Deployed) {
         Render->SetColor(Color.r, Color.g, Color.b, 255);
-        Render->LineWorld(m_x, m_y, m_xHook, m_yHook);
+        Render->LineWorld(m_x, m_y, m_Hook.m_x, m_Hook.m_y);
     }
 
     SDL_FRect DrawRect = {float(m_x) - float(m_w/2),
@@ -389,7 +317,7 @@ void Character::Draw() {
                           float(m_w),
                           float(m_h)};
     Color = HSLtoRGB({ m_ColorHue, 1.0, Light });
-    SoundManager *SoundHandler = m_World->GameWindow()->SoundHandler();
+    // SoundManager *SoundHandler = m_World->GameWindow()->SoundHandler();
     if(is_hit > 0) {
         Render->SetColor(255, 0, 0, 255);
         // SoundHandler->PlaySound(ch_HitSound);

@@ -10,7 +10,7 @@ Sound* WeaponGlock::ms_ShootSound = nullptr;
 Sound* WeaponGlock::ms_ClickSound = nullptr;
 
 WeaponGlock::WeaponGlock(Character* owner)
- : ProjectileWeapon(owner, 10, 15, 35.0, false) {
+ : ProjectileWeapon(owner, WEAPON_GLOCK, 10, 15, 35.0, false) {
     m_RecoilForce = 10.0;
 }
 
@@ -36,7 +36,7 @@ void WeaponGlock::Tick() {
 
             double VelocityX = DirectionX * m_ProjectileSpeed;
             double VelocityY = DirectionY * m_ProjectileSpeed;
-            new Bullets(World, SpawnX, SpawnY, VelocityX, VelocityY);
+            new Bullets(World, m_Owner, SpawnX, SpawnY, VelocityX, VelocityY);
 
             double RecoilX = DirectionX * -m_RecoilForce;
             double RecoilY = DirectionY * -m_RecoilForce;
