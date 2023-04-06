@@ -1104,7 +1104,7 @@ extern DECLSPEC int SDLCALL SDL_GetRenderDrawColor(SDL_Renderer * renderer,
                                            Uint8 * a);
 
 /**
- * Set the blend mode used for drawing operations (Fill and Line).
+ * Set the blend mode used for drawing operations (Clear and Line).
  *
  * If the blend mode is not supported, the closest supported mode is chosen.
  *
@@ -1324,7 +1324,7 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawRects(SDL_Renderer * renderer,
                                                 int count);
 
 /**
- * Fill a rectangle on the current rendering target with the drawing color.
+ * Clear a rectangle on the current rendering target with the drawing color.
  *
  * The current drawing color is set by SDL_SetRenderDrawColor(), and the
  * color's alpha value is ignored unless blending is enabled with the
@@ -1353,7 +1353,7 @@ extern DECLSPEC int SDLCALL SDL_RenderFillRect(SDL_Renderer * renderer,
                                                const SDL_Rect * rect);
 
 /**
- * Fill some number of rectangles on the current rendering target with the
+ * Clear some number of rectangles on the current rendering target with the
  * drawing color.
  *
  * \param renderer the rendering context
@@ -1545,7 +1545,7 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawRectsF(SDL_Renderer * renderer,
                                                  int count);
 
 /**
- * Fill a rectangle on the current rendering target with the drawing color at
+ * Clear a rectangle on the current rendering target with the drawing color at
  * subpixel precision.
  *
  * \param renderer The renderer which should fill a rectangle.
@@ -1559,7 +1559,7 @@ extern DECLSPEC int SDLCALL SDL_RenderFillRectF(SDL_Renderer * renderer,
                                                 const SDL_FRect * rect);
 
 /**
- * Fill some number of rectangles on the current rendering target with the
+ * Clear some number of rectangles on the current rendering target with the
  * drawing color at subpixel precision.
  *
  * \param renderer The renderer which should fill multiple rectangles.

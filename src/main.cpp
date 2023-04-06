@@ -2,16 +2,15 @@
 #include "GameReference.h"
 #include "GameWorld.h"
 #include "technical stuff/GameControllers.h"
-#include "entities/Character.h"
-#include "entities/Bullets.h"
+#include "game/entities/Character.h"
+#include "game/entities/Bullets.h"
 #include <vector>
 #include <iostream>
 
-SDL_DisplayMode dm;
 GameReference* GameWindow;
 GameWorld* World;
 GameControllers* Controllers;
-SDL_Texture* TextTexture;
+Texture* TextTexture;
 
 bool Initialize() {
     srand(time(nullptr));
@@ -19,34 +18,18 @@ bool Initialize() {
     if (!GameWindow->Initialize())
         return false;
 
-    World = new GameWorld(GameWindow, 1000, 1000);
-    World->SetPaused(true);
+    World = new GameWorld(GameWindow, 4000, 2000);
+    World->SetCameraPos(30, 30);
+    GameWindow->RenderClass()->SetWorld(World);
 
     TextManager* TextHandler = GameWindow->TextHandler();
-    SDL_Renderer* Renderer = GameWindow->Renderer();
-
-    TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 20);
-    TextTexture = TextHandler->Render(Font1, "I am in your walls, Jesse....", { 0, 0, 0 });
+    TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
+    TextTexture = TextHandler->Render(Font1, "Jesse -.. .. .", { 255, 255, 255 }, true);
 
     Controllers = new GameControllers();
-    new Character(World, 500, -100);
-
+    new Character(World, 30, 30, 10, 10);
     return true;
 }
-
-
-// Function to handle controller events
-void handleControllerEvent(SDL_Event event)
-{
-    if (event.type == SDL_CONTROLLERBUTTONDOWN) {
-        std::cout << "Button " << static_cast<int>(event.cbutton.button) << " on controller " << static_cast<int>(event.cbutton.which) << " was pressed" << std::endl;
-    } else if (event.type == SDL_CONTROLLERBUTTONUP) {
-        std::cout << "Button " << static_cast<int>(event.cbutton.button) << " on controller " << static_cast<int>(event.cbutton.which) << " was released" << std::endl;
-    } else if (event.type == SDL_CONTROLLERAXISMOTION) {
-        std::cout << "Axis " << static_cast<int>(event.caxis.axis) << " on controller " << static_cast<int>(event.caxis.which) << " moved to " << static_cast<int>(event.caxis.value) << std::endl;
-    }
-}
-
 
 int main() {
     if (!Initialize()) {
@@ -54,43 +37,63 @@ int main() {
         exit(1);
     }
 
-    SDL_Window* Window = GameWindow->Window();
-    SDL_Renderer* Renderer = GameWindow->Renderer();
     Clock* Timer = GameWindow->Timer();
+    Drawing* Draw = GameWindow->RenderClass();
+    SoundManager* SoundHandler = GameWindow->SoundHandler();
+    ImageManager* ImageHandler = GameWindow->ImageHandler();
 
     // Load the PNG images
-    SDL_Surface* connected = IMG_Load("chain.png");
-    if (!connected)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
-    SDL_Surface* disconnected = IMG_Load("dis_chain.png");
-    if (!disconnected)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
-    SDL_Surface* Icon = IMG_Load("PS4_Controller_Icon.png");
-    if (!Icon)
-    {
-        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
-        return 1;
-    }
+    Texture* TextureStart = ImageHandler->LoadTexture("assets/images/Start.png", true);
+    Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/Settings.png", true);
+    Texture* TextureConnected = ImageHandler->LoadTexture("assets/images/chain.png", true);
+    Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/images/dis_chain.png", true);
+    Texture* TextureIcon = ImageHandler->LoadTexture("assets/images/PS4_Controller_Icon.png", true);
+    Texture* Vignette = ImageHandler->LoadTexture("assets/images/vignette.png", true);
+    Vignette->SetAlpha(200);
+    Texture* Pellet = ImageHandler->LoadTexture("assets/images/Pellet.png", true);
 
-    SDL_Texture * texture_connected = SDL_CreateTextureFromSurface(Renderer, connected);
-    SDL_Texture * texture_disconnected = SDL_CreateTextureFromSurface(Renderer, disconnected);
-    SDL_Texture * texture_Icon = SDL_CreateTextureFromSurface(Renderer, Icon);
+    Bullets::ms_Texture = Pellet;
 
-    // Render the Start button
-    SDL_Rect startButtonRect = { 350, 100, 250, 60 };
-    // Render the Settings button
-    //SDL_Rect settingsButtonRect = { 350, 200, 250, 60 };
+    // Load sounds
+    Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
+    Sound* Fail_Death = SoundHandler->LoadSound("assets/sounds/fail_death.mp3", true);
+    Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);
+    Sound* Epic_Death = SoundHandler->LoadSound("assets/sounds/epic_death.wav", true);
+    Sound* LowSound = SoundHandler->LoadSound("assets/sounds/Low.wav", true);
+    Sound* HighSound = SoundHandler->LoadSound("assets/sounds/High.wav", true);
+    Sound* QuitSound = SoundHandler->LoadSound("assets/sounds/Quit.wav", true);
+    Sound* LowUISound = SoundHandler->LoadSound("assets/sounds/LowUI.wav", true);
+    Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
+    Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
+    Sound* GlockShootSound = SoundHandler->LoadSound("assets/sounds/Shoot1.wav", true);
+    GlockShootSound->SetVolume(64); // max 128
+    Sound* GlockClickSound = SoundHandler->LoadSound("assets/sounds/GunClick.wav", true);
+    GlockClickSound->SetVolume(32); // max 128
+    Sound* ShotgunShootSound = SoundHandler->LoadSound("assets/sounds/ShootShotgun.wav", true);
+    Sound* BurstShootSound = SoundHandler->LoadSound("assets/sounds/ShootBurst.wav", true);
 
+    WeaponGlock::ms_ShootSound = GlockShootSound;
+    WeaponGlock::ms_ClickSound = GlockClickSound;
+    WeaponShotgun::ms_ShootSound = ShotgunShootSound;
+    WeaponShotgun::ms_ClickSound = GlockClickSound;
+    WeaponBurst::ms_ShootSound = BurstShootSound;
+    WeaponBurst::ms_ClickSound = GlockClickSound;
+    WeaponMinigun::ms_ShootSound = BurstShootSound;
+    WeaponMinigun::ms_ClickSound = GlockClickSound;
+    Character::ch_DeathSound = Basic_Death;
+    Character::ch_HitSound = LowSound; //Have to change it to a shorter sound, otherwise broken
 
-
+    // SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
+    // SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
+    // SDL_Rect IconRect = { 100, 400, 200, 109 };
+    int ignore_ticks = 5;
     bool Running = true;
+    bool m_Config = true;
     while (Running) {
+        // Render the Start button
+        SDL_Rect startButtonRect = { GameWindow->Width()/2-150, GameWindow->Height()/2-200, 300, 100 };
+        // Render the Settings button
+        SDL_Rect settingsButtonRect = { GameWindow->Width()/2-150, GameWindow->Height()/2-50, 300, 100 };
         // Input and events
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
@@ -103,23 +106,27 @@ int main() {
                     Running = false;
                 } break;
                 case SDL_KEYDOWN: {
-                    if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                        Running = false;
+                    if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                        bool Pause = !World->Paused();
+                        World->SetPaused(Pause);
+                        if (Pause) SoundHandler->PlaySound(MidUISound);
+                        else SoundHandler->PlaySound(LowUISound);
+                    }
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                     //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto* NewPlayer = new Character(World, 0, 0); // Add new player
+                    auto* NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
                     NewPlayer->SetGameController(CurrentController);
+                    SoundHandler->PlaySound(HighSound);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
                     GameController* DeletedController = Controllers->CloseController(InstanceID);
-                    Character* CorrespondingPlayer = nullptr;
-
                     World->DestroyPlayerByController(DeletedController);
+                    SoundHandler->PlaySound(LowSound);
                 } break;
                 case SDL_MOUSEBUTTONDOWN: {
                     if (CurrentEvent.button.button == SDL_BUTTON_LEFT)
@@ -129,61 +136,86 @@ int main() {
                         if (x >= startButtonRect.x && x < startButtonRect.x + startButtonRect.w &&
                             y >= startButtonRect.y && y < startButtonRect.y + startButtonRect.h)
                         {
+                            if(World->Paused()) {
+                                SoundHandler->PlaySound(LowUISound);
+                                ignore_ticks = 5; //Minimum ticks it has to skip to not shoot on resume
+                            }
                             World->SetPaused(false);
                         }
-                        //else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
-                        //    y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
-                        //{
-                        //    std::cout << "Settings" << std::endl;
-                        //}
+                        else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
+                            y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
+                        {
+                            m_Config = !m_Config;
+                            if(World->Paused())SoundHandler->PlaySound(MidUISound);
+                        }
                     }
                 } break;
             }
         }
 
         // Ticking
-        World->Tick();
+        if(!ignore_ticks)World->Tick();
+        else ignore_ticks -=1;
 
         // Drawing
-        SDL_SetRenderDrawColor(Renderer, 200, 200, 200, 255);
-        SDL_RenderClear(Renderer);
+        Draw->SetColor(120, 0, 120, 255);
+        Draw->Clear();
 
         World->Draw();
 
+        Draw->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
+
         SDL_Rect DestinationRect;
-        SDL_QueryTexture(TextTexture, nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
+        TextTexture->Query(nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
         DestinationRect.x = 0;
         DestinationRect.y = GameWindow->Height() - DestinationRect.h;
-        SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestinationRect);
+        Draw->RenderTexture(TextTexture->SDLTexture(), nullptr, DestinationRect);
 
         if (World->Paused()) {
+            Draw->SetBlendingMode(SDL_BLENDMODE_BLEND);
+            Draw->SetColor(0, 0, 0, 100);
+            Draw->BlendFullscreen();
+            Draw->SetBlendingMode(SDL_BLENDMODE_NONE);
+
             // start
-            SDL_SetRenderDrawColor(Renderer, 90, 20, 20, 255);
-            SDL_RenderFillRect(Renderer, &startButtonRect);
-            // setting
-            //SDL_SetRenderDrawColor(Renderer, 0, 80, 40, 255);
-            //SDL_RenderFillRect(Renderer, &settingsButtonRect);
+            Draw->SetColor(90, 20, 20, 255);
+            Draw->FillRect({ GameWindow->Width()/2-150, GameWindow->Height()/2-200, 300, 100 });
+            //   setting
+            Draw->SetColor(20, 20, 90, 255);
+            Draw->FillRect({ GameWindow->Width()/2-150, GameWindow->Height()/2-50, 300, 100 });
 
-            SDL_Rect connected = { 120, 375, 80, 44 };
-            SDL_Rect disconnected = { 200, 375, 80, 44 };
-            SDL_Rect Icon = { 100, 400, 200, 109 };
+            Draw->RenderTexture(TextureStart->SDLTexture(), nullptr, startButtonRect);
+            Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, settingsButtonRect);
 
-            SDL_RenderCopy(Renderer, texture_connected, NULL, &connected);
-            SDL_RenderCopy(Renderer, texture_disconnected, NULL, &disconnected);
-            SDL_RenderCopy(Renderer, texture_Icon, NULL, &Icon);
+            if (!m_Config) {
+                //   setting
+                Draw->SetColor(20, 20, 90, 255);
+                Draw->FillRect(settingsButtonRect);
+
+                Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, settingsButtonRect);
+
+                // for() {
+                //     Draw->RenderTexture(TextureIcon->SDLTexture(), nullptr, IconRect);
+                //     if () {
+                //         Draw->RenderTexture(TextureConnected->SDLTexture(), nullptr, ConnectedRect);
+                //     }
+                //     if () {
+                //         Draw->RenderTexture(TextureDisconnected->SDLTexture(), nullptr, DisconnectedRect);
+                //     }
+                // }
+            }
         }
 
-        SDL_RenderPresent(Renderer);
+        Draw->UpdateWindow();
         Timer->Tick();
     }
-    SDL_DestroyTexture(texture_connected);
-    SDL_DestroyTexture(texture_disconnected);
-    SDL_DestroyTexture(texture_Icon);
-    SDL_FreeSurface(connected);
-    SDL_FreeSurface(disconnected);
-    SDL_FreeSurface(Icon);
+
+    SoundHandler->PlaySound(QuitSound);
+    GameWindow->Deinitialize(true); // close everything except sound
+
     delete Controllers;
     delete World;
+    while(Mix_Playing(-1)) { }  // wait until last sound is done playing
     delete GameWindow;
     return 0;
 }

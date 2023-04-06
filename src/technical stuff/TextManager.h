@@ -6,24 +6,23 @@
 #define TRIALANDERROR_SRC_TECHNICAL_STUFF_TEXTMANAGER_H_
 
 #include <SDL_ttf.h>
+#include "ImageManager.h"
 #include <vector>
 #include <string>
 
 class TextManager {
 private:
-    SDL_Renderer* m_Renderer;
+    ImageManager* m_ImageHandler;
     std::vector<TTF_Font*> m_Fonts;
-    std::vector<SDL_Texture*> m_RenderedTexts;
 
 public:
-    TextManager(SDL_Renderer* renderer);
+    TextManager(ImageManager* image_handler);
     ~TextManager();
 
-    SDL_Texture* Render(TTF_Font* font, const char* text, SDL_Color color);
+    Texture* Render(TTF_Font* font, const char* text, SDL_Color color, bool auto_cleanup);
 
     TTF_Font* LoadFont(const char *filepath, int ptsize);
     TTF_Font* FirstFont() const { return m_Fonts[0]; }
-    void UnloadTexture(SDL_Texture* texture);
 };
 
 #endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_TEXTMANAGER_H_

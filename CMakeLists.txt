@@ -1,7 +1,6 @@
-project(TrialAndError)
 cmake_minimum_required(VERSION 3.23)
+project(TrialAndError)
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_EXE_LINKER_FLAGS "-static")
 
 include_directories(deps/SDL2/include deps/SDL2_image/include deps/SDL2_mixer/include deps/SDL2_ttf/include)
 link_directories(deps/SDL2/lib/x64 deps/SDL2_image/lib/x64 deps/SDL2_mixer/lib/x64 deps/SDL2_ttf/lib/x64)
@@ -15,14 +14,48 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(BUILD_OPTIONS)
 endif()
 
-add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} src/main.cpp "src/technical stuff/Clock.cpp" "src/technical stuff/Clock.h" deps/icon_resource.rc "src/technical stuff/Colors.cpp" "src/technical stuff/Colors.h" src/entities/Character.cpp src/entities/Character.h src/entities/Entity.cpp src/entities/Entity.h "src/technical stuff/TextManager.cpp" "src/technical stuff/TextManager.h" "src/technical stuff/GameControllers.cpp" "src/technical stuff/GameControllers.h" "src/GameReference.cpp" "src/GameReference.h" src/GameWorld.cpp src/GameWorld.h src/entities/Bullets.cpp src/entities/Bullets.h)
-target_link_libraries(${PROJECT_NAME} SDL2main SDL2 SDL2_image SDL2_mixer SDL2_ttf)
+set(PROJECT_FILES
+        "src/main.cpp"
+        "src/technical stuff/Clock.cpp"
+        "src/technical stuff/Clock.h"
+        "deps/icon_resource.rc"
+        "src/technical stuff/Colors.cpp"
+        "src/technical stuff/Colors.h"
+        "src/game/entities/Character.cpp"
+        "src/game/entities/Character.h"
+        "src/game/entities/Entity.cpp"
+        "src/game/entities/Entity.h"
+        "src/technical stuff/TextManager.cpp"
+        "src/technical stuff/TextManager.h"
+        "src/technical stuff/GameControllers.cpp"
+        "src/technical stuff/GameControllers.h"
+        "src/GameReference.cpp"
+        "src/GameReference.h"
+        "src/GameWorld.cpp"
+        "src/GameWorld.h"
+        "src/game/entities/Bullets.cpp"
+        "src/game/entities/Bullets.h"
+        "src/technical stuff/ImageManager.cpp"
+        "src/technical stuff/ImageManager.h"
+        "src/technical stuff/Drawing.cpp"
+        "src/technical stuff/Drawing.h" "src/technical stuff/SoundManager.cpp" "src/technical stuff/SoundManager.h" src/game/weapons/ProjectileWeapon.cpp src/game/weapons/ProjectileWeapon.h src/game/weapons/WeaponGlock.cpp src/game/weapons/WeaponGlock.h src/game/weapons/WeaponShotgun.cpp src/game/weapons/WeaponShotgun.h src/game/weapons/WeaponBurst.cpp src/game/weapons/WeaponBurst.h src/game/weapons/WeaponMinigun.cpp src/game/weapons/WeaponMinigun.h)
+add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
+target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)
+target_link_options(${PROJECT_NAME} PRIVATE "-static")
+
+file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 function(copy_files SOURCE_DIR DEST_DIR)
-    file(GLOB files "${SOURCE_DIR}/*")
-    foreach(file ${files})
-        get_filename_component(filename ${file} NAME)
-        configure_file(${file} ${DEST_DIR}/${filename} COPYONLY)
+    file(GLOB items "${SOURCE_DIR}/*")
+    foreach(item ${items})
+        if(IS_DIRECTORY ${item})
+            get_filename_component(dirname ${item} NAME)
+            file(MAKE_DIRECTORY ${DEST_DIR}/${dirname})
+            copy_files(${item} ${DEST_DIR}/${dirname})
+        else()
+            get_filename_component(filename ${item} NAME)
+            configure_file(${item} ${DEST_DIR}/${filename} COPYONLY)
+        endif()
     endforeach()
 endfunction()
 

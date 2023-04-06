@@ -9,15 +9,8 @@
 #include "technical stuff/GameControllers.h"
 
 class Entity;
+class Character;
 class GameWorld {
-private:
-    GameReference* m_GameWindow;
-    double m_Width, m_Height;  // maybe better if it was int
-
-    Entity* m_LastEntity;
-    bool m_ShowNames;
-    bool m_Paused;
-
 public:
     enum EntityType {
         ENTTYPE_CHARACTER,
@@ -25,22 +18,44 @@ public:
         NUM_ENTTYPES
     };
 
+private:
+    GameReference* m_GameWindow;
+    double m_Width, m_Height;  // maybe better if it was int
+    double m_ShowNamesVisibility;
+    bool m_ShowNames;
+    bool m_Paused;
+    Entity* m_LastEntityType[NUM_ENTTYPES]{};
+    Entity* m_LastEntity;
+    double m_x, m_y;
+    unsigned long long m_CurrentTick;
+
+    // Cool scrolling background
+    Texture* m_Background;
+    int m_BackgroundW, m_BackgroundH;
+
+public:
     GameWorld(GameReference* gameWindow, double width, double height);
     ~GameWorld();
 
     GameReference* GameWindow() const { return m_GameWindow; }
     double Width() const { return m_Width; }
     double Height() const { return m_Height; }
-    bool NamesShown() const { return m_ShowNames; }
+    double NamesShown() const { return m_ShowNamesVisibility; }
     bool Paused() const { return m_Paused; }
-    int NextPlayerIndex();
+    Character* GetPlayerByIndex(int index);
+    void GetNextPlayerIndex(Character* player);
+    double CameraX() const { return m_x; }
+    double CameraY() const { return m_y; }
+    void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
+    unsigned long long CurrentTick() const { return m_CurrentTick; }
 
+    void SetCameraPos(double x, double y);  // Move the camera to a position
     void AddEntity(Entity* entity);
     void RemoveEntity(Entity* entity);
     void DestroyPlayerByController(GameController* DeletedController);
-    void ShowNames();
+    void ToggleShowNames();
     void SetPaused(bool state);
-
+    Character* GetPlayers() const{return (Character*)m_LastEntityType[ENTTYPE_CHARACTER];}
     void Event(const SDL_Event& currentEvent);
     void Tick();
     void Draw();
