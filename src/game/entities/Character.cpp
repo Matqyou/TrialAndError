@@ -37,6 +37,12 @@ void Hook::Unhook() {
     m_GrabbedEntity = nullptr;
 }
 
+void Hook::HookWall() {
+    m_xvel = 0.0;
+    m_yvel = 0.0;
+    m_Grabbed = GRABBED_WALL;
+}
+
 void Hook::Tick(bool hooking, bool last_hooking) {
     GameWorld* World = m_Parent->World();
 
@@ -93,24 +99,16 @@ void Hook::Tick(bool hooking, bool last_hooking) {
             // Hook snaps to wall - fix later cus ugly, prob fix when adding tiles and stuff cus doesnt rly matter tbh
             if (m_x < 0.0) {
                 m_x = 0.0;
-                m_xvel = 0.0;
-                m_yvel = 0.0;
-                m_Grabbed = GRABBED_WALL;
+                HookWall();
             } else if (m_y < 0.0) {
                 m_y = 0.0;
-                m_xvel = 0.0;
-                m_yvel = 0.0;
-                m_Grabbed = GRABBED_WALL;
+                HookWall();
             } else if (m_x > World->Width()) {
                 m_x = World->Width();
-                m_xvel = 0.0;
-                m_yvel = 0.0;
-                m_Grabbed = GRABBED_WALL;
+                HookWall();
             } else if (m_y > World->Height()) {
                 m_y = World->Height();
-                m_xvel = 0.0;
-                m_yvel = 0.0;
-                m_Grabbed = GRABBED_WALL;
+                HookWall();
             }
         }
     } else if (m_Grabbed == GRABBED_ENTITY) {

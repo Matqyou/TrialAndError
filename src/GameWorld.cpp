@@ -151,9 +151,9 @@ void GameWorld::Tick() {
         m_ShowNamesVisibility *= 0.98;
 
     // Loop allows self-destruction in the ::Tick() method
-    Entity* Next, *Current = m_Last;
+    Entity* Next, *Current = m_First;
     for (; Current; Current = Next) {
-        Next = Current->Prev();
+        Next = Current->Next();
         Current->Tick();
     }
 
@@ -172,7 +172,8 @@ void GameWorld::Tick() {
         }
         CameraX /= num_player;
         CameraY /= num_player;
-        // Accelerate camera closer to the midpoint of characters
+        // Accelerate camera closer to
+        // the midpoint of characters
         // TODO: Zoom value
         m_x += (-m_x + CameraX) * 0.1;
         m_y += (-m_y + CameraY) * 0.1;

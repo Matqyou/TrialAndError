@@ -34,6 +34,7 @@ struct Hook {
     Hook(Character* parent);
 
     void Unhook();
+    void HookWall();
     void Tick(bool hooking, bool last_hooking);
 };
 
