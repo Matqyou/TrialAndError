@@ -88,7 +88,7 @@ int main() {
     // SDL_Rect IconRect = { 100, 400, 200, 109 };
     int ignore_ticks = 5;
     bool Running = true;
-    bool m_Config = true;
+    bool Config = true;
     while (Running) {
         // Render the Start button
         SDL_Rect startButtonRect = { GameWindow->Width()/2-150, GameWindow->Height()/2-200, 300, 100 };
@@ -145,7 +145,7 @@ int main() {
                         else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
                             y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
                         {
-                            m_Config = !m_Config;
+                            Config = !Config;
                             if(World->Paused())SoundHandler->PlaySound(MidUISound);
                         }
                     }
@@ -187,22 +187,12 @@ int main() {
             Draw->RenderTexture(TextureStart->SDLTexture(), nullptr, startButtonRect);
             Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, settingsButtonRect);
 
-            if (!m_Config) {
+            if (!Config) {
                 //   setting
                 Draw->SetColor(20, 20, 90, 255);
                 Draw->FillRect(settingsButtonRect);
 
                 Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, settingsButtonRect);
-
-                // for() {
-                //     Draw->RenderTexture(TextureIcon->SDLTexture(), nullptr, IconRect);
-                //     if () {
-                //         Draw->RenderTexture(TextureConnected->SDLTexture(), nullptr, ConnectedRect);
-                //     }
-                //     if () {
-                //         Draw->RenderTexture(TextureDisconnected->SDLTexture(), nullptr, DisconnectedRect);
-                //     }
-                // }
             }
         }
 

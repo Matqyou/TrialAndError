@@ -37,16 +37,16 @@ GameWorld::~GameWorld() {
     }
 }
 
-Character* GameWorld::GetPlayerByIndex(int index) {
-    auto Player = (Character*)(m_LastType[ENTTYPE_CHARACTER]);
-    for (; Player; Player = (typeof(Player))(Player->PrevType()))
+Character* GameWorld::GetPlayerByIndex(int index) const {
+    Character* Player = FirstPlayer();
+    for (; Player; Player = (Character*)(Player->NextType()))
         if (Player->PlayerIndex() == index)
             return Player;
 
     return nullptr;
 }
 
-void GameWorld::GetNextPlayerIndex(Character* player) {
+void GameWorld::GetNextPlayerIndex(Character* player) const {
     int Index = 1;
     while (GetPlayerByIndex(Index))
         Index++;
@@ -110,9 +110,9 @@ void GameWorld::RemoveEntity(Entity* entity) {
     if (m_Last == entity) m_Last = entity->m_Prev;
 }
 
-void GameWorld::DestroyPlayerByController(GameController* DeletedController) {
-    auto Player = (Character*)(m_LastType[ENTTYPE_CHARACTER]);
-    for (; Player; Player = (typeof(Player))(Player->NextType())) {
+void GameWorld::DestroyPlayerByController(GameController* DeletedController) const {
+    Character* Player = FirstPlayer();
+    for (; Player; Player = (Character*)(Player->NextType())) {
         if (Player->GetGameController() == DeletedController) {
             delete Player;
             return;
@@ -136,10 +136,9 @@ void GameWorld::Event(const SDL_Event& currentEvent) {
         ToggleShowNames();
 
     // Loop allows self-destruction in the ::Event() method
-    auto Current = (Character*)(m_LastType[ENTTYPE_CHARACTER]);
-    typeof(Current) Next;
+    Character* Next, *Current = FirstPlayer();
     for (; Current; Current = Next) {
-        Next = (typeof(Current))(Current->PrevType());
+        Next = (Character*)(Current->NextType());
         Current->Event(currentEvent);
     }
 }

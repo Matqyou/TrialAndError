@@ -45,14 +45,14 @@ public:
     double CameraX() const { return m_x; }
     double CameraY() const { return m_y; }
     unsigned long long CurrentTick() const { return m_CurrentTick; }
-    Character* GetPlayerByIndex(int index);
-    void GetNextPlayerIndex(Character* player);
+    Character* GetPlayerByIndex(int index) const;
+    void GetNextPlayerIndex(Character* player) const;
     void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
     void SetCameraPos(double x, double y);  // Move the camera to a position
     void AddEntity(Entity* entity);
     void RemoveEntity(Entity* entity);
-    void DestroyPlayerByController(GameController* DeletedController);
+    void DestroyPlayerByController(GameController* DeletedController) const;
     void ToggleShowNames();
     void SetPaused(bool state);
     Entity* FirstEntity() const { return m_First; }
