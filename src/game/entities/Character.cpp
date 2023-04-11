@@ -18,8 +18,23 @@ Hook::Hook(Character* parent) {
     m_xvel = 0.0;
     m_yvel = 0.0;
     m_MaxLength = 300.0;
+    m_HookTravelSpeed = 35.0;
+    m_WallDragForce = 1.5;
+    m_EntityDragForce = 0.9;
+    m_EntityDragInfluence = 0.3;
+    // If influence is equal to force then both players will be gravitated equally
+    // If influence < force then the `hooker` will be stronger
+    // If influence > force then the hooked player will be stronger
+
     m_Deployed = false;
-    m_GrabbedWall = false;
+    m_Grabbed = GRABBED_NONE;
+    m_GrabbedEntity = nullptr;
+}
+
+void Hook::Unhook() {
+    m_Deployed = false;
+    m_Grabbed = GRABBED_NONE;
+    m_GrabbedEntity = nullptr;
 }
 
 void Hook::Tick(bool hooking, bool last_hooking) {
@@ -29,18 +44,19 @@ void Hook::Tick(bool hooking, bool last_hooking) {
         m_Deployed = true;
         m_x = m_Parent->m_x;
         m_y = m_Parent->m_y;
-        m_xvel = m_Parent->m_xLook * 35;
-        m_yvel = m_Parent->m_yLook * 35;
+        m_xvel = m_Parent->m_xLook * m_HookTravelSpeed;
+        m_yvel = m_Parent->m_yLook * m_HookTravelSpeed;
     } else if (m_Deployed && !hooking && last_hooking) {  // Instant retraction for now
-        m_Deployed = false;
-        m_GrabbedWall = false;
+        this->Unhook();
     }
 
     if (!m_Deployed)
         return;
 
-    m_x += m_xvel;
-    m_y += m_yvel;
+    if (m_Grabbed == GRABBED_NONE) {
+        m_x += m_xvel;
+        m_y += m_yvel;
+    }
 
     double TravelX = m_x - m_Parent->m_x;
     double TravelY = m_y - m_Parent->m_y;
@@ -50,7 +66,8 @@ void Hook::Tick(bool hooking, bool last_hooking) {
         TravelY /= Length;
     }
 
-    if (!m_GrabbedWall) {
+    if (m_Grabbed == GRABBED_NONE) {
+        // Make sure hook isn't longer than it is allowed to be
         if (Length > m_MaxLength) {
             m_x = m_Parent->m_x + TravelX * m_MaxLength;
             m_y = m_Parent->m_y + TravelY * m_MaxLength;
@@ -58,31 +75,57 @@ void Hook::Tick(bool hooking, bool last_hooking) {
             m_yvel -= TravelY * 2.0;
         }
 
-        // Hook snaps to wall - fix later cus ugly
-        if (m_x < 0.0) {
-            m_x = 0.0;
-            m_xvel = 0.0;
-            m_yvel = 0.0;
-            m_GrabbedWall = true;
-        } else if (m_y < 0.0) {
-            m_y = 0.0;
-            m_xvel = 0.0;
-            m_yvel = 0.0;
-            m_GrabbedWall = true;
-        } else if (m_x > World->Width()) {
-            m_x = World->Width();
-            m_xvel = 0.0;
-            m_yvel = 0.0;
-            m_GrabbedWall = true;
-        } else if (m_y > World->Height()) {
-            m_y = World->Height();
-            m_xvel = 0.0;
-            m_yvel = 0.0;
-            m_GrabbedWall = true;
+        // Hook snaps to player - idk if its good or not cus i havent made it yet
+        Character* Player = m_Parent->World()->FirstPlayer();
+        for (; Player; Player = (Character*)(Player->NextType())) {
+            if (Player == m_Parent)
+                continue;
+
+            if (Player->PointCollides(m_x, m_y)) {
+                m_Grabbed = GRABBED_ENTITY;
+                m_GrabbedEntity = Player;
+                // TODO: this is no good, if the hooked player is deleted we are in big trobel
+                break;
+            }
         }
-    } else {
-        m_Parent->m_xvel += TravelX * 1.5;
-        m_Parent->m_yvel += TravelY * 1.5;
+
+        if (m_Grabbed == GRABBED_NONE) {
+            // Hook snaps to wall - fix later cus ugly, prob fix when adding tiles and stuff cus doesnt rly matter tbh
+            if (m_x < 0.0) {
+                m_x = 0.0;
+                m_xvel = 0.0;
+                m_yvel = 0.0;
+                m_Grabbed = GRABBED_WALL;
+            } else if (m_y < 0.0) {
+                m_y = 0.0;
+                m_xvel = 0.0;
+                m_yvel = 0.0;
+                m_Grabbed = GRABBED_WALL;
+            } else if (m_x > World->Width()) {
+                m_x = World->Width();
+                m_xvel = 0.0;
+                m_yvel = 0.0;
+                m_Grabbed = GRABBED_WALL;
+            } else if (m_y > World->Height()) {
+                m_y = World->Height();
+                m_xvel = 0.0;
+                m_yvel = 0.0;
+                m_Grabbed = GRABBED_WALL;
+            }
+        }
+    } else if (m_Grabbed == GRABBED_ENTITY) {
+        m_x = m_GrabbedEntity->GetX();
+        m_y = m_GrabbedEntity->GetY();
+        if (m_GrabbedEntity->EntityType() == GameWorld::ENTTYPE_CHARACTER) {
+            auto Player = (Character*)(m_GrabbedEntity);
+            double Acceleration = Length / m_MaxLength * m_EntityDragForce;
+            double Influence = Length / m_MaxLength * m_EntityDragInfluence;
+            Player->Accelerate(-TravelX * Acceleration, -TravelY * Acceleration);
+            m_Parent->Accelerate(TravelX * Influence, TravelY * Influence);
+        }
+    } else if (m_Grabbed == GRABBED_WALL) {
+        m_Parent->m_xvel += TravelX * m_WallDragForce;
+        m_Parent->m_yvel += TravelY * m_WallDragForce;
     }
 }
 
@@ -94,6 +137,8 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_ColorHue = double(rand()%360);
     m_Shooting = false;
     m_LastShooting = false;
+    m_Reloading = false;
+    m_LastReloading = false;
 
     m_CurrentWeapon = nullptr; // Start by holding nothing
 
@@ -136,7 +181,12 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
 }
 
 Character::~Character() {
-
+    Character* Player = m_World->FirstPlayer();
+    for (; Player; Player = (Character*)Player->NextType()) {
+        Hook* TargetHook = Player->GetHook();
+        if (TargetHook->m_GrabbedEntity == this)
+            TargetHook->Unhook();
+    }
 }
 
 void Character::SetGameController(GameController* gameController) {
@@ -286,10 +336,16 @@ void Character::Event(const SDL_Event& currentEvent) {
 
 void Character::Tick() {
     TickControls();  // Do stuff depending on the current held buttons
-    TickVelocity();  // Move the chracter entity
-    TickHook();  // Move hook and or player etc.
-    TickWalls();  // Check if colliding with walls
     TickWeapon(); // Shoot accelerate reload etc.
+    TickHook();  // Move hook and or player etc.
+
+    // Need every character to get here..
+    // then we apply the accelerations of all
+    // hooks and continue with the code below v v v
+    // like collisions and velocity tick
+
+    TickVelocity();  // Move the character entity
+    TickWalls();  // Check if colliding with walls
 
     m_LastShooting = m_Shooting;
     m_LastHooking = m_Hooking;
@@ -313,8 +369,8 @@ void Character::Draw() {
         Render->LineWorld(m_x, m_y, m_Hook.m_x, m_Hook.m_y);
     }
 
-    SDL_FRect DrawRect = {float(m_x) - float(m_w/2),
-                          float(m_y) - float(m_h/2),
+    SDL_FRect DrawRect = {float(m_x) - float(m_w / 2.0),
+                          float(m_y) - float(m_h / 2.0),
                           float(m_w),
                           float(m_h)};
     Color = HSLtoRGB({ m_ColorHue, 1.0, Light });

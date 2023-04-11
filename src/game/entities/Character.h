@@ -13,15 +13,27 @@
 
 class Character;
 struct Hook {
+    enum {
+        GRABBED_NONE,
+        GRABBED_ENTITY,
+        GRABBED_WALL
+    };
+
     Character* m_Parent;
     double m_x, m_y;
     double m_xvel, m_yvel;
     double m_MaxLength;
+    double m_HookTravelSpeed;
+    double m_WallDragForce;
+    double m_EntityDragForce;
+    double m_EntityDragInfluence;
     bool m_Deployed;
-    bool m_GrabbedWall;
+    int m_Grabbed;
+    Entity* m_GrabbedEntity;
 
     Hook(Character* parent);
 
+    void Unhook();
     void Tick(bool hooking, bool last_hooking);
 };
 
@@ -73,6 +85,7 @@ public:
     Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
     ~Character();
 
+    Hook* GetHook() { return &m_Hook; }
     GameController* GetGameController() const { return m_GameController; }
     int PlayerIndex() const { return m_PlayerIndex; }
 

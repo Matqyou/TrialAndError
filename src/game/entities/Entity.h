@@ -36,6 +36,9 @@ public:
     Entity* Prev() const { return m_Prev; }
     Entity* NextType() const { return m_NextType; }
     Entity* PrevType() const { return m_PrevType; }
+    bool PointCollides(double x, double y) const;
+    double GetX() const { return m_x; }
+    double GetY() const { return m_y; }
 
     virtual void Tick();
     virtual void Draw();

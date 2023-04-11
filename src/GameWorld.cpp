@@ -55,8 +55,8 @@ void GameWorld::GetNextPlayerIndex(Character* player) const {
 }
 
 void GameWorld::GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const {
-    out_x = relative_x - m_x;
-    out_x = relative_y - m_y;
+    out_x = m_x + (relative_x - m_GameWindow->Width() / 2.0);
+    out_y = m_y + (relative_y - m_GameWindow->Height() / 2.0);
 }
 
 void GameWorld::SetCameraPos(double x, double y) {
