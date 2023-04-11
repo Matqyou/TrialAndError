@@ -69,7 +69,7 @@ int main() {
     GlockShootSound->SetVolume(64); // max 128
     Sound* GlockClickSound = SoundHandler->LoadSound("assets/sounds/GunClick.wav", true);
     GlockClickSound->SetVolume(32); // max 128
-    Sound* ShotgunShootSound = SoundHandler->LoadSound("assets/sounds/ShootShotgun.wav", true);
+    Sound* ShotgunShootSound = SoundHandler->LoadSound("assets/sounds/ShotgunShoot.wav", true);
     Sound* BurstShootSound = SoundHandler->LoadSound("assets/sounds/ShootBurst.wav", true);
     Sound* ShotgunReloadSound = SoundHandler->LoadSound("assets/sounds/ShotgunReload.wav", true);
 
