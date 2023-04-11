@@ -93,7 +93,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
     m_Shooting = false;
-    m_LastShoot = false;
+    m_LastShooting = false;
 
     m_CurrentWeapon = nullptr; // Start by holding nothing
 
@@ -132,7 +132,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     TTF_Font* Font = TextHandler->FirstFont();
     m_Nameplate = TextHandler->Render(Font, Name, { 255, 255, 255 }, true);
 
-    is_hit = false;
+    m_HitTicks = false;
 }
 
 Character::~Character() {
@@ -222,6 +222,7 @@ void Character::TickGameControllerControls() {
     // Shooting
     m_Shooting = m_GameController->GetRightTrigger() > 0.7;
     m_Hooking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+    m_Reloading = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X);
 
     // Switch weapons
     if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP) && m_Weapons[WEAPON_GLOCK])
@@ -232,10 +233,6 @@ void Character::TickGameControllerControls() {
         m_CurrentWeapon = m_Weapons[WEAPON_BURST];
     else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT) && m_Weapons[WEAPON_MACHINEGUN])
         m_CurrentWeapon = m_Weapons[WEAPON_MACHINEGUN];
-
-    //Reloads weapon on square button press on controller
-    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X) && m_CurrentWeapon)
-        m_CurrentWeapon->Reload();
 }
 
 void Character::TickControls() {
@@ -253,6 +250,9 @@ void Character::TickHook() {
 void Character::TickWeapon() {
     if (!m_CurrentWeapon)
         return;
+
+    if (m_Reloading && !m_LastReloading)
+        m_CurrentWeapon->Reload();
 
     m_CurrentWeapon->Tick();
 }
@@ -274,8 +274,8 @@ void Character::Event(const SDL_Event& currentEvent) {
             m_CurrentWeapon = m_Weapons[WEAPON_MACHINEGUN];
 
         // Reloads weapon on keyboard player with R button press
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R && m_CurrentWeapon)
-            m_CurrentWeapon->Reload();
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R)
+            m_Reloading = State;
 
         for (int i = 0; i < NUM_CONTROLS; i++) {
             if (currentEvent.key.keysym.scancode == m_Controls[i])
@@ -291,9 +291,10 @@ void Character::Tick() {
     TickWalls();  // Check if colliding with walls
     TickWeapon(); // Shoot accelerate reload etc.
 
-    m_LastShoot = m_Shooting;
-    m_Shooting = false;  // Reset shooting at end of each tick
+    m_LastShooting = m_Shooting;
     m_LastHooking = m_Hooking;
+    m_LastReloading = m_Reloading;
+
     if (m_Health <= 0.0) {
         m_World->GameWindow()->SoundHandler()->PlaySound(ch_DeathSound);
         delete this;
@@ -318,11 +319,11 @@ void Character::Draw() {
                           float(m_h)};
     Color = HSLtoRGB({ m_ColorHue, 1.0, Light });
     // SoundManager *SoundHandler = m_World->GameWindow()->SoundHandler();
-    if(is_hit > 0) {
+    if(m_HitTicks > 0) {
         Render->SetColor(255, 0, 0, 255);
         // SoundHandler->PlaySound(ch_HitSound);
         // Need to decide if that's needed, since that's alot of sound, if it's going to be every bullet and every hit
-        is_hit -=1;
+        m_HitTicks -=1;
     }
     //Can later make it so the less hp the more red the character
     else Render->SetColor(Color.r, Color.g, Color.b, 255);

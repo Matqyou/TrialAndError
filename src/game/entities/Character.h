@@ -49,7 +49,7 @@ private:
     bool m_Movement[NUM_CONTROLS] {};
     int m_Controls[NUM_CONTROLS] {};
     bool m_Controllable;
-    bool m_Shooting, m_LastShoot;
+    bool m_Shooting, m_LastShooting;
     // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
     ProjectileWeapon* m_Weapons[NUM_WEAPONS] {};
     ProjectileWeapon* m_CurrentWeapon;
@@ -59,7 +59,8 @@ private:
     double m_xLook, m_yLook;  // direction
     Hook m_Hook;
     bool m_Hooking, m_LastHooking;
-    int is_hit;
+    bool m_Reloading, m_LastReloading;
+    int m_HitTicks;
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickControls();
