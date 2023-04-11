@@ -65,21 +65,26 @@ int main() {
     Sound* LowUISound = SoundHandler->LoadSound("assets/sounds/LowUI.wav", true);
     Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
     Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
-    Sound* GlockShootSound = SoundHandler->LoadSound("assets/sounds/Shoot1.wav", true);
+    Sound* GlockShootSound = SoundHandler->LoadSound("assets/sounds/GlockShoot.wav", true);
     GlockShootSound->SetVolume(64); // max 128
     Sound* GlockClickSound = SoundHandler->LoadSound("assets/sounds/GunClick.wav", true);
     GlockClickSound->SetVolume(32); // max 128
     Sound* ShotgunShootSound = SoundHandler->LoadSound("assets/sounds/ShootShotgun.wav", true);
     Sound* BurstShootSound = SoundHandler->LoadSound("assets/sounds/ShootBurst.wav", true);
+    Sound* ShotgunReloadSound = SoundHandler->LoadSound("assets/sounds/ShotgunReload.wav", true);
 
     WeaponGlock::ms_ShootSound = GlockShootSound;
     WeaponGlock::ms_ClickSound = GlockClickSound;
+    WeaponGlock::ms_ReloadSound = ShotgunReloadSound;
     WeaponShotgun::ms_ShootSound = ShotgunShootSound;
     WeaponShotgun::ms_ClickSound = GlockClickSound;
+    WeaponShotgun::ms_ReloadSound = ShotgunReloadSound;
     WeaponBurst::ms_ShootSound = BurstShootSound;
     WeaponBurst::ms_ClickSound = GlockClickSound;
+    WeaponBurst::ms_ReloadSound = ShotgunReloadSound;
     WeaponMinigun::ms_ShootSound = BurstShootSound;
     WeaponMinigun::ms_ClickSound = GlockClickSound;
+    WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
     Character::ch_DeathSound = Basic_Death;
     Character::ch_HitSound = LowSound; //Have to change it to a shorter sound, otherwise broken
 

@@ -44,13 +44,15 @@ protected:
     double GenerateSpreadAngle() const;
     double GenerateRandomProjectileSpeed() const;
 public:
+    static Sound* ms_ReloadSound;
+
     ProjectileWeapon(Character* owner, WeaponType type, int tick_cooldown, int ammo_capacity, double projectile_speed, bool automatic);
 
     WeaponType Type() const { return m_Type; }
 
     void SetSpread(double degrees, int decimal_places);
     void SetRandomProjectileSpeed(double delta_speed, double delta_percentage_negative, int delta_decimal_places);
-    void Reload(){m_Ammo = m_AmmoCapacity;}
+    void Reload();
     virtual void Tick();
 };
 

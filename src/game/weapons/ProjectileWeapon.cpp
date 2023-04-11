@@ -7,6 +7,8 @@
 #include "../entities/Bullets.h"
 #include <cmath>
 
+Sound* ProjectileWeapon::ms_ReloadSound = nullptr;
+
 double ProjectileWeapon::GenerateSpreadAngle() const {
     return (double(rand() % m_FullRandomSpread) - m_HalfRandomSpread) / m_RandomSpreadDivisor;
 }
@@ -73,6 +75,13 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed, double delta
     m_NegativeRandomProjectileSpeed = FullSpeed * delta_percentage_negative;
     m_FullRandomProjectileSpeed = int(FullSpeed) + 1;
 }
+
+void ProjectileWeapon::Reload() {
+    m_Ammo = m_AmmoCapacity;
+
+    m_Owner->World()->GameWindow()->SoundHandler()->PlaySound(ms_ReloadSound);
+}
+
 void ProjectileWeapon::Tick() {
     TickTrigger();
 }
