@@ -184,10 +184,10 @@ int main() {
 
             // start
             Draw->SetColor(90, 20, 20, 255);
-            Draw->FillRect({ GameWindow->Width()/2-150, GameWindow->Height()/2-200, 300, 100 });
+            Draw->FillRect({ GameWindow->Width() / 2 - 150, GameWindow->Height()/2-200, 300, 100 });
             //   setting
             Draw->SetColor(20, 20, 90, 255);
-            Draw->FillRect({ GameWindow->Width()/2-150, GameWindow->Height()/2-50, 300, 100 });
+            Draw->FillRect({ GameWindow->Width() / 2 - 150, GameWindow->Height()/2-50, 300, 100 });
 
             Draw->RenderTexture(TextureStart->SDLTexture(), nullptr, startButtonRect);
             Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, settingsButtonRect);

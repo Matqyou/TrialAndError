@@ -80,7 +80,8 @@ void GameWorld::AddEntity(Entity* entity) {
         LastType = entity;
     }
 
-    if (!m_Last) {
+    if (!m_First) {
+        m_First = entity;
         m_Last = entity;
         entity->m_Prev = nullptr;
         entity->m_Next = nullptr;
