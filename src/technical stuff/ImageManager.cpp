@@ -96,3 +96,9 @@ Texture* ImageManager::TextureFromSurface(SDL_Surface* sdl_surface, bool auto_cl
 
     return new Texture(this, NewSDLTexture, auto_cleanup);
 }
+
+Texture* ImageManager::CreateTexture(Uint32 format, int access, int w, int h, bool auto_cleanup) {
+    SDL_Texture* NewSDLTexture = SDL_CreateTexture(m_Renderer, format, access, w, h);
+
+    return new Texture(this, NewSDLTexture, auto_cleanup);
+}

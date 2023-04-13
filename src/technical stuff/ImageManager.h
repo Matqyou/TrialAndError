@@ -47,6 +47,7 @@ public:
     void RemoveTextureAutoCleanup(Texture* texture);
     Texture* LoadTexture(const char* filepath, bool auto_cleanup);
     Texture* TextureFromSurface(SDL_Surface* sdl_surface, bool auto_cleanup);
+    Texture* CreateTexture(Uint32 format, int access, int w, int h, bool auto_cleanup);
 };
 
 #endif //TRIALANDERROR_IMAGEMANAGER_H

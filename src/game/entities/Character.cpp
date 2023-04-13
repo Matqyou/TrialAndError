@@ -6,6 +6,7 @@
 #include <iostream>
 #include "Bullets.h"
 #include <vector>
+
 Sound* Character::ch_HitSound = nullptr;
 Sound* Character::ch_DeathSound = nullptr;
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
@@ -20,23 +21,31 @@ Hook::Hook(Character* parent) {
     m_MaxLength = 300.0;
     m_HookTravelSpeed = 35.0;
     m_WallDragForce = 1.5;
-    m_EntityDragForce = 0.9;
-    m_EntityDragInfluence = 0.3;
-    // If influence is equal to force then both players will be gravitated equally
-    // If influence < force then the `hooker` will be stronger
-    // If influence > force then the hooked player will be stronger
+
+    m_HookerInfluenceRatio = 0.0;
+    m_HookistInfluenceRatio = 0.0;
+    SetInfluenceRatio(0.7);
 
     m_Deployed = false;
     m_Grabbed = GRABBED_NONE;
     m_GrabbedEntity = nullptr;
 }
 
+// The percentage of force that is applied to the hookist
+// the remaining percentage will be applied to the hooker.
+void Hook::SetInfluenceRatio(double ratio) {
+    m_HookerInfluenceRatio = 1.0 - ratio;
+    m_HookistInfluenceRatio = ratio;
+}
+
+// Set the hook as retracted
 void Hook::Unhook() {
     m_Deployed = false;
     m_Grabbed = GRABBED_NONE;
     m_GrabbedEntity = nullptr;
 }
 
+// Set the hook as grabbed to the wall
 void Hook::HookWall() {
     m_xvel = 0.0;
     m_yvel = 0.0;
@@ -53,7 +62,7 @@ void Hook::Tick(bool hooking, bool last_hooking) {
         m_xvel = m_Parent->m_xLook * m_HookTravelSpeed;
         m_yvel = m_Parent->m_yLook * m_HookTravelSpeed;
     } else if (m_Deployed && !hooking && last_hooking) {  // Instant retraction for now
-        this->Unhook();
+        Unhook();
     }
 
     if (!m_Deployed)
@@ -90,7 +99,6 @@ void Hook::Tick(bool hooking, bool last_hooking) {
             if (Player->PointCollides(m_x, m_y)) {
                 m_Grabbed = GRABBED_ENTITY;
                 m_GrabbedEntity = Player;
-                // TODO: this is no good, if the hooked player is deleted we are in big trobel
                 break;
             }
         }
@@ -116,8 +124,8 @@ void Hook::Tick(bool hooking, bool last_hooking) {
         m_y = m_GrabbedEntity->GetY();
         if (m_GrabbedEntity->EntityType() == GameWorld::ENTTYPE_CHARACTER) {
             auto Player = (Character*)(m_GrabbedEntity);
-            double Acceleration = Length / m_MaxLength * m_EntityDragForce;
-            double Influence = Length / m_MaxLength * m_EntityDragInfluence;
+            double Acceleration = Length / m_MaxLength * (1 - m_HookerInfluenceRatio);
+            double Influence = Length / m_MaxLength * m_HookerInfluenceRatio;
             Player->Accelerate(-TravelX * Acceleration, -TravelY * Acceleration);
             m_Parent->Accelerate(TravelX * Influence, TravelY * Influence);
         }
@@ -130,7 +138,8 @@ void Hook::Tick(bool hooking, bool last_hooking) {
 Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93),
    m_Hook(this),
-   m_BaseAcceleration(0.75) {
+   m_BaseAcceleration(0.75),
+   m_HealthBar(world->GameWindow(), &m_Health, &m_MaxHealth, 75, 15, 2, 2) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
     m_Shooting = false;
@@ -149,7 +158,8 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_Weapons[WEAPON_SHOTGUN] = new WeaponShotgun(this);
     m_Weapons[WEAPON_MACHINEGUN] = new WeaponMinigun(this);
 
-    m_Health = 100.0;
+    m_MaxHealth = 100.0;
+    m_Health = m_MaxHealth;
 
     m_GameController = nullptr;
     for (bool& State : m_Movement)
@@ -187,10 +197,13 @@ Character::~Character() {
     }
 }
 
+// Set the controller for this character,
+// use `nullptr` for no controller
 void Character::SetGameController(GameController* gameController) {
     m_GameController = gameController;
 }
 
+// Add some velocity to this character
 void Character::Accelerate(double accelerate_x, double accelerate_y) {
     m_xvel += accelerate_x;
     m_yvel += accelerate_y;
@@ -333,6 +346,10 @@ void Character::Event(const SDL_Event& currentEvent) {
 }
 
 void Character::Tick() {
+    m_Health += 0.1;
+    if (m_Health > m_MaxHealth)
+        m_Health = m_MaxHealth;
+
     TickControls();  // Do stuff depending on the current held buttons
     TickWeapon(); // Shoot accelerate reload etc.
     TickHook();  // Move hook and or player etc.
@@ -380,17 +397,28 @@ void Character::Draw() {
         m_HitTicks -=1;
     }
     //Can later make it so the less hp the more red the character
-    else Render->SetColor(Color.r, Color.g, Color.b, 255);
-
+    else { Render->SetColor(Color.r, Color.g, Color.b, 255); }
     Render->FillRectFWorld(DrawRect);
 
+    // Render health bar
+    if (m_Health != m_MaxHealth) {
+        m_HealthBar.SetColor(Color.r, Color.g, Color.b, Color.a);
+        Texture* HealthPlate = m_HealthBar.UpdateTexture();
+
+        int healthplate_w, healthplate_h;
+        HealthPlate->Query(nullptr, nullptr, &healthplate_w, &healthplate_h);
+        SDL_Rect HealthplateRect = { int(m_x - healthplate_w / 2.0), int(m_y + m_h / 2.0), healthplate_w, healthplate_h };
+        Render->RenderTextureWorld(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
+    }
+
+    // Render the direction line
     double XLook = m_x + m_xLook * 50.0;
     double YLook = m_y + m_yLook * 50.0;
     Color = HSLtoRGB({ m_ColorHue, 1.0 - Light, 1.0 });
     Render->SetColor(Color.r, Color.g, Color.b, 255);
     Render->LineWorld(int(m_x), int(m_y), int(XLook), int(YLook));
 
-    if (m_World->NamesShown() <= 0.05)  // Visibility under 5% - don't render
+    if (m_World->NamesShown() <= 0.05)  // Visibility under 5% - don't render the texts
         return;
 
     int Opacity = int(m_World->NamesShown() * 255.0);

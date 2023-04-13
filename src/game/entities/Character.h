@@ -10,6 +10,7 @@
 #include "../weapons/WeaponMinigun.h"
 #include "../../technical stuff/GameControllers.h"
 #include "../../technical stuff/Colors.h"
+#include "../indicators/HealthBar.h"
 
 class Character;
 struct Hook {
@@ -25,16 +26,18 @@ struct Hook {
     double m_MaxLength;
     double m_HookTravelSpeed;
     double m_WallDragForce;
-    double m_EntityDragForce;
-    double m_EntityDragInfluence;
+    double m_HookerInfluenceRatio;
+    double m_HookistInfluenceRatio;
     bool m_Deployed;
     int m_Grabbed;
     Entity* m_GrabbedEntity;
 
     Hook(Character* parent);
 
+    void SetInfluenceRatio(double ratio);
     void Unhook();
     void HookWall();
+
     void Tick(bool hooking, bool last_hooking);
 };
 
@@ -66,7 +69,7 @@ private:
     // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
     ProjectileWeapon* m_Weapons[NUM_WEAPONS] {};
     ProjectileWeapon* m_CurrentWeapon;
-    double m_Health;
+    double m_MaxHealth, m_Health;
     static const int sDefaultControls[NUM_CONTROLS];
     const double m_BaseAcceleration;
     double m_xLook, m_yLook;  // direction
@@ -74,6 +77,8 @@ private:
     bool m_Hooking, m_LastHooking;
     bool m_Reloading, m_LastReloading;
     int m_HitTicks;
+    HealthBar m_HealthBar;
+
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickControls();

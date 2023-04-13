@@ -16,14 +16,14 @@ Bullets::Bullets(GameWorld* world, Entity* shooter, double start_x, double start
     m_yvel = start_yvel;
 }
 
-void Bullets::TickVelocity() {
+bool Bullets::TickVelocity() {
     m_xvel *= m_BaseDamping;
     m_yvel *= m_BaseDamping;
 
     m_x += m_xvel;
     m_y += m_yvel;
 
-    TickHitPoint(m_x, m_y);
+    return TickHitPoint(m_x, m_y);
     // Problems with code below :::::::)
 
 //    double CurrentX = m_x;
@@ -87,8 +87,8 @@ void Bullets::TickImpact() {
 }
 
 void Bullets::Tick() {
-    TickVelocity();
-    TickImpact();
+    if (!TickVelocity())
+        TickImpact();
 }
 
 void Bullets::Draw() {
