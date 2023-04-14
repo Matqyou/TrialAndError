@@ -5,7 +5,7 @@
 #include "Bullets.h"
 #include <cmath>
 #include <iostream>
-#include "Character.h"
+#include "character/Character.h"
 Texture* Bullets::ms_Texture = nullptr;
 
 Bullets::Bullets(GameWorld* world, Entity* shooter, double start_x, double start_y, double start_xvel, double start_yvel)

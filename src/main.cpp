@@ -2,7 +2,7 @@
 #include "GameReference.h"
 #include "GameWorld.h"
 #include "technical stuff/GameControllers.h"
-#include "game/entities/Character.h"
+#include "game/entities/character/Character.h"
 #include "game/entities/Bullets.h"
 #include <vector>
 #include <iostream>

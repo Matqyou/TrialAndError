@@ -3,7 +3,7 @@
 //
 
 #include "WeaponGlock.h"
-#include "../entities/Character.h"
+#include "../entities/character/Character.h"
 #include "../entities/Bullets.h"
 
 Sound* WeaponGlock::ms_ShootSound = nullptr;

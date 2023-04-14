@@ -3,7 +3,7 @@
 //
 
 #include "WeaponMinigun.h"
-#include "../entities/Character.h"
+#include "../entities/character/Character.h"
 #include "../entities/Bullets.h"
 #include <cmath>
 

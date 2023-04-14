@@ -3,43 +3,15 @@
 
 #include "SDL.h"
 #include <cstring>
-#include "Entity.h"
-#include "../weapons/WeaponGlock.h"
-#include "../weapons/WeaponShotgun.h"
-#include "../weapons/WeaponBurst.h"
-#include "../weapons/WeaponMinigun.h"
-#include "../../technical stuff/GameControllers.h"
-#include "../../technical stuff/Colors.h"
-#include "../indicators/HealthBar.h"
-
-class Character;
-struct Hook {
-    enum {
-        GRABBED_NONE,
-        GRABBED_ENTITY,
-        GRABBED_WALL
-    };
-
-    Character* m_Parent;
-    double m_x, m_y;
-    double m_xvel, m_yvel;
-    double m_MaxLength;
-    double m_HookTravelSpeed;
-    double m_WallDragForce;
-    double m_HookerInfluenceRatio;
-    double m_HookistInfluenceRatio;
-    bool m_Deployed;
-    int m_Grabbed;
-    Entity* m_GrabbedEntity;
-
-    Hook(Character* parent);
-
-    void SetInfluenceRatio(double ratio);
-    void Unhook();
-    void HookWall();
-
-    void Tick(bool hooking, bool last_hooking);
-};
+#include "../Entity.h"
+#include "../../weapons/WeaponGlock.h"
+#include "../../weapons/WeaponShotgun.h"
+#include "../../weapons/WeaponBurst.h"
+#include "../../weapons/WeaponMinigun.h"
+#include "../../../technical stuff/GameControllers.h"
+#include "../../../technical stuff/Colors.h"
+#include "../../indicators/HealthBar.h"
+#include "Hook.h"
 
 class Character : public Entity {
 public:
@@ -79,11 +51,23 @@ private:
     int m_HitTicks;
     HealthBar m_HealthBar;
 
+    SDL_Color m_CharacterColor;
+    SDL_Color m_HookColor;
+    SDL_Color m_HealthbarColor;
+    SDL_Color m_HandColor;
+    SDL_Color m_NameplateColor;
+
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickControls();
     void TickHook();
     void TickWeapon();
+
+    void DrawCharacter();
+    void DrawHook();
+    void DrawHealthbar();
+    void DrawHand();
+    void DrawNameplate();
 
 public:
     static Sound* ch_HitSound;

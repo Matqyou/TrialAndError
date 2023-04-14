@@ -4,7 +4,7 @@
 
 #include "GameWorld.h"
 #include "game/entities/Entity.h"
-#include "game/entities/Character.h"
+#include "game/entities/character/Character.h"
 
 GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_GameWindow = gameWindow;
