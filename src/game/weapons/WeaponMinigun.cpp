@@ -33,7 +33,7 @@ void WeaponMinigun::Tick() {
 
     if (m_Owner) {
         GameWorld* World = m_Owner->World();
-        SoundManager* SoundHandler = World->GameWindow()->SoundHandler();
+        SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
         auto CurrentTick = World->CurrentTick();
 
         if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere

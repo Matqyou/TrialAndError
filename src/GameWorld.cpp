@@ -22,7 +22,7 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     for (auto& i : m_FirstType) i = nullptr;
     for (auto& i : m_LastType) i = nullptr;
 
-    m_Background = GameWindow()->ImageHandler()->LoadTexture("assets/images/backgrounds/background_pattern.png", true);
+    m_Background = GameWindow()->Assets()->ImageHandler()->LoadTexture("assets/images/backgrounds/background_pattern.png", true);
     m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
     SDL_SetTextureAlphaMod(m_Background->SDLTexture(), 10);
     SDL_SetTextureBlendMode(m_Background->SDLTexture(), SDL_BLENDMODE_BLEND);
@@ -201,7 +201,7 @@ void GameWorld::Draw() {
         return;
 
     int Opacity = int(m_ShowNamesVisibility * 255.0);
-    TextManager* TextHandler = m_GameWindow->TextHandler();
+    TextManager* TextHandler = m_GameWindow->Assets()->TextHandler();
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
     auto CoordinateTexture = TextHandler->Render(TextHandler->FirstFont(), msg, { 127, 127, 127, 255 }, false);

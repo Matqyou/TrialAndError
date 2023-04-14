@@ -58,7 +58,7 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     char Name[CHARACTER_MAX_NAME_LENGTH];
     std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
     m_Name = Name;
-    TextManager* TextHandler = world->GameWindow()->TextHandler();
+    TextManager* TextHandler = world->GameWindow()->Assets()->TextHandler();
     TTF_Font* Font = TextHandler->FirstFont();
     m_Nameplate = TextHandler->Render(Font, Name, { 255, 255, 255 }, true);
 
@@ -254,7 +254,7 @@ void Character::DrawNameplate() {
     if (m_World->NamesShown() <= 0.05)  // Visibility under 5% - don't render the texts
         return;
 
-    TextManager* TextHandler = m_World->GameWindow()->TextHandler();
+    TextManager* TextHandler = m_World->GameWindow()->Assets()->TextHandler();
     Drawing* Render = m_World->GameWindow()->RenderClass();
 
     int Opacity = int(m_World->NamesShown() * 255.0);
@@ -330,7 +330,7 @@ void Character::Tick() {
         m_HitTicks = 0;
 
     if (m_Health <= 0.0) {
-        m_World->GameWindow()->SoundHandler()->PlaySound(ch_DeathSound);
+        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ch_DeathSound);
         delete this;
     }
 }

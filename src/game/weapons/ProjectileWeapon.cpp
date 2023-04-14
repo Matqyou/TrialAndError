@@ -79,7 +79,7 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed, double delta
 void ProjectileWeapon::Reload() {
     m_Ammo = m_AmmoCapacity;
 
-    m_Owner->World()->GameWindow()->SoundHandler()->PlaySound(ms_ReloadSound);
+    m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ReloadSound);
 }
 
 void ProjectileWeapon::Tick() {

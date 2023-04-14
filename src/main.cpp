@@ -18,11 +18,11 @@ bool Initialize() {
     if (!GameWindow->Initialize())
         return false;
 
-    World = new GameWorld(GameWindow, 4000, 2000);
+    World = new GameWorld(GameWindow, 9000, 6000);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
-    TextManager* TextHandler = GameWindow->TextHandler();
+    TextManager* TextHandler = GameWindow->Assets()->TextHandler();
     TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
     TextTexture = TextHandler->Render(Font1, "Jesse -.. .. .", { 255, 255, 255 }, true);
 
@@ -39,8 +39,8 @@ int main() {
 
     Clock* Timer = GameWindow->Timer();
     Drawing* Draw = GameWindow->RenderClass();
-    SoundManager* SoundHandler = GameWindow->SoundHandler();
-    ImageManager* ImageHandler = GameWindow->ImageHandler();
+    SoundManager* SoundHandler = GameWindow->Assets()->SoundHandler();
+    ImageManager* ImageHandler = GameWindow->Assets()->ImageHandler();
 
     // Load the PNG images
     Texture* TextureStart = ImageHandler->LoadTexture("assets/images/UI/Start.png", true);
@@ -86,11 +86,8 @@ int main() {
     WeaponMinigun::ms_ClickSound = GlockClickSound;
     WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
     Character::ch_DeathSound = Basic_Death;
-    Character::ch_HitSound = LowSound; //Have to change it to a shorter sound, otherwise broken
+    Character::ch_HitSound = LowSound; // TODO: use the unused sound
 
-    // SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
-    // SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
-    // SDL_Rect IconRect = { 100, 400, 200, 109 };
     int ignore_ticks = 5;
     bool Running = true;
     bool Config = true;

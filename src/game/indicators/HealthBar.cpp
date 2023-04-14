@@ -20,7 +20,7 @@ HealthBar::HealthBar(GameReference* game_window, double* value, double* max_valu
     m_a = 0;
     m_InnerWidth = m_Width - m_SpacingW * 2;
     m_InnerHeight = m_Height - m_SpacingH * 2;
-    m_Texture = m_GameWindow->ImageHandler()->CreateTexture(SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,  width, height, false);
+    m_Texture = m_GameWindow->Assets()->ImageHandler()->CreateTexture(SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,  width, height, false);
 }
 
 HealthBar::~HealthBar() {

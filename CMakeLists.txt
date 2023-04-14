@@ -52,7 +52,9 @@ set(PROJECT_FILES
         "src/game/weapons/WeaponMinigun.cpp"
         "src/game/weapons/WeaponMinigun.h"
         "src/game/indicators/HealthBar.cpp"
-        "src/game/indicators/HealthBar.h" src/game/entities/character/Hook.cpp src/game/entities/character/Hook.h)
+        "src/game/indicators/HealthBar.h"
+        "src/game/entities/character/Hook.cpp"
+        "src/game/entities/character/Hook.h" "src/technical stuff/AssetsManager.cpp" "src/technical stuff/AssetsManager.h")
 
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
 target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)
