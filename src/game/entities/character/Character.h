@@ -11,6 +11,7 @@
 #include "../../../technical stuff/GameControllers.h"
 #include "../../../technical stuff/Colors.h"
 #include "../../indicators/HealthBar.h"
+#include "../../indicators/TextSurface.h"
 #include "Hook.h"
 
 class Character : public Entity {
@@ -31,7 +32,8 @@ private:
     friend class Hook;
     int m_PlayerIndex;
     std::string m_Name;
-    Texture* m_Nameplate;
+    TextSurface* m_Nameplate;
+    TextSurface* m_CoordinatePlate;
     double m_ColorHue;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS] {};

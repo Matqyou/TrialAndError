@@ -4,13 +4,13 @@
 #include "technical stuff/GameControllers.h"
 #include "game/entities/character/Character.h"
 #include "game/entities/Bullets.h"
+#include "game/indicators/TextSurface.h"
 #include <vector>
 #include <iostream>
 
 GameReference* GameWindow;
 GameWorld* World;
 GameControllers* Controllers;
-Texture* TextTexture;
 
 bool Initialize() {
     srand(time(nullptr));
@@ -24,7 +24,6 @@ bool Initialize() {
 
     TextManager* TextHandler = GameWindow->Assets()->TextHandler();
     TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
-    TextTexture = TextHandler->Render(Font1, "Jesse -.. .. .", { 255, 255, 255 }, true);
 
     Controllers = new GameControllers();
     new Character(World, 30, 30, 10, 10);
@@ -39,8 +38,10 @@ int main() {
 
     Clock* Timer = GameWindow->Timer();
     Drawing* Draw = GameWindow->RenderClass();
-    SoundManager* SoundHandler = GameWindow->Assets()->SoundHandler();
-    ImageManager* ImageHandler = GameWindow->Assets()->ImageHandler();
+    AssetsManager* AssetsHandler = GameWindow->Assets();
+    SoundManager* SoundHandler = AssetsHandler->SoundHandler();
+    ImageManager* ImageHandler = AssetsHandler->ImageHandler();
+    TextManager* TextHandler = AssetsHandler->TextHandler();
 
     // Load the PNG images
     Texture* TextureStart = ImageHandler->LoadTexture("assets/images/UI/Start.png", true);
@@ -51,6 +52,7 @@ int main() {
     Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
     Vignette->SetAlpha(200);
     Texture* Pellet = ImageHandler->LoadTexture("assets/images/Bullets/Pellet.png", true);
+    Texture* DefaultText = TextHandler->Render(GameWindow->Assets()->TextHandler()->FirstFont(), "Undefined", { 190, 100, 100, 180 }, true);
 
     Bullets::ms_Texture = Pellet;
 
@@ -87,6 +89,8 @@ int main() {
     WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
     Character::ch_DeathSound = Basic_Death;
     Character::ch_HitSound = LowSound; // TODO: use the unused sound
+
+    TextSurface TestText = TextSurface(AssetsHandler, TextHandler->FirstFont(), "Jesse -.. .. .", {255, 255, 255, 255 });
 
     int ignore_ticks = 5;
     bool Running = true;
@@ -167,6 +171,7 @@ int main() {
 
         Draw->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
+        Texture* TextTexture = TestText.Update();
         SDL_Rect DestinationRect;
         TextTexture->Query(nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
         DestinationRect.x = 0;

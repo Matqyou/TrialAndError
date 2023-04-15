@@ -60,8 +60,12 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_Name = Name;
     TextManager* TextHandler = world->GameWindow()->Assets()->TextHandler();
     TTF_Font* Font = TextHandler->FirstFont();
-    m_Nameplate = TextHandler->Render(Font, Name, { 255, 255, 255 }, true);
-
+    m_Nameplate = new TextSurface(m_World->GameWindow()->Assets(),
+                              m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                              Name, { 255, 255, 255, 255 });
+    m_CoordinatePlate = new TextSurface(m_World->GameWindow()->Assets(),
+                                    m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                    "-x, -y", { 255, 255, 255, 255 });
     m_HitTicks = 0;
     m_CharacterColor = { 255, 255, 255, 255 };
     m_HookColor = { 255, 255, 255, 255 };
@@ -71,6 +75,9 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
 }
 
 Character::~Character() {
+    delete m_Nameplate;
+    delete m_CoordinatePlate;
+
     Character* Player = m_World->FirstPlayer();
     for (; Player; Player = (Character*)Player->NextType()) {
         Hook* TargetHook = Player->GetHook();
@@ -260,20 +267,24 @@ void Character::DrawNameplate() {
     int Opacity = int(m_World->NamesShown() * 255.0);
 
     int nameplate_w, nameplate_h;
-    m_Nameplate->Query(nullptr, nullptr, &nameplate_w, &nameplate_h);
+    Texture* NameplateTexture = m_Nameplate->Update();
+    NameplateTexture->Query(nullptr, nullptr, &nameplate_w, &nameplate_h);
     SDL_Rect NameplateRect = { int(m_x - nameplate_w / 2.0), int(m_y - m_h / 2.0 - nameplate_h), nameplate_w, nameplate_h };
-    SDL_SetTextureAlphaMod(m_Nameplate->SDLTexture(), Opacity);
-    Render->RenderTextureWorld(m_Nameplate->SDLTexture(), nullptr, NameplateRect);
+
+    SDL_SetTextureAlphaMod(NameplateTexture->SDLTexture(), Opacity);
+    Render->RenderTextureWorld(NameplateTexture->SDLTexture(), nullptr, NameplateRect);
 
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
-    auto CoordinateTexture = TextHandler->Render(TextHandler->FirstFont(), msg, { m_NameplateColor.r, m_NameplateColor.g, m_NameplateColor.b, 255 }, false);
+    m_CoordinatePlate->SetText(msg);
+    m_CoordinatePlate->SetColor(m_NameplateColor);
+    Texture* CoordinateTexture = m_CoordinatePlate->Update();
+
     int coordinate_w, coordinate_h;
     CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
     SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(NameplateRect.y - coordinate_h), coordinate_w, coordinate_h };
     SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
     Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
-    delete CoordinateTexture;
 }
 
 
