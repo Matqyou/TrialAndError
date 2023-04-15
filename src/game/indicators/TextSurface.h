@@ -13,8 +13,8 @@ private:
     AssetsManager* m_AssetsHandler;
     Texture* m_Texture;
     std::string m_Text, m_RenderedText;
-    TTF_Font* m_Font;
-    SDL_Color m_Color;
+    TTF_Font* m_Font, *m_RenderedFont;
+    SDL_Color m_Color, m_RenderedColor;
 
     void UpdateTexture();
 public:

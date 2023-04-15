@@ -22,6 +22,10 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     for (auto& i : m_FirstType) i = nullptr;
     for (auto& i : m_LastType) i = nullptr;
 
+    m_CoordinatePlate = new TextSurface(m_GameWindow->Assets(),
+                                    m_GameWindow->Assets()->TextHandler()->FirstFont(),
+                                    "-x, -y", { 127, 127, 127, 255 });
+
     m_Background = GameWindow()->Assets()->ImageHandler()->LoadTexture("assets/images/backgrounds/background_pattern.png", true);
     m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
     SDL_SetTextureAlphaMod(m_Background->SDLTexture(), 10);
@@ -29,6 +33,7 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
 }
 
 GameWorld::~GameWorld() {
+    delete m_CoordinatePlate;
     Entity* CurrentEntity = m_Last;
     while (CurrentEntity) {
         auto NextEntity = CurrentEntity->m_Prev;
@@ -201,14 +206,15 @@ void GameWorld::Draw() {
         return;
 
     int Opacity = int(m_ShowNamesVisibility * 255.0);
-    TextManager* TextHandler = m_GameWindow->Assets()->TextHandler();
+
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
-    auto CoordinateTexture = TextHandler->Render(TextHandler->FirstFont(), msg, { 127, 127, 127, 255 }, false);
+    m_CoordinatePlate->SetText(msg);
+    Texture* CoordinateTexture = m_CoordinatePlate->Update();
+
     int coordinate_w, coordinate_h;
     CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
     SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(m_y - coordinate_h / 2.0), coordinate_w, coordinate_h };
     SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
     Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
-    delete CoordinateTexture;
 }

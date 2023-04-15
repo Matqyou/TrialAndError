@@ -261,7 +261,6 @@ void Character::DrawNameplate() {
     if (m_World->NamesShown() <= 0.05)  // Visibility under 5% - don't render the texts
         return;
 
-    TextManager* TextHandler = m_World->GameWindow()->Assets()->TextHandler();
     Drawing* Render = m_World->GameWindow()->RenderClass();
 
     int Opacity = int(m_World->NamesShown() * 255.0);

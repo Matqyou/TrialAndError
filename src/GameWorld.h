@@ -7,6 +7,7 @@
 
 #include "GameReference.h"
 #include "technical stuff/GameControllers.h"
+#include "game/indicators/TextSurface.h"
 
 class Entity;
 class Character;
@@ -28,6 +29,8 @@ private:
     Entity* m_First, *m_Last;
     double m_x, m_y;
     unsigned long long m_CurrentTick;
+
+    TextSurface* m_CoordinatePlate;
 
     // Cool scrolling background                                        cap
     Texture* m_Background;

@@ -18,12 +18,12 @@ bool Initialize() {
     if (!GameWindow->Initialize())
         return false;
 
+    TextManager* TextHandler = GameWindow->Assets()->TextHandler();
+    TextHandler->LoadFont("GROBOLD.ttf", 16);
+
     World = new GameWorld(GameWindow, 9000, 6000);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
-
-    TextManager* TextHandler = GameWindow->Assets()->TextHandler();
-    TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
 
     Controllers = new GameControllers();
     new Character(World, 30, 30, 10, 10);

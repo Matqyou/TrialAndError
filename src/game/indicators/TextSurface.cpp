@@ -10,6 +10,8 @@ void TextSurface::UpdateTexture() {
     m_Texture = m_AssetsHandler->TextHandler()->Render(m_Font, m_Text.c_str(), m_Color, false);
 
     m_RenderedText = m_Text;
+    m_RenderedFont = m_Font;
+    m_RenderedColor = m_Color;
 }
 
 TextSurface::TextSurface(AssetsManager* assets_handler, TTF_Font* font, const std::string& text, SDL_Color color) {
@@ -40,7 +42,12 @@ void TextSurface::SetColor(const SDL_Color color) {
 }
 
 Texture* TextSurface::Update() {
-    if (m_Text == m_RenderedText)
+    if (m_Text == m_RenderedText &&
+        m_Font == m_RenderedFont &&
+        m_Color.r == m_RenderedColor.r &&
+        m_Color.g == m_RenderedColor.g &&
+        m_Color.b == m_RenderedColor.b &&
+        m_Color.a == m_RenderedColor.a)
         return m_Texture;
 
     UpdateTexture();
