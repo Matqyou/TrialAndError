@@ -64,6 +64,9 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_Nameplate = new TextSurface(m_World->GameWindow()->Assets(),
                               m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
                               Name, { 255, 255, 255, 255 });
+    m_AmmoCount = new TextSurface(m_World->GameWindow()->Assets(),
+                                  m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                  "0", { 255, 255, 255, 255 });
     m_CoordinatePlate = new TextSurface(m_World->GameWindow()->Assets(),
                                     m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
                                     "-x, -y", { 255, 255, 255, 255 });
@@ -288,6 +291,19 @@ void Character::DrawNameplate() {
     Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
 }
 
+void Character::DrawAmmo(){
+    Drawing* Render = m_World->GameWindow()->RenderClass();
+    char msg[64];
+    std::snprintf(msg, sizeof(msg), "%u/%u", m_CurrentWeapon->Ammo(), m_CurrentWeapon->TrueAmmo());
+    m_AmmoCount->SetText(msg);
+    Texture* AmmoTexture = m_AmmoCount->Update();
+
+    int Ammo_w, Ammo_h;
+    AmmoTexture->Query(nullptr, nullptr, &Ammo_w, &Ammo_h);
+    SDL_Rect AmmoRect = { int(m_x - Ammo_w / 2.0), int(m_y +m_h/2), Ammo_w, Ammo_h };
+    Render->RenderTextureWorld(AmmoTexture->SDLTexture(), nullptr, AmmoRect);
+}
+
 
 void Character::Event(const SDL_Event& currentEvent) {
     if (!m_Controllable || m_GameController)
@@ -362,4 +378,5 @@ void Character::Draw() {
     DrawHealthbar();
     DrawHand();
     DrawNameplate();
+    if(m_CurrentWeapon) DrawAmmo();
 }
