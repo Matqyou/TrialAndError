@@ -7,10 +7,11 @@
 #include "game/entities/character/Character.h"
 Texture* GameWorld::Chad = nullptr;
 
-GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
-    m_GameWindow = gameWindow;
-    m_Width = width;
-    m_Height = height;
+GameWorld::GameWorld(GameReference* game_window, int width, int height) {
+    m_GameWindow = game_window;
+    m_Tiles = new TileMap(game_window->RenderClass(), 32, width, height);
+    m_Width = m_Tiles->TotalWidth();
+    m_Height = m_Tiles->TotalHeight();
     m_ShowNamesVisibility = 0.0;
     m_ShowNames = false;
     m_Paused = false;
@@ -34,6 +35,7 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
 }
 
 GameWorld::~GameWorld() {
+    delete m_Tiles;
     delete m_CoordinatePlate;
     Entity* CurrentEntity = m_Last;
     while (CurrentEntity) {
@@ -202,6 +204,8 @@ void GameWorld::Draw() {
     Entity* Current = m_Last;
     for (; Current; Current = Current->Prev())
         Current->Draw();
+
+    m_Tiles->Draw();
 
     if (m_ShowNamesVisibility <= 0.05)
         return;

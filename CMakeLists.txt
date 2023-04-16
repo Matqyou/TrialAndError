@@ -54,7 +54,7 @@ set(PROJECT_FILES
         "src/game/indicators/HealthBar.cpp"
         "src/game/indicators/HealthBar.h"
         "src/game/entities/character/Hook.cpp"
-        "src/game/entities/character/Hook.h" "src/technical stuff/AssetsManager.cpp" "src/technical stuff/AssetsManager.h" src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.h)
+        "src/game/entities/character/Hook.h" "src/technical stuff/AssetsManager.cpp" "src/technical stuff/AssetsManager.h" src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.h src/game/collision/TileMap.cpp src/game/collision/TileMap.h)
 
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
 target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)

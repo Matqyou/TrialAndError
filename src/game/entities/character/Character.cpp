@@ -62,11 +62,11 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     TextManager* TextHandler = world->GameWindow()->Assets()->TextHandler();
     TTF_Font* Font = TextHandler->FirstFont();
     m_Nameplate = new TextSurface(m_World->GameWindow()->Assets(),
-                              m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
-                              Name, { 255, 255, 255, 255 });
+                                  m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                  Name, { 255, 255, 255, 255 });
     m_CoordinatePlate = new TextSurface(m_World->GameWindow()->Assets(),
-                                    m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
-                                    "-x, -y", { 255, 255, 255, 255 });
+                                        m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                        "-x, -y", { 255, 255, 255, 255 });
     m_HitTicks = 0;
     m_CharacterColor = { 255, 255, 255, 255 };
     m_HookColor = { 255, 255, 255, 255 };
@@ -206,6 +206,7 @@ void Character::TickWeapon() {
         m_CurrentWeapon->Reload();
 
     m_CurrentWeapon->Tick();
+
 }
 
 void Character::DrawCharacter() {
@@ -287,7 +288,6 @@ void Character::DrawNameplate() {
     SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
     Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
 }
-
 
 void Character::Event(const SDL_Event& currentEvent) {
     if (!m_Controllable || m_GameController)
