@@ -5,6 +5,7 @@
 #include "GameWorld.h"
 #include "game/entities/Entity.h"
 #include "game/entities/character/Character.h"
+Texture* GameWorld::Chad = nullptr;
 
 GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_GameWindow = gameWindow;
@@ -195,8 +196,9 @@ void GameWorld::Draw() {
     Render->RenderTextureWorld(m_Background->SDLTexture(), nullptr, DestinationRect);
 
     SDL_Rect DrawRect = { 0, 0, int(m_Width), int(m_Height) };
-    Render->SetColor(255, 0, 0, 255);
-    Render->DrawRectWorld(DrawRect);
+    Render->RenderTextureWorld(Chad->SDLTexture(), nullptr, DrawRect);
+    // Render->SetColor(255, 0, 0, 255);
+    // Render->DrawRectWorld(DrawRect);
 
     Entity* Current = m_Last;
     for (; Current; Current = Current->Prev())

@@ -52,8 +52,9 @@ int main() {
     Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
     Vignette->SetAlpha(200);
     Texture* Pellet = ImageHandler->LoadTexture("assets/images/Bullets/Pellet.png", true);
-    Texture* DefaultText = TextHandler->Render(GameWindow->Assets()->TextHandler()->FirstFont(), "Undefined", { 190, 100, 100, 180 }, true);
-
+    Texture*  Chad = ImageHandler->LoadTexture("assets/images/Character/Chad.png", true);
+    Texture* DefaultText = TextHandler->Render(GameWindow->Assets()->TextHandler()->FirstFont(),"Undefined", { 190, 100, 100, 180 }, true);
+    GameWorld::Chad = Chad;
     Bullets::ms_Texture = Pellet;
 
     // Load sounds

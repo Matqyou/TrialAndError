@@ -39,7 +39,7 @@ private:
 public:
     GameWorld(GameReference* gameWindow, double width, double height);
     ~GameWorld();
-
+    static Texture* Chad;
     GameReference* GameWindow() const { return m_GameWindow; }
     double Width() const { return m_Width; }
     double Height() const { return m_Height; }
