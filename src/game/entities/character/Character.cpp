@@ -221,7 +221,7 @@ void Character::DrawCharacter() {
 
     else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
     // Render->FillRectFWorld(DrawRect);
-    Render->RenderTextureF(Chad->SDLTexture(), nullptr,DrawRect);
+    Render->RenderTextureFWorld(Chad->SDLTexture(), nullptr,DrawRect);
 }
 
 void Character::DrawHook() {
