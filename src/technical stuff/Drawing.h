@@ -38,6 +38,9 @@ public:
     void RenderTexture(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_Rect& dstrect);
     void RenderTextureWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_Rect& dstrect);  // Lets you render a basic texture
     void RenderTextureExWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_Rect& dstrect, double angle, SDL_Point* center, SDL_RendererFlip flip);
+    void RenderTextureF(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect);
+    void RenderTextureFWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect);  // Lets you render a basic texture
+    void RenderTextureExFWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect, double angle, SDL_FPoint* center, SDL_RendererFlip flip);
     void RenderTextureFullscreen(SDL_Texture*, SDL_Rect* srcrect);
     void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);  // Sets the color of the renderer
     void Clear();  // Resets all pixels to a color value

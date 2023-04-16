@@ -87,6 +87,21 @@ void Drawing::RenderTextureExWorld(SDL_Texture* texture, SDL_Rect* srcrect, cons
     SDL_RenderCopyEx(m_Renderer, texture, srcrect, &MovedRect, angle, center, flip);
 }
 
+void Drawing::RenderTextureF(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect) {
+    SDL_RenderCopyF(m_Renderer, texture, srcrect, &dstrect);
+}
+
+void Drawing::RenderTextureFWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect) {
+    SDL_FRect MovedRect = TranslateFRect(dstrect);
+    SDL_RenderCopyF(m_Renderer, texture, srcrect, &MovedRect);
+}
+
+void Drawing::RenderTextureExFWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect, double angle, SDL_FPoint* center, SDL_RendererFlip flip) {
+    SDL_FRect MovedRect = TranslateFRect(dstrect);
+    SDL_RenderCopyExF(m_Renderer, texture, srcrect, &MovedRect, angle, center, flip);
+}
+
+
 void Drawing::RenderTextureFullscreen(SDL_Texture* texture, SDL_Rect* srcrect) {
     SDL_RenderCopy(m_Renderer, texture, srcrect, nullptr);
 }
