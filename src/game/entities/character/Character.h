@@ -34,6 +34,7 @@ private:
     std::string m_Name;
     TextSurface* m_Nameplate;
     TextSurface* m_CoordinatePlate;
+    TextSurface* m_AmmoCount;
     double m_ColorHue;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS] {};
@@ -64,6 +65,7 @@ private:
     void TickControls();
     void TickHook();
     void TickWeapon();
+    void DrawAmmo();
 
     void DrawCharacter();
     void DrawHook();
