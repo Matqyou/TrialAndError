@@ -40,6 +40,11 @@ void Drawing::SetWorld(GameWorld* world) {
     m_World = world;
 }
 
+void Drawing::SetRenderTarget(Texture* target) {
+    if (target) SDL_SetRenderTarget(m_Renderer, target->SDLTexture());
+    else SDL_SetRenderTarget(m_Renderer, nullptr);
+}
+
 void Drawing::SetBlendingMode(SDL_BlendMode blend_mode) {
     SDL_SetRenderDrawBlendMode(m_Renderer, blend_mode);
 }

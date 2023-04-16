@@ -96,3 +96,21 @@ Texture* ImageManager::TextureFromSurface(SDL_Surface* sdl_surface, bool auto_cl
 
     return new Texture(this, NewSDLTexture, auto_cleanup);
 }
+
+Texture* ImageManager::CreateTexture(Uint32 format, int access, int w, int h, bool auto_cleanup) {
+    SDL_Texture* NewSDLTexture = SDL_CreateTexture(m_Renderer, format, access, w, h);
+
+    return new Texture(this, NewSDLTexture, auto_cleanup);
+}
+
+Texture* ImageManager::CopyTexture(Texture* original, bool auto_cleanup) {
+    Uint32 format;
+    int access, w, h;
+    original->Query(&format, &access, &w, &h);
+
+    Texture* NewTexture = CreateTexture(format, SDL_TEXTUREACCESS_TARGET, w, h, auto_cleanup);
+    SDL_SetRenderTarget(m_Renderer, NewTexture->SDLTexture());
+    SDL_RenderCopy(m_Renderer, original->SDLTexture(), nullptr, nullptr);
+    SDL_SetRenderTarget(m_Renderer, nullptr);
+    return NewTexture;
+}

@@ -84,6 +84,11 @@ void Entity::TickBouncyWalls() {
     }
 }
 
+bool Entity::PointCollides(double x, double y) const {
+    double w2 = m_w / 2.0;
+    double h2 = m_h / 2.0;
+    return !(x < m_x - w2 || x > m_x + w2 || y < m_y - h2 || y > m_y + h2);
+}
 
 void Entity::Tick() {
 

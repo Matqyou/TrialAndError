@@ -10,9 +10,7 @@
 #include "SDL_ttf.h"
 #include "technical stuff/Clock.h"
 #include "technical stuff/Drawing.h"
-#include "technical stuff/SoundManager.h"
-#include "technical stuff/ImageManager.h"
-#include "technical stuff/TextManager.h"
+#include "technical stuff/AssetsManager.h"
 
 class GameReference {
 private:
@@ -20,14 +18,20 @@ private:
     SDL_Renderer* m_Renderer;
     Clock* m_Timer;
     Drawing* m_Draw;
-    SoundManager* m_SoundHandler;
-    ImageManager* m_ImageHandler;
-    TextManager* m_TextHandler;
+    AssetsManager* m_AssetsHandler;
 
     int m_Width, m_Height;
-    bool m_InitializedBase;
-    bool m_InitializedSound;
+    bool m_InitializedSDL;
+    bool m_InitializedMix;
+    bool m_InitializedAudio;
+    bool m_InitializedImages;
+    bool m_InitializedTTF;
 
+    bool InitializeSDL();
+    bool InitializeMix();
+    bool InitializeAudio();
+    bool InitializeImages();
+    bool InitializeTTF();
 public:
     GameReference();
     ~GameReference();
@@ -36,9 +40,7 @@ public:
     SDL_Renderer* Renderer() const { return m_Renderer; }
     Clock* Timer() const { return m_Timer; }
     Drawing* RenderClass() const { return m_Draw; }
-    SoundManager* SoundHandler() const { return m_SoundHandler; }
-    ImageManager* ImageHandler() const { return m_ImageHandler; }
-    TextManager* TextHandler() const { return m_TextHandler; }
+    AssetsManager* Assets() const { return m_AssetsHandler; }
     int Width() const { return m_Width; }
     int Height() const { return m_Height; }
 

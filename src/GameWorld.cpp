@@ -4,7 +4,7 @@
 
 #include "GameWorld.h"
 #include "game/entities/Entity.h"
-#include "game/entities/Character.h"
+#include "game/entities/character/Character.h"
 
 GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     m_GameWindow = gameWindow;
@@ -22,13 +22,18 @@ GameWorld::GameWorld(GameReference* gameWindow, double width, double height) {
     for (auto& i : m_FirstType) i = nullptr;
     for (auto& i : m_LastType) i = nullptr;
 
-    m_Background = GameWindow()->ImageHandler()->LoadTexture("assets/images/backgrounds/background_pattern.png", true);
+    m_CoordinatePlate = new TextSurface(m_GameWindow->Assets(),
+                                    m_GameWindow->Assets()->TextHandler()->FirstFont(),
+                                    "-x, -y", { 127, 127, 127, 255 });
+
+    m_Background = GameWindow()->Assets()->ImageHandler()->LoadTexture("assets/images/backgrounds/background_pattern.png", true);
     m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
     SDL_SetTextureAlphaMod(m_Background->SDLTexture(), 10);
     SDL_SetTextureBlendMode(m_Background->SDLTexture(), SDL_BLENDMODE_BLEND);
 }
 
 GameWorld::~GameWorld() {
+    delete m_CoordinatePlate;
     Entity* CurrentEntity = m_Last;
     while (CurrentEntity) {
         auto NextEntity = CurrentEntity->m_Prev;
@@ -37,16 +42,16 @@ GameWorld::~GameWorld() {
     }
 }
 
-Character* GameWorld::GetPlayerByIndex(int index) {
-    auto Player = (Character*)(m_LastType[ENTTYPE_CHARACTER]);
-    for (; Player; Player = (typeof(Player))(Player->PrevType()))
+Character* GameWorld::GetPlayerByIndex(int index) const {
+    Character* Player = FirstPlayer();
+    for (; Player; Player = (Character*)(Player->NextType()))
         if (Player->PlayerIndex() == index)
             return Player;
 
     return nullptr;
 }
 
-void GameWorld::GetNextPlayerIndex(Character* player) {
+void GameWorld::GetNextPlayerIndex(Character* player) const {
     int Index = 1;
     while (GetPlayerByIndex(Index))
         Index++;
@@ -55,8 +60,8 @@ void GameWorld::GetNextPlayerIndex(Character* player) {
 }
 
 void GameWorld::GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const {
-    out_x = relative_x - m_x;
-    out_x = relative_y - m_y;
+    out_x = m_x + (relative_x - m_GameWindow->Width() / 2.0);
+    out_y = m_y + (relative_y - m_GameWindow->Height() / 2.0);
 }
 
 void GameWorld::SetCameraPos(double x, double y) {
@@ -80,7 +85,8 @@ void GameWorld::AddEntity(Entity* entity) {
         LastType = entity;
     }
 
-    if (!m_Last) {
+    if (!m_First) {
+        m_First = entity;
         m_Last = entity;
         entity->m_Prev = nullptr;
         entity->m_Next = nullptr;
@@ -110,9 +116,9 @@ void GameWorld::RemoveEntity(Entity* entity) {
     if (m_Last == entity) m_Last = entity->m_Prev;
 }
 
-void GameWorld::DestroyPlayerByController(GameController* DeletedController) {
-    auto Player = (Character*)(m_LastType[ENTTYPE_CHARACTER]);
-    for (; Player; Player = (typeof(Player))(Player->NextType())) {
+void GameWorld::DestroyPlayerByController(GameController* DeletedController) const {
+    Character* Player = FirstPlayer();
+    for (; Player; Player = (Character*)(Player->NextType())) {
         if (Player->GetGameController() == DeletedController) {
             delete Player;
             return;
@@ -136,10 +142,9 @@ void GameWorld::Event(const SDL_Event& currentEvent) {
         ToggleShowNames();
 
     // Loop allows self-destruction in the ::Event() method
-    auto Current = (Character*)(m_LastType[ENTTYPE_CHARACTER]);
-    typeof(Current) Next;
+    Character* Next, *Current = FirstPlayer();
     for (; Current; Current = Next) {
-        Next = (typeof(Current))(Current->PrevType());
+        Next = (Character*)(Current->NextType());
         Current->Event(currentEvent);
     }
 }
@@ -152,9 +157,9 @@ void GameWorld::Tick() {
         m_ShowNamesVisibility *= 0.98;
 
     // Loop allows self-destruction in the ::Tick() method
-    Entity* Next, *Current = m_Last;
+    Entity* Next, *Current = m_First;
     for (; Current; Current = Next) {
-        Next = Current->Prev();
+        Next = Current->Next();
         Current->Tick();
     }
 
@@ -173,7 +178,8 @@ void GameWorld::Tick() {
         }
         CameraX /= num_player;
         CameraY /= num_player;
-        // Accelerate camera closer to the midpoint of characters
+        // Accelerate camera closer to
+        // the midpoint of characters
         // TODO: Zoom value
         m_x += (-m_x + CameraX) * 0.1;
         m_y += (-m_y + CameraY) * 0.1;
@@ -200,14 +206,15 @@ void GameWorld::Draw() {
         return;
 
     int Opacity = int(m_ShowNamesVisibility * 255.0);
-    TextManager* TextHandler = m_GameWindow->TextHandler();
+
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
-    auto CoordinateTexture = TextHandler->Render(TextHandler->FirstFont(), msg, { 127, 127, 127, 255 }, false);
+    m_CoordinatePlate->SetText(msg);
+    Texture* CoordinateTexture = m_CoordinatePlate->Update();
+
     int coordinate_w, coordinate_h;
     CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
     SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(m_y - coordinate_h / 2.0), coordinate_w, coordinate_h };
     SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
     Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
-    delete CoordinateTexture;
 }

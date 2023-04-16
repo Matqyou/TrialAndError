@@ -3,27 +3,16 @@
 
 #include "SDL.h"
 #include <cstring>
-#include "Entity.h"
-#include "../weapons/WeaponGlock.h"
-#include "../weapons/WeaponShotgun.h"
-#include "../weapons/WeaponBurst.h"
-#include "../weapons/WeaponMinigun.h"
-#include "../../technical stuff/GameControllers.h"
-#include "../../technical stuff/Colors.h"
-
-class Character;
-struct Hook {
-    Character* m_Parent;
-    double m_x, m_y;
-    double m_xvel, m_yvel;
-    double m_MaxLength;
-    bool m_Deployed;
-    bool m_GrabbedWall;
-
-    Hook(Character* parent);
-
-    void Tick(bool hooking, bool last_hooking);
-};
+#include "../Entity.h"
+#include "../../weapons/WeaponGlock.h"
+#include "../../weapons/WeaponShotgun.h"
+#include "../../weapons/WeaponBurst.h"
+#include "../../weapons/WeaponMinigun.h"
+#include "../../../technical stuff/GameControllers.h"
+#include "../../../technical stuff/Colors.h"
+#include "../../indicators/HealthBar.h"
+#include "../../indicators/TextSurface.h"
+#include "Hook.h"
 
 class Character : public Entity {
 public:
@@ -43,28 +32,44 @@ private:
     friend class Hook;
     int m_PlayerIndex;
     std::string m_Name;
-    Texture* m_Nameplate;
+    TextSurface* m_Nameplate;
+    TextSurface* m_CoordinatePlate;
     double m_ColorHue;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS] {};
     int m_Controls[NUM_CONTROLS] {};
     bool m_Controllable;
-    bool m_Shooting, m_LastShoot;
+    bool m_Shooting, m_LastShooting;
     // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
     ProjectileWeapon* m_Weapons[NUM_WEAPONS] {};
     ProjectileWeapon* m_CurrentWeapon;
-    double m_Health;
+    double m_MaxHealth, m_Health;
     static const int sDefaultControls[NUM_CONTROLS];
     const double m_BaseAcceleration;
     double m_xLook, m_yLook;  // direction
     Hook m_Hook;
     bool m_Hooking, m_LastHooking;
-    int is_hit;
+    bool m_Reloading, m_LastReloading;
+    int m_HitTicks;
+    HealthBar m_HealthBar;
+
+    SDL_Color m_CharacterColor;
+    SDL_Color m_HookColor;
+    SDL_Color m_HealthbarColor;
+    SDL_Color m_HandColor;
+    SDL_Color m_NameplateColor;
+
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickControls();
     void TickHook();
     void TickWeapon();
+
+    void DrawCharacter();
+    void DrawHook();
+    void DrawHealthbar();
+    void DrawHand();
+    void DrawNameplate();
 
 public:
     static Sound* ch_HitSound;
@@ -72,6 +77,7 @@ public:
     Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
     ~Character();
 
+    Hook* GetHook() { return &m_Hook; }
     GameController* GetGameController() const { return m_GameController; }
     int PlayerIndex() const { return m_PlayerIndex; }
 

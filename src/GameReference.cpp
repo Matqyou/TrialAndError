@@ -9,93 +9,153 @@ GameReference::GameReference() {
     m_Renderer = nullptr;
     m_Timer = nullptr;
     m_Draw = nullptr;
-    m_SoundHandler = nullptr;
-    m_ImageHandler = nullptr;
-    m_TextHandler = nullptr;
+    m_AssetsHandler = nullptr;
     m_Width = 0;
     m_Height = 0;
-    m_InitializedBase = false;
-    m_InitializedSound = false;
+    m_InitializedSDL = false;
+    m_InitializedMix = false;
+    m_InitializedAudio = false;
+    m_InitializedImages = false;
+    m_InitializedTTF = false;
 }
 
 GameReference::~GameReference() {
     Deinitialize(false);
+    delete m_AssetsHandler;
+}
+
+bool GameReference::InitializeSDL() {
+    if (!m_InitializedSDL) {
+        m_InitializedSDL = !SDL_Init(SDL_INIT_EVERYTHING);
+        if (!m_InitializedSDL) {
+            std::printf("Error while initializing main %s\n", SDL_GetError());
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool GameReference::InitializeMix() {
+    if (!m_InitializedMix) {
+        int MixFlags = MIX_INIT_MP3 | MIX_INIT_OGG;
+        m_InitializedMix = Mix_Init(MixFlags) == MixFlags;
+        if (!m_InitializedMix) {
+            std::printf("Error while initializing Mix %s\n", Mix_GetError());
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool GameReference::InitializeAudio() {
+    if (!m_InitializedAudio) {
+        m_InitializedAudio = !Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+
+        if (!m_InitializedAudio) std::printf("Warning while opening audio %s\n", Mix_GetError());
+    }
+
+    return true;
+}
+
+bool GameReference::InitializeImages() {
+    if (!m_InitializedImages) {
+        int ImageFlags = IMG_INIT_PNG | IMG_INIT_JPG;
+        m_InitializedImages = IMG_Init(ImageFlags) == ImageFlags;
+        if (!m_InitializedImages) {
+            std::printf("Error while initializing Image %s\n", IMG_GetError());
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool GameReference::InitializeTTF() {
+    if (!m_InitializedTTF) {
+        m_InitializedTTF = !TTF_Init();
+        if (!m_InitializedTTF) {
+            std::printf("Error while initializing TTF %s\n", TTF_GetError());
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool GameReference::Initialize() {
-    if (m_InitializedBase || m_InitializedSound)
+    if (!InitializeSDL() ||
+        !InitializeMix() ||
+        !InitializeAudio() ||
+        !InitializeImages() ||
+        !InitializeTTF())
         return false;
 
-    m_InitializedBase = true;
-    int Result = SDL_Init(SDL_INIT_EVERYTHING);
-    if (Result) {
-        std::printf("Error while initializing main %s\n", SDL_GetError());
-        return false;
-    }
-    int MixFlags = MIX_INIT_MP3 | MIX_INIT_OGG;
-    int ResultMixFlags = Mix_Init(MixFlags);
-    if (ResultMixFlags != MixFlags) {
-        std::printf("Error while initializing Mix %s\n", Mix_GetError());
-        return false;
-    }
-    int ResultMix = Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
-    m_InitializedSound = !ResultMix;
-    if (ResultMix) {
-        std::printf("Warning while opening audio %s\n", Mix_GetError());
-    }
-    int ImageFlags = IMG_INIT_PNG | IMG_INIT_JPG;
-    int ResultImageFlags = IMG_Init(ImageFlags);
-    if (ResultImageFlags != ImageFlags) {
-        std::printf("Error while initializing Image %s\n", IMG_GetError());
-        return false;
-    }
-    int ResultTTF = TTF_Init();
-    if (ResultTTF) {
-        std::printf("Error while initializing TTF %s\n", TTF_GetError());
-        return false;
-    }
-
-    m_Width = 1280;
-    m_Height = 720;
-    m_Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                m_Width, m_Height, SDL_WINDOW_RESIZABLE);
     if (!m_Window) {
-        std::printf("Error while creating the window %s\n", SDL_GetError());
-        return false;
+        m_Width = 1280;
+        m_Height = 720;
+        m_Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                    m_Width, m_Height, SDL_WINDOW_RESIZABLE);
+        if (!m_Window) {
+            std::printf("Error while creating the window %s\n", SDL_GetError());
+            return false;
+        }
     }
 
-    m_Renderer = SDL_CreateRenderer(m_Window, -1, 0);
     if (!m_Renderer) {
-        std::printf("Error while creating the renderer %s\n", SDL_GetError());
-        return false;
+        m_Renderer = SDL_CreateRenderer(m_Window, -1, 0);
+        if (!m_Renderer) {
+            std::printf("Error while creating the renderer %s\n", SDL_GetError());
+            return false;
+        }
     }
 
-    m_Timer = new Clock(60);
-    m_Draw = new Drawing(this);
-    m_SoundHandler = new SoundManager(m_InitializedSound);
-    m_ImageHandler = new ImageManager(m_Renderer);
-    m_TextHandler = new TextManager(m_ImageHandler);
+    if (!m_Timer) m_Timer = new Clock(60);
+    if (!m_Draw) m_Draw = new Drawing(this);
+    if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager(m_Renderer, m_InitializedAudio);
     return true;
 }
 
 void GameReference::Deinitialize(bool keep_sound) {
-    if (m_InitializedBase) {
-        m_InitializedBase = false;
-        delete m_TextHandler;
-        delete m_ImageHandler;
-        delete m_Draw;
-        delete m_Timer;
-        SDL_DestroyRenderer(m_Renderer);
-        SDL_DestroyWindow(m_Window);
+    m_AssetsHandler->DeinitializeImages();
+    delete m_Draw;
+    m_Draw = nullptr;
+    delete m_Timer;
+    m_Timer = nullptr;
+    if (m_Renderer) SDL_DestroyRenderer(m_Renderer);
+    if (m_Window) SDL_DestroyWindow(m_Window);
+
+    m_Draw = nullptr;
+    m_Timer = nullptr;
+    m_Renderer = nullptr;
+    m_Window = nullptr;
+
+    if (m_InitializedTTF) {
+        m_InitializedTTF = false;
         TTF_Quit();
+    }
+
+    if (m_InitializedImages) {
+        m_InitializedImages = false;
         IMG_Quit();
     }
-    if (!keep_sound && m_InitializedSound) {
-        m_InitializedSound = false;
-        delete m_SoundHandler;
-        Mix_CloseAudio();
-        Mix_Quit();
-        SDL_Quit();
+
+    if (!keep_sound) { // TODO: Check this out -_- looks very sus
+        m_AssetsHandler->DeinitializeSounds();
+
+        if (m_InitializedAudio) {
+            m_InitializedAudio = false;
+            Mix_CloseAudio();
+        }
+        if (m_InitializedMix) {
+            m_InitializedMix = false;
+            Mix_Quit();
+        }
+        if (m_InitializedSDL) {
+            m_InitializedSDL = false;
+            SDL_Quit();
+        }
     }
 }
 

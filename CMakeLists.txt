@@ -21,8 +21,8 @@ set(PROJECT_FILES
         "deps/icon_resource.rc"
         "src/technical stuff/Colors.cpp"
         "src/technical stuff/Colors.h"
-        "src/game/entities/Character.cpp"
-        "src/game/entities/Character.h"
+        "src/game/entities/character/Character.cpp"
+        "src/game/entities/character/Character.h"
         "src/game/entities/Entity.cpp"
         "src/game/entities/Entity.h"
         "src/technical stuff/TextManager.cpp"
@@ -38,7 +38,24 @@ set(PROJECT_FILES
         "src/technical stuff/ImageManager.cpp"
         "src/technical stuff/ImageManager.h"
         "src/technical stuff/Drawing.cpp"
-        "src/technical stuff/Drawing.h" "src/technical stuff/SoundManager.cpp" "src/technical stuff/SoundManager.h" src/game/weapons/ProjectileWeapon.cpp src/game/weapons/ProjectileWeapon.h src/game/weapons/WeaponGlock.cpp src/game/weapons/WeaponGlock.h src/game/weapons/WeaponShotgun.cpp src/game/weapons/WeaponShotgun.h src/game/weapons/WeaponBurst.cpp src/game/weapons/WeaponBurst.h src/game/weapons/WeaponMinigun.cpp src/game/weapons/WeaponMinigun.h)
+        "src/technical stuff/Drawing.h"
+        "src/technical stuff/SoundManager.cpp"
+        "src/technical stuff/SoundManager.h"
+        "src/game/weapons/ProjectileWeapon.cpp"
+        "src/game/weapons/ProjectileWeapon.h"
+        "src/game/weapons/WeaponGlock.cpp"
+        "src/game/weapons/WeaponGlock.h"
+        "src/game/weapons/WeaponShotgun.cpp"
+        "src/game/weapons/WeaponShotgun.h"
+        "src/game/weapons/WeaponBurst.cpp"
+        "src/game/weapons/WeaponBurst.h"
+        "src/game/weapons/WeaponMinigun.cpp"
+        "src/game/weapons/WeaponMinigun.h"
+        "src/game/indicators/HealthBar.cpp"
+        "src/game/indicators/HealthBar.h"
+        "src/game/entities/character/Hook.cpp"
+        "src/game/entities/character/Hook.h" "src/technical stuff/AssetsManager.cpp" "src/technical stuff/AssetsManager.h" src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.h)
+
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
 target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)
 target_link_options(${PROJECT_NAME} PRIVATE "-static")

@@ -14,7 +14,7 @@ private:
     bool m_StillCollidesShooter;
 
     void TickImpact();
-    void TickVelocity();
+    bool TickVelocity();
     bool TickHitPoint(double x, double y);
 
 public:

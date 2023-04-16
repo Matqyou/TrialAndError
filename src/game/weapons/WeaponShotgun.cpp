@@ -3,7 +3,7 @@
 //
 
 #include "WeaponShotgun.h"
-#include "../entities/Character.h"
+#include "../entities/character/Character.h"
 #include "../entities/Bullets.h"
 #include <cmath>
 
@@ -28,7 +28,7 @@ void WeaponShotgun::Tick() {
         if (CurrentTick - m_LastShotAt <= m_TickCooldown)
             return;
 
-        SoundManager* SoundHandler = World->GameWindow()->SoundHandler();
+        SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
 
         m_LastShot = m_Ammo == 1;
         if (m_Ammo) {

@@ -5,7 +5,7 @@
 #include "Bullets.h"
 #include <cmath>
 #include <iostream>
-#include "Character.h"
+#include "character/Character.h"
 Texture* Bullets::ms_Texture = nullptr;
 
 Bullets::Bullets(GameWorld* world, Entity* shooter, double start_x, double start_y, double start_xvel, double start_yvel)
@@ -16,14 +16,14 @@ Bullets::Bullets(GameWorld* world, Entity* shooter, double start_x, double start
     m_yvel = start_yvel;
 }
 
-void Bullets::TickVelocity() {
+bool Bullets::TickVelocity() {
     m_xvel *= m_BaseDamping;
     m_yvel *= m_BaseDamping;
 
     m_x += m_xvel;
     m_y += m_yvel;
 
-    TickHitPoint(m_x, m_y);
+    return TickHitPoint(m_x, m_y);
     // Problems with code below :::::::)
 
 //    double CurrentX = m_x;
@@ -71,7 +71,7 @@ bool Bullets::TickHitPoint(double x, double y) {
         if (Shooter && !Collides) { m_StillCollidesShooter = false; }
         else if (Collides && !Shooter || (Shooter && !m_StillCollidesShooter)) {
             Player->m_Health -= 10; // Primitive dmg function
-            Player->is_hit = 7; //Play sounds of getting hit
+            Player->m_HitTicks = 7; //Play sounds of getting hit
             delete this;
             return true;
         }
@@ -87,8 +87,8 @@ void Bullets::TickImpact() {
 }
 
 void Bullets::Tick() {
-    TickVelocity();
-    TickImpact();
+    if (!TickVelocity())
+        TickImpact();
 }
 
 void Bullets::Draw() {

@@ -3,9 +3,11 @@
 //
 
 #include "ProjectileWeapon.h"
-#include "../entities/Character.h"
+#include "../entities/character/Character.h"
 #include "../entities/Bullets.h"
 #include <cmath>
+
+Sound* ProjectileWeapon::ms_ReloadSound = nullptr;
 
 double ProjectileWeapon::GenerateSpreadAngle() const {
     return (double(rand() % m_FullRandomSpread) - m_HalfRandomSpread) / m_RandomSpreadDivisor;
@@ -58,7 +60,7 @@ void ProjectileWeapon::GetOwnerPosition(double& out_x, double& out_y, double& ou
 
 void ProjectileWeapon::GetOwnerShooting(bool& out_shoot, bool& out_last_shoot) const {
     out_shoot = m_Owner->m_Shooting;
-    out_last_shoot = m_Owner->m_LastShoot;
+    out_last_shoot = m_Owner->m_LastShooting;
 }
 
 void ProjectileWeapon::SetSpread(double degrees, int decimal_places) {
@@ -73,6 +75,13 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed, double delta
     m_NegativeRandomProjectileSpeed = FullSpeed * delta_percentage_negative;
     m_FullRandomProjectileSpeed = int(FullSpeed) + 1;
 }
+
+void ProjectileWeapon::Reload() {
+    m_Ammo = m_AmmoCapacity;
+
+    m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ReloadSound);
+}
+
 void ProjectileWeapon::Tick() {
     TickTrigger();
 }

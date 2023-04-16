@@ -5,6 +5,7 @@
 #ifndef TRIALANDERROR_SRC_TECHNICAL_STUFF_DRAWING_H_
 #define TRIALANDERROR_SRC_TECHNICAL_STUFF_DRAWING_H_
 
+#include "ImageManager.h"
 #include <SDL_image.h>
 
 class GameReference;
@@ -27,6 +28,7 @@ public:
     SDL_Renderer* Renderer() const { return m_Renderer; }
 
     void SetWorld(GameWorld* world);
+    void SetRenderTarget(Texture* target);
     void SetBlendingMode(SDL_BlendMode blend_mode);  // Ability to change blending modes
     void LineWorld(double x1, double y1, double x2, double y2);  // Lets you draw a line in the world
     void DrawRectWorld(const SDL_Rect& rect);  // Lets you draw an int rectangle in the world

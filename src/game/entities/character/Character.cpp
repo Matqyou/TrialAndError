@@ -4,96 +4,25 @@
 #include "Character.h"
 #include <cmath>
 #include <iostream>
-#include "Bullets.h"
+#include "../Bullets.h"
 #include <vector>
+
 Sound* Character::ch_HitSound = nullptr;
 Sound* Character::ch_DeathSound = nullptr;
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
 
-Hook::Hook(Character* parent) {
-    m_Parent = parent;
-    m_x = 0.0;
-    m_y = 0.0;
-    m_xvel = 0.0;
-    m_yvel = 0.0;
-    m_MaxLength = 300.0;
-    m_Deployed = false;
-    m_GrabbedWall = false;
-}
-
-void Hook::Tick(bool hooking, bool last_hooking) {
-    GameWorld* World = m_Parent->World();
-
-    if (!m_Deployed && hooking && !last_hooking) {
-        m_Deployed = true;
-        m_x = m_Parent->m_x;
-        m_y = m_Parent->m_y;
-        m_xvel = m_Parent->m_xLook * 35;
-        m_yvel = m_Parent->m_yLook * 35;
-    } else if (m_Deployed && !hooking && last_hooking) {  // Instant retraction for now
-        m_Deployed = false;
-        m_GrabbedWall = false;
-    }
-
-    if (!m_Deployed)
-        return;
-
-    m_x += m_xvel;
-    m_y += m_yvel;
-
-    double TravelX = m_x - m_Parent->m_x;
-    double TravelY = m_y - m_Parent->m_y;
-    double Length = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
-    if (Length != 0.0) {
-        TravelX /= Length;
-        TravelY /= Length;
-    }
-
-    if (!m_GrabbedWall) {
-        if (Length > m_MaxLength) {
-            m_x = m_Parent->m_x + TravelX * m_MaxLength;
-            m_y = m_Parent->m_y + TravelY * m_MaxLength;
-            m_xvel -= TravelX * 2.0;
-            m_yvel -= TravelY * 2.0;
-        }
-
-        // Hook snaps to wall - fix later cus ugly
-        if (m_x < 0.0) {
-            m_x = 0.0;
-            m_xvel = 0.0;
-            m_yvel = 0.0;
-            m_GrabbedWall = true;
-        } else if (m_y < 0.0) {
-            m_y = 0.0;
-            m_xvel = 0.0;
-            m_yvel = 0.0;
-            m_GrabbedWall = true;
-        } else if (m_x > World->Width()) {
-            m_x = World->Width();
-            m_xvel = 0.0;
-            m_yvel = 0.0;
-            m_GrabbedWall = true;
-        } else if (m_y > World->Height()) {
-            m_y = World->Height();
-            m_xvel = 0.0;
-            m_yvel = 0.0;
-            m_GrabbedWall = true;
-        }
-    } else {
-        m_Parent->m_xvel += TravelX * 1.5;
-        m_Parent->m_yvel += TravelY * 1.5;
-    }
-}
-
 Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93),
    m_Hook(this),
-   m_BaseAcceleration(0.75) {
+   m_BaseAcceleration(0.75),
+   m_HealthBar(world->GameWindow(), &m_Health, &m_MaxHealth, 75, 15, 2, 2) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
     m_Shooting = false;
-    m_LastShoot = false;
+    m_LastShooting = false;
+    m_Reloading = false;
+    m_LastReloading = false;
 
     m_CurrentWeapon = nullptr; // Start by holding nothing
 
@@ -106,7 +35,8 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_Weapons[WEAPON_SHOTGUN] = new WeaponShotgun(this);
     m_Weapons[WEAPON_MACHINEGUN] = new WeaponMinigun(this);
 
-    m_Health = 100.0;
+    m_MaxHealth = 100.0;
+    m_Health = m_MaxHealth;
 
     m_GameController = nullptr;
     for (bool& State : m_Movement)
@@ -128,21 +58,41 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     char Name[CHARACTER_MAX_NAME_LENGTH];
     std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
     m_Name = Name;
-    TextManager* TextHandler = world->GameWindow()->TextHandler();
+    TextManager* TextHandler = world->GameWindow()->Assets()->TextHandler();
     TTF_Font* Font = TextHandler->FirstFont();
-    m_Nameplate = TextHandler->Render(Font, Name, { 255, 255, 255 }, true);
-
-    is_hit = false;
+    m_Nameplate = new TextSurface(m_World->GameWindow()->Assets(),
+                              m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                              Name, { 255, 255, 255, 255 });
+    m_CoordinatePlate = new TextSurface(m_World->GameWindow()->Assets(),
+                                    m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                    "-x, -y", { 255, 255, 255, 255 });
+    m_HitTicks = 0;
+    m_CharacterColor = { 255, 255, 255, 255 };
+    m_HookColor = { 255, 255, 255, 255 };
+    m_HealthbarColor = { 255, 255, 255, 255 };
+    m_HandColor = { 255, 255, 255, 255 };
+    m_NameplateColor = { 255, 255, 255, 255 };
 }
 
 Character::~Character() {
+    delete m_Nameplate;
+    delete m_CoordinatePlate;
 
+    Character* Player = m_World->FirstPlayer();
+    for (; Player; Player = (Character*)Player->NextType()) {
+        Hook* TargetHook = Player->GetHook();
+        if (TargetHook->m_GrabbedEntity == this)
+            TargetHook->Unhook();
+    }
 }
 
+// Set the controller for this character,
+// use `nullptr` for no controller
 void Character::SetGameController(GameController* gameController) {
     m_GameController = gameController;
 }
 
+// Add some velocity to this character
 void Character::Accelerate(double accelerate_x, double accelerate_y) {
     m_xvel += accelerate_x;
     m_yvel += accelerate_y;
@@ -222,6 +172,7 @@ void Character::TickGameControllerControls() {
     // Shooting
     m_Shooting = m_GameController->GetRightTrigger() > 0.7;
     m_Hooking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+    m_Reloading = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X);
 
     // Switch weapons
     if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP) && m_Weapons[WEAPON_GLOCK])
@@ -232,10 +183,6 @@ void Character::TickGameControllerControls() {
         m_CurrentWeapon = m_Weapons[WEAPON_BURST];
     else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT) && m_Weapons[WEAPON_MACHINEGUN])
         m_CurrentWeapon = m_Weapons[WEAPON_MACHINEGUN];
-
-    //Reloads weapon on square button press on controller
-    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X) && m_CurrentWeapon)
-        m_CurrentWeapon->Reload();
 }
 
 void Character::TickControls() {
@@ -254,8 +201,91 @@ void Character::TickWeapon() {
     if (!m_CurrentWeapon)
         return;
 
+    if (m_Reloading && !m_LastReloading)
+        m_CurrentWeapon->Reload();
+
     m_CurrentWeapon->Tick();
 }
+
+void Character::DrawCharacter() {
+    Drawing* Render = m_World->GameWindow()->RenderClass();
+
+    SDL_FRect DrawRect = {float(m_x) - float(m_w / 2.0),
+                          float(m_y) - float(m_h / 2.0),
+                          float(m_w),
+                          float(m_h)};
+
+    if(m_HitTicks > 0)
+        Render->SetColor(255, 0, 0, 255);
+
+    else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
+    Render->FillRectFWorld(DrawRect);
+}
+
+void Character::DrawHook() {
+    Drawing* Render = m_World->GameWindow()->RenderClass();
+
+    // Draw hook
+    if (m_Hook.m_Deployed) {
+        Render->SetColor(m_HookColor.r, m_HookColor.g, m_HookColor.b, 255);
+        Render->LineWorld(m_x, m_y, m_Hook.m_x, m_Hook.m_y);
+    }
+}
+
+void Character::DrawHealthbar() {
+    Drawing* Render = m_World->GameWindow()->RenderClass();
+
+    // Render health bar
+    if (m_Health != m_MaxHealth) {
+        m_HealthBar.SetColor(m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a);
+        Texture* HealthPlate = m_HealthBar.UpdateTexture();
+
+        int healthplate_w, healthplate_h;
+        HealthPlate->Query(nullptr, nullptr, &healthplate_w, &healthplate_h);
+        SDL_Rect HealthplateRect = { int(m_x - healthplate_w / 2.0), int(m_y + m_h / 2.0), healthplate_w, healthplate_h };
+        Render->RenderTextureWorld(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
+    }
+}
+
+void Character::DrawHand() {
+    Drawing* Render = m_World->GameWindow()->RenderClass();
+
+    double XLook = m_x + m_xLook * 50.0;
+    double YLook = m_y + m_yLook * 50.0;
+    Render->SetColor(m_HandColor.r, m_HandColor.g, m_HandColor.b, 255);
+    Render->LineWorld(int(m_x), int(m_y), int(XLook), int(YLook));
+
+}
+
+void Character::DrawNameplate() {
+    if (m_World->NamesShown() <= 0.05)  // Visibility under 5% - don't render the texts
+        return;
+
+    Drawing* Render = m_World->GameWindow()->RenderClass();
+
+    int Opacity = int(m_World->NamesShown() * 255.0);
+
+    int nameplate_w, nameplate_h;
+    Texture* NameplateTexture = m_Nameplate->Update();
+    NameplateTexture->Query(nullptr, nullptr, &nameplate_w, &nameplate_h);
+    SDL_Rect NameplateRect = { int(m_x - nameplate_w / 2.0), int(m_y - m_h / 2.0 - nameplate_h), nameplate_w, nameplate_h };
+
+    SDL_SetTextureAlphaMod(NameplateTexture->SDLTexture(), Opacity);
+    Render->RenderTextureWorld(NameplateTexture->SDLTexture(), nullptr, NameplateRect);
+
+    char msg[64];
+    std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
+    m_CoordinatePlate->SetText(msg);
+    m_CoordinatePlate->SetColor(m_NameplateColor);
+    Texture* CoordinateTexture = m_CoordinatePlate->Update();
+
+    int coordinate_w, coordinate_h;
+    CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
+    SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(NameplateRect.y - coordinate_h), coordinate_w, coordinate_h };
+    SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
+    Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
+}
+
 
 void Character::Event(const SDL_Event& currentEvent) {
     if (!m_Controllable || m_GameController)
@@ -274,8 +304,8 @@ void Character::Event(const SDL_Event& currentEvent) {
             m_CurrentWeapon = m_Weapons[WEAPON_MACHINEGUN];
 
         // Reloads weapon on keyboard player with R button press
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R && m_CurrentWeapon)
-            m_CurrentWeapon->Reload();
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R)
+            m_Reloading = State;
 
         for (int i = 0; i < NUM_CONTROLS; i++) {
             if (currentEvent.key.keysym.scancode == m_Controls[i])
@@ -285,75 +315,49 @@ void Character::Event(const SDL_Event& currentEvent) {
 }
 
 void Character::Tick() {
-    TickControls();  // Do stuff depending on the current held buttons
-    TickVelocity();  // Move the chracter entity
-    TickHook();  // Move hook and or player etc.
-    TickWalls();  // Check if colliding with walls
-    TickWeapon(); // Shoot accelerate reload etc.
+    m_Health += 0.1;
+    if (m_Health > m_MaxHealth)
+        m_Health = m_MaxHealth;
 
-    m_LastShoot = m_Shooting;
-    m_Shooting = false;  // Reset shooting at end of each tick
+    TickControls();  // Do stuff depending on the current held buttons
+    TickWeapon(); // Shoot accelerate reload etc.
+    TickHook();  // Move hook and or player etc.
+
+    // Need every character to get here..
+    // then we apply the accelerations of all
+    // hooks and continue with the code below v v v
+    // like collisions and velocity tick
+
+    TickVelocity();  // Move the character entity
+    TickWalls();  // Check if colliding with walls
+
+    m_LastShooting = m_Shooting;
     m_LastHooking = m_Hooking;
+    m_LastReloading = m_Reloading;
+
+    m_HitTicks -= 1;
+    if (m_HitTicks < 0)
+        m_HitTicks = 0;
+
     if (m_Health <= 0.0) {
-        m_World->GameWindow()->SoundHandler()->PlaySound(ch_DeathSound);
+        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ch_DeathSound);
         delete this;
     }
 }
 
 void Character::Draw() {
     Clock* Timer = m_World->GameWindow()->Timer();
-    Drawing* Render = m_World->GameWindow()->RenderClass();
-
     double Light = 0.5 + (std::sin(Timer->GetTotalTimeElapsed() - m_ExistsSince) + 1.0) / 4;
-    SDL_Color Color = HSLtoRGB({ m_ColorHue, Light, 1.0 });
 
-    if (m_Hook.m_Deployed) {
-        Render->SetColor(Color.r, Color.g, Color.b, 255);
-        Render->LineWorld(m_x, m_y, m_Hook.m_x, m_Hook.m_y);
-    }
+    m_CharacterColor = HSLtoRGB({ m_ColorHue, Light, 1.0 });
+    m_HookColor = HSLtoRGB({ m_ColorHue, 1.0, Light });
+    m_HealthbarColor = m_CharacterColor;
+    m_HandColor = HSLtoRGB({ m_ColorHue, 1.0 - Light, 1.0 });
+    m_NameplateColor = m_HandColor;
 
-    SDL_FRect DrawRect = {float(m_x) - float(m_w/2),
-                          float(m_y) - float(m_h/2),
-                          float(m_w),
-                          float(m_h)};
-    Color = HSLtoRGB({ m_ColorHue, 1.0, Light });
-    // SoundManager *SoundHandler = m_World->GameWindow()->SoundHandler();
-    if(is_hit > 0) {
-        Render->SetColor(255, 0, 0, 255);
-        // SoundHandler->PlaySound(ch_HitSound);
-        // Need to decide if that's needed, since that's alot of sound, if it's going to be every bullet and every hit
-        is_hit -=1;
-    }
-    //Can later make it so the less hp the more red the character
-    else Render->SetColor(Color.r, Color.g, Color.b, 255);
-
-    Render->FillRectFWorld(DrawRect);
-
-    double XLook = m_x + m_xLook * 50.0;
-    double YLook = m_y + m_yLook * 50.0;
-    Color = HSLtoRGB({ m_ColorHue, 1.0 - Light, 1.0 });
-    Render->SetColor(Color.r, Color.g, Color.b, 255);
-    Render->LineWorld(int(m_x), int(m_y), int(XLook), int(YLook));
-
-    if (m_World->NamesShown() <= 0.05)  // Visibility under 5% - don't render
-        return;
-
-    int Opacity = int(m_World->NamesShown() * 255.0);
-
-    int nameplate_w, nameplate_h;
-    m_Nameplate->Query(nullptr, nullptr, &nameplate_w, &nameplate_h);
-    SDL_Rect NameplateRect = { int(m_x - nameplate_w / 2.0), int(m_y - m_h / 2.0 - nameplate_h), nameplate_w, nameplate_h };
-    SDL_SetTextureAlphaMod(m_Nameplate->SDLTexture(), Opacity);
-    Render->RenderTextureWorld(m_Nameplate->SDLTexture(), nullptr, NameplateRect);
-
-    TextManager* TextHandler = m_World->GameWindow()->TextHandler();
-    char msg[64];
-    std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
-    auto CoordinateTexture = TextHandler->Render(TextHandler->FirstFont(), msg, { Color.r, Color.g, Color.b, 255 }, false);
-    int coordinate_w, coordinate_h;
-    CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
-    SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(NameplateRect.y - coordinate_h), coordinate_w, coordinate_h };
-    SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
-    Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
-    delete CoordinateTexture;
+    DrawCharacter();
+    DrawHook();
+    DrawHealthbar();
+    DrawHand();
+    DrawNameplate();
 }

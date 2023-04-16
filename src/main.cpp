@@ -2,15 +2,15 @@
 #include "GameReference.h"
 #include "GameWorld.h"
 #include "technical stuff/GameControllers.h"
-#include "game/entities/Character.h"
+#include "game/entities/character/Character.h"
 #include "game/entities/Bullets.h"
+#include "game/indicators/TextSurface.h"
 #include <vector>
 #include <iostream>
 
 GameReference* GameWindow;
 GameWorld* World;
 GameControllers* Controllers;
-Texture* TextTexture;
 
 bool Initialize() {
     srand(time(nullptr));
@@ -18,13 +18,12 @@ bool Initialize() {
     if (!GameWindow->Initialize())
         return false;
 
-    World = new GameWorld(GameWindow, 4000, 2000);
+    TextManager* TextHandler = GameWindow->Assets()->TextHandler();
+    TextHandler->LoadFont("GROBOLD.ttf", 16);
+
+    World = new GameWorld(GameWindow, 9000, 6000);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
-
-    TextManager* TextHandler = GameWindow->TextHandler();
-    TTF_Font* Font1 = TextHandler->LoadFont("GROBOLD.ttf", 16);
-    TextTexture = TextHandler->Render(Font1, "Jesse -.. .. .", { 255, 255, 255 }, true);
 
     Controllers = new GameControllers();
     new Character(World, 30, 30, 10, 10);
@@ -39,8 +38,10 @@ int main() {
 
     Clock* Timer = GameWindow->Timer();
     Drawing* Draw = GameWindow->RenderClass();
-    SoundManager* SoundHandler = GameWindow->SoundHandler();
-    ImageManager* ImageHandler = GameWindow->ImageHandler();
+    AssetsManager* AssetsHandler = GameWindow->Assets();
+    SoundManager* SoundHandler = AssetsHandler->SoundHandler();
+    ImageManager* ImageHandler = AssetsHandler->ImageHandler();
+    TextManager* TextHandler = AssetsHandler->TextHandler();
 
     // Load the PNG images
     Texture* TextureStart = ImageHandler->LoadTexture("assets/images/UI/Start.png", true);
@@ -51,6 +52,7 @@ int main() {
     Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
     Vignette->SetAlpha(200);
     Texture* Pellet = ImageHandler->LoadTexture("assets/images/Bullets/Pellet.png", true);
+    Texture* DefaultText = TextHandler->Render(GameWindow->Assets()->TextHandler()->FirstFont(), "Undefined", { 190, 100, 100, 180 }, true);
 
     Bullets::ms_Texture = Pellet;
 
@@ -65,30 +67,34 @@ int main() {
     Sound* LowUISound = SoundHandler->LoadSound("assets/sounds/LowUI.wav", true);
     Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
     Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
-    Sound* GlockShootSound = SoundHandler->LoadSound("assets/sounds/Shoot1.wav", true);
+    Sound* GlockShootSound = SoundHandler->LoadSound("assets/sounds/GlockShoot.wav", true);
     GlockShootSound->SetVolume(64); // max 128
     Sound* GlockClickSound = SoundHandler->LoadSound("assets/sounds/GunClick.wav", true);
     GlockClickSound->SetVolume(32); // max 128
-    Sound* ShotgunShootSound = SoundHandler->LoadSound("assets/sounds/ShootShotgun.wav", true);
+    Sound* ShotgunShootSound = SoundHandler->LoadSound("assets/sounds/ShotgunShoot.wav", true);
     Sound* BurstShootSound = SoundHandler->LoadSound("assets/sounds/ShootBurst.wav", true);
+    Sound* ShotgunReloadSound = SoundHandler->LoadSound("assets/sounds/ShotgunReload.wav", true);
 
     WeaponGlock::ms_ShootSound = GlockShootSound;
     WeaponGlock::ms_ClickSound = GlockClickSound;
+    WeaponGlock::ms_ReloadSound = ShotgunReloadSound;
     WeaponShotgun::ms_ShootSound = ShotgunShootSound;
     WeaponShotgun::ms_ClickSound = GlockClickSound;
+    WeaponShotgun::ms_ReloadSound = ShotgunReloadSound;
     WeaponBurst::ms_ShootSound = BurstShootSound;
     WeaponBurst::ms_ClickSound = GlockClickSound;
+    WeaponBurst::ms_ReloadSound = ShotgunReloadSound;
     WeaponMinigun::ms_ShootSound = BurstShootSound;
     WeaponMinigun::ms_ClickSound = GlockClickSound;
+    WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
     Character::ch_DeathSound = Basic_Death;
-    Character::ch_HitSound = LowSound; //Have to change it to a shorter sound, otherwise broken
+    Character::ch_HitSound = LowSound; // TODO: use the unused sound
 
-    // SDL_Rect ConnectedRect = { 120, 375, 80, 44 };
-    // SDL_Rect DisconnectedRect = { 200, 375, 80, 44 };
-    // SDL_Rect IconRect = { 100, 400, 200, 109 };
+    TextSurface TestText = TextSurface(AssetsHandler, TextHandler->FirstFont(), "Jesse -.. .. .", {255, 255, 255, 255 });
+
     int ignore_ticks = 5;
     bool Running = true;
-    bool m_Config = true;
+    bool Config = true;
     while (Running) {
         // Render the Start button
         SDL_Rect startButtonRect = { GameWindow->Width()/2-150, GameWindow->Height()/2-200, 300, 100 };
@@ -145,7 +151,7 @@ int main() {
                         else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
                             y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
                         {
-                            m_Config = !m_Config;
+                            Config = !Config;
                             if(World->Paused())SoundHandler->PlaySound(MidUISound);
                         }
                     }
@@ -165,6 +171,7 @@ int main() {
 
         Draw->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
+        Texture* TextTexture = TestText.Update();
         SDL_Rect DestinationRect;
         TextTexture->Query(nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
         DestinationRect.x = 0;
@@ -179,30 +186,20 @@ int main() {
 
             // start
             Draw->SetColor(90, 20, 20, 255);
-            Draw->FillRect({ GameWindow->Width()/2-150, GameWindow->Height()/2-200, 300, 100 });
+            Draw->FillRect({ GameWindow->Width() / 2 - 150, GameWindow->Height()/2-200, 300, 100 });
             //   setting
             Draw->SetColor(20, 20, 90, 255);
-            Draw->FillRect({ GameWindow->Width()/2-150, GameWindow->Height()/2-50, 300, 100 });
+            Draw->FillRect({ GameWindow->Width() / 2 - 150, GameWindow->Height()/2-50, 300, 100 });
 
             Draw->RenderTexture(TextureStart->SDLTexture(), nullptr, startButtonRect);
             Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, settingsButtonRect);
 
-            if (!m_Config) {
+            if (!Config) {
                 //   setting
                 Draw->SetColor(20, 20, 90, 255);
                 Draw->FillRect(settingsButtonRect);
 
                 Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, settingsButtonRect);
-
-                // for() {
-                //     Draw->RenderTexture(TextureIcon->SDLTexture(), nullptr, IconRect);
-                //     if () {
-                //         Draw->RenderTexture(TextureConnected->SDLTexture(), nullptr, ConnectedRect);
-                //     }
-                //     if () {
-                //         Draw->RenderTexture(TextureDisconnected->SDLTexture(), nullptr, DisconnectedRect);
-                //     }
-                // }
             }
         }
 
