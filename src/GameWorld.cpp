@@ -196,9 +196,8 @@ void GameWorld::Draw() {
     Render->RenderTextureWorld(m_Background->SDLTexture(), nullptr, DestinationRect);
 
     SDL_Rect DrawRect = { 0, 0, int(m_Width), int(m_Height) };
-    Render->RenderTextureWorld(Chad->SDLTexture(), nullptr, DrawRect);
-    // Render->SetColor(255, 0, 0, 255);
-    // Render->DrawRectWorld(DrawRect);
+    Render->SetColor(255, 0, 0, 255);
+    Render->DrawRectWorld(DrawRect);
 
     Entity* Current = m_Last;
     for (; Current; Current = Current->Prev())

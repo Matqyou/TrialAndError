@@ -72,6 +72,7 @@ private:
     void DrawNameplate();
 
 public:
+    static Texture* Chad;
     static Sound* ch_HitSound;
     static Sound* ch_DeathSound;
     Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);

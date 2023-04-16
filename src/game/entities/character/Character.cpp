@@ -7,6 +7,7 @@
 #include "../Bullets.h"
 #include <vector>
 
+Texture* Character::Chad = nullptr;
 Sound* Character::ch_HitSound = nullptr;
 Sound* Character::ch_DeathSound = nullptr;
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
@@ -219,7 +220,8 @@ void Character::DrawCharacter() {
         Render->SetColor(255, 0, 0, 255);
 
     else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
-    Render->FillRectFWorld(DrawRect);
+    // Render->FillRectFWorld(DrawRect);
+    Render->RenderTextureF(Chad->SDLTexture(), nullptr,DrawRect);
 }
 
 void Character::DrawHook() {
