@@ -12,7 +12,7 @@
 GameReference* GameWindow;
 GameWorld* World;
 GameControllers* Controllers;
-Ammo* AmmoCrates;
+Ammo* AmmoCrates; // they are already in m_World->FirstEntityType(ENTTYPE_AMMO)
 bool Initialize() {
     srand(time(nullptr));
     GameWindow = new GameReference();
@@ -71,7 +71,7 @@ int main() {
 
     // Load sounds
     Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
-    Sound* Fail_Death = SoundHandler->LoadSound("assets/sounds/fail_death.mp3", true);
+    Sound* Fail_Death = SoundHandler->LoadSound("assets/sounds/FailReload.wav", true);
     Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);
     Sound* Epic_Death = SoundHandler->LoadSound("assets/sounds/epic_death.wav", true);
     Sound* LowSound = SoundHandler->LoadSound("assets/sounds/Low.wav", true);
@@ -92,17 +92,17 @@ int main() {
     Sound* Hurt3 = SoundHandler->LoadSound("assets/sounds/Character/Hurt3.wav", true);
 
     WeaponGlock::ms_ShootSound = GlockShootSound;
-    WeaponGlock::ms_ClickSound = GlockClickSound;
+    WeaponGlock::ms_ClickSound = Fail_Death;
     WeaponGlock::ms_ReloadSound = ShotgunReloadSound;
-    ProjectileWeapon::ms_NoAmmo = Fail_Death;
+    ProjectileWeapon::ms_NoAmmo = GlockClickSound;
     WeaponShotgun::ms_ShootSound = ShotgunShootSound;
-    WeaponShotgun::ms_ClickSound = GlockClickSound;
+    WeaponShotgun::ms_ClickSound = Fail_Death;
     WeaponShotgun::ms_ReloadSound = ShotgunReloadSound;
     WeaponBurst::ms_ShootSound = BurstShootSound;
-    WeaponBurst::ms_ClickSound = GlockClickSound;
+    WeaponBurst::ms_ClickSound = Fail_Death;
     WeaponBurst::ms_ReloadSound = ShotgunReloadSound;
     WeaponMinigun::ms_ShootSound = BurstShootSound;
-    WeaponMinigun::ms_ClickSound = GlockClickSound;
+    WeaponMinigun::ms_ClickSound = Fail_Death;
     WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
     Character::ms_DeathSound = Basic_Death;
     Character::ms_HitSounds[0] = Hurt1;

@@ -140,9 +140,14 @@ void GameWorld::SetPaused(bool state) {
 }
 
 void GameWorld::Event(const SDL_Event& currentEvent) {
-    if (currentEvent.type == SDL_KEYDOWN &&
-        currentEvent.key.keysym.scancode == SDL_SCANCODE_SPACE)
-        ToggleShowNames();
+    if (currentEvent.type == SDL_KEYDOWN) {
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_SPACE)
+            ToggleShowNames();
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_O)
+            m_Tiles->LoadTilemap("assets/tilemaps/test_level");
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_P)
+            m_Tiles->SaveTilemap("assets/tilemaps/test_level");
+    }
 
     // Loop allows self-destruction in the ::Event() method
     Character* Next, *Current = FirstPlayer();

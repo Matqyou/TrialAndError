@@ -8,9 +8,10 @@
 #include "character/Character.h"
 Texture* Bullets::ms_Texture = nullptr;
 
-Bullets::Bullets(GameWorld* world, Entity* shooter, double start_x, double start_y, double start_xvel, double start_yvel)
+Bullets::Bullets(GameWorld* world, Entity* shooter, double damage, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_BULLET, start_x, start_y, 8, 8, 1.0){
     m_Shooter = shooter;
+    m_Damage = damage;
     m_StillCollidesShooter = true;
     m_xvel = start_xvel;
     m_yvel = start_yvel;
@@ -70,7 +71,7 @@ bool Bullets::TickHitPoint(double x, double y) {
 
         if (Shooter && !Collides) { m_StillCollidesShooter = false; }
         else if (Collides && !Shooter || (Shooter && !m_StillCollidesShooter)) {
-            Player->Damage(10, true);
+            Player->Damage(m_Damage, true);
             delete this;
             return true;
         }
