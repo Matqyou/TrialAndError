@@ -35,6 +35,7 @@ private:
     TextSurface* m_Nameplate;
     TextSurface* m_CoordinatePlate;
     TextSurface* m_AmmoCount;
+    TextSurface* m_HealthInt;
     double m_ColorHue;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS] {};
@@ -59,6 +60,8 @@ private:
     SDL_Color m_HealthbarColor;
     SDL_Color m_HandColor;
     SDL_Color m_NameplateColor;
+    SDL_Color m_HealthRed;
+    SDL_Color m_HealthBlack;
 
     void TickKeyboardControls();
     void TickGameControllerControls();

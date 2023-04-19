@@ -70,12 +70,18 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_CoordinatePlate = new TextSurface(m_World->GameWindow()->Assets(),
                                         m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
                                         "-x, -y", { 255, 255, 255, 255 });
+
+    m_HealthInt = new TextSurface(m_World->GameWindow()->Assets(),
+                                  m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                  "0", { 0, 0, 0, 255 });
     m_HitTicks = 0;
     m_CharacterColor = { 255, 255, 255, 255 };
     m_HookColor = { 255, 255, 255, 255 };
     m_HealthbarColor = { 255, 255, 255, 255 };
     m_HandColor = { 255, 255, 255, 255 };
     m_NameplateColor = { 255, 255, 255, 255 };
+    m_HealthRed = {255, 0, 0, 255};
+    m_HealthBlack = {0,0,0,255};
 }
 
 Character::~Character() {
@@ -248,7 +254,19 @@ void Character::DrawHealthbar() {
         int healthplate_w, healthplate_h;
         HealthPlate->Query(nullptr, nullptr, &healthplate_w, &healthplate_h);
         SDL_Rect HealthplateRect = { int(m_x - healthplate_w / 2.0), int(m_y + m_h / 2.0), healthplate_w, healthplate_h };
+        char msg[64];
+
+        std::snprintf(msg, sizeof(msg), "%i/%i", int(m_Health), int(m_MaxHealth));
+        m_HealthInt->SetText(msg);
+
+        if(m_Health < 50)m_HealthInt->SetColor(m_HealthRed);
+        else m_HealthInt->SetColor(m_HealthBlack);
+        Texture* HealthTexture = m_HealthInt->Update();
+        HealthTexture->Query(nullptr, nullptr, &healthplate_w, &healthplate_h);
+        SDL_Rect HealthIntRect = { int(m_x - healthplate_w / 2.0) ,int(m_y +m_h/2), healthplate_w, healthplate_h };
+
         Render->RenderTextureWorld(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
+        Render->RenderTextureWorld(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
     }
 }
 
@@ -300,11 +318,9 @@ void Character::DrawAmmo(){
 
     int Ammo_w, Ammo_h;
     AmmoTexture->Query(nullptr, nullptr, &Ammo_w, &Ammo_h);
-    SDL_Rect AmmoRect = { int(m_x - Ammo_w / 2.0), int(m_y +m_h/2), Ammo_w, Ammo_h };
+    SDL_Rect AmmoRect = { int(m_x - Ammo_w / 2.0) ,int(m_y +m_h/2+15), Ammo_w, Ammo_h };
     Render->RenderTextureWorld(AmmoTexture->SDLTexture(), nullptr, AmmoRect);
 }
-
-
 void Character::Event(const SDL_Event& currentEvent) {
     if (!m_Controllable || m_GameController)
         return;
