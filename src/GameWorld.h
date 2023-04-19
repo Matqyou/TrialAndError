@@ -17,6 +17,7 @@ public:
     enum EntityType {
         ENTTYPE_CHARACTER,
         ENTTYPE_BULLET,
+        ENTTYPE_AMMO,
         NUM_ENTTYPES
     };
 

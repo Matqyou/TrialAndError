@@ -5,13 +5,14 @@
 #include "game/entities/character/Character.h"
 #include "game/entities/Bullets.h"
 #include "game/indicators/TextSurface.h"
+#include "game/entities/Ammo.h"
 #include <vector>
 #include <iostream>
 
 GameReference* GameWindow;
 GameWorld* World;
 GameControllers* Controllers;
-
+Ammo* AmmoCrates;
 bool Initialize() {
     srand(time(nullptr));
     GameWindow = new GameReference();
@@ -25,6 +26,10 @@ bool Initialize() {
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
+    //Temp ammo spawn
+    AmmoCrates = new Ammo(World, GLOCK_AMMO, 200,200);
+    AmmoCrates = new Ammo(World, GLOCK_AMMO, 400,200);
+    AmmoCrates = new Ammo(World, GLOCK_AMMO, 600,200);
     Controllers = new GameControllers();
     new Character(World, 30, 30, 10, 10);
     return true;
