@@ -11,7 +11,7 @@ Texture* Character::Chad = nullptr;
 Sound* Character::ch_HitSound = nullptr;
 Sound* Character::ch_DeathSound = nullptr;
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
-const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A };
+const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_LSHIFT };
 
 Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93),
@@ -114,17 +114,23 @@ void Character::TickKeyboardControls() {
     bool MoveRight = m_Movement[CONTROL_RIGHT];
     bool MoveDown = m_Movement[CONTROL_DOWN];
     bool MoveLeft = m_Movement[CONTROL_LEFT];
+    bool SlowMove = m_Movement[CONTROL_SHIFT];
 
     bool Horizontally = MoveLeft != MoveRight;
     bool Vertically = MoveUp != MoveDown;
 
+    // Depending on if shift is held, change accelaration value
+    if(SlowMove){
+        m_Acceleration = m_BaseAcceleration/3;
+    }
+    else m_Acceleration = m_BaseAcceleration;
+
     // Accelerate when buttons are held
     double LengthPerAxis = (Horizontally && Vertically) ? sDiagonalLength : 1.0;
-    double SpeedPerAxis = m_BaseAcceleration * LengthPerAxis;
+    double SpeedPerAxis = m_Acceleration * LengthPerAxis;
 
     if (MoveDown != MoveUp) m_yvel += SpeedPerAxis * double(MoveDown ? 1 : -1);
     if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
-
     // Update look direction
     int XMouse, YMouse;
     SDL_GetMouseState(&XMouse, &YMouse);
@@ -158,10 +164,15 @@ void Character::TickGameControllerControls() {
             AxisX /= Length;
             AxisY /= Length;
         }
+        //Checks if player is shifting (holding left stick)
+        if(m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK)){
+            m_Acceleration = m_BaseAcceleration/3;
+        }
+        else m_Acceleration = m_BaseAcceleration;
 
         // Accelerate in that direction
-        m_xvel += m_BaseAcceleration * AxisX;
-        m_yvel += m_BaseAcceleration * AxisY;
+        m_xvel += m_Acceleration * AxisX;
+        m_yvel += m_Acceleration * AxisY;
     }
 
     // Update look direction
@@ -263,7 +274,7 @@ void Character::DrawHealthbar() {
         else m_HealthInt->SetColor(m_HealthBlack);
         Texture* HealthTexture = m_HealthInt->Update();
         HealthTexture->Query(nullptr, nullptr, &healthplate_w, &healthplate_h);
-        SDL_Rect HealthIntRect = { int(m_x - healthplate_w / 2.0) ,int(m_y +m_h/2), healthplate_w, healthplate_h };
+        SDL_Rect HealthIntRect = { int(m_x - healthplate_w/2 / 2.0) ,int(m_y +m_h/2+healthplate_h/4), healthplate_w/2, healthplate_h/2 };
 
         Render->RenderTextureWorld(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
         Render->RenderTextureWorld(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
@@ -318,7 +329,7 @@ void Character::DrawAmmo(){
 
     int Ammo_w, Ammo_h;
     AmmoTexture->Query(nullptr, nullptr, &Ammo_w, &Ammo_h);
-    SDL_Rect AmmoRect = { int(m_x - Ammo_w / 2.0) ,int(m_y +m_h/2+15), Ammo_w, Ammo_h };
+    SDL_Rect AmmoRect = { int(m_x - Ammo_w / 2.0) ,int(m_y +m_h/2+20), Ammo_w, Ammo_h };
     Render->RenderTextureWorld(AmmoTexture->SDLTexture(), nullptr, AmmoRect);
 }
 void Character::Event(const SDL_Event& currentEvent) {

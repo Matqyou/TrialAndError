@@ -21,6 +21,7 @@ public:
         CONTROL_RIGHT,
         CONTROL_DOWN,
         CONTROL_LEFT,
+        CONTROL_SHIFT,
         NUM_CONTROLS,
         CHARACTER_MAX_NAME_LENGTH = 32
     };
@@ -48,6 +49,7 @@ private:
     double m_MaxHealth, m_Health;
     static const int sDefaultControls[NUM_CONTROLS];
     const double m_BaseAcceleration;
+    double m_Acceleration;
     double m_xLook, m_yLook;  // direction
     Hook m_Hook;
     bool m_Hooking, m_LastHooking;
