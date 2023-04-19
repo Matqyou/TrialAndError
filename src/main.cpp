@@ -87,6 +87,9 @@ int main() {
     Sound* ShotgunShootSound = SoundHandler->LoadSound("assets/sounds/ShotgunShoot.wav", true);
     Sound* BurstShootSound = SoundHandler->LoadSound("assets/sounds/ShootBurst.wav", true);
     Sound* ShotgunReloadSound = SoundHandler->LoadSound("assets/sounds/ShotgunReload.wav", true);
+    Sound* Hurt1 = SoundHandler->LoadSound("assets/sounds/Character/Hurt1.wav", true);
+    Sound* Hurt2 = SoundHandler->LoadSound("assets/sounds/Character/Hurt2.wav", true);
+    Sound* Hurt3 = SoundHandler->LoadSound("assets/sounds/Character/Hurt3.wav", true);
 
     WeaponGlock::ms_ShootSound = GlockShootSound;
     WeaponGlock::ms_ClickSound = GlockClickSound;
@@ -102,7 +105,9 @@ int main() {
     WeaponMinigun::ms_ClickSound = GlockClickSound;
     WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
     Character::ms_DeathSound = Basic_Death;
-    Character::ms_HitSound = LowSound; // TODO: use the unused sound
+    Character::ms_HitSounds[0] = Hurt1;
+    Character::ms_HitSounds[1] = Hurt2;
+    Character::ms_HitSounds[2] = Hurt3;
 
     TextSurface TestText = TextSurface(AssetsHandler, TextHandler->FirstFont(), "Jesse -.. .. .", {255, 255, 255, 255 });
 

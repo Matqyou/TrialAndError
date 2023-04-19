@@ -70,8 +70,7 @@ bool Bullets::TickHitPoint(double x, double y) {
 
         if (Shooter && !Collides) { m_StillCollidesShooter = false; }
         else if (Collides && !Shooter || (Shooter && !m_StillCollidesShooter)) {
-            Player->m_Health -= 10; // Primitive dmg function
-            Player->m_HitTicks = 7; //Play sounds of getting hit
+            Player->Damage(10, true);
             delete this;
             return true;
         }

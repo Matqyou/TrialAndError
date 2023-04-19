@@ -9,8 +9,9 @@
 
 Texture* Character::ms_Texture = nullptr;
 Texture* Character::ms_FistTexture = nullptr;
-Sound* Character::ms_HitSound = nullptr;
+Sound* Character::ms_HitSounds[3] = { nullptr, nullptr, nullptr };
 Sound* Character::ms_DeathSound = nullptr;
+// TODO: see if we can make a little system that tells us if the textures/sounds are unitialized
 
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_LSHIFT };
@@ -108,6 +109,17 @@ void Character::SetGameController(GameController* gameController) {
 void Character::Accelerate(double accelerate_x, double accelerate_y) {
     m_xvel += accelerate_x;
     m_yvel += accelerate_y;
+}
+
+void Character::Damage(double damage, bool make_sound) {
+    m_Health -= damage;
+    m_HitTicks = 7;
+
+    if (!make_sound)
+        return;
+
+    Sound* HurtSound = ms_HitSounds[rand()%3];
+    m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(HurtSound);
 }
 
 void Character::TickKeyboardControls() {
@@ -242,8 +254,11 @@ void Character::DrawCharacter() {
         Render->SetColor(255, 0, 0, 255);
 
     else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
-    Render->FillRectFWorld(DrawRect);
+    // Render->FillRectFWorld(DrawRect);
     // Render->RenderTextureFWorld(ms_Texture->SDLTexture(), nullptr,DrawRect);
+    double Angle = std::atan2(m_yvel, m_xvel) / M_PI * 180.0;
+    ms_FistTexture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
+    Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, SDL_FLIP_NONE);
 }
 
 void Character::DrawHook() {

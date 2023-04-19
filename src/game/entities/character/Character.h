@@ -81,7 +81,7 @@ private:
 public:
     static Texture* ms_Texture;
     static Texture* ms_FistTexture;
-    static Sound* ms_HitSound;
+    static Sound* ms_HitSounds[3];
     static Sound* ms_DeathSound;
 
     Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
@@ -93,6 +93,7 @@ public:
 
     void SetGameController(GameController* gameController);
     void Accelerate(double accelerate_x, double accelerate_y);
+    void Damage(double damage, bool make_sound);
 
     void Event(const SDL_Event& currentEvent);
     void Tick() override;
