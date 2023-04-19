@@ -75,13 +75,15 @@ private:
     void DrawCharacter();
     void DrawHook();
     void DrawHealthbar();
-    void DrawHand();
+    void DrawHands();
     void DrawNameplate();
 
 public:
-    static Texture* Chad;
-    static Sound* ch_HitSound;
-    static Sound* ch_DeathSound;
+    static Texture* ms_Texture;
+    static Texture* ms_FistTexture;
+    static Sound* ms_HitSound;
+    static Sound* ms_DeathSound;
+
     Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
     ~Character();
 

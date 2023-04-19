@@ -26,7 +26,8 @@ public:
     SDL_Texture* SDLTexture() const { return m_SDLTexture; }
     void Query(Uint32* format, int* access, int* w, int* h);
 
-    void SetAlpha(int alpha);
+    void SetColorMod(Uint8 r, Uint8 g, Uint8 b);
+    void SetAlphaMod(int alpha);
     void SetAutoCleanup(bool auto_cleanup);
 };
 

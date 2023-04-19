@@ -55,11 +55,18 @@ int main() {
     Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/images/UI/dis_chain.png", true);
     Texture* TextureIcon = ImageHandler->LoadTexture("assets/images/UI/PS4_Controller_Icon.png", true);
     Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
-    Vignette->SetAlpha(200);
+    Vignette->SetAlphaMod(200);
     Texture* Pellet = ImageHandler->LoadTexture("assets/images/Bullets/Pellet.png", true);
     Texture*  Chad = ImageHandler->LoadTexture("assets/images/Character/Chad.png", true);
     Texture* DefaultText = TextHandler->Render(GameWindow->Assets()->TextHandler()->FirstFont(),"Undefined", { 190, 100, 100, 180 }, true);
-    Character::Chad = Chad;
+    Texture* Fist = ImageHandler->CreateTexture(SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1, 1, true);
+    Draw->SetColor(255, 255, 255, 255);
+    Draw->SetRenderTarget(Fist);
+    Draw->Clear();
+    Draw->SetRenderTarget(nullptr);
+
+    Character::ms_Texture = Chad;
+    Character::ms_FistTexture = Fist;
     Bullets::ms_Texture = Pellet;
 
     // Load sounds
@@ -94,8 +101,8 @@ int main() {
     WeaponMinigun::ms_ShootSound = BurstShootSound;
     WeaponMinigun::ms_ClickSound = GlockClickSound;
     WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
-    Character::ch_DeathSound = Basic_Death;
-    Character::ch_HitSound = LowSound; // TODO: use the unused sound
+    Character::ms_DeathSound = Basic_Death;
+    Character::ms_HitSound = LowSound; // TODO: use the unused sound
 
     TextSurface TestText = TextSurface(AssetsHandler, TextHandler->FirstFont(), "Jesse -.. .. .", {255, 255, 255, 255 });
 

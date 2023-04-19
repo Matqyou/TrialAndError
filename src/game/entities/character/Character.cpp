@@ -7,9 +7,11 @@
 #include "../Bullets.h"
 #include <vector>
 
-Texture* Character::Chad = nullptr;
-Sound* Character::ch_HitSound = nullptr;
-Sound* Character::ch_DeathSound = nullptr;
+Texture* Character::ms_Texture = nullptr;
+Texture* Character::ms_FistTexture = nullptr;
+Sound* Character::ms_HitSound = nullptr;
+Sound* Character::ms_DeathSound = nullptr;
+
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_LSHIFT };
 
@@ -240,8 +242,8 @@ void Character::DrawCharacter() {
         Render->SetColor(255, 0, 0, 255);
 
     else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
-    // Render->FillRectFWorld(DrawRect);
-    Render->RenderTextureFWorld(Chad->SDLTexture(), nullptr,DrawRect);
+    Render->FillRectFWorld(DrawRect);
+    // Render->RenderTextureFWorld(ms_Texture->SDLTexture(), nullptr,DrawRect);
 }
 
 void Character::DrawHook() {
@@ -281,7 +283,7 @@ void Character::DrawHealthbar() {
     }
 }
 
-void Character::DrawHand() {
+void Character::DrawHands() {
     Drawing* Render = m_World->GameWindow()->RenderClass();
 
     double XLook = m_x + m_xLook * 50.0;
@@ -289,6 +291,29 @@ void Character::DrawHand() {
     Render->SetColor(m_HandColor.r, m_HandColor.g, m_HandColor.b, 255);
     Render->LineWorld(int(m_x), int(m_y), int(XLook), int(YLook));
 
+    // TODO: Make different hand positions for different weapons (interesting problem)
+    if (m_CurrentWeapon)
+        return;
+
+    double Radians = std::atan2(m_yLook, m_xLook);
+    double Angle = Radians / M_PI * 180.0;
+
+    double OffAngle = 40.0 / 180.0 * M_PI;
+    double XOffLeft = std::cos(-OffAngle + Radians) * 25.0;
+    double YOffLeft = std::sin(-OffAngle + Radians) * 25.0;
+    double XOffRight = std::cos(OffAngle + Radians) * 25.0;
+    double YOffRight = std::sin(OffAngle + Radians) * 25.0;
+
+    SDL_FRect HandRectLeft = { float(m_x - 9 + XOffLeft),
+                               float(m_y - 9 + YOffLeft),
+                               18, 18 };
+    SDL_FRect HandRectRight = { float(m_x - 9 + XOffRight),
+                                float(m_y - 9 + YOffRight),
+                                18, 18 };
+
+    ms_FistTexture->SetColorMod(m_HookColor.r, m_HookColor.g, m_HookColor.b);
+    Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE);
+    Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE);
 }
 
 void Character::DrawNameplate() {
@@ -339,6 +364,8 @@ void Character::Event(const SDL_Event& currentEvent) {
     if (currentEvent.type == SDL_KEYDOWN ||
         currentEvent.type == SDL_KEYUP) {
         bool State = currentEvent.type == SDL_KEYDOWN;
+        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_GRAVE)
+            m_CurrentWeapon = nullptr;
         if (currentEvent.key.keysym.scancode == SDL_SCANCODE_1 && m_Weapons[WEAPON_GLOCK])
             m_CurrentWeapon = m_Weapons[WEAPON_GLOCK];
         else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2 && m_Weapons[WEAPON_SHOTGUN])
@@ -385,7 +412,7 @@ void Character::Tick() {
         m_HitTicks = 0;
 
     if (m_Health <= 0.0) {
-        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ch_DeathSound);
+        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
         delete this;
     }
 }
@@ -400,10 +427,10 @@ void Character::Draw() {
     m_HandColor = HSLtoRGB({ m_ColorHue, 1.0 - Light, 1.0 });
     m_NameplateColor = m_HandColor;
 
-    DrawCharacter();
     DrawHook();
+    DrawHands();
+    DrawCharacter();
     DrawHealthbar();
-    DrawHand();
     DrawNameplate();
     if(m_CurrentWeapon) DrawAmmo();
 }
