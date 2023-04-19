@@ -106,6 +106,10 @@ void Drawing::RenderTextureFullscreen(SDL_Texture* texture, SDL_Rect* srcrect) {
     SDL_RenderCopy(m_Renderer, texture, srcrect, nullptr);
 }
 
+void Drawing::SetColor(SDL_Color color) {
+    SetColor(color.r, color.g, color.b, color.a);
+}
+
 void Drawing::SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
     SDL_SetRenderDrawColor(m_Renderer, r, g, b, a);
 }

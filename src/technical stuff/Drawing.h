@@ -42,6 +42,7 @@ public:
     void RenderTextureFWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect);  // Lets you render a basic texture
     void RenderTextureExFWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect, double angle, SDL_FPoint* center, SDL_RendererFlip flip);
     void RenderTextureFullscreen(SDL_Texture*, SDL_Rect* srcrect);
+    void SetColor(SDL_Color color);  // Sets the color of the renderer
     void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);  // Sets the color of the renderer
     void Clear();  // Resets all pixels to a color value
     void BlendFullscreen();  // If color blending is enabled, fill the window with a semi-transparent tone

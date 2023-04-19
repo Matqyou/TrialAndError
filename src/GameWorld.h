@@ -8,6 +8,7 @@
 #include "GameReference.h"
 #include "technical stuff/GameControllers.h"
 #include "game/indicators/TextSurface.h"
+#include "game/collision/TileMap.h"
 
 class Entity;
 class Character;
@@ -21,6 +22,7 @@ public:
 
 private:
     GameReference* m_GameWindow;
+    TileMap* m_Tiles;
     double m_Width, m_Height;  // maybe better if it was int
     double m_ShowNamesVisibility;
     bool m_ShowNames;
@@ -37,7 +39,7 @@ private:
     int m_BackgroundW{}, m_BackgroundH{};
 
 public:
-    GameWorld(GameReference* gameWindow, double width, double height);
+    GameWorld(GameReference* game_window, int width, int height);
     ~GameWorld();
     static Texture* Chad;
     GameReference* GameWindow() const { return m_GameWindow; }

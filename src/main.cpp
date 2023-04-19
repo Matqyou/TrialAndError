@@ -21,7 +21,7 @@ bool Initialize() {
     TextManager* TextHandler = GameWindow->Assets()->TextHandler();
     TextHandler->LoadFont("GROBOLD.ttf", 16);
 
-    World = new GameWorld(GameWindow, 9000, 6000);
+    World = new GameWorld(GameWindow, 200, 200);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
@@ -79,6 +79,7 @@ int main() {
     WeaponGlock::ms_ShootSound = GlockShootSound;
     WeaponGlock::ms_ClickSound = GlockClickSound;
     WeaponGlock::ms_ReloadSound = ShotgunReloadSound;
+    ProjectileWeapon::ms_NoAmmo = Fail_Death;
     WeaponShotgun::ms_ShootSound = ShotgunShootSound;
     WeaponShotgun::ms_ClickSound = GlockClickSound;
     WeaponShotgun::ms_ReloadSound = ShotgunReloadSound;
@@ -159,7 +160,7 @@ int main() {
                 } break;
             }
         }
-
+    
         // Ticking
         if(!ignore_ticks)World->Tick();
         else ignore_ticks -=1;

@@ -8,6 +8,7 @@
 #include <cmath>
 
 Sound* ProjectileWeapon::ms_ReloadSound = nullptr;
+Sound* ProjectileWeapon::ms_NoAmmo = nullptr;
 
 double ProjectileWeapon::GenerateSpreadAngle() const {
     return (double(rand() % m_FullRandomSpread) - m_HalfRandomSpread) / m_RandomSpreadDivisor;
@@ -25,6 +26,7 @@ ProjectileWeapon::ProjectileWeapon(Character* owner, WeaponType type, int tick_c
     m_TickCooldown = tick_cooldown;
     m_AmmoCapacity = ammo_capacity;
     m_Ammo = m_AmmoCapacity;
+    m_TrueAmmo = m_AmmoCapacity*3;
     m_ProjectileSpeed = projectile_speed;
     m_Automatic = automatic;
     m_Triggered = false;
@@ -77,9 +79,23 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed, double delta
 }
 
 void ProjectileWeapon::Reload() {
-    m_Ammo = m_AmmoCapacity;
+    unsigned int AmmoNeeded = m_AmmoCapacity - m_Ammo;
+    if (m_TrueAmmo >= AmmoNeeded){
+        m_TrueAmmo -= AmmoNeeded;
+        m_Ammo = m_AmmoCapacity;
+    }
+    else {
+        m_Ammo += m_TrueAmmo;
+        m_TrueAmmo = 0;
+    }
+    if(m_TrueAmmo != 0){
+        m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ReloadSound);
+    }
+    else {
+        m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_NoAmmo);
 
-    m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ReloadSound);
+
+    }
 }
 
 void ProjectileWeapon::Tick() {
