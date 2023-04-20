@@ -59,17 +59,7 @@ int main() {
     Texture* Pellet = ImageHandler->LoadTexture("assets/images/Bullets/Pellet.png", true);
     Texture*  Chad = ImageHandler->LoadTexture("assets/images/Character/Chad.png", true);
     Texture* DefaultText = TextHandler->Render(GameWindow->Assets()->TextHandler()->FirstFont(),"Undefined", { 190, 100, 100, 180 }, true);
-    Texture* Fist = ImageHandler->CreateTexture(SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100, true);
-    Draw->SetColor(255, 255, 255, 255);
-    Draw->SetRenderTarget(Fist);
-    Draw->Clear();
-    Draw->SetRenderTarget(nullptr);
-    // Texture* Fist = ImageHandler->LoadTexture("assets/images/Character/Fist.png", true);
-    // Uint32 format;
-    // int access, w, h;
-    // Fist->Query(&format, &access, &w, &h);
-    // std::printf("%i %i %i %i\n", format, access, w, h);
-    // SDL_PIXELFORMAT_RGBA8888;
+    Texture* Fist = ImageHandler->LoadTexture("assets/images/Character/Fist.png", true);
 
     Character::ms_Texture = Chad;
     Character::ms_FistTexture = Fist;

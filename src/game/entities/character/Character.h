@@ -42,7 +42,8 @@ private:
     bool m_Movement[NUM_CONTROLS] {};
     int m_Controls[NUM_CONTROLS] {};
     bool m_Controllable;
-    bool m_Shooting, m_LastShooting;
+    bool m_Using, m_LastUsing;
+    unsigned long long m_LastFisted;
     // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
     ProjectileWeapon* m_Weapons[NUM_WEAPONS] {};
     ProjectileWeapon* m_CurrentWeapon;
@@ -69,7 +70,7 @@ private:
     void TickGameControllerControls();
     void TickControls();
     void TickHook();
-    void TickWeapon();
+    void TickCurrentWeapon();
     void DrawAmmo();
 
     void DrawCharacter();

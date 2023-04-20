@@ -23,8 +23,9 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
    m_HealthBar(world->GameWindow(), &m_Health, &m_MaxHealth, 75, 15, 2, 2) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
-    m_Shooting = false;
-    m_LastShooting = false;
+    m_Using = false;
+    m_LastFisted = 0;
+    m_LastUsing = false;
     m_Reloading = false;
     m_LastReloading = false;
 
@@ -160,7 +161,7 @@ void Character::TickKeyboardControls() {
     }
 
     auto MouseState = SDL_GetMouseState(nullptr, nullptr);
-    m_Shooting = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
+    m_Using = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
     m_Hooking = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
 }
 
@@ -203,7 +204,7 @@ void Character::TickGameControllerControls() {
     }
 
     // Shooting
-    m_Shooting = m_GameController->GetRightTrigger() > 0.7;
+    m_Using = m_GameController->GetRightTrigger() > 0.7;
     m_Hooking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
     m_Reloading = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X);
 
@@ -230,14 +231,18 @@ void Character::TickHook() {
     m_Hook.Tick(m_Hooking, m_LastHooking);
 }
 
-void Character::TickWeapon() {
-    if (!m_CurrentWeapon)
+void Character::TickCurrentWeapon() {
+    if (m_CurrentWeapon) {
+        if (m_Reloading && !m_LastReloading)
+            m_CurrentWeapon->Reload();
+
+        m_CurrentWeapon->Tick();
         return;
+    }
 
-    if (m_Reloading && !m_LastReloading)
-        m_CurrentWeapon->Reload();
-
-    m_CurrentWeapon->Tick();
+    auto CurrentTick = m_World->GameWindow()->Timer()->CurrentTick();
+    if (CurrentTick - m_LastFisted >= 5 )
+        // unfinished
 }
 
 void Character::DrawCharacter() {
@@ -252,7 +257,7 @@ void Character::DrawCharacter() {
    // else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
     // Render->FillRectFWorld(DrawRect);
     // Render->RenderTextureFWorld(ms_Texture->SDLTexture(), nullptr,DrawRect);
-    // ms_FistTexture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
+    ms_FistTexture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
 
     double Angle = std::atan2(m_yvel, m_xvel) / M_PI * 180.0;
     Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, SDL_FLIP_NONE);
@@ -323,7 +328,7 @@ void Character::DrawHands() {
                                 float(m_y - 9 + YOffRight),
                                 18, 18 };
 
-    // ms_FistTexture->SetColorMod(m_HookColor.r, m_HookColor.g, m_HookColor.b);
+    ms_FistTexture->SetColorMod(m_HookColor.r, m_HookColor.g, m_HookColor.b);
     Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE);
     Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE);
 }
@@ -404,7 +409,7 @@ void Character::Tick() {
         m_Health = m_MaxHealth;
 
     TickControls();  // Do stuff depending on the current held buttons
-    TickWeapon(); // Shoot accelerate reload etc.
+    TickCurrentWeapon(); // Shoot accelerate reload etc.
     TickHook();  // Move hook and or player etc.
 
     // Need every character to get here..
@@ -415,7 +420,7 @@ void Character::Tick() {
     TickVelocity();  // Move the character entity
     TickWalls();  // Check if colliding with walls
 
-    m_LastShooting = m_Shooting;
+    m_LastUsing = m_Using;
     m_LastHooking = m_Hooking;
     m_LastReloading = m_Reloading;
 
