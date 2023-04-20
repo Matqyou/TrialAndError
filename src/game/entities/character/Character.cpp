@@ -124,34 +124,35 @@ void Character::Damage(double damage, bool make_sound) {
 
 
 bool Character::AmmoPickup(Ammo* ammo){
-    if((ammo->Type() == GLOCK_AMMO) and (m_Weapons[WEAPON_GLOCK] != nullptr)) {
+    if((ammo->Type() == GLOCK_AMMO) && (m_Weapons[WEAPON_GLOCK] != nullptr)) {
         AmmoAdded = m_Weapons[WEAPON_GLOCK]->SetAmmo(ammo->AmmoCount());
         ammo->SetAmmoCount(AmmoAdded);
         if (0 >= ammo->AmmoCount()) {
             return true;
         }
     }
-    if ((ammo->Type() == BURST_AMMO) and (m_Weapons[WEAPON_BURST] != nullptr)) {
+    if ((ammo->Type() == BURST_AMMO) && (m_Weapons[WEAPON_BURST] != nullptr)) {
         AmmoAdded = m_Weapons[WEAPON_BURST]->SetAmmo(ammo->AmmoCount());
         ammo->SetAmmoCount(AmmoAdded);
         if (0 >= ammo->AmmoCount()) {
             return true;
         }
     }
-    if ((ammo->Type() == SHOTGUN_AMMO) and (m_Weapons[WEAPON_SHOTGUN] != nullptr)) {
+    if ((ammo->Type() == SHOTGUN_AMMO) && (m_Weapons[WEAPON_SHOTGUN] != nullptr)) {
         AmmoAdded = m_Weapons[WEAPON_SHOTGUN]->SetAmmo(ammo->AmmoCount());
         ammo->SetAmmoCount(AmmoAdded);
         if (0 >= ammo->AmmoCount()) {
             return true;
         }
     }
-    if ((ammo->Type() == MACHINEGUN_AMMO) and (m_Weapons[WEAPON_MACHINEGUN] != nullptr)) {
+    if ((ammo->Type() == MACHINEGUN_AMMO) && (m_Weapons[WEAPON_MACHINEGUN] != nullptr)) {
         AmmoAdded = m_Weapons[WEAPON_MACHINEGUN]->SetAmmo(ammo->AmmoCount());
         ammo->SetAmmoCount(AmmoAdded);
         if (0 >= ammo->AmmoCount()) {
             return true;
         }
     }
+    return false;
 }
 
 
