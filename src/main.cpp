@@ -200,7 +200,7 @@ int main() {
         if (World->Paused()) {
             Draw->SetBlendingMode(SDL_BLENDMODE_BLEND);
             Draw->SetColor(0, 0, 0, 100);
-            Draw->BlendFullscreen();
+            Draw->FillAll();
             Draw->SetBlendingMode(SDL_BLENDMODE_NONE);
 
             // start

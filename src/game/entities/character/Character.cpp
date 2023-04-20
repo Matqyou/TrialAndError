@@ -134,9 +134,7 @@ void Character::TickKeyboardControls() {
     bool Vertically = MoveUp != MoveDown;
 
     // Depending on if shift is held, change accelaration value
-    if(SlowMove){
-        m_Acceleration = m_BaseAcceleration/3;
-    }
+    if(SlowMove) m_Acceleration = m_BaseAcceleration/3;
     else m_Acceleration = m_BaseAcceleration;
 
     // Accelerate when buttons are held
@@ -254,7 +252,7 @@ void Character::DrawCharacter() {
    // else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
     // Render->FillRectFWorld(DrawRect);
     // Render->RenderTextureFWorld(ms_Texture->SDLTexture(), nullptr,DrawRect);
-    ms_FistTexture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
+    // ms_FistTexture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
 
     double Angle = std::atan2(m_yvel, m_xvel) / M_PI * 180.0;
     Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, SDL_FLIP_NONE);
@@ -325,7 +323,7 @@ void Character::DrawHands() {
                                 float(m_y - 9 + YOffRight),
                                 18, 18 };
 
-    ms_FistTexture->SetColorMod(m_HookColor.r, m_HookColor.g, m_HookColor.b);
+    // ms_FistTexture->SetColorMod(m_HookColor.r, m_HookColor.g, m_HookColor.b);
     Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE);
     Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE);
 }
