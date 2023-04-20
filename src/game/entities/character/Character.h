@@ -13,6 +13,7 @@
 #include "../../indicators/HealthBar.h"
 #include "../../indicators/TextSurface.h"
 #include "Hook.h"
+#include "../Ammo.h"
 
 class Character : public Entity {
 public:
@@ -51,6 +52,7 @@ private:
     const double m_BaseAcceleration;
     double m_Acceleration;
     double m_xLook, m_yLook;  // direction
+    double AmmoAdded;
     Hook m_Hook;
     bool m_Hooking, m_LastHooking;
     bool m_Reloading, m_LastReloading;
@@ -91,6 +93,7 @@ public:
     GameController* GetGameController() const { return m_GameController; }
     int PlayerIndex() const { return m_PlayerIndex; }
 
+    bool AmmoPickup(Ammo* ammo);
     void SetGameController(GameController* gameController);
     void Accelerate(double accelerate_x, double accelerate_y);
     void Damage(double damage, bool make_sound);

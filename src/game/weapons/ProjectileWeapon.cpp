@@ -78,6 +78,25 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed, double delta
     m_FullRandomProjectileSpeed = int(FullSpeed) + 1;
 }
 
+double ProjectileWeapon::SetAmmo(double count){
+    double AddedAmmo = 0;
+    if(m_TrueAmmo >= m_AmmoCapacity*3) return AddedAmmo;
+    if(m_TrueAmmo+count > m_AmmoCapacity*3){
+        for(; count>0; count -=1){
+            if(m_TrueAmmo < m_AmmoCapacity*3){
+                m_TrueAmmo += 1;
+                AddedAmmo +=1;
+            }
+
+        }
+    }
+    else {
+        m_TrueAmmo += count;
+        AddedAmmo = count;
+    }
+    return AddedAmmo;
+}
+
 void ProjectileWeapon::Reload() {
     if(m_TrueAmmo != 0){
         m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ReloadSound);

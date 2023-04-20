@@ -122,6 +122,39 @@ void Character::Damage(double damage, bool make_sound) {
     m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(HurtSound);
 }
 
+
+bool Character::AmmoPickup(Ammo* ammo){
+    if((ammo->Type() == GLOCK_AMMO) and (m_Weapons[WEAPON_GLOCK] != nullptr)) {
+        AmmoAdded = m_Weapons[WEAPON_GLOCK]->SetAmmo(ammo->AmmoCount());
+        ammo->SetAmmoCount(AmmoAdded);
+        if (0 >= ammo->AmmoCount()) {
+            return true;
+        }
+    }
+    if ((ammo->Type() == BURST_AMMO) and (m_Weapons[WEAPON_BURST] != nullptr)) {
+        AmmoAdded = m_Weapons[WEAPON_BURST]->SetAmmo(ammo->AmmoCount());
+        ammo->SetAmmoCount(AmmoAdded);
+        if (0 >= ammo->AmmoCount()) {
+            return true;
+        }
+    }
+    if ((ammo->Type() == SHOTGUN_AMMO) and (m_Weapons[WEAPON_SHOTGUN] != nullptr)) {
+        AmmoAdded = m_Weapons[WEAPON_SHOTGUN]->SetAmmo(ammo->AmmoCount());
+        ammo->SetAmmoCount(AmmoAdded);
+        if (0 >= ammo->AmmoCount()) {
+            return true;
+        }
+    }
+    if ((ammo->Type() == MACHINEGUN_AMMO) and (m_Weapons[WEAPON_MACHINEGUN] != nullptr)) {
+        AmmoAdded = m_Weapons[WEAPON_MACHINEGUN]->SetAmmo(ammo->AmmoCount());
+        ammo->SetAmmoCount(AmmoAdded);
+        if (0 >= ammo->AmmoCount()) {
+            return true;
+        }
+    }
+}
+
+
 void Character::TickKeyboardControls() {
     // Check if buttons are held
     bool MoveUp = m_Movement[CONTROL_UP];
@@ -358,6 +391,8 @@ void Character::DrawNameplate() {
     SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
     Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
 }
+
+
 
 void Character::DrawAmmo(){
     Drawing* Render = m_World->GameWindow()->RenderClass();

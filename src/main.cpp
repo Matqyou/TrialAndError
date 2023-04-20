@@ -27,9 +27,15 @@ bool Initialize() {
     GameWindow->RenderClass()->SetWorld(World);
 
     //Temp ammo spawn
-    AmmoCrates = new Ammo(World, GLOCK_AMMO, 200,200);
-    AmmoCrates = new Ammo(World, GLOCK_AMMO, 400,200);
-    AmmoCrates = new Ammo(World, GLOCK_AMMO, 600,200);
+    AmmoCrates = new Ammo(World, GLOCK_AMMO, 200,200, 20);
+    new Ammo(World, GLOCK_AMMO, 400,200, 20);
+    new Ammo(World, GLOCK_AMMO, 600,200, 20);
+    new Ammo(World, SHOTGUN_AMMO, 200,400, 20);
+    new Ammo(World, SHOTGUN_AMMO, 400,400, 20);
+    new Ammo(World, BURST_AMMO, 600,400, 20);
+    new Ammo(World, BURST_AMMO, 200,600, 20);
+    new Ammo(World, MACHINEGUN_AMMO, 400,600, 20);
+    new Ammo(World, MACHINEGUN_AMMO, 600,600, 20);
     Controllers = new GameControllers();
     new Character(World, 30, 30, 10, 10);
     return true;

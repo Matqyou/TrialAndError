@@ -55,6 +55,7 @@ public:
     unsigned int TrueAmmo() const {return m_TrueAmmo;}
     unsigned  int AmmoCap() const {return m_AmmoCapacity;}
     void SetSpread(double degrees, int decimal_places);
+    double SetAmmo(double count);
     void SetRandomProjectileSpeed(double delta_speed, double delta_percentage_negative, int delta_decimal_places);
     void Reload();
     virtual void Tick();
