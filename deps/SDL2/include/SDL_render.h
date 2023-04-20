@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -1104,7 +1104,7 @@ extern DECLSPEC int SDLCALL SDL_GetRenderDrawColor(SDL_Renderer * renderer,
                                            Uint8 * a);
 
 /**
- * Set the blend mode used for drawing operations (Clear and Line).
+ * Set the blend mode used for drawing operations (Fill and Line).
  *
  * If the blend mode is not supported, the closest supported mode is chosen.
  *
@@ -1324,7 +1324,7 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawRects(SDL_Renderer * renderer,
                                                 int count);
 
 /**
- * Clear a rectangle on the current rendering target with the drawing color.
+ * Fill a rectangle on the current rendering target with the drawing color.
  *
  * The current drawing color is set by SDL_SetRenderDrawColor(), and the
  * color's alpha value is ignored unless blending is enabled with the
@@ -1353,7 +1353,7 @@ extern DECLSPEC int SDLCALL SDL_RenderFillRect(SDL_Renderer * renderer,
                                                const SDL_Rect * rect);
 
 /**
- * Clear some number of rectangles on the current rendering target with the
+ * Fill some number of rectangles on the current rendering target with the
  * drawing color.
  *
  * \param renderer the rendering context
@@ -1545,7 +1545,7 @@ extern DECLSPEC int SDLCALL SDL_RenderDrawRectsF(SDL_Renderer * renderer,
                                                  int count);
 
 /**
- * Clear a rectangle on the current rendering target with the drawing color at
+ * Fill a rectangle on the current rendering target with the drawing color at
  * subpixel precision.
  *
  * \param renderer The renderer which should fill a rectangle.
@@ -1559,7 +1559,7 @@ extern DECLSPEC int SDLCALL SDL_RenderFillRectF(SDL_Renderer * renderer,
                                                 const SDL_FRect * rect);
 
 /**
- * Clear some number of rectangles on the current rendering target with the
+ * Fill some number of rectangles on the current rendering target with the
  * drawing color at subpixel precision.
  *
  * \param renderer The renderer which should fill multiple rectangles.
@@ -1764,6 +1764,9 @@ extern DECLSPEC void SDLCALL SDL_DestroyTexture(SDL_Texture * texture);
 
 /**
  * Destroy the rendering context for a window and free associated textures.
+ *
+ * If `renderer` is NULL, this function will return immediately after setting
+ * the SDL error message to "Invalid renderer". See SDL_GetError().
  *
  * \param renderer the rendering context
  *

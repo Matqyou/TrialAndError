@@ -85,6 +85,10 @@ bool GameReference::InitializeTTF() {
 }
 
 bool GameReference::Initialize() {
+    SDL_version Version;
+    SDL_GetVersion(&Version);
+    std::cout << "Using SDL " << (int)Version.major << "." << (int)Version.minor << "." << (int)Version.patch << std::endl;
+
     if (!InitializeSDL() ||
         !InitializeMix() ||
         !InitializeAudio() ||

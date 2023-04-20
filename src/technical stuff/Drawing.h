@@ -45,7 +45,7 @@ public:
     void SetColor(SDL_Color color);  // Sets the color of the renderer
     void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);  // Sets the color of the renderer
     void Clear();  // Resets all pixels to a color value
-    void BlendFullscreen();  // If color blending is enabled, fill the window with a semi-transparent tone
+    void FillAll();  // If color blending is enabled, fill the window with a semi-transparent tone
     void UpdateWindow();  // Pushes the latest state of the pixels to window
 };
 

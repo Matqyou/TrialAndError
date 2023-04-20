@@ -118,7 +118,7 @@ void Drawing::Clear() {
     SDL_RenderClear(m_Renderer);
 }
 
-void Drawing::BlendFullscreen() {
+void Drawing::FillAll() {
     SDL_RenderFillRect(m_Renderer, nullptr);
 }
 
