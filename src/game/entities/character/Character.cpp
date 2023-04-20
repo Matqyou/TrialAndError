@@ -250,14 +250,13 @@ void Character::DrawCharacter() {
                           float(m_w),
                           float(m_h)};
 
-    if(m_HitTicks > 0)
-        Render->SetColor(255, 0, 0, 255);
-
-    else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
+   // if(m_HitTicks > 0) Render->SetColor(255, 0, 0, 255);
+   // else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
     // Render->FillRectFWorld(DrawRect);
     // Render->RenderTextureFWorld(ms_Texture->SDLTexture(), nullptr,DrawRect);
-    double Angle = std::atan2(m_yvel, m_xvel) / M_PI * 180.0;
     ms_FistTexture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
+
+    double Angle = std::atan2(m_yvel, m_xvel) / M_PI * 180.0;
     Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, SDL_FLIP_NONE);
 }
 
@@ -436,10 +435,11 @@ void Character::Draw() {
     Clock* Timer = m_World->GameWindow()->Timer();
     double Light = 0.5 + (std::sin(Timer->GetTotalTimeElapsed() - m_ExistsSince) + 1.0) / 4;
 
-    m_CharacterColor = HSLtoRGB({ m_ColorHue, Light, 1.0 });
-    m_HookColor = HSLtoRGB({ m_ColorHue, 1.0, Light });
+    double Hue = m_HitTicks ? 0.0 : m_ColorHue;
+    m_CharacterColor = HSLtoRGB({ Hue, Light, 1.0 });
+    m_HookColor = HSLtoRGB({ Hue, 1.0, Light });
     m_HealthbarColor = m_CharacterColor;
-    m_HandColor = HSLtoRGB({ m_ColorHue, 1.0 - Light, 1.0 });
+    m_HandColor = HSLtoRGB({ Hue, 1.0 - Light, 1.0 });
     m_NameplateColor = m_HandColor;
 
     DrawHook();

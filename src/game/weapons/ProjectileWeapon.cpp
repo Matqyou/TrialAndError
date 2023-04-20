@@ -79,6 +79,12 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed, double delta
 }
 
 void ProjectileWeapon::Reload() {
+    if(m_TrueAmmo != 0){
+        m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ReloadSound);
+    }
+    else {
+        m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_NoAmmo);
+    }
     unsigned int AmmoNeeded = m_AmmoCapacity - m_Ammo;
     if (m_TrueAmmo >= AmmoNeeded){
         m_TrueAmmo -= AmmoNeeded;
@@ -87,14 +93,6 @@ void ProjectileWeapon::Reload() {
     else {
         m_Ammo += m_TrueAmmo;
         m_TrueAmmo = 0;
-    }
-    if(m_TrueAmmo != 0){
-        m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ReloadSound);
-    }
-    else {
-        m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_NoAmmo);
-
-
     }
 }
 

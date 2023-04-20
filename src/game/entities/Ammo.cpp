@@ -21,8 +21,8 @@ bool Ammo::TickImpact(double x, double y) {
                         (Player->GetY() + 25 > y);
 
         if (Collides) {
-            std::cout << "Ammo picked up";
-            //TO DO Increase ammo amount, also check which type of ammo has been picked up aswell
+            std::cout << "Ammo picked up"<< std::endl;
+            // TODO Increase ammo amount, also check which type of ammo has been picked up aswell
             // something like if(m_Type == GLOCK_AMMO){
             // m_WeaponType->m_Ammo == m_AmmoCapacity
             // }
