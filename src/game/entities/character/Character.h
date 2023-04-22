@@ -44,6 +44,7 @@ private:
     bool m_Controllable;
     bool m_Using, m_LastUsing;
     unsigned long long m_LastFisted;
+    unsigned long long m_LastFistedL, m_LastFistedR;
     // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
     ProjectileWeapon* m_Weapons[NUM_WEAPONS] {};
     ProjectileWeapon* m_CurrentWeapon;

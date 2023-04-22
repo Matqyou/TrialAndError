@@ -25,6 +25,8 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     m_ColorHue = double(rand()%360);
     m_Using = false;
     m_LastFisted = 0;
+    m_LastFistedL = 0;
+    m_LastFistedR = 0;
     m_LastUsing = false;
     m_Reloading = false;
     m_LastReloading = false;
@@ -237,12 +239,43 @@ void Character::TickCurrentWeapon() {
             m_CurrentWeapon->Reload();
 
         m_CurrentWeapon->Tick();
-        return;
-    }
+    } else {
+        auto CurrentTick = m_World->CurrentTick();
+        if (CurrentTick - m_LastFisted < 5)
+            return;
 
-    auto CurrentTick = m_World->GameWindow()->Timer()->CurrentTick();
-    if (CurrentTick - m_LastFisted >= 5 )
-        // unfinished
+        if (m_Using && !m_LastUsing) {
+            m_LastFisted = CurrentTick;
+
+            double Radians = std::atan2(m_yLook, m_xLook);
+            double OffAngle = 40.0 / 180.0 * M_PI;
+
+            double XHands, YHands;
+            if (m_LastFistedR < m_LastFistedL) {
+                m_LastFistedR = CurrentTick;
+                XHands = m_x + std::cos(OffAngle + Radians) * 25.0;
+                YHands = m_y + std::sin(OffAngle + Radians) * 25.0;
+            } else {
+                m_LastFistedL = CurrentTick;
+                XHands = m_x + std::cos(-OffAngle + Radians) * 25.0;
+                YHands = m_y + std::sin(-OffAngle + Radians) * 25.0;
+            }
+
+            auto Player = m_World->FirstPlayer();
+            for (; Player; Player = (Character *) (Player->NextType())) {
+                if (Player == this)
+                    continue;
+
+                double XClosest = std::max(Player->GetX() - Player->GetW() / 2.0, std::min(Player->GetX() + Player->GetW() / 2.0, XHands));
+                double YClosest = std::max(Player->GetY() - Player->GetH() / 2.0, std::min(Player->GetY() + Player->GetH() / 2.0, YHands));
+                double Distance = std::sqrt(std::pow(XClosest - XHands, 2) + std::pow(YClosest - YHands, 2));
+                if (Distance < 10) {
+                    Player->Damage(7, true);
+                    Player->Accelerate(m_xLook * 5.0, m_yLook * 5.0);
+                }
+            }
+        }
+    }
 }
 
 void Character::DrawCharacter() {
@@ -312,14 +345,25 @@ void Character::DrawHands() {
     if (m_CurrentWeapon)
         return;
 
+    auto CurrentTick = m_World->CurrentTick();
     double Radians = std::atan2(m_yLook, m_xLook);
     double Angle = Radians / M_PI * 180.0;
 
+    const double FistingLength = 10;
+
+    double FistingKoefficientL = double(CurrentTick - m_LastFistedL) / double(FistingLength);
+    double FistingKoefficientR = double(CurrentTick - m_LastFistedR) / double(FistingLength);
+    if (FistingKoefficientL > 1.0) FistingKoefficientL = 1.0;
+    if (FistingKoefficientR > 1.0) FistingKoefficientR = 1.0;
+
+    FistingKoefficientL = (1.0 - FistingKoefficientL) * 20.0;
+    FistingKoefficientR = (1.0 - FistingKoefficientR) * 20.0;
+
     double OffAngle = 40.0 / 180.0 * M_PI;
-    double XOffLeft = std::cos(-OffAngle + Radians) * 25.0;
-    double YOffLeft = std::sin(-OffAngle + Radians) * 25.0;
-    double XOffRight = std::cos(OffAngle + Radians) * 25.0;
-    double YOffRight = std::sin(OffAngle + Radians) * 25.0;
+    double XOffLeft = std::cos(-OffAngle + Radians) * 25.0 + m_xLook * FistingKoefficientL;
+    double YOffLeft = std::sin(-OffAngle + Radians) * 25.0 + m_yLook * FistingKoefficientL;
+    double XOffRight = std::cos(OffAngle + Radians) * 25.0 + m_xLook * FistingKoefficientR;
+    double YOffRight = std::sin(OffAngle + Radians) * 25.0 + m_yLook * FistingKoefficientR;
 
     SDL_FRect HandRectLeft = { float(m_x - 9 + XOffLeft),
                                float(m_y - 9 + YOffLeft),
