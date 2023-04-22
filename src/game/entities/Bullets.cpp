@@ -72,6 +72,7 @@ bool Bullets::TickHitPoint(double x, double y) {
         if (Shooter && !Collides) { m_StillCollidesShooter = false; }
         else if (Collides && !Shooter || (Shooter && !m_StillCollidesShooter)) {
             Player->Damage(m_Damage, true);
+            Player->Accelerate(m_xvel * 0.05, m_yvel * 0.05);
             delete this;
             return true;
         }
