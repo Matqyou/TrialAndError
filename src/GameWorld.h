@@ -15,9 +15,9 @@ class Character;
 class GameWorld {
 public:
     enum EntityType {
-        ENTTYPE_CHARACTER,
-        ENTTYPE_BULLET,
         ENTTYPE_AMMO,
+        ENTTYPE_BULLET,
+        ENTTYPE_CHARACTER,
         NUM_ENTTYPES
     };
 

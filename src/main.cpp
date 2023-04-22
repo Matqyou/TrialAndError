@@ -12,7 +12,7 @@
 GameReference* GameWindow;
 GameWorld* World;
 GameControllers* Controllers;
-Ammo* AmmoCrates; // they are already in m_World->FirstEntityType(ENTTYPE_AMMO)
+
 bool Initialize() {
     srand(time(nullptr));
     GameWindow = new GameReference();
@@ -27,17 +27,17 @@ bool Initialize() {
     GameWindow->RenderClass()->SetWorld(World);
 
     //Temp ammo spawn
-    AmmoCrates = new Ammo(World, GLOCK_AMMO, 200,200, 20);
-    new Ammo(World, GLOCK_AMMO, 400,200, 20);
-    new Ammo(World, GLOCK_AMMO, 600,200, 20);
-    new Ammo(World, SHOTGUN_AMMO, 200,400, 20);
-    new Ammo(World, SHOTGUN_AMMO, 400,400, 20);
-    new Ammo(World, BURST_AMMO, 600,400, 20);
-    new Ammo(World, BURST_AMMO, 200,600, 20);
-    new Ammo(World, MACHINEGUN_AMMO, 400,600, 20);
-    new Ammo(World, MACHINEGUN_AMMO, 600,600, 20);
+    new Ammo(World, AMMO_GLOCK, 200, 200, 20);
+    new Ammo(World, AMMO_GLOCK, 400, 200, 20);
+    new Ammo(World, AMMO_GLOCK, 600, 200, 20);
+    new Ammo(World, AMMO_SHOTGUN, 200, 400, 20);
+    new Ammo(World, AMMO_SHOTGUN, 400, 400, 20);
+    new Ammo(World, AMMO_BURST, 600, 400, 20);
+    new Ammo(World, AMMO_BURST, 200, 600, 20);
+    new Ammo(World, AMMO_MINIGUN, 400, 600, 20);
+    new Ammo(World, AMMO_MINIGUN, 600, 600, 20);
     Controllers = new GameControllers();
-    new Character(World, 30, 30, 10, 10);
+    new Character(World, 100.0, 30, 30, 10, 10, false);
     return true;
 }
 
@@ -57,23 +57,19 @@ int main() {
     // Load the PNG images
     Texture* TextureStart = ImageHandler->LoadTexture("assets/images/UI/Start.png", true);
     Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/UI/Settings.png", true);
-    Texture* TextureConnected = ImageHandler->LoadTexture("assets/images/UI/chain.png", true);
-    Texture* TextureDisconnected = ImageHandler->LoadTexture("assets/images/UI/dis_chain.png", true);
-    Texture* TextureIcon = ImageHandler->LoadTexture("assets/images/UI/PS4_Controller_Icon.png", true);
     Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
     Vignette->SetAlphaMod(200);
-    Texture* Pellet = ImageHandler->LoadTexture("assets/images/Bullets/Pellet.png", true);
-    Texture*  Chad = ImageHandler->LoadTexture("assets/images/Character/Chad.png", true);
-    Texture* DefaultText = TextHandler->Render(GameWindow->Assets()->TextHandler()->FirstFont(),"Undefined", { 190, 100, 100, 180 }, true);
-    Texture* Fist = ImageHandler->LoadTexture("assets/images/Character/Fist.png", true);
 
-    Character::ms_Texture = Chad;
-    Character::ms_FistTexture = Fist;
-    Bullets::ms_Texture = Pellet;
+    Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
+    Character::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
+    Bullets::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Pellet.png", true);
+    Ammo::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/GlockAmmo.png", true);
+    Ammo::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/ShotgunAmmo.png", true);
+    Ammo::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/BurstAmmo.png", true);
+    Ammo::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/entities/MinigunAmmo.png", true);
 
     // Load sounds
     Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
-    Sound* Fail_Death = SoundHandler->LoadSound("assets/sounds/FailReload.wav", true);
     Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);
     Sound* Epic_Death = SoundHandler->LoadSound("assets/sounds/epic_death.wav", true);
     Sound* LowSound = SoundHandler->LoadSound("assets/sounds/Low.wav", true);
@@ -82,6 +78,7 @@ int main() {
     Sound* LowUISound = SoundHandler->LoadSound("assets/sounds/LowUI.wav", true);
     Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
     Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
+    Sound* FailReloadSound = SoundHandler->LoadSound("assets/sounds/FailReload.wav", true);
     Sound* GlockShootSound = SoundHandler->LoadSound("assets/sounds/GlockShoot.wav", true);
     GlockShootSound->SetVolume(64); // max 128
     Sound* GlockClickSound = SoundHandler->LoadSound("assets/sounds/GunClick.wav", true);
@@ -89,27 +86,31 @@ int main() {
     Sound* ShotgunShootSound = SoundHandler->LoadSound("assets/sounds/ShotgunShoot.wav", true);
     Sound* BurstShootSound = SoundHandler->LoadSound("assets/sounds/ShootBurst.wav", true);
     Sound* ShotgunReloadSound = SoundHandler->LoadSound("assets/sounds/ShotgunReload.wav", true);
-    Sound* Hurt1 = SoundHandler->LoadSound("assets/sounds/Character/Hurt1.wav", true);
-    Sound* Hurt2 = SoundHandler->LoadSound("assets/sounds/Character/Hurt2.wav", true);
-    Sound* Hurt3 = SoundHandler->LoadSound("assets/sounds/Character/Hurt3.wav", true);
 
     WeaponGlock::ms_ShootSound = GlockShootSound;
-    WeaponGlock::ms_ClickSound = Fail_Death;
+    WeaponGlock::ms_ClickSound = FailReloadSound;
     WeaponGlock::ms_ReloadSound = ShotgunReloadSound;
     ProjectileWeapon::ms_NoAmmo = GlockClickSound;
     WeaponShotgun::ms_ShootSound = ShotgunShootSound;
-    WeaponShotgun::ms_ClickSound = Fail_Death;
+    WeaponShotgun::ms_ClickSound = FailReloadSound;
     WeaponShotgun::ms_ReloadSound = ShotgunReloadSound;
     WeaponBurst::ms_ShootSound = BurstShootSound;
-    WeaponBurst::ms_ClickSound = Fail_Death;
+    WeaponBurst::ms_ClickSound = FailReloadSound;
     WeaponBurst::ms_ReloadSound = ShotgunReloadSound;
     WeaponMinigun::ms_ShootSound = BurstShootSound;
-    WeaponMinigun::ms_ClickSound = Fail_Death;
+    WeaponMinigun::ms_ClickSound = FailReloadSound;
     WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
     Character::ms_DeathSound = Basic_Death;
-    Character::ms_HitSounds[0] = Hurt1;
-    Character::ms_HitSounds[1] = Hurt2;
-    Character::ms_HitSounds[2] = Hurt3;
+    Character::ms_HitSounds[0] = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
+    Character::ms_HitSounds[1] = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt2.wav", true);
+    Character::ms_HitSounds[2] = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt3.wav", true);
+    Ammo::ms_PickupSounds[0] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick1.wav", true);
+    Ammo::ms_PickupSounds[1] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick2.wav", true);
+    Ammo::ms_PickupSounds[2] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick3.wav", true);
+    Ammo::ms_PickupSounds[3] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick4.wav", true);
+    Ammo::ms_PickupSounds[4] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick5.wav", true);
+    Ammo::ms_PickupSounds[5] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick6.wav", true);
+    Ammo::ms_PickupSounds[6] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick7.wav", true);
 
     TextSurface TestText = TextSurface(AssetsHandler, TextHandler->FirstFont(), "Jesse -.. .. .", {255, 255, 255, 255 });
 
@@ -133,11 +134,14 @@ int main() {
                     Running = false;
                 } break;
                 case SDL_KEYDOWN: {
-                    if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                    SDL_Scancode ScancodeKey = CurrentEvent.key.keysym.scancode;
+                    if (ScancodeKey == SDL_SCANCODE_ESCAPE) {
                         bool Pause = !World->Paused();
                         World->SetPaused(Pause);
                         if (Pause) SoundHandler->PlaySound(MidUISound);
                         else SoundHandler->PlaySound(LowUISound);
+                    } else if (ScancodeKey == SDL_SCANCODE_Z) {
+                        new Character(World, 20.0, 30, 30, 10, 10, true);
                     }
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                     //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
@@ -145,7 +149,7 @@ int main() {
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto* NewPlayer = new Character(World, 30, 30, 10, 10); // Add new player
+                    auto* NewPlayer = new Character(World, 100.0, 30, 30, 10, 10, false); // Add new player
                     NewPlayer->SetGameController(CurrentController);
                     SoundHandler->PlaySound(HighSound);
                 } break;

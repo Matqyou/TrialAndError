@@ -9,27 +9,33 @@
 #include "SDL.h"
 
 enum AmmoType {
-    GLOCK_AMMO,
-    BURST_AMMO,
-    SHOTGUN_AMMO,
-    MACHINEGUN_AMMO,
+    AMMO_GLOCK,
+    AMMO_BURST,
+    AMMO_SHOTGUN,
+    AMMO_MINIGUN,
     NUM_AMMO
 };
 
 class Ammo : public Entity {
 protected:
-
-    double m_AmmoCount;
-    bool TickImpact(double x, double y);
+    unsigned int m_AmmoCount;
     AmmoType m_Type;
+    Texture** m_Texture;
+
+    void TickPickup(double x, double y);
 public:
-static Texture* ms_Texture;
+    static Texture* ms_TextureGlock;
+    static Texture* ms_TextureShotgun;
+    static Texture* ms_TextureBurst;
+    static Texture* ms_TextureMinigun;
+    static Sound* ms_PickupSounds[7];
 
     Ammo(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount);
-    AmmoType Type() const{return m_Type;}
-    double AmmoCount() const{return m_AmmoCount;}
-    void SetAmmoCount(double collected);
+    AmmoType Type() const{ return m_Type; }
+
+    unsigned int TakeAmmo(unsigned int request);
 
     void Tick() override;
+    void Draw() override;
 };
 #endif //TRIALANDERROR_AMMO_H

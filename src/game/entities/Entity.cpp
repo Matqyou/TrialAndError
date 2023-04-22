@@ -90,6 +90,12 @@ bool Entity::PointCollides(double x, double y) const {
     return !(x < m_x - w2 || x > m_x + w2 || y < m_y - h2 || y > m_y + h2);
 }
 
+// Add some velocity to this character
+void Entity::Accelerate(double accelerate_x, double accelerate_y) {
+    m_xvel += accelerate_x;
+    m_yvel += accelerate_y;
+}
+
 void Entity::Tick() {
 
 }

@@ -46,6 +46,8 @@ private:
     unsigned long long m_LastFisted;
     unsigned long long m_LastFistedL, m_LastFistedR;
     const double m_HandSpacing;
+    const double m_FistingAnimationDuration;
+    double m_FistingRadius;
     // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
     ProjectileWeapon* m_Weapons[NUM_WEAPONS] {};
     ProjectileWeapon* m_CurrentWeapon;
@@ -77,6 +79,7 @@ private:
     void TickHealth();
     void TickControls();
     void TickHook();
+    void TickCollision();
     void TickCurrentWeapon();
     void DrawAmmo();
 
@@ -92,16 +95,16 @@ public:
     static Sound* ms_HitSounds[3];
     static Sound* ms_DeathSound;
 
-    Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
+    Character(GameWorld* world, double max_health, double start_x, double start_y, double start_xvel, double start_yvel, bool bot_player);
     ~Character();
 
     Hook* GetHook() { return &m_Hook; }
     GameController* GetGameController() const { return m_GameController; }
     int PlayerIndex() const { return m_PlayerIndex; }
+    bool Controllable() const { return m_Controllable; }
 
-    bool AmmoPickup(Ammo* ammo);
+    void AmmoPickup(Ammo* ammo_box);
     void SetGameController(GameController* gameController);
-    void Accelerate(double accelerate_x, double accelerate_y);
     void Damage(double damage, bool make_sound);
 
     void Event(const SDL_Event& currentEvent);

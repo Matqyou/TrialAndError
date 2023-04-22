@@ -179,18 +179,24 @@ void GameWorld::Tick() {
 
         auto Player = (Character*)(m_LastType[ENTTYPE_CHARACTER]);
         for (; Player; Player = (Character*)Player->PrevType()) {
+            if (!Player->Controllable())
+                continue;
+
             num_player++;
 
             CameraX += Player->m_x;
             CameraY += Player->m_y;
         }
-        CameraX /= num_player;
-        CameraY /= num_player;
-        // Accelerate camera closer to
-        // the midpoint of characters
-        // TODO: Zoom value
-        m_x += (-m_x + CameraX) * 0.1;
-        m_y += (-m_y + CameraY) * 0.1;
+
+        if (num_player) {
+            CameraX /= num_player;
+            CameraY /= num_player;
+            // Accelerate camera closer to
+            // the midpoint of characters
+            // TODO: Zoom value
+            m_x += (-m_x + CameraX) * 0.1;
+            m_y += (-m_y + CameraY) * 0.1;
+        }
     }
 
     m_CurrentTick++;
@@ -206,9 +212,10 @@ void GameWorld::Draw() {
     Render->SetColor(255, 0, 0, 255);
     Render->DrawRectWorld(DrawRect);
 
-    Entity* Current = m_Last;
-    for (; Current; Current = Current->Prev())
-        Current->Draw();
+    for (auto Current : m_FirstType) {
+        for (; Current; Current = Current->NextType())
+            Current->Draw();
+    }
 
     m_Tiles->Draw();
 

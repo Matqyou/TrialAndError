@@ -42,6 +42,8 @@ public:
     double GetW() const { return m_w; }
     double GetH() const { return m_h; }
 
+    void Accelerate(double accelerate_x, double accelerate_y);
+
     virtual void Tick();
     virtual void Draw();
 };

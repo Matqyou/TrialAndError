@@ -11,7 +11,7 @@ enum WeaponType {
     WEAPON_GLOCK,
     WEAPON_BURST,
     WEAPON_SHOTGUN,
-    WEAPON_MACHINEGUN,
+    WEAPON_MINIGUN,
     NUM_WEAPONS
 };
 
@@ -20,9 +20,8 @@ class ProjectileWeapon {
 protected:
     unsigned long long m_LastShotAt;
     unsigned int m_TickCooldown;
-    unsigned int m_AmmoCapacity;
-    unsigned int m_Ammo;
-    unsigned int m_TrueAmmo;
+    unsigned int m_Ammo, m_AmmoCapacity;
+    unsigned int m_TrueAmmo, m_TrueAmmoCapacity;
     double m_ProjectileSpeed;
     bool m_Automatic;
     bool m_Triggered;
@@ -48,16 +47,19 @@ public:
     static Sound* ms_ReloadSound;
     static Sound* ms_NoAmmo;
 
-    ProjectileWeapon(Character* owner, WeaponType type, int tick_cooldown, int ammo_capacity, double projectile_speed, bool automatic);
+    ProjectileWeapon(Character* owner, WeaponType type, int tick_cooldown, int ammo_capacity, int total_ammo_capacity, double projectile_speed, bool automatic);
 
     WeaponType Type() const { return m_Type; }
-    unsigned  int Ammo() const { return m_Ammo; }
+    unsigned int Ammo() const { return m_Ammo; }
     unsigned int TrueAmmo() const {return m_TrueAmmo;}
-    unsigned  int AmmoCap() const {return m_AmmoCapacity;}
+    unsigned int AmmoCap() const {return m_AmmoCapacity;}
+    unsigned int NeededAmmo() const;
+
+    void AddTrueAmmo(unsigned int count);
     void SetSpread(double degrees, int decimal_places);
-    double SetAmmo(double count);
     void SetRandomProjectileSpeed(double delta_speed, double delta_percentage_negative, int delta_decimal_places);
     void Reload();
+
     virtual void Tick();
 };
 
