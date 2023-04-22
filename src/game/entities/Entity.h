@@ -39,6 +39,8 @@ public:
     bool PointCollides(double x, double y) const;
     double GetX() const { return m_x; }
     double GetY() const { return m_y; }
+    double GetW() const { return m_w; }
+    double GetH() const { return m_h; }
 
     virtual void Tick();
     virtual void Draw();

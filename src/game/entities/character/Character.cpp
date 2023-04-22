@@ -23,8 +23,11 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
    m_HealthBar(world->GameWindow(), &m_Health, &m_MaxHealth, 75, 15, 2, 2) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
-    m_Shooting = false;
-    m_LastShooting = false;
+    m_Using = false;
+    m_LastFisted = 0;
+    m_LastFistedL = 0;
+    m_LastFistedR = 0;
+    m_LastUsing = false;
     m_Reloading = false;
     m_LastReloading = false;
 
@@ -194,7 +197,7 @@ void Character::TickKeyboardControls() {
     }
 
     auto MouseState = SDL_GetMouseState(nullptr, nullptr);
-    m_Shooting = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
+    m_Using = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
     m_Hooking = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
 }
 
@@ -237,7 +240,7 @@ void Character::TickGameControllerControls() {
     }
 
     // Shooting
-    m_Shooting = m_GameController->GetRightTrigger() > 0.7;
+    m_Using = m_GameController->GetRightTrigger() > 0.7;
     m_Hooking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
     m_Reloading = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X);
 
@@ -264,14 +267,49 @@ void Character::TickHook() {
     m_Hook.Tick(m_Hooking, m_LastHooking);
 }
 
-void Character::TickWeapon() {
-    if (!m_CurrentWeapon)
-        return;
+void Character::TickCurrentWeapon() {
+    if (m_CurrentWeapon) {
+        if (m_Reloading && !m_LastReloading)
+            m_CurrentWeapon->Reload();
 
-    if (m_Reloading && !m_LastReloading)
-        m_CurrentWeapon->Reload();
+        m_CurrentWeapon->Tick();
+    } else {
+        auto CurrentTick = m_World->CurrentTick();
+        if (CurrentTick - m_LastFisted < 5)
+            return;
 
-    m_CurrentWeapon->Tick();
+        if (m_Using && !m_LastUsing) {
+            m_LastFisted = CurrentTick;
+
+            double Radians = std::atan2(m_yLook, m_xLook);
+            double OffAngle = 40.0 / 180.0 * M_PI;
+
+            double XHands, YHands;
+            if (m_LastFistedR < m_LastFistedL) {
+                m_LastFistedR = CurrentTick;
+                XHands = m_x + std::cos(OffAngle + Radians) * 25.0;
+                YHands = m_y + std::sin(OffAngle + Radians) * 25.0;
+            } else {
+                m_LastFistedL = CurrentTick;
+                XHands = m_x + std::cos(-OffAngle + Radians) * 25.0;
+                YHands = m_y + std::sin(-OffAngle + Radians) * 25.0;
+            }
+
+            auto Player = m_World->FirstPlayer();
+            for (; Player; Player = (Character *) (Player->NextType())) {
+                if (Player == this)
+                    continue;
+
+                double XClosest = std::max(Player->GetX() - Player->GetW() / 2.0, std::min(Player->GetX() + Player->GetW() / 2.0, XHands));
+                double YClosest = std::max(Player->GetY() - Player->GetH() / 2.0, std::min(Player->GetY() + Player->GetH() / 2.0, YHands));
+                double Distance = std::sqrt(std::pow(XClosest - XHands, 2) + std::pow(YClosest - YHands, 2));
+                if (Distance < 10) {
+                    Player->Damage(7, true);
+                    Player->Accelerate(m_xLook * 5.0, m_yLook * 5.0);
+                }
+            }
+        }
+    }
 }
 
 void Character::DrawCharacter() {
@@ -341,14 +379,25 @@ void Character::DrawHands() {
     if (m_CurrentWeapon)
         return;
 
+    auto CurrentTick = m_World->CurrentTick();
     double Radians = std::atan2(m_yLook, m_xLook);
     double Angle = Radians / M_PI * 180.0;
 
+    const double FistingLength = 10;
+
+    double FistingKoefficientL = double(CurrentTick - m_LastFistedL) / double(FistingLength);
+    double FistingKoefficientR = double(CurrentTick - m_LastFistedR) / double(FistingLength);
+    if (FistingKoefficientL > 1.0) FistingKoefficientL = 1.0;
+    if (FistingKoefficientR > 1.0) FistingKoefficientR = 1.0;
+
+    FistingKoefficientL = (1.0 - FistingKoefficientL) * 20.0;
+    FistingKoefficientR = (1.0 - FistingKoefficientR) * 20.0;
+
     double OffAngle = 40.0 / 180.0 * M_PI;
-    double XOffLeft = std::cos(-OffAngle + Radians) * 25.0;
-    double YOffLeft = std::sin(-OffAngle + Radians) * 25.0;
-    double XOffRight = std::cos(OffAngle + Radians) * 25.0;
-    double YOffRight = std::sin(OffAngle + Radians) * 25.0;
+    double XOffLeft = std::cos(-OffAngle + Radians) * 25.0 + m_xLook * FistingKoefficientL;
+    double YOffLeft = std::sin(-OffAngle + Radians) * 25.0 + m_yLook * FistingKoefficientL;
+    double XOffRight = std::cos(OffAngle + Radians) * 25.0 + m_xLook * FistingKoefficientR;
+    double YOffRight = std::sin(OffAngle + Radians) * 25.0 + m_yLook * FistingKoefficientR;
 
     SDL_FRect HandRectLeft = { float(m_x - 9 + XOffLeft),
                                float(m_y - 9 + YOffLeft),
@@ -440,7 +489,7 @@ void Character::Tick() {
         m_Health = m_MaxHealth;
 
     TickControls();  // Do stuff depending on the current held buttons
-    TickWeapon(); // Shoot accelerate reload etc.
+    TickCurrentWeapon(); // Shoot accelerate reload etc.
     TickHook();  // Move hook and or player etc.
 
     // Need every character to get here..
@@ -451,7 +500,7 @@ void Character::Tick() {
     TickVelocity();  // Move the character entity
     TickWalls();  // Check if colliding with walls
 
-    m_LastShooting = m_Shooting;
+    m_LastUsing = m_Using;
     m_LastHooking = m_Hooking;
     m_LastReloading = m_Reloading;
 
