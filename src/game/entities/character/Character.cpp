@@ -14,12 +14,13 @@ Sound* Character::ms_DeathSound = nullptr;
 // TODO: see if we can make a little system that tells us if the textures/sounds are unitialized
 
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
-const int Character::sDefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_LSHIFT };
+const int Character::ms_DefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_LSHIFT };
 
 Character::Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93),
-   m_Hook(this),
+   m_HandSpacing(40.0 / 180.0 * M_PI),
    m_BaseAcceleration(0.75),
+   m_Hook(this),
    m_HealthBar(world->GameWindow(), &m_Health, &m_MaxHealth, 75, 15, 2, 2) {
     m_PlayerIndex = 0;
     m_ColorHue = double(rand()%360);
@@ -44,14 +45,16 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
 
     m_MaxHealth = 100.0;
     m_Health = m_MaxHealth;
+    m_PassiveRegeneration = 0.01; // health per tick when in combat
+    m_ActiveRegeneration = 0.1; // health per tick out of combat
+    m_RegenerationCooldown = 30 * 60; // seconds * 60ticks per second
+    m_LastInCombat = 0;
 
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
 
     m_World->GetNextPlayerIndex(this);
-    if (m_PlayerIndex == 1) { memcpy(m_Controls, sDefaultControls, sizeof(m_Controls)); }  // Controls are copied
-    else { memset(m_Controls, 0, sizeof(m_Controls)); }  // All controls are set to 0
     m_Controllable = true;
 
     m_xvel = start_xvel;
@@ -68,13 +71,13 @@ Character::Character(GameWorld* world, double start_x, double start_y, double st
     TextManager* TextHandler = world->GameWindow()->Assets()->TextHandler();
     TTF_Font* Font = TextHandler->FirstFont();
     m_Nameplate = new TextSurface(m_World->GameWindow()->Assets(),
-                                  m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                  Font,
                                   Name, { 255, 255, 255, 255 });
     m_AmmoCount = new TextSurface(m_World->GameWindow()->Assets(),
-                                  m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                  Font,
                                   "0", { 255, 255, 255, 255 });
     m_CoordinatePlate = new TextSurface(m_World->GameWindow()->Assets(),
-                                        m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                        Font,
                                         "-x, -y", { 255, 255, 255, 255 });
 
     m_HealthInt = new TextSurface(m_World->GameWindow()->Assets(),
@@ -114,15 +117,15 @@ void Character::Accelerate(double accelerate_x, double accelerate_y) {
     m_yvel += accelerate_y;
 }
 
-void Character::Damage(double damage, bool make_sound) {
+void Character::Damage(double damage, bool combat_tag) {
     m_Health -= damage;
     m_HitTicks = 7;
 
-    if (!make_sound)
-        return;
-
     Sound* HurtSound = ms_HitSounds[rand()%3];
     m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(HurtSound);
+
+    if (combat_tag)
+        m_LastInCombat = m_World->CurrentTick();
 }
 
 
@@ -255,6 +258,16 @@ void Character::TickGameControllerControls() {
         m_CurrentWeapon = m_Weapons[WEAPON_MACHINEGUN];
 }
 
+// When in combat heal differently than out of combat
+void Character::TickHealth() {
+    auto CurrentTick = m_World->CurrentTick();
+    bool ActiveRegeneration = CurrentTick - m_LastInCombat < m_RegenerationCooldown;
+    m_Health += ActiveRegeneration ? m_PassiveRegeneration : m_ActiveRegeneration;
+
+    if (m_Health > m_MaxHealth)
+        m_Health = m_MaxHealth;
+}
+
 void Character::TickControls() {
     if (!m_Controllable)
         return;
@@ -282,17 +295,16 @@ void Character::TickCurrentWeapon() {
             m_LastFisted = CurrentTick;
 
             double Radians = std::atan2(m_yLook, m_xLook);
-            double OffAngle = 40.0 / 180.0 * M_PI;
 
             double XHands, YHands;
             if (m_LastFistedR < m_LastFistedL) {
                 m_LastFistedR = CurrentTick;
-                XHands = m_x + std::cos(OffAngle + Radians) * 25.0;
-                YHands = m_y + std::sin(OffAngle + Radians) * 25.0;
+                XHands = m_x + std::cos(m_HandSpacing + Radians) * 25.0;
+                YHands = m_y + std::sin(m_HandSpacing + Radians) * 25.0;
             } else {
                 m_LastFistedL = CurrentTick;
-                XHands = m_x + std::cos(-OffAngle + Radians) * 25.0;
-                YHands = m_y + std::sin(-OffAngle + Radians) * 25.0;
+                XHands = m_x + std::cos(-m_HandSpacing + Radians) * 25.0;
+                YHands = m_y + std::sin(-m_HandSpacing + Radians) * 25.0;
             }
 
             auto Player = m_World->FirstPlayer();
@@ -383,21 +395,20 @@ void Character::DrawHands() {
     double Radians = std::atan2(m_yLook, m_xLook);
     double Angle = Radians / M_PI * 180.0;
 
-    const double FistingLength = 10;
+    const double FistingDuration = 10.0;
 
-    double FistingKoefficientL = double(CurrentTick - m_LastFistedL) / double(FistingLength);
-    double FistingKoefficientR = double(CurrentTick - m_LastFistedR) / double(FistingLength);
+    double FistingKoefficientL = double(CurrentTick - m_LastFistedL) / double(FistingDuration);
+    double FistingKoefficientR = double(CurrentTick - m_LastFistedR) / double(FistingDuration);
     if (FistingKoefficientL > 1.0) FistingKoefficientL = 1.0;
     if (FistingKoefficientR > 1.0) FistingKoefficientR = 1.0;
 
     FistingKoefficientL = (1.0 - FistingKoefficientL) * 20.0;
     FistingKoefficientR = (1.0 - FistingKoefficientR) * 20.0;
 
-    double OffAngle = 40.0 / 180.0 * M_PI;
-    double XOffLeft = std::cos(-OffAngle + Radians) * 25.0 + m_xLook * FistingKoefficientL;
-    double YOffLeft = std::sin(-OffAngle + Radians) * 25.0 + m_yLook * FistingKoefficientL;
-    double XOffRight = std::cos(OffAngle + Radians) * 25.0 + m_xLook * FistingKoefficientR;
-    double YOffRight = std::sin(OffAngle + Radians) * 25.0 + m_yLook * FistingKoefficientR;
+    double XOffLeft = std::cos(-m_HandSpacing + Radians) * 25.0 + m_xLook * FistingKoefficientL;
+    double YOffLeft = std::sin(-m_HandSpacing + Radians) * 25.0 + m_yLook * FistingKoefficientL;
+    double XOffRight = std::cos(m_HandSpacing + Radians) * 25.0 + m_xLook * FistingKoefficientR;
+    double YOffRight = std::sin(m_HandSpacing + Radians) * 25.0 + m_yLook * FistingKoefficientR;
 
     SDL_FRect HandRectLeft = { float(m_x - 9 + XOffLeft),
                                float(m_y - 9 + YOffLeft),
@@ -477,17 +488,14 @@ void Character::Event(const SDL_Event& currentEvent) {
             m_Reloading = State;
 
         for (int i = 0; i < NUM_CONTROLS; i++) {
-            if (currentEvent.key.keysym.scancode == m_Controls[i])
+            if (currentEvent.key.keysym.scancode == ms_DefaultControls[i])
                 m_Movement[i] = State;
         }
     }
 }
 
 void Character::Tick() {
-    m_Health += 0.1;
-    if (m_Health > m_MaxHealth)
-        m_Health = m_MaxHealth;
-
+    TickHealth();
     TickControls();  // Do stuff depending on the current held buttons
     TickCurrentWeapon(); // Shoot accelerate reload etc.
     TickHook();  // Move hook and or player etc.

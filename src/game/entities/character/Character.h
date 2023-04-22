@@ -41,16 +41,19 @@ private:
     double m_ColorHue;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS] {};
-    int m_Controls[NUM_CONTROLS] {};
     bool m_Controllable;
     bool m_Using, m_LastUsing;
     unsigned long long m_LastFisted;
     unsigned long long m_LastFistedL, m_LastFistedR;
+    const double m_HandSpacing;
     // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
     ProjectileWeapon* m_Weapons[NUM_WEAPONS] {};
     ProjectileWeapon* m_CurrentWeapon;
     double m_MaxHealth, m_Health;
-    static const int sDefaultControls[NUM_CONTROLS];
+    double m_ActiveRegeneration, m_PassiveRegeneration;
+    unsigned long long m_RegenerationCooldown;
+    unsigned long long m_LastInCombat;
+    static const int ms_DefaultControls[NUM_CONTROLS];
     const double m_BaseAcceleration;
     double m_Acceleration;
     double m_xLook, m_yLook;  // direction
@@ -71,6 +74,7 @@ private:
 
     void TickKeyboardControls();
     void TickGameControllerControls();
+    void TickHealth();
     void TickControls();
     void TickHook();
     void TickCurrentWeapon();
