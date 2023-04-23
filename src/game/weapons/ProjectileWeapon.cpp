@@ -19,14 +19,15 @@ double ProjectileWeapon::GenerateRandomProjectileSpeed() const {
         - m_NegativeRandomProjectileSpeed) / m_RandomProjectileSpeedDivisor;
 }
 
-ProjectileWeapon::ProjectileWeapon(Character* owner, WeaponType type, int tick_cooldown, int ammo_capacity, double projectile_speed, bool automatic) {
+ProjectileWeapon::ProjectileWeapon(Character* owner, WeaponType type, int tick_cooldown, int ammo_capacity, int total_ammo_capacity, double projectile_speed, bool automatic) {
     m_Owner = owner;
     m_Type = type;
     m_LastShotAt = 0;
     m_TickCooldown = tick_cooldown;
     m_AmmoCapacity = ammo_capacity;
     m_Ammo = m_AmmoCapacity;
-    m_TrueAmmo = m_AmmoCapacity*3;
+    m_TrueAmmoCapacity = total_ammo_capacity;
+    m_TrueAmmo = m_TrueAmmoCapacity;
     m_ProjectileSpeed = projectile_speed;
     m_Automatic = automatic;
     m_Triggered = false;
@@ -61,8 +62,16 @@ void ProjectileWeapon::GetOwnerPosition(double& out_x, double& out_y, double& ou
 }
 
 void ProjectileWeapon::GetOwnerShooting(bool& out_shoot, bool& out_last_shoot) const {
-    out_shoot = m_Owner->m_Shooting;
-    out_last_shoot = m_Owner->m_LastShooting;
+    out_shoot = m_Owner->m_Using;
+    out_last_shoot = m_Owner->m_LastUsing;
+}
+
+unsigned int ProjectileWeapon::NeededAmmo() const {
+    return m_TrueAmmoCapacity - m_TrueAmmo;
+}
+
+void ProjectileWeapon::AddTrueAmmo(unsigned int count) {
+    m_TrueAmmo += count;
 }
 
 void ProjectileWeapon::SetSpread(double degrees, int decimal_places) {
@@ -76,25 +85,6 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed, double delta
     double FullSpeed = delta_speed * m_RandomProjectileSpeedDivisor;
     m_NegativeRandomProjectileSpeed = FullSpeed * delta_percentage_negative;
     m_FullRandomProjectileSpeed = int(FullSpeed) + 1;
-}
-
-double ProjectileWeapon::SetAmmo(double count){
-    double AddedAmmo = 0;
-    if(m_TrueAmmo >= m_AmmoCapacity*3) return AddedAmmo;
-    if(m_TrueAmmo+count > m_AmmoCapacity*3){
-        for(; count>0; count -=1){
-            if(m_TrueAmmo < m_AmmoCapacity*3){
-                m_TrueAmmo += 1;
-                AddedAmmo +=1;
-            }
-
-        }
-    }
-    else {
-        m_TrueAmmo += count;
-        AddedAmmo = count;
-    }
-    return AddedAmmo;
 }
 
 void ProjectileWeapon::Reload() {

@@ -41,14 +41,21 @@ private:
     double m_ColorHue;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS] {};
-    int m_Controls[NUM_CONTROLS] {};
     bool m_Controllable;
-    bool m_Shooting, m_LastShooting;
+    bool m_Using, m_LastUsing;
+    unsigned long long m_LastFisted;
+    unsigned long long m_LastFistedL, m_LastFistedR;
+    const double m_HandSpacing;
+    const double m_FistingAnimationDuration;
+    double m_FistingRadius;
     // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
     ProjectileWeapon* m_Weapons[NUM_WEAPONS] {};
     ProjectileWeapon* m_CurrentWeapon;
     double m_MaxHealth, m_Health;
-    static const int sDefaultControls[NUM_CONTROLS];
+    double m_ActiveRegeneration, m_PassiveRegeneration;
+    unsigned long long m_RegenerationCooldown;
+    unsigned long long m_LastInCombat;
+    static const int ms_DefaultControls[NUM_CONTROLS];
     const double m_BaseAcceleration;
     double m_Acceleration;
     double m_xLook, m_yLook;  // direction
@@ -69,9 +76,11 @@ private:
 
     void TickKeyboardControls();
     void TickGameControllerControls();
+    void TickHealth();
     void TickControls();
     void TickHook();
-    void TickWeapon();
+    void TickCollision();
+    void TickCurrentWeapon();
     void DrawAmmo();
 
     void DrawCharacter();
@@ -86,16 +95,16 @@ public:
     static Sound* ms_HitSounds[3];
     static Sound* ms_DeathSound;
 
-    Character(GameWorld* world, double start_x, double start_y, double start_xvel, double start_yvel);
+    Character(GameWorld* world, double max_health, double start_x, double start_y, double start_xvel, double start_yvel, bool bot_player);
     ~Character();
 
     Hook* GetHook() { return &m_Hook; }
     GameController* GetGameController() const { return m_GameController; }
     int PlayerIndex() const { return m_PlayerIndex; }
+    bool Controllable() const { return m_Controllable; }
 
-    bool AmmoPickup(Ammo* ammo);
+    void AmmoPickup(Ammo* ammo_box);
     void SetGameController(GameController* gameController);
-    void Accelerate(double accelerate_x, double accelerate_y);
     void Damage(double damage, bool make_sound);
 
     void Event(const SDL_Event& currentEvent);
