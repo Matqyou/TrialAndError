@@ -38,6 +38,7 @@ private:
     TextSurface* m_AmmoCount;
     TextSurface* m_HealthInt;
     double m_ColorHue;
+    int m_SelectedWeaponIndex;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS] {};
     bool m_Controllable;
@@ -107,12 +108,11 @@ public:
     void AmmoPickup(Ammo* ammo_box);
     void SetGameController(GameController* gameController);
     void Damage(double damage, bool make_sound);
+    void SwitchWeapon(WeaponType type);
 
     void Event(const SDL_Event& currentEvent);
     void Tick() override;
     void Draw() override;
-
-
 };
 
 

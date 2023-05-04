@@ -57,6 +57,7 @@ Character::Character(GameWorld* world, Player* player, double max_health,
     m_RegenerationCooldown = 10 * 60; // seconds * 60ticks per second
     m_LastInCombat = 0;
 
+    m_SelectedWeaponIndex = -1;
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
@@ -118,6 +119,13 @@ void Character::Damage(double damage, bool combat_tag) {
     m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(HurtSound);
 
     if (combat_tag) m_LastInCombat = m_World->CurrentTick();
+}
+
+void Character::SwitchWeapon(WeaponType type) {
+    if (!m_Weapons[type] ||
+        m_CurrentWeapon == m_Weapons[type]) {
+        m_CurrentWeapon = nullptr;
+    } else { m_CurrentWeapon = m_Weapons[type]; }
 }
 
 void Character::SetPlayer(Player* player) {
@@ -222,14 +230,26 @@ void Character::TickGameControllerControls() {
     m_Reloading = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X);
 
     // Switch weapons
-    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP) && m_Weapons[WEAPON_GLOCK])
-        m_CurrentWeapon = m_Weapons[WEAPON_GLOCK];
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT) && m_Weapons[WEAPON_SHOTGUN])
-        m_CurrentWeapon = m_Weapons[WEAPON_SHOTGUN];
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN) && m_Weapons[WEAPON_BURST])
-        m_CurrentWeapon = m_Weapons[WEAPON_BURST];
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT) && m_Weapons[WEAPON_MINIGUN])
-        m_CurrentWeapon = m_Weapons[WEAPON_MINIGUN];
+    bool SwitchForward = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+    bool SwitchBackward = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+    bool SwitchHands = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_UP) ||
+            m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+
+    if (SwitchForward ^ SwitchBackward ^ SwitchHands) { // I hope this works as intended, only 1 at a time | ignore if multiple inputs at the same time
+        if (SwitchHands) { m_SelectedWeaponIndex = -1; }
+        else if (SwitchForward) {
+            m_SelectedWeaponIndex++;
+            if (m_SelectedWeaponIndex == NUM_WEAPONS)
+                m_SelectedWeaponIndex = -1;
+        } else {
+            m_SelectedWeaponIndex--;
+            if (m_SelectedWeaponIndex == -2)
+                m_SelectedWeaponIndex = NUM_WEAPONS - 1;
+        }
+
+        if (m_SelectedWeaponIndex == -1) { m_CurrentWeapon = nullptr; }
+        else { SwitchWeapon((WeaponType)m_SelectedWeaponIndex); } // yeaaaaaaa
+    }
 }
 
 // When in combat heal differently than out of combat
@@ -464,23 +484,24 @@ void Character::DrawAmmo(){
     SDL_Rect AmmoRect = { int(m_x - Ammo_w / 2.0) ,int(m_y +m_h/2+20), Ammo_w, Ammo_h };
     Render->RenderTextureWorld(AmmoTexture->SDLTexture(), nullptr, AmmoRect);
 }
+
 void Character::Event(const SDL_Event& currentEvent) {
     if (!m_Controllable || m_GameController)
         return;
 
-    if (currentEvent.type == SDL_KEYDOWN ||
+    if (currentEvent.type == SDL_KEYDOWN && currentEvent.key.repeat == 0 ||
         currentEvent.type == SDL_KEYUP) {
         bool State = currentEvent.type == SDL_KEYDOWN;
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_GRAVE)
-            m_CurrentWeapon = nullptr;
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_1 && m_Weapons[WEAPON_GLOCK])
-            m_CurrentWeapon = m_Weapons[WEAPON_GLOCK];
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2 && m_Weapons[WEAPON_SHOTGUN])
-            m_CurrentWeapon = m_Weapons[WEAPON_SHOTGUN];
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3 && m_Weapons[WEAPON_BURST])
-            m_CurrentWeapon = m_Weapons[WEAPON_BURST];
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4 && m_Weapons[WEAPON_MINIGUN])
-            m_CurrentWeapon = m_Weapons[WEAPON_MINIGUN];
+        if (State) {
+            int KeyCode = currentEvent.key.keysym.scancode;
+            if (KeyCode == SDL_SCANCODE_GRAVE) { m_CurrentWeapon = nullptr; }
+            else {
+                if (KeyCode == SDL_SCANCODE_1) { SwitchWeapon(WEAPON_GLOCK); }
+                else if (KeyCode == SDL_SCANCODE_2) { SwitchWeapon(WEAPON_SHOTGUN); }
+                else if (KeyCode == SDL_SCANCODE_3) { SwitchWeapon(WEAPON_BURST); }
+                else if (KeyCode == SDL_SCANCODE_4) { SwitchWeapon(WEAPON_MINIGUN); }
+            }
+        }
 
         // Reloads weapon on keyboard player with R button press
         if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R)

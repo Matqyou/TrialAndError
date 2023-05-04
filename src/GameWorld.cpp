@@ -168,6 +168,8 @@ void GameWorld::SetPaused(bool state) {
 }
 
 void GameWorld::Event(const SDL_Event& currentEvent) {
+    if (m_Paused) return;
+
     if (currentEvent.type == SDL_KEYDOWN) {
         if (currentEvent.key.keysym.scancode == SDL_SCANCODE_SPACE)
             ToggleShowNames();

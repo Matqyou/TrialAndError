@@ -20,7 +20,7 @@ bool Initialize() {
         return false;
 
     TextManager* TextHandler = GameWindow->Assets()->TextHandler();
-    TextHandler->LoadFont("GROBOLD.ttf", 16);
+    TextHandler->LoadFont("Minecraft.ttf", 16);
 
     World = new GameWorld(GameWindow, 100, 100);
     World->SetCameraPos(30, 30);
@@ -124,7 +124,7 @@ int main() {
 
     TextSurface TestText = TextSurface(AssetsHandler, TextHandler->FirstFont(), "Jesse -.. .. .", {255, 255, 255, 255 });
 
-    int ignore_ticks = 5;
+    int IgnoreTicks = 5;
     bool Running = true;
     bool Config = true;
     while (Running) {
@@ -183,7 +183,7 @@ int main() {
                         {
                             if(World->Paused()) {
                                 SoundHandler->PlaySound(LowUISound);
-                                ignore_ticks = 5; //Minimum ticks it has to skip to not shoot on resume
+                                IgnoreTicks = 5; //Minimum ticks it has to skip to not shoot on resume
                             }
                             World->SetPaused(false);
                         }
@@ -199,8 +199,8 @@ int main() {
         }
     
         // Ticking
-        if(!ignore_ticks)World->Tick();
-        else ignore_ticks -=1;
+        World->Tick();
+        Controllers->TickLast();
 
         // Drawing
         Draw->SetColor(120, 0, 120, 255);
