@@ -764,7 +764,7 @@ extern DECLSPEC int SDLCALL SDL_JoystickNumHats(SDL_Joystick *joystick);
 extern DECLSPEC int SDLCALL SDL_JoystickNumButtons(SDL_Joystick *joystick);
 
 /**
- * Update the current state of the open joysticks.
+ * RequestUpdate the current state of the open joysticks.
  *
  * This is called automatically by the event loop if any joystick events are
  * enabled.
@@ -1006,7 +1006,7 @@ extern DECLSPEC SDL_bool SDLCALL SDL_JoystickHasRumble(SDL_Joystick *joystick);
 extern DECLSPEC SDL_bool SDLCALL SDL_JoystickHasRumbleTriggers(SDL_Joystick *joystick);
 
 /**
- * Update a joystick's LED color.
+ * RequestUpdate a joystick's LED color.
  *
  * An example of a joystick LED is the light on the back of a PlayStation 4's
  * DualShock 4 controller.

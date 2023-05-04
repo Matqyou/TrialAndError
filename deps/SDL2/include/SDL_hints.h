@@ -1878,7 +1878,7 @@ extern "C" {
  *  \brief  Controls how the fact chunk affects the loading of a WAVE file.
  *
  *  The fact chunk stores information about the number of samples of a WAVE
- *  file. The Standards Update from Microsoft notes that this value can be used
+ *  file. The Standards RequestUpdate from Microsoft notes that this value can be used
  *  to 'determine the length of the data in seconds'. This is especially useful
  *  for compressed formats (for which this is a mandatory chunk) if they produce
  *  multiple sample frames per block and truncating the block is not allowed.
@@ -1944,7 +1944,7 @@ extern "C" {
  *        thread's name, but it tends to cause problems with other debuggers,
  *        and the .NET runtime. Note that SDL 2.0.6 and later will still use
  *        the (safer) SetThreadDescription API, introduced in the Windows 10
- *        Creators Update, if available.
+ *        Creators RequestUpdate, if available.
  *
  * The variable can be set to the following values:
  *   "0"       - SDL will raise the 0x406D1388 Exception to name threads.

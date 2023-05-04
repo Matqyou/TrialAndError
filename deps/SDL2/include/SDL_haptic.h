@@ -1078,7 +1078,7 @@ extern DECLSPEC int SDLCALL SDL_HapticNewEffect(SDL_Haptic * haptic,
                                                 SDL_HapticEffect * effect);
 
 /**
- * Update the properties of an effect.
+ * RequestUpdate the properties of an effect.
  *
  * Can be used dynamically, although behavior when dynamically changing
  * direction may be strange. Specifically the effect may re-upload itself and

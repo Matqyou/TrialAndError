@@ -49,13 +49,14 @@ private:
     const double m_FistingAnimationDuration;
     double m_FistingRadius;
     // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
-    ProjectileWeapon* m_Weapons[NUM_WEAPONS] {};
+    ProjectileWeapon* m_Weapons[NUM_WEAPONS];
     ProjectileWeapon* m_CurrentWeapon;
-    double m_MaxHealth, m_Health;
+    double m_MaxHealth, m_Health, m_LastHealth;
     double m_ActiveRegeneration, m_PassiveRegeneration;
     unsigned long long m_RegenerationCooldown;
     unsigned long long m_LastInCombat;
     static const int ms_DefaultControls[NUM_CONTROLS];
+    double m_xLast, m_yLast;
     const double m_BaseAcceleration;
     double m_Acceleration;
     double m_xLook, m_yLook;  // direction

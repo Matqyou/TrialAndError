@@ -22,7 +22,7 @@ bool Initialize() {
     TextManager* TextHandler = GameWindow->Assets()->TextHandler();
     TextHandler->LoadFont("Minecraft.ttf", 16);
 
-    World = new GameWorld(GameWindow, 100, 100);
+    World = new GameWorld(GameWindow, 25, 25);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
@@ -43,6 +43,11 @@ bool Initialize() {
     new Character(World, Player1, 100.0,
                   30, 30, 10, 10,
                   false);
+
+    for (int i = 0; i < 2; i++)
+        new Character(World, nullptr, 20.0,
+                      300, 300, 0, 0,
+                      true);
 
     return true;
 }
@@ -124,7 +129,6 @@ int main() {
 
     TextSurface TestText = TextSurface(AssetsHandler, TextHandler->FirstFont(), "Jesse -.. .. .", {255, 255, 255, 255 });
 
-    int IgnoreTicks = 5;
     bool Running = true;
     bool Config = true;
     while (Running) {
@@ -183,9 +187,8 @@ int main() {
                         {
                             if(World->Paused()) {
                                 SoundHandler->PlaySound(LowUISound);
-                                IgnoreTicks = 5; //Minimum ticks it has to skip to not shoot on resume
+                                World->SetPaused(false);
                             }
-                            World->SetPaused(false);
                         }
                         else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
                             y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
@@ -210,7 +213,7 @@ int main() {
 
         Draw->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
-        Texture* TextTexture = TestText.Update();
+        Texture* TextTexture = TestText.RequestUpdate();
         SDL_Rect DestinationRect;
         TextTexture->Query(nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
         DestinationRect.x = 0;

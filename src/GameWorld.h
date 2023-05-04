@@ -33,6 +33,7 @@ private:
     Entity* m_FirstType[NUM_ENTTYPES], *m_LastType[NUM_ENTTYPES];
     Entity* m_First, *m_Last;
     double m_x, m_y;
+    double m_xLast ,m_yLast;
     unsigned long long m_CurrentTick;
 
     TextSurface* m_CoordinatePlate;

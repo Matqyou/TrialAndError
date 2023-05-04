@@ -16,15 +16,17 @@ TileMap::TileMap(Drawing* render, int tilesize, int width, int height)
     m_Map = new Tile*[m_Area];
     memset(m_Map, 0, 8 * m_Area);
 
-    for (int i = 0; i < m_Area; i++) {
-        if (rand() % 100 > 0)
-            continue;
+    for (int y = 0; y < m_Height; y++) {
+        for (int x = 0; x < m_Width; x++) {
+            if (y == 0 || y == m_Height - 1 ||
+                x == 0 || x == m_Width - 1) {
 
-        Tile* NewTile = new Tile();
-        NewTile->m_Color = {Uint8(rand()%255), Uint8(rand()%255), Uint8(rand()%255) };
-        m_Map[i] = NewTile;
+                Tile *NewTile = new Tile();
+                NewTile->m_Color = { 0, 0, 0 };
+                m_Map[y * m_Width + x] = NewTile;
+            }
+        }
     }
-
 }
 
 TileMap::~TileMap() {

@@ -12,9 +12,10 @@ class TextSurface {
 private:
     AssetsManager* m_AssetsHandler;
     Texture* m_Texture;
-    std::string m_Text, m_RenderedText;
-    TTF_Font* m_Font, *m_RenderedFont;
-    SDL_Color m_Color, m_RenderedColor;
+    std::string m_Text;
+    TTF_Font* m_Font;
+    SDL_Color m_Color;
+    bool m_Update;
 
     void UpdateTexture();
 public:
@@ -29,8 +30,9 @@ public:
     void SetText(const std::string& text);
     void SetFont(TTF_Font* font);
     void SetColor(SDL_Color color);
+    void FlagForUpdate() { m_Update = true; }
 
-    Texture* Update();
+    Texture* RequestUpdate();
 };
 
 #endif //TRIALANDERROR_SRC_GAME_INDICATORS_TEXTSURFACE_H_

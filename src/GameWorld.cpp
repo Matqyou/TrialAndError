@@ -25,9 +25,11 @@ GameWorld::GameWorld(GameReference* game_window, int width, int height) {
     for (auto& i : m_FirstType) i = nullptr;
     for (auto& i : m_LastType) i = nullptr;
 
+    char msg[32];
+    std::snprintf(msg, sizeof(msg), "Spawned [%ix, %iy]", (int)m_x, (int)m_y);
     m_CoordinatePlate = new TextSurface(m_GameWindow->Assets(),
                                     m_GameWindow->Assets()->TextHandler()->FirstFont(),
-                                    "-x, -y", { 127, 127, 127, 255 });
+                                    msg, { 255, 255, 255 });
 
     m_Background = GameWindow()->Assets()->ImageHandler()->LoadTexture("assets/images/backgrounds/background_pattern.png", true);
     m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
@@ -232,7 +234,14 @@ void GameWorld::Tick() {
         }
     }
 
+    if (NamesShown() > 0.05 &&
+        ((int)(m_x) != (int)(m_xLast) ||
+        (int)(m_y) != (int)(m_yLast)))
+        m_CoordinatePlate->FlagForUpdate();
+
     m_CurrentTick++;
+    m_xLast = m_x;
+    m_yLast = m_y;
 }
 
 void GameWorld::Draw() {
@@ -260,7 +269,7 @@ void GameWorld::Draw() {
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
     m_CoordinatePlate->SetText(msg);
-    Texture* CoordinateTexture = m_CoordinatePlate->Update();
+    Texture* CoordinateTexture = m_CoordinatePlate->RequestUpdate();
 
     int coordinate_w, coordinate_h;
     CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
