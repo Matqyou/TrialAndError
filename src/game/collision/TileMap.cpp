@@ -4,6 +4,8 @@
 
 #include "TileMap.h"
 #include <fstream>
+#include <filesystem>
+#include <iostream>
 
 TileMap::TileMap(Drawing* render, int tilesize, int width, int height)
  : m_Tilesize(tilesize),
@@ -38,44 +40,100 @@ void TileMap::ClearTilemap() {
 }
 
 void TileMap::SaveTilemap(const char* filepath) {
-    std::ofstream File;
-    File.open(filepath);
-    File.write((char*)(&m_Width), sizeof(m_Width));
-    File.write((char*)(&m_Height), sizeof(m_Height));
-    for (int i = 0; i < m_Area; i++) {
-        Tile* SaveTile = m_Map[i];
-        bool Exists = bool(SaveTile);
-        File.write((char*)(&Exists), sizeof(Exists));
-        if (!Exists) continue;
+    std::printf("====== Save %s ======\n", filepath);
+    std::printf("Width: %i | Height: %i\n", m_Width, m_Height);
+    std::printf("Area: %i | Real Area: %i\n", m_Area, m_Width * m_Height);
 
-        File.write((char*)(&SaveTile->m_Color), sizeof(Uint8) * 3);
-    }
-    File.close();
-}
-#include <sys/stat.h>
-void TileMap::LoadTilemap(const char* filepath) {
-    std::ifstream File(filepath);
+    int Tiles = 0;
+    for (int i = 0; i < m_Area; i++)
+        if (m_Map[i])
+            Tiles++;
+
+    std::printf("Solid: %i\n", Tiles);
+
+    std::ofstream File(filepath, std::ios::binary);
     if (!File.is_open()) {
-        std::cout << "Couldn't open tilemap for loading: " << filepath << std::endl;
+        std::printf("Error opening the save file\n");
         return;
     }
 
-    ClearTilemap();
+    File.write((char*)(&m_Width), sizeof(m_Width));
+    File.write((char*)(&m_Height), sizeof(m_Height));
 
-    File.seekg(0, std::ios::beg);
-
-    File.read((char*)(&m_Width), sizeof(unsigned int));
-    File.read((char*)(&m_Height), sizeof(unsigned int));
-    m_Area = m_Width * m_Height;
+    const unsigned char Zero = 0;
+    const unsigned char One = 5;
+    Tiles = 0;
     for (int i = 0; i < m_Area; i++) {
-        bool Exists;
-        File.read((char*)(&Exists), sizeof(Exists));
-        if (!Exists) continue;
+        Tile* pTile = m_Map[i];
+        if (!pTile) {
+            File.write((char*)(&Zero), sizeof(Zero));
+            continue;
+        }
 
-        Tile* NewTile = new Tile();
-        m_Map[i] = NewTile;
-        File.read((char*)(&NewTile->m_Color), sizeof(Uint8) * 3);
+        SDL_Color* Color = &pTile->m_Color;
+
+        File.write((char*)(&One), sizeof(One));
+        File.write((char*)(&Color->r), sizeof(Color->r));
+        File.write((char*)(&Color->g), sizeof(Color->g));
+        File.write((char*)(&Color->b), sizeof(Color->b));
+
+        Tiles++;
     }
+
+    File.close();
+}
+
+void TileMap::LoadTilemap(const char* filepath) {
+    if (!std::filesystem::exists(filepath)) {
+        std::printf("No such file found: %s", filepath);
+        return;
+    }
+
+    std::printf("====== Load %s ======\n", filepath);
+
+    int tWidth, tHeight, tArea;
+
+    std::ifstream File(filepath, std::ios::binary);
+    if (!File.is_open()) {
+        std::printf("Error opening the save file\n");
+        return;
+    }
+
+    File.read((char*)(&tWidth), sizeof(tWidth));
+    File.read((char*)(&tHeight), sizeof(tHeight));
+    tArea = tWidth * tHeight;
+    std::printf("Width: %i | Height: %i\n", tWidth, tHeight);
+    std::printf("Area: %i \n", tArea);
+
+    Tile** tMap = new Tile*[tArea];
+    unsigned char tExists;
+    for (int i = 0; i < tArea; i++) {
+        File.read((char*)(&tExists), sizeof(tExists));
+        if (tExists) {
+            Tile* pTile = new Tile();
+            SDL_Color* Color = &pTile->m_Color;
+
+            File.read((char*)(&Color->r), sizeof(Color->r));
+            File.read((char*)(&Color->g), sizeof(Color->g));
+            File.read((char*)(&Color->b), sizeof(Color->b));
+
+            tMap[i] = pTile;
+        } else { tMap[i] = nullptr; }
+    }
+
+    std::streampos Pos = File.tellg();
+    File.seekg(0, std::ios::end);
+    std::streampos EndPos = File.tellg();
+    long long Remaining = EndPos - Pos;
+    std::printf("Unread bytes: %lld\n", Remaining);
+
+    ClearTilemap();
+    delete m_Map;
+    m_Map = tMap;
+    m_Width = tWidth;
+    m_Height = tHeight;
+    m_Area = tWidth * tHeight;
+
     File.close();
 }
 

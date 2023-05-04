@@ -143,8 +143,11 @@ void GameWorld::Event(const SDL_Event& currentEvent) {
     if (currentEvent.type == SDL_KEYDOWN) {
         if (currentEvent.key.keysym.scancode == SDL_SCANCODE_SPACE)
             ToggleShowNames();
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_O)
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_O) {
             m_Tiles->LoadTilemap("assets/tilemaps/test_level");
+            m_Width = m_Tiles->TotalWidth();
+            m_Height = m_Tiles->TotalHeight();
+        }
         else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_P)
             m_Tiles->SaveTilemap("assets/tilemaps/test_level");
     }

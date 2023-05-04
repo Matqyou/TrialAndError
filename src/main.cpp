@@ -22,7 +22,7 @@ bool Initialize() {
     TextManager* TextHandler = GameWindow->Assets()->TextHandler();
     TextHandler->LoadFont("GROBOLD.ttf", 16);
 
-    World = new GameWorld(GameWindow, 200, 200);
+    World = new GameWorld(GameWindow, 100, 100);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
