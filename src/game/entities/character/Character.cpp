@@ -11,19 +11,24 @@ Texture* Character::ms_Texture = nullptr;
 Texture* Character::ms_FistTexture = nullptr;
 Sound* Character::ms_HitSounds[3] = { nullptr, nullptr, nullptr };
 Sound* Character::ms_DeathSound = nullptr;
+TextSurface* Character::ms_BotNamePlate = nullptr;
 // TODO: see if we can make a little system that tells us if the textures/sounds are unitialized
 
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 const int Character::ms_DefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_LSHIFT };
 
-Character::Character(GameWorld* world, double max_health, double start_x, double start_y, double start_xvel, double start_yvel, bool bot_player)
+Character::Character(GameWorld* world, Player* player, double max_health,
+                     double start_x, double start_y, double start_xvel, double start_yvel,
+                     bool bot_player)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93),
    m_HandSpacing(40.0 / 180.0 * M_PI),
    m_FistingAnimationDuration(10.0),
    m_BaseAcceleration(0.75),
    m_Hook(this),
    m_HealthBar(world->GameWindow(), &m_Health, &m_MaxHealth, 75, 15, 2, 2) {
-    m_PlayerIndex = 0;
+    m_Player = player;
+    if (m_Player) m_Player->SetCharacter(this);
+
     m_ColorHue = double(rand()%360);
     m_Using = false;
     m_LastFisted = 0;
@@ -56,7 +61,6 @@ Character::Character(GameWorld* world, double max_health, double start_x, double
     for (bool& State : m_Movement)
         State = false;
 
-    m_World->GetNextPlayerIndex(this);
     m_Controllable = !bot_player;
 
     m_xvel = start_xvel;
@@ -67,14 +71,8 @@ Character::Character(GameWorld* world, double max_health, double start_x, double
     m_Hooking = false;
     m_LastHooking = false;
 
-    char Name[CHARACTER_MAX_NAME_LENGTH];
-    std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
-    m_Name = Name;
     TextManager* TextHandler = world->GameWindow()->Assets()->TextHandler();
     TTF_Font* Font = TextHandler->FirstFont();
-    m_Nameplate = new TextSurface(m_World->GameWindow()->Assets(),
-                                  Font,
-                                  Name, { 255, 255, 255, 255 });
     m_AmmoCount = new TextSurface(m_World->GameWindow()->Assets(),
                                   Font,
                                   "0", { 255, 255, 255, 255 });
@@ -96,7 +94,6 @@ Character::Character(GameWorld* world, double max_health, double start_x, double
 }
 
 Character::~Character() {
-    delete m_Nameplate;
     delete m_CoordinatePlate;
 
     Character* Player = m_World->FirstPlayer();
@@ -123,6 +120,9 @@ void Character::Damage(double damage, bool combat_tag) {
     if (combat_tag) m_LastInCombat = m_World->CurrentTick();
 }
 
+void Character::SetPlayer(Player* player) {
+    m_Player = player;
+}
 
 void Character::AmmoPickup(Ammo* ammo_box){
     WeaponType ReloadWeapon;
@@ -424,13 +424,18 @@ void Character::DrawNameplate() {
 
     int Opacity = int(m_World->NamesShown() * 255.0);
 
-    int nameplate_w, nameplate_h;
-    Texture* NameplateTexture = m_Nameplate->Update();
-    NameplateTexture->Query(nullptr, nullptr, &nameplate_w, &nameplate_h);
-    SDL_Rect NameplateRect = { int(m_x - nameplate_w / 2.0), int(m_y - m_h / 2.0 - nameplate_h), nameplate_w, nameplate_h };
+    Texture* NamePlateTexture;
+    if (m_Player) { NamePlateTexture = m_Player->GetNamePlate()->Update(); }
+    else { NamePlateTexture = ms_BotNamePlate->GetTexture(); }
 
-    SDL_SetTextureAlphaMod(NameplateTexture->SDLTexture(), Opacity);
-    Render->RenderTextureWorld(NameplateTexture->SDLTexture(), nullptr, NameplateRect);
+    int nameplate_w, nameplate_h;
+    NamePlateTexture->Query(nullptr, nullptr, &nameplate_w, &nameplate_h);
+    SDL_Rect NamePlateRect = { int(m_x - nameplate_w / 2.0), int(m_y - m_h / 2.0 - nameplate_h),
+                      nameplate_w, nameplate_h };
+
+    SDL_SetTextureAlphaMod(NamePlateTexture->SDLTexture(), Opacity);
+    Render->RenderTextureWorld(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect);
+
 
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
@@ -440,7 +445,7 @@ void Character::DrawNameplate() {
 
     int coordinate_w, coordinate_h;
     CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
-    SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(NameplateRect.y - coordinate_h), coordinate_w, coordinate_h };
+    SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(NamePlateRect.y - coordinate_h), coordinate_w, coordinate_h };
     SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
     Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
 }
@@ -489,6 +494,7 @@ void Character::Event(const SDL_Event& currentEvent) {
 }
 
 void Character::Tick() {
+    // TODO: Make controls come from m_Player/m_AI rather than m_GameController
     TickHealth();
     TickControls();  // Do stuff depending on the current held buttons
     TickCurrentWeapon(); // Shoot accelerate reload etc.

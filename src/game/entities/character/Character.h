@@ -4,6 +4,7 @@
 #include "SDL.h"
 #include <cstring>
 #include "../Entity.h"
+#include "../../Player.h"
 #include "../../weapons/WeaponGlock.h"
 #include "../../weapons/WeaponShotgun.h"
 #include "../../weapons/WeaponBurst.h"
@@ -12,8 +13,8 @@
 #include "../../../technical stuff/Colors.h"
 #include "../../indicators/HealthBar.h"
 #include "../../indicators/TextSurface.h"
-#include "Hook.h"
 #include "../Ammo.h"
+#include "Hook.h"
 
 class Character : public Entity {
 public:
@@ -32,9 +33,7 @@ private:
     friend class ProjectileWeapon;
     friend class Bullets;
     friend class Hook;
-    int m_PlayerIndex;
-    std::string m_Name;
-    TextSurface* m_Nameplate;
+    Player* m_Player;
     TextSurface* m_CoordinatePlate;
     TextSurface* m_AmmoCount;
     TextSurface* m_HealthInt;
@@ -94,15 +93,17 @@ public:
     static Texture* ms_FistTexture;
     static Sound* ms_HitSounds[3];
     static Sound* ms_DeathSound;
+    static TextSurface* ms_BotNamePlate;
 
-    Character(GameWorld* world, double max_health, double start_x, double start_y, double start_xvel, double start_yvel, bool bot_player);
+    Character(GameWorld* world, Player* player, double max_health, double start_x, double start_y, double start_xvel, double start_yvel, bool bot_player);
     ~Character();
 
     Hook* GetHook() { return &m_Hook; }
+    Player* GetPlayer() const { return m_Player; }
     GameController* GetGameController() const { return m_GameController; }
-    int PlayerIndex() const { return m_PlayerIndex; }
     bool Controllable() const { return m_Controllable; }
 
+    void SetPlayer(Player* player);
     void AmmoPickup(Ammo* ammo_box);
     void SetGameController(GameController* gameController);
     void Damage(double damage, bool make_sound);

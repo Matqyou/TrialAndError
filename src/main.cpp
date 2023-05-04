@@ -36,8 +36,14 @@ bool Initialize() {
     new Ammo(World, AMMO_BURST, 200, 600, 20);
     new Ammo(World, AMMO_MINIGUN, 400, 600, 20);
     new Ammo(World, AMMO_MINIGUN, 600, 600, 20);
+
     Controllers = new GameControllers();
-    new Character(World, 100.0, 30, 30, 10, 10, false);
+    auto Player1 = new Player(World, "Crazy speedrunner #1");
+    // new Player(World, "Speedrunner crazy #2");
+    new Character(World, Player1, 100.0,
+                  30, 30, 10, 10,
+                  false);
+
     return true;
 }
 
@@ -112,6 +118,10 @@ int main() {
     Ammo::ms_PickupSounds[5] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick6.wav", true);
     Ammo::ms_PickupSounds[6] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick7.wav", true);
 
+    Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),
+                                                 World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                                 "Bot User", { 255, 150, 150, 255 });
+
     TextSurface TestText = TextSurface(AssetsHandler, TextHandler->FirstFont(), "Jesse -.. .. .", {255, 255, 255, 255 });
 
     int ignore_ticks = 5;
@@ -141,7 +151,9 @@ int main() {
                         if (Pause) SoundHandler->PlaySound(MidUISound);
                         else SoundHandler->PlaySound(LowUISound);
                     } else if (ScancodeKey == SDL_SCANCODE_Z) {
-                        new Character(World, 20.0, 30, 30, 10, 10, true);
+                        new Character(World, nullptr, 20.0,
+                                      30, 30, 10, 10,
+                                      true);
                     }
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                     //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
@@ -149,7 +161,9 @@ int main() {
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto* NewPlayer = new Character(World, 100.0, 30, 30, 10, 10, false); // Add new player
+                    auto* NewPlayer = new Character(World, nullptr, 100.0,
+                                                    30, 30, 10, 10,
+                                                    false); // TODO fix ;)
                     NewPlayer->SetGameController(CurrentController);
                     SoundHandler->PlaySound(HighSound);
                 } break;

@@ -21,6 +21,7 @@ public:
     TextSurface(AssetsManager *assets_handler, TTF_Font *font, const std::string& text, SDL_Color color);
     ~TextSurface();
 
+    Texture* GetTexture() const { return m_Texture; }
     std::string GetText() const { return m_Text; }
     TTF_Font* GetFont() const { return m_Font; }
     SDL_Color GetColor() const { return m_Color; }
