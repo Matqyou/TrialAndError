@@ -997,7 +997,7 @@ extern DECLSPEC SDL_bool SDLCALL SDL_GameControllerHasRumble(SDL_GameController 
 extern DECLSPEC SDL_bool SDLCALL SDL_GameControllerHasRumbleTriggers(SDL_GameController *gamecontroller);
 
 /**
- * Update a game controller's LED color.
+ * RequestUpdate a game controller's LED color.
  *
  * \param gamecontroller The controller to update
  * \param red The intensity of the red LED

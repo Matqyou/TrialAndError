@@ -34,6 +34,10 @@ bool GameController::GetButton(int button) {
     return m_Buttons[button];
 }
 
+bool GameController::GetLastButton(int button) {
+    return m_LastButtons[button];
+}
+
 bool GameController::Vibrate(int low_frequency_rumble, int high_frequency_rumble, int duration_ms) {
     return SDL_GameControllerRumble(m_Device, low_frequency_rumble, high_frequency_rumble, duration_ms);
 }
@@ -54,6 +58,10 @@ void GameController::Event(const SDL_Event& event) {
             m_Axis[AxisID] = double(event.caxis.value) / SDL_MAX_SINT16;
         } break;
     }
+}
+
+void GameController::TickLast() {
+    memcpy(&m_LastButtons, &m_Buttons, sizeof(m_LastButtons));
 }
 
 GameControllers::GameControllers() {
@@ -93,4 +101,9 @@ void GameControllers::Event(const SDL_Event& event) {
             break;
         }
     }
+}
+
+void GameControllers::TickLast() {
+    for (GameController* Controller : m_Controllers)
+        Controller->TickLast();
 }

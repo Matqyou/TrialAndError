@@ -296,7 +296,7 @@ extern DECLSPEC int SDLCALL SDL_SensorGetDataWithTimestamp(SDL_Sensor *sensor, U
 extern DECLSPEC void SDLCALL SDL_SensorClose(SDL_Sensor *sensor);
 
 /**
- * Update the current state of the open sensors.
+ * RequestUpdate the current state of the open sensors.
  *
  * This is called automatically by the event loop if sensor events are
  * enabled.

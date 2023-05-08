@@ -21,6 +21,7 @@ struct Hook {
     double m_MaxLength;
     double m_HookTravelSpeed;
     double m_WallDragForce;
+    double m_HookStrength;
     double m_HookerInfluenceRatio;
     double m_HookistInfluenceRatio;
     bool m_Deployed;

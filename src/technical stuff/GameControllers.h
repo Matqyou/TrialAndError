@@ -15,6 +15,7 @@ private:
 
     double m_Axis[SDL_CONTROLLER_AXIS_MAX];
     bool m_Buttons[SDL_CONTROLLER_BUTTON_MAX];
+    bool m_LastButtons[SDL_CONTROLLER_BUTTON_MAX];
 
 public:
     GameController(int device_id);
@@ -26,11 +27,13 @@ public:
     void GetJoystick1(double& get_x, double& get_y);
     void GetJoystick2(double& get_x, double& get_y);
     bool GetButton(int button);
+    bool GetLastButton(int button);
 
     bool Vibrate(int low_frequency_rumble, int high_frequency_rumble, int duration_ms);
-    bool VibrateTriggers(int left_rumble, int right_rumble, int duration_ms);
+    bool VibrateTriggers(int left_rumble, int right_rumble, int duration_ms); // TODO not work
 
     void Event(const SDL_Event& event);
+    void TickLast();
 };
 
 class GameControllers {
@@ -45,6 +48,7 @@ public:
     GameController* CloseController(int instance_id);
 
     void Event(const SDL_Event& event);
+    void TickLast();
 };
 
 #endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMECONTROLLERS_H_

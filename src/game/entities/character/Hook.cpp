@@ -16,6 +16,7 @@ Hook::Hook(Character* parent) {
     m_HookTravelSpeed = 35.0;
     m_WallDragForce = 1.5;
 
+    m_HookStrength = 2.0;
     m_HookerInfluenceRatio = 0.0;
     m_HookistInfluenceRatio = 0.0;
     SetInfluenceRatio(0.7);
@@ -118,8 +119,8 @@ void Hook::Tick(bool hooking, bool last_hooking) {
         m_y = m_GrabbedEntity->GetY();
         if (m_GrabbedEntity->EntityType() == GameWorld::ENTTYPE_CHARACTER) {
             auto Player = (Character*)(m_GrabbedEntity);
-            double Acceleration = Length / m_MaxLength * (1 - m_HookerInfluenceRatio);
-            double Influence = Length / m_MaxLength * m_HookerInfluenceRatio;
+            double Acceleration = m_HookStrength * Length / m_MaxLength * (1 - m_HookerInfluenceRatio);
+            double Influence = m_HookStrength * Length / m_MaxLength * m_HookerInfluenceRatio;
             Player->Accelerate(-TravelX * Acceleration, -TravelY * Acceleration);
             m_Parent->Accelerate(TravelX * Influence, TravelY * Influence);
         }

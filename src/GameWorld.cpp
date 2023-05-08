@@ -3,6 +3,7 @@
 //
 
 #include "GameWorld.h"
+#include "game/Player.h"
 #include "game/entities/Entity.h"
 #include "game/entities/character/Character.h"
 Texture* GameWorld::Chad = nullptr;
@@ -24,9 +25,11 @@ GameWorld::GameWorld(GameReference* game_window, int width, int height) {
     for (auto& i : m_FirstType) i = nullptr;
     for (auto& i : m_LastType) i = nullptr;
 
+    char msg[32];
+    std::snprintf(msg, sizeof(msg), "Spawned [%ix, %iy]", (int)m_x, (int)m_y);
     m_CoordinatePlate = new TextSurface(m_GameWindow->Assets(),
                                     m_GameWindow->Assets()->TextHandler()->FirstFont(),
-                                    "-x, -y", { 127, 127, 127, 255 });
+                                    msg, { 255, 255, 255 });
 
     m_Background = GameWindow()->Assets()->ImageHandler()->LoadTexture("assets/images/backgrounds/background_pattern.png", true);
     m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
@@ -37,6 +40,8 @@ GameWorld::GameWorld(GameReference* game_window, int width, int height) {
 GameWorld::~GameWorld() {
     delete m_Tiles;
     delete m_CoordinatePlate;
+
+
     Entity* CurrentEntity = m_Last;
     while (CurrentEntity) {
         auto NextEntity = CurrentEntity->m_Prev;
@@ -45,21 +50,20 @@ GameWorld::~GameWorld() {
     }
 }
 
-Character* GameWorld::GetPlayerByIndex(int index) const {
-    Character* Player = FirstPlayer();
-    for (; Player; Player = (Character*)(Player->NextType()))
-        if (Player->PlayerIndex() == index)
-            return Player;
+unsigned int GameWorld::NextPlayerIndex() const {
+    unsigned int Index = 0;
+    auto pPlayer = m_FirstPlayer;
 
-    return nullptr;
-}
+    while (true) {
+        bool Used = false;
+        for (; pPlayer != nullptr; pPlayer = pPlayer->m_Next) {
+            if (pPlayer->GetIndex() == Index)
+                Used = true;
+        }
 
-void GameWorld::GetNextPlayerIndex(Character* player) const {
-    int Index = 1;
-    while (GetPlayerByIndex(Index))
+        if (!Used) return Index;
         Index++;
-
-    player->m_PlayerIndex = Index;
+    }
 }
 
 void GameWorld::GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const {
@@ -72,7 +76,31 @@ void GameWorld::SetCameraPos(double x, double y) {
     m_y = y;
 }
 
-void GameWorld::AddEntity(Entity* entity) {
+Player* GameWorld::AddPlayer(Player* player) {
+    if (!m_FirstPlayer) {
+        m_FirstPlayer = player;
+        m_LastPlayer = player;
+        player->m_Prev = nullptr;
+        player->m_Next = nullptr;
+    } else {
+        m_LastPlayer->m_Next = player;
+        player->m_Prev = m_LastPlayer;
+        m_LastPlayer = player;
+    }
+
+    return player;
+}
+
+// ::RemovePlayer() doesn't reset players Previous and Next player pointers
+void GameWorld::RemovePlayer(Player* player) {
+    // Remove player from list of all players
+    if (player->m_Prev) player->m_Prev->m_Next = player->m_Next;
+    if (player->m_Next) player->m_Next->m_Prev = player->m_Prev;
+    if (m_FirstPlayer == player) m_FirstPlayer = player->m_Next;
+    if (m_LastPlayer == player) m_LastPlayer = player->m_Prev;
+}
+
+Entity* GameWorld::AddEntity(Entity* entity) {
     EntityType Enttype = entity->EntityType();
     Entity*& FirstType = m_FirstType[Enttype];
     Entity*& LastType = m_LastType[Enttype];
@@ -98,6 +126,8 @@ void GameWorld::AddEntity(Entity* entity) {
         entity->m_Prev = m_Last;
         m_Last = entity;
     }
+
+    return entity;
 }
 
 // ::RemoveEntity() doesn't reset entities Previous and Next entity pointers
@@ -140,11 +170,16 @@ void GameWorld::SetPaused(bool state) {
 }
 
 void GameWorld::Event(const SDL_Event& currentEvent) {
+    if (m_Paused) return;
+
     if (currentEvent.type == SDL_KEYDOWN) {
         if (currentEvent.key.keysym.scancode == SDL_SCANCODE_SPACE)
             ToggleShowNames();
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_O)
+        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_O) {
             m_Tiles->LoadTilemap("assets/tilemaps/test_level");
+            m_Width = m_Tiles->TotalWidth();
+            m_Height = m_Tiles->TotalHeight();
+        }
         else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_P)
             m_Tiles->SaveTilemap("assets/tilemaps/test_level");
     }
@@ -199,7 +234,14 @@ void GameWorld::Tick() {
         }
     }
 
+    if (NamesShown() > 0.05 &&
+        ((int)(m_x) != (int)(m_xLast) ||
+        (int)(m_y) != (int)(m_yLast)))
+        m_CoordinatePlate->FlagForUpdate();
+
     m_CurrentTick++;
+    m_xLast = m_x;
+    m_yLast = m_y;
 }
 
 void GameWorld::Draw() {
@@ -227,7 +269,7 @@ void GameWorld::Draw() {
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
     m_CoordinatePlate->SetText(msg);
-    Texture* CoordinateTexture = m_CoordinatePlate->Update();
+    Texture* CoordinateTexture = m_CoordinatePlate->RequestUpdate();
 
     int coordinate_w, coordinate_h;
     CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);

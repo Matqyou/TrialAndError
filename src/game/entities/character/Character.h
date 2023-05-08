@@ -4,6 +4,7 @@
 #include "SDL.h"
 #include <cstring>
 #include "../Entity.h"
+#include "../../Player.h"
 #include "../../weapons/WeaponGlock.h"
 #include "../../weapons/WeaponShotgun.h"
 #include "../../weapons/WeaponBurst.h"
@@ -12,8 +13,8 @@
 #include "../../../technical stuff/Colors.h"
 #include "../../indicators/HealthBar.h"
 #include "../../indicators/TextSurface.h"
-#include "Hook.h"
 #include "../Ammo.h"
+#include "Hook.h"
 
 class Character : public Entity {
 public:
@@ -32,13 +33,12 @@ private:
     friend class ProjectileWeapon;
     friend class Bullets;
     friend class Hook;
-    int m_PlayerIndex;
-    std::string m_Name;
-    TextSurface* m_Nameplate;
+    Player* m_Player;
     TextSurface* m_CoordinatePlate;
     TextSurface* m_AmmoCount;
     TextSurface* m_HealthInt;
     double m_ColorHue;
+    int m_SelectedWeaponIndex;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS] {};
     bool m_Controllable;
@@ -49,13 +49,14 @@ private:
     const double m_FistingAnimationDuration;
     double m_FistingRadius;
     // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
-    ProjectileWeapon* m_Weapons[NUM_WEAPONS] {};
+    ProjectileWeapon* m_Weapons[NUM_WEAPONS];
     ProjectileWeapon* m_CurrentWeapon;
-    double m_MaxHealth, m_Health;
+    double m_MaxHealth, m_Health, m_LastHealth;
     double m_ActiveRegeneration, m_PassiveRegeneration;
     unsigned long long m_RegenerationCooldown;
     unsigned long long m_LastInCombat;
     static const int ms_DefaultControls[NUM_CONTROLS];
+    double m_xLast, m_yLast;
     const double m_BaseAcceleration;
     double m_Acceleration;
     double m_xLook, m_yLook;  // direction
@@ -94,24 +95,25 @@ public:
     static Texture* ms_FistTexture;
     static Sound* ms_HitSounds[3];
     static Sound* ms_DeathSound;
+    static TextSurface* ms_BotNamePlate;
 
-    Character(GameWorld* world, double max_health, double start_x, double start_y, double start_xvel, double start_yvel, bool bot_player);
+    Character(GameWorld* world, Player* player, double max_health, double start_x, double start_y, double start_xvel, double start_yvel, bool bot_player);
     ~Character();
 
     Hook* GetHook() { return &m_Hook; }
+    Player* GetPlayer() const { return m_Player; }
     GameController* GetGameController() const { return m_GameController; }
-    int PlayerIndex() const { return m_PlayerIndex; }
     bool Controllable() const { return m_Controllable; }
 
+    void SetPlayer(Player* player);
     void AmmoPickup(Ammo* ammo_box);
     void SetGameController(GameController* gameController);
     void Damage(double damage, bool make_sound);
+    void SwitchWeapon(WeaponType type);
 
     void Event(const SDL_Event& currentEvent);
     void Tick() override;
     void Draw() override;
-
-
 };
 
 

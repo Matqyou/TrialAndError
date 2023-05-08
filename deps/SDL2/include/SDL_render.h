@@ -566,7 +566,7 @@ extern DECLSPEC int SDLCALL SDL_SetTextureUserData(SDL_Texture * texture,
 extern DECLSPEC void * SDLCALL SDL_GetTextureUserData(SDL_Texture * texture);
 
 /**
- * Update the given texture rectangle with new pixel data.
+ * RequestUpdate the given texture rectangle with new pixel data.
  *
  * The pixel data must be in the pixel format of the texture. Use
  * SDL_QueryTexture() to query the pixel format of the texture.
@@ -599,7 +599,7 @@ extern DECLSPEC int SDLCALL SDL_UpdateTexture(SDL_Texture * texture,
                                               const void *pixels, int pitch);
 
 /**
- * Update a rectangle within a planar YV12 or IYUV texture with new pixel
+ * RequestUpdate a rectangle within a planar YV12 or IYUV texture with new pixel
  * data.
  *
  * You can use SDL_UpdateTexture() as long as your pixel data is a contiguous
@@ -632,7 +632,7 @@ extern DECLSPEC int SDLCALL SDL_UpdateYUVTexture(SDL_Texture * texture,
                                                  const Uint8 *Vplane, int Vpitch);
 
 /**
- * Update a rectangle within a planar NV12 or NV21 texture with new pixels.
+ * RequestUpdate a rectangle within a planar NV12 or NV21 texture with new pixels.
  *
  * You can use SDL_UpdateTexture() as long as your pixel data is a contiguous
  * block of NV12/21 planes in the proper order, but this function is available
@@ -1711,7 +1711,7 @@ extern DECLSPEC int SDLCALL SDL_RenderReadPixels(SDL_Renderer * renderer,
                                                  void *pixels, int pitch);
 
 /**
- * Update the screen with any rendering performed since the previous call.
+ * RequestUpdate the screen with any rendering performed since the previous call.
  *
  * SDL's rendering functions operate on a backbuffer; that is, calling a
  * rendering function such as SDL_RenderDrawLine() does not directly put a

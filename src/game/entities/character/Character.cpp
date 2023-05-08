@@ -11,19 +11,24 @@ Texture* Character::ms_Texture = nullptr;
 Texture* Character::ms_FistTexture = nullptr;
 Sound* Character::ms_HitSounds[3] = { nullptr, nullptr, nullptr };
 Sound* Character::ms_DeathSound = nullptr;
+TextSurface* Character::ms_BotNamePlate = nullptr;
 // TODO: see if we can make a little system that tells us if the textures/sounds are unitialized
 
 static double sDiagonalLength = 1.0 / std::sqrt(2.0);
 const int Character::ms_DefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_LSHIFT };
 
-Character::Character(GameWorld* world, double max_health, double start_x, double start_y, double start_xvel, double start_yvel, bool bot_player)
+Character::Character(GameWorld* world, Player* player, double max_health,
+                     double start_x, double start_y, double start_xvel, double start_yvel,
+                     bool bot_player)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93),
    m_HandSpacing(40.0 / 180.0 * M_PI),
    m_FistingAnimationDuration(10.0),
    m_BaseAcceleration(0.75),
    m_Hook(this),
    m_HealthBar(world->GameWindow(), &m_Health, &m_MaxHealth, 75, 15, 2, 2) {
-    m_PlayerIndex = 0;
+    m_Player = player;
+    if (m_Player) m_Player->SetCharacter(this);
+
     m_ColorHue = double(rand()%360);
     m_Using = false;
     m_LastFisted = 0;
@@ -52,13 +57,15 @@ Character::Character(GameWorld* world, double max_health, double start_x, double
     m_RegenerationCooldown = 10 * 60; // seconds * 60ticks per second
     m_LastInCombat = 0;
 
+    m_SelectedWeaponIndex = -1;
     m_GameController = nullptr;
     for (bool& State : m_Movement)
         State = false;
 
-    m_World->GetNextPlayerIndex(this);
     m_Controllable = !bot_player;
 
+    m_xLast = m_x;
+    m_yLast = m_y;
     m_xvel = start_xvel;
     m_yvel = start_yvel;
     m_xLook = 1.0;
@@ -67,24 +74,20 @@ Character::Character(GameWorld* world, double max_health, double start_x, double
     m_Hooking = false;
     m_LastHooking = false;
 
-    char Name[CHARACTER_MAX_NAME_LENGTH];
-    std::snprintf(Name, CHARACTER_MAX_NAME_LENGTH, "Player%i", m_PlayerIndex);
-    m_Name = Name;
     TextManager* TextHandler = world->GameWindow()->Assets()->TextHandler();
     TTF_Font* Font = TextHandler->FirstFont();
-    m_Nameplate = new TextSurface(m_World->GameWindow()->Assets(),
-                                  Font,
-                                  Name, { 255, 255, 255, 255 });
     m_AmmoCount = new TextSurface(m_World->GameWindow()->Assets(),
                                   Font,
-                                  "0", { 255, 255, 255, 255 });
+                                  "0", { 255, 255, 255 });
+    char msg[32];
+    std::snprintf(msg, sizeof(msg), "Spawned [%ix, %iy]", (int)m_x, (int)m_y);
     m_CoordinatePlate = new TextSurface(m_World->GameWindow()->Assets(),
                                         Font,
-                                        "-x, -y", { 255, 255, 255, 255 });
+                                        msg, { 255, 255, 255 });
 
     m_HealthInt = new TextSurface(m_World->GameWindow()->Assets(),
                                   m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
-                                  "0", { 0, 0, 0, 255 });
+                                  "0", { 0, 0, 0 });
     m_HitTicks = 0;
     m_CharacterColor = { 255, 255, 255, 255 };
     m_HookColor = { 255, 255, 255, 255 };
@@ -96,7 +99,6 @@ Character::Character(GameWorld* world, double max_health, double start_x, double
 }
 
 Character::~Character() {
-    delete m_Nameplate;
     delete m_CoordinatePlate;
 
     Character* Player = m_World->FirstPlayer();
@@ -123,6 +125,19 @@ void Character::Damage(double damage, bool combat_tag) {
     if (combat_tag) m_LastInCombat = m_World->CurrentTick();
 }
 
+void Character::SwitchWeapon(WeaponType type) {
+    if (!m_Weapons[type] ||
+        m_CurrentWeapon == m_Weapons[type]) {
+        m_CurrentWeapon = nullptr;
+    } else {
+        m_CurrentWeapon = m_Weapons[type];
+        m_AmmoCount->FlagForUpdate();
+    }
+}
+
+void Character::SetPlayer(Player* player) {
+    m_Player = player;
+}
 
 void Character::AmmoPickup(Ammo* ammo_box){
     WeaponType ReloadWeapon;
@@ -137,6 +152,9 @@ void Character::AmmoPickup(Ammo* ammo_box){
     auto AmmoNeeded = m_Weapons[ReloadWeapon]->NeededAmmo();
     auto TakenAmmo = ammo_box->TakeAmmo(AmmoNeeded);
     m_Weapons[ReloadWeapon]->AddTrueAmmo(TakenAmmo);
+
+    if (m_CurrentWeapon == m_Weapons[ReloadWeapon])
+        m_AmmoCount->FlagForUpdate();
 }
 
 void Character::TickKeyboardControls() {
@@ -159,7 +177,7 @@ void Character::TickKeyboardControls() {
 
     if (MoveDown != MoveUp) m_yvel += SpeedPerAxis * double(MoveDown ? 1 : -1);
     if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
-    // Update look direction
+    // RequestUpdate look direction
     int XMouse, YMouse;
     SDL_GetMouseState(&XMouse, &YMouse);
 
@@ -201,7 +219,7 @@ void Character::TickGameControllerControls() {
         m_yvel += m_Acceleration * AxisY;
     }
 
-    // Update look direction
+    // RequestUpdate look direction
     double AxisX2, AxisY2;
     m_GameController->GetJoystick2(AxisX2, AxisY2);
 
@@ -222,14 +240,26 @@ void Character::TickGameControllerControls() {
     m_Reloading = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X);
 
     // Switch weapons
-    if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP) && m_Weapons[WEAPON_GLOCK])
-        m_CurrentWeapon = m_Weapons[WEAPON_GLOCK];
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT) && m_Weapons[WEAPON_SHOTGUN])
-        m_CurrentWeapon = m_Weapons[WEAPON_SHOTGUN];
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN) && m_Weapons[WEAPON_BURST])
-        m_CurrentWeapon = m_Weapons[WEAPON_BURST];
-    else if (m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT) && m_Weapons[WEAPON_MINIGUN])
-        m_CurrentWeapon = m_Weapons[WEAPON_MINIGUN];
+    bool SwitchForward = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+    bool SwitchBackward = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+    bool SwitchHands = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_UP) ||
+            m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+
+    if (SwitchForward ^ SwitchBackward ^ SwitchHands) { // I hope this works as intended, only 1 at a time | ignore if multiple inputs at the same time
+        if (SwitchHands) { m_SelectedWeaponIndex = -1; }
+        else if (SwitchForward) {
+            m_SelectedWeaponIndex++;
+            if (m_SelectedWeaponIndex == NUM_WEAPONS)
+                m_SelectedWeaponIndex = -1;
+        } else {
+            m_SelectedWeaponIndex--;
+            if (m_SelectedWeaponIndex == -2)
+                m_SelectedWeaponIndex = NUM_WEAPONS - 1;
+        }
+
+        if (m_SelectedWeaponIndex == -1) { m_CurrentWeapon = nullptr; }
+        else { SwitchWeapon((WeaponType)m_SelectedWeaponIndex); } // yeaaaaaaa
+    }
 }
 
 // When in combat heal differently than out of combat
@@ -262,8 +292,16 @@ void Character::TickCollision() {
         double XDistance = m_x - Player->GetX();
         double YDistance = m_y - Player->GetY();
         double Distance = std::sqrt(std::pow(XDistance, 2) + std::pow(YDistance, 2));
-        if (Distance > 40 || Distance <= 0.0) continue;
 
+        if (Distance > 40) continue;
+        else if (Distance == 0.0) {
+            double Radians = (rand()%360) / 180.0 * M_PI;
+            XDistance = cos(Radians);
+            YDistance = sin(Radians);
+            Distance = 1.0;
+        }
+
+        // TODO make push stronger when closer to character not when further....
         double XPush = XDistance / Distance * 0.5;
         double YPush = YDistance / Distance * 0.5;
         Accelerate(XPush, YPush);
@@ -273,10 +311,17 @@ void Character::TickCollision() {
 
 void Character::TickCurrentWeapon() {
     if (m_CurrentWeapon) {
+        auto TempAmmo = m_CurrentWeapon->Ammo();
         if (m_Reloading && !m_LastReloading)
             m_CurrentWeapon->Reload();
 
         m_CurrentWeapon->Tick();
+        auto CurrentAmmo = m_CurrentWeapon->Ammo();
+        if (TempAmmo != CurrentAmmo) {
+            m_AmmoCount->FlagForUpdate();
+            if (!CurrentAmmo && TempAmmo) { m_AmmoCount->SetColor({ 255, 0, 0 }); }
+            else { m_AmmoCount->SetColor( { 255, 255, 255 } ); }
+        }
     } else {
         auto CurrentTick = m_World->CurrentTick();
         if (CurrentTick - m_LastFisted < 5)
@@ -363,9 +408,9 @@ void Character::DrawHealthbar() {
         std::snprintf(msg, sizeof(msg), "%i/%i", int(m_Health), int(m_MaxHealth));
         m_HealthInt->SetText(msg);
 
-        if(m_Health < 50)m_HealthInt->SetColor(m_HealthRed);
+        if(m_Health < 50) m_HealthInt->SetColor(m_HealthRed);
         else m_HealthInt->SetColor(m_HealthBlack);
-        Texture* HealthTexture = m_HealthInt->Update();
+        Texture* HealthTexture = m_HealthInt->RequestUpdate();
         HealthTexture->Query(nullptr, nullptr, &healthplate_w, &healthplate_h);
         SDL_Rect HealthIntRect = { int(m_x - healthplate_w/2 / 2.0) ,int(m_y +m_h/2+healthplate_h/4), healthplate_w/2, healthplate_h/2 };
 
@@ -424,58 +469,65 @@ void Character::DrawNameplate() {
 
     int Opacity = int(m_World->NamesShown() * 255.0);
 
-    int nameplate_w, nameplate_h;
-    Texture* NameplateTexture = m_Nameplate->Update();
-    NameplateTexture->Query(nullptr, nullptr, &nameplate_w, &nameplate_h);
-    SDL_Rect NameplateRect = { int(m_x - nameplate_w / 2.0), int(m_y - m_h / 2.0 - nameplate_h), nameplate_w, nameplate_h };
+    Texture* NamePlateTexture;
+    if (m_Player) { NamePlateTexture = m_Player->GetNamePlate()->RequestUpdate(); }
+    else { NamePlateTexture = ms_BotNamePlate->GetTexture(); }
 
-    SDL_SetTextureAlphaMod(NameplateTexture->SDLTexture(), Opacity);
-    Render->RenderTextureWorld(NameplateTexture->SDLTexture(), nullptr, NameplateRect);
+    int nameplate_w, nameplate_h;
+    NamePlateTexture->Query(nullptr, nullptr, &nameplate_w, &nameplate_h);
+    SDL_Rect NamePlateRect = { int(m_x - nameplate_w / 2.0), int(m_y - m_h / 2.0 - nameplate_h),
+                      nameplate_w, nameplate_h };
+
+    SDL_SetTextureAlphaMod(NamePlateTexture->SDLTexture(), Opacity);
+    Render->RenderTextureWorld(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect);
+
 
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
     m_CoordinatePlate->SetText(msg);
     m_CoordinatePlate->SetColor(m_NameplateColor);
-    Texture* CoordinateTexture = m_CoordinatePlate->Update();
+    Texture* CoordinateTexture = m_CoordinatePlate->RequestUpdate();
 
     int coordinate_w, coordinate_h;
     CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
-    SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(NameplateRect.y - coordinate_h), coordinate_w, coordinate_h };
+    SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(NamePlateRect.y - coordinate_h), coordinate_w, coordinate_h };
     SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
     Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
 }
 
-
-
+// TODO when switching guns ammo text renders again, to prevent this save each ammo count texture on the gun
 void Character::DrawAmmo(){
     Drawing* Render = m_World->GameWindow()->RenderClass();
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%u/%u", m_CurrentWeapon->Ammo(), m_CurrentWeapon->TrueAmmo());
     m_AmmoCount->SetText(msg);
-    Texture* AmmoTexture = m_AmmoCount->Update();
+    if (m_CurrentWeapon->Ammo() == 0) m_AmmoCount->SetColor( {255, 0, 0} );
+    else { m_AmmoCount->SetColor( {255, 255, 255} ); }
+    Texture* AmmoTexture = m_AmmoCount->RequestUpdate();
 
     int Ammo_w, Ammo_h;
     AmmoTexture->Query(nullptr, nullptr, &Ammo_w, &Ammo_h);
     SDL_Rect AmmoRect = { int(m_x - Ammo_w / 2.0) ,int(m_y +m_h/2+20), Ammo_w, Ammo_h };
     Render->RenderTextureWorld(AmmoTexture->SDLTexture(), nullptr, AmmoRect);
 }
+
 void Character::Event(const SDL_Event& currentEvent) {
     if (!m_Controllable || m_GameController)
         return;
 
-    if (currentEvent.type == SDL_KEYDOWN ||
+    if (currentEvent.type == SDL_KEYDOWN && currentEvent.key.repeat == 0 ||
         currentEvent.type == SDL_KEYUP) {
         bool State = currentEvent.type == SDL_KEYDOWN;
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_GRAVE)
-            m_CurrentWeapon = nullptr;
-        if (currentEvent.key.keysym.scancode == SDL_SCANCODE_1 && m_Weapons[WEAPON_GLOCK])
-            m_CurrentWeapon = m_Weapons[WEAPON_GLOCK];
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_2 && m_Weapons[WEAPON_SHOTGUN])
-            m_CurrentWeapon = m_Weapons[WEAPON_SHOTGUN];
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_3 && m_Weapons[WEAPON_BURST])
-            m_CurrentWeapon = m_Weapons[WEAPON_BURST];
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_4 && m_Weapons[WEAPON_MINIGUN])
-            m_CurrentWeapon = m_Weapons[WEAPON_MINIGUN];
+        if (State) {
+            int KeyCode = currentEvent.key.keysym.scancode;
+            if (KeyCode == SDL_SCANCODE_GRAVE) { m_CurrentWeapon = nullptr; }
+            else {
+                if (KeyCode == SDL_SCANCODE_1) { SwitchWeapon(WEAPON_GLOCK); }
+                else if (KeyCode == SDL_SCANCODE_2) { SwitchWeapon(WEAPON_SHOTGUN); }
+                else if (KeyCode == SDL_SCANCODE_3) { SwitchWeapon(WEAPON_BURST); }
+                else if (KeyCode == SDL_SCANCODE_4) { SwitchWeapon(WEAPON_MINIGUN); }
+            }
+        }
 
         // Reloads weapon on keyboard player with R button press
         if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R)
@@ -489,6 +541,7 @@ void Character::Event(const SDL_Event& currentEvent) {
 }
 
 void Character::Tick() {
+    // TODO: Make controls come from m_Player/m_AI rather than m_GameController
     TickHealth();
     TickControls();  // Do stuff depending on the current held buttons
     TickCurrentWeapon(); // Shoot accelerate reload etc.
@@ -503,9 +556,18 @@ void Character::Tick() {
     TickVelocity();  // Move the character entity
     TickWalls();  // Check if colliding with walls
 
+    if ((int)(m_Health) != (int)(m_LastHealth)) m_HealthInt->FlagForUpdate();
+    if (m_World->NamesShown() > 0.05 &&
+        ((int)(m_x) != (int)(m_xLast) ||
+        (int)(m_y) != (int)(m_yLast)))
+        m_CoordinatePlate->FlagForUpdate();
+
+    m_LastHealth = m_Health;
     m_LastUsing = m_Using;
     m_LastHooking = m_Hooking;
     m_LastReloading = m_Reloading;
+    m_xLast = m_x;
+    m_yLast = m_y;
 
     m_HitTicks -= 1;
     if (m_HitTicks < 0)

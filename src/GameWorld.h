@@ -10,6 +10,7 @@
 #include "game/indicators/TextSurface.h"
 #include "game/collision/TileMap.h"
 
+class Player;
 class Entity;
 class Character;
 class GameWorld {
@@ -24,13 +25,15 @@ public:
 private:
     GameReference* m_GameWindow;
     TileMap* m_Tiles;
-    double m_Width, m_Height;  // maybe better if it was int
+    double m_Width, m_Height;
     double m_ShowNamesVisibility;
     bool m_ShowNames;
     bool m_Paused;
-    Entity* m_FirstType[NUM_ENTTYPES] {}, *m_LastType[NUM_ENTTYPES] {};
+    Player* m_FirstPlayer, *m_LastPlayer;
+    Entity* m_FirstType[NUM_ENTTYPES], *m_LastType[NUM_ENTTYPES];
     Entity* m_First, *m_Last;
     double m_x, m_y;
+    double m_xLast ,m_yLast;
     unsigned long long m_CurrentTick;
 
     TextSurface* m_CoordinatePlate;
@@ -51,12 +54,13 @@ public:
     double CameraX() const { return m_x; }
     double CameraY() const { return m_y; }
     unsigned long long CurrentTick() const { return m_CurrentTick; }
-    Character* GetPlayerByIndex(int index) const;
-    void GetNextPlayerIndex(Character* player) const;
+    unsigned int NextPlayerIndex() const;
     void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
     void SetCameraPos(double x, double y);  // Move the camera to a position
-    void AddEntity(Entity* entity);
+    Player* AddPlayer(Player* player);
+    void RemovePlayer(Player* player);
+    Entity* AddEntity(Entity* entity);
     void RemoveEntity(Entity* entity);
     void DestroyPlayerByController(GameController* DeletedController) const;
     void ToggleShowNames();
