@@ -68,6 +68,7 @@ void ProjectileWeapon::GetOwnerShooting(bool& out_shoot, bool& out_last_shoot) c
 
 unsigned int ProjectileWeapon::NeededAmmo() const {
     return m_TrueAmmoCapacity - m_TrueAmmo;
+
 }
 
 void ProjectileWeapon::AddTrueAmmo(unsigned int count) {

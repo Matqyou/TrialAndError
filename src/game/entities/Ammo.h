@@ -28,7 +28,7 @@ public:
     static Texture* ms_TextureShotgun;
     static Texture* ms_TextureBurst;
     static Texture* ms_TextureMinigun;
-    static Sound* ms_PickupSounds[7];
+    //static Sound* ms_PickupSounds[7];
 
     Ammo(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount);
     AmmoType Type() const{ return m_Type; }

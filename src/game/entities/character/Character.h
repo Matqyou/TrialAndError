@@ -95,6 +95,7 @@ public:
     static Texture* ms_FistTexture;
     static Sound* ms_HitSounds[3];
     static Sound* ms_DeathSound;
+    static Sound* ms_AmmoPickupSound;
     static TextSurface* ms_BotNamePlate;
 
     Character(GameWorld* world, Player* player, double max_health, double start_x, double start_y, double start_xvel, double start_yvel, bool bot_player);

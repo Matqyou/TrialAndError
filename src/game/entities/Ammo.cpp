@@ -9,7 +9,7 @@ Texture* Ammo::ms_TextureGlock = nullptr;
 Texture* Ammo::ms_TextureShotgun = nullptr;
 Texture* Ammo::ms_TextureBurst = nullptr;
 Texture* Ammo::ms_TextureMinigun = nullptr;
-Sound* Ammo::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+// Sound* Ammo::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 Ammo::Ammo(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount)
  : Entity(world, GameWorld::ENTTYPE_AMMO, start_x, start_y, 50, 35, 0.95){
@@ -47,10 +47,11 @@ unsigned int Ammo::TakeAmmo(unsigned int request) {
         request = m_AmmoCount;
 
     m_AmmoCount -= request;
-    if (request)  {
-        Sound* PickupSound = ms_PickupSounds[rand()%7];
-        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(PickupSound);
-    }
+    // TODO fix whatever the fuck this is, or remove it, since i added a pickup sound that is actually playing
+    // if (request)  {
+    //    Sound* PickupSound = ms_PickupSounds[rand()%7];
+    //    m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(PickupSound);
+    //}
 
     return request;
 }

@@ -11,6 +11,7 @@ Texture* Character::ms_Texture = nullptr;
 Texture* Character::ms_FistTexture = nullptr;
 Sound* Character::ms_HitSounds[3] = { nullptr, nullptr, nullptr };
 Sound* Character::ms_DeathSound = nullptr;
+Sound* Character::ms_AmmoPickupSound = nullptr;
 TextSurface* Character::ms_BotNamePlate = nullptr;
 // TODO: see if we can make a little system that tells us if the textures/sounds are unitialized
 
@@ -152,9 +153,13 @@ void Character::AmmoPickup(Ammo* ammo_box){
     auto AmmoNeeded = m_Weapons[ReloadWeapon]->NeededAmmo();
     auto TakenAmmo = ammo_box->TakeAmmo(AmmoNeeded);
     m_Weapons[ReloadWeapon]->AddTrueAmmo(TakenAmmo);
+    if(TakenAmmo > 0){
+        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_AmmoPickupSound);
+    }
 
-    if (m_CurrentWeapon == m_Weapons[ReloadWeapon])
-        m_AmmoCount->FlagForUpdate();
+    if (m_CurrentWeapon == m_Weapons[ReloadWeapon]) m_AmmoCount->FlagForUpdate();
+
+
 }
 
 void Character::TickKeyboardControls() {
