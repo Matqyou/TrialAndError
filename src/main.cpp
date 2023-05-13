@@ -7,8 +7,10 @@
 #include "game/indicators/TextSurface.h"
 #include "game/entities/Ammo.h"
 #include "game/entities/Crates.h"
+#include "game/entities/Error.h"
 #include <vector>
 #include <iostream>
+#include <random>
 
 GameReference* GameWindow;
 GameWorld* World;
@@ -28,15 +30,16 @@ bool Initialize() {
     GameWindow->RenderClass()->SetWorld(World);
 
     //Temp ammo spawn
-    new Crates(World, AMMO, 200, 200, 20);
-    new Crates(World, AMMO, 400, 200, 20);
-    new Crates(World, AMMO, 600, 200, 20);
-    new Crates(World, AMMO, 200, 400, 20);
-    new Crates(World, AMMO, 400, 400, 20);
-    new Crates(World, AMMO, 600, 400, 20);
-    new Crates(World, AMMO, 200, 600, 20);
-    new Crates(World, AMMO, 400, 600, 20);
-    new Crates(World, AMMO, 600, 600, 20);
+
+    new Crates(World,200, 200, 20);
+    new Crates(World,400, 200, 20);
+    new Crates(World,600, 200, 20);
+    new Crates(World,200, 400, 20);
+    new Crates(World,400, 400, 20);
+    new Crates(World,600, 400, 20);
+    new Crates(World,200, 600, 20);
+    new Crates(World,400, 600, 20);
+    new Crates(World,600, 600, 20);
 
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Crazy speedrunner #1");
@@ -80,7 +83,7 @@ int main() {
     Ammo::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/BurstAmmo.png", true);
     Ammo::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/entities/MinigunAmmo.png", true);
     Crates::ms_TextureBox = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate.png", true);
-
+    Error::ms_TextureError = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
     // Load sounds
     Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
     Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);

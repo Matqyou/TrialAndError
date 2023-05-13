@@ -8,10 +8,11 @@
 #include "Entity.h"
 #include "SDL.h"
 #include "Ammo.h"
+#include "Error.h"
 
 enum DropType {
     AMMO,
-    POWERUPS,
+    ERROR,
     NUM_DROPS
 };
 
@@ -26,7 +27,7 @@ public:
     static Texture* ms_TextureBox;
     static Sound* ms_PickupSounds[7];
     ~Crates();
-    Crates(GameWorld* world, DropType type, double start_x, double start_y, double Health);
+    Crates(GameWorld* world, double start_x, double start_y, double Health);
     DropType Type() const{ return m_Type; }
 
     void Tick() override;

@@ -43,6 +43,8 @@ private:
     bool m_Movement[NUM_CONTROLS] {};
     bool m_Controllable;
     bool m_Using, m_LastUsing;
+    bool IsReversed;
+    bool ConfusingHP;
     unsigned long long m_LastFisted;
     unsigned long long m_LastFistedL, m_LastFistedR;
     const double m_HandSpacing;
@@ -111,6 +113,8 @@ public:
     void SetGameController(GameController* gameController);
     void Damage(double damage, bool make_sound);
     void SwitchWeapon(WeaponType type);
+    void ReverseMovement();
+    void ConfuseHP();
 
     void Event(const SDL_Event& currentEvent);
     void Tick() override;

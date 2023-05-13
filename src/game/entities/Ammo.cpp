@@ -47,7 +47,7 @@ unsigned int Ammo::TakeAmmo(unsigned int request) {
         request = m_AmmoCount;
 
     m_AmmoCount -= request;
-    // TODO fix whatever the fuck this is, or remove it, since i added a pickup sound that is actually playing
+    // TODO fix whatever the fuck this is, or remove it, since i added a pickup sound that is actually playing for me
     // if (request)  {
     //    Sound* PickupSound = ms_PickupSounds[rand()%7];
     //    m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(PickupSound);

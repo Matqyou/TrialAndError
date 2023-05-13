@@ -16,6 +16,7 @@ class Character;
 class GameWorld {
 public:
     enum EntityType {
+        ENTTYPE_ERROR,
         ENTTYPE_BOX,
         ENTTYPE_AMMO,
         ENTTYPE_BULLET,

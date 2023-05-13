@@ -31,6 +31,8 @@ Character::Character(GameWorld* world, Player* player, double max_health,
     if (m_Player) m_Player->SetCharacter(this);
 
     m_ColorHue = double(rand()%360);
+    IsReversed = false;
+    ConfusingHP = false;
     m_Using = false;
     m_LastFisted = 0;
     m_LastFistedL = 0;
@@ -126,6 +128,20 @@ void Character::Damage(double damage, bool combat_tag) {
     if (combat_tag) m_LastInCombat = m_World->CurrentTick();
 }
 
+void Character::ReverseMovement() {
+    if(IsReversed){
+        IsReversed = false;
+    }
+    else IsReversed = true;
+}
+
+void Character::ConfuseHP() {
+    if(ConfusingHP){
+        ConfusingHP = false;
+    }
+    else ConfusingHP = true;
+}
+
 void Character::SwitchWeapon(WeaponType type) {
     if (!m_Weapons[type] ||
         m_CurrentWeapon == m_Weapons[type]) {
@@ -180,8 +196,14 @@ void Character::TickKeyboardControls() {
     double LengthPerAxis = (Horizontally && Vertically) ? sDiagonalLength : 1.0;
     double SpeedPerAxis = m_Acceleration * LengthPerAxis;
 
-    if (MoveDown != MoveUp) m_yvel += SpeedPerAxis * double(MoveDown ? 1 : -1);
-    if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
+    if(!IsReversed) {
+        if (MoveDown != MoveUp) m_yvel += SpeedPerAxis * double(MoveDown ? 1 : -1);
+        if (MoveRight != MoveLeft) m_xvel += SpeedPerAxis * double(MoveRight ? 1 : -1);
+    }
+    else{
+        if (MoveDown != MoveUp) m_yvel += -(SpeedPerAxis * double(MoveDown ? 1 : -1));
+        if (MoveRight != MoveLeft) m_xvel += -(SpeedPerAxis * double(MoveRight ? 1 : -1));
+    }
     // RequestUpdate look direction
     int XMouse, YMouse;
     SDL_GetMouseState(&XMouse, &YMouse);
@@ -220,8 +242,14 @@ void Character::TickGameControllerControls() {
         m_Acceleration = Shifting ? m_BaseAcceleration/3 : m_BaseAcceleration;
 
         // Accelerate in that direction
-        m_xvel += m_Acceleration * AxisX;
-        m_yvel += m_Acceleration * AxisY;
+        if(!IsReversed) {
+            m_xvel += m_Acceleration * AxisX;
+            m_yvel += m_Acceleration * AxisY;
+        }
+        else {
+            m_xvel += -(m_Acceleration * AxisX);
+            m_yvel += -(m_Acceleration * AxisY);
+        }
     }
 
     // RequestUpdate look direction
@@ -397,6 +425,7 @@ void Character::DrawHook() {
     }
 }
 
+
 void Character::DrawHealthbar() {
     Drawing* Render = m_World->GameWindow()->RenderClass();
 
@@ -409,8 +438,10 @@ void Character::DrawHealthbar() {
         HealthPlate->Query(nullptr, nullptr, &healthplate_w, &healthplate_h);
         SDL_Rect HealthplateRect = { int(m_x - healthplate_w / 2.0), int(m_y + m_h / 2.0), healthplate_w, healthplate_h };
         char msg[64];
-
+        if(!ConfusingHP){
         std::snprintf(msg, sizeof(msg), "%i/%i", int(m_Health), int(m_MaxHealth));
+        }
+        else std::snprintf(msg, sizeof(msg), "%i/%i", int(rand()%999), int(rand()%999));
         m_HealthInt->SetText(msg);
 
         if(m_Health < 50) m_HealthInt->SetColor(m_HealthRed);

@@ -4,12 +4,27 @@
 #include "Crates.h"
 #include "character/Character.h"
 #include <iostream>
+#include <random>
 Texture* Crates::ms_TextureBox = nullptr;
 Sound* Crates::ms_HitSound = nullptr;
-Crates::Crates(GameWorld* world, DropType type, double start_x, double start_y, double Health)
+Crates::Crates(GameWorld* world, double start_x, double start_y, double Health)
         : Entity(world, GameWorld::ENTTYPE_BOX, start_x, start_y, 100, 100, 0.95){
     m_World = world;
     m_Health = Health;
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    double interval[] = {0, 0, 1, 11};
+    double weights[] = { .10, 0, .9};
+    std::piecewise_constant_distribution<> dist(std::begin(interval),
+                                                std::end(interval),
+                                                weights);
+    int RandomNumber = dist(gen);
+    DropType type;
+    if(RandomNumber < 7){
+        type = AMMO;
+    }
+    else type = ERROR;
     m_Type = type;
 
     m_Texture = &ms_TextureBox;
@@ -18,11 +33,12 @@ Crates::Crates(GameWorld* world, DropType type, double start_x, double start_y, 
 
 Crates::~Crates(){
     m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_HitSound);
-    if (m_Type != POWERUPS){
+    if (m_Type != ERROR){
         srand (time(NULL));
         int Ammo_type = rand()%4;
         new Ammo(m_World, static_cast<AmmoType>(Ammo_type), m_x, m_y, 20);
     }
+    else new Error(m_World, m_x,m_y);
 }
 
 
@@ -61,4 +77,3 @@ void Crates::Draw() {
 
     Render->RenderTextureFWorld((*m_Texture)->SDLTexture(), nullptr, DrawRect);
 }
-#include "Crates.h"
