@@ -432,7 +432,11 @@ void Character::DrawHealthbar() {
     // Render health bar
     if (m_Health != m_MaxHealth) {
         m_HealthBar.SetColor(m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a);
-        Texture* HealthPlate = m_HealthBar.UpdateTexture();
+        Texture *HealthPlate;
+        if(!ConfusingHP) {
+            HealthPlate = m_HealthBar.UpdateTexture();
+        }
+        else HealthPlate = m_HealthBar.GetTexture();
 
         int healthplate_w, healthplate_h;
         HealthPlate->Query(nullptr, nullptr, &healthplate_w, &healthplate_h);
