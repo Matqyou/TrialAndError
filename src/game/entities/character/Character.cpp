@@ -119,29 +119,43 @@ void Character::SetGameController(GameController* gameController) {
 }
 
 void Character::Damage(double damage, bool combat_tag) {
-    m_Health -= damage;
-    m_HitTicks = 7;
+    if(!Invincible) {
+        if(HealersParadise)m_Health += damage;
+        else m_Health -= damage;
+        m_HitTicks = 7;
 
-    Sound* HurtSound = ms_HitSounds[rand()%3];
-    m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(HurtSound);
 
+        Sound *HurtSound = ms_HitSounds[rand() % 3];
+        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(HurtSound);
+    }
     if (combat_tag) m_LastInCombat = m_World->CurrentTick();
 }
 
 void Character::ReverseMovement() {
-    if(IsReversed){
-        IsReversed = false;
-    }
+    if(IsReversed)IsReversed = false;
     else IsReversed = true;
 }
 
 void Character::ConfuseHP() {
-    if(ConfusingHP){
-        ConfusingHP = false;
-    }
+    if(ConfusingHP)ConfusingHP = false;
     else ConfusingHP = true;
 }
 
+void Character::MakeInvincible() {
+    if(Invincible)Invincible = false;
+    else Invincible = true;
+
+}
+
+void Character::MakeSpiky() {
+    if(Spiky)Spiky = false;
+    else Spiky = true;
+}
+
+void Character::MakeHealer(){
+    if(HealersParadise)HealersParadise = false;
+    else HealersParadise = true;
+}
 void Character::SwitchWeapon(WeaponType type) {
     if (!m_Weapons[type] ||
         m_CurrentWeapon == m_Weapons[type]) {
@@ -339,6 +353,9 @@ void Character::TickCollision() {
         double YPush = YDistance / Distance * 0.5;
         Accelerate(XPush, YPush);
         Player->Accelerate(-XPush, -YPush);
+        if(Spiky){
+            Player->Damage(1, true);
+        }
     }
 }
 

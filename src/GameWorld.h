@@ -13,6 +13,7 @@
 class Player;
 class Entity;
 class Character;
+class Crates;
 class GameWorld {
 public:
     enum EntityType {
@@ -74,7 +75,8 @@ public:
 
     Character* FirstPlayer() const { return (Character*)(FirstEntityType(ENTTYPE_CHARACTER)); }
     Character* LastPlayer() const { return (Character*)(LastEntityType(ENTTYPE_CHARACTER)); }
-
+    Crates* FirstCrate() const {return (Crates*)(FirstEntityType(ENTTYPE_BOX));}
+    Crates* lASTCrate() const {return (Crates*)(LastEntityType(ENTTYPE_BOX));}
     void Event(const SDL_Event& currentEvent);
     void Tick();
     void Draw();

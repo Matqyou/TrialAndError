@@ -12,7 +12,7 @@ Sound* WeaponMinigun::ms_ClickSound = nullptr;
 
 WeaponMinigun::WeaponMinigun(Character* owner)
  : ProjectileWeapon(owner, WEAPON_MINIGUN, 14, 64, 64 * 3, 35.0, true) {
-    m_RecoilForce = 4.0;
+    m_RecoilForce = 3.2;
 
     m_FullRate = 10.0;
     m_RateAcceleration = 0.07;

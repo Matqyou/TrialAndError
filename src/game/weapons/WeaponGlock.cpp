@@ -11,7 +11,7 @@ Sound* WeaponGlock::ms_ClickSound = nullptr;
 
 WeaponGlock::WeaponGlock(Character* owner)
  : ProjectileWeapon(owner, WEAPON_GLOCK, 10, 15, 15 * 3, 35.0, false) {
-    m_RecoilForce = 10.0;
+    m_RecoilForce = 8.0;
 }
 
 void WeaponGlock::Tick() {

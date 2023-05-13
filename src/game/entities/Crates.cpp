@@ -8,7 +8,7 @@
 Texture* Crates::ms_TextureBox = nullptr;
 Sound* Crates::ms_HitSound = nullptr;
 Crates::Crates(GameWorld* world, double start_x, double start_y, double Health)
-        : Entity(world, GameWorld::ENTTYPE_BOX, start_x, start_y, 100, 100, 0.95){
+        : Entity(world, GameWorld::ENTTYPE_BOX, start_x, start_y, 50, 50, 0.95){
     m_World = world;
     m_Health = Health;
 
@@ -55,10 +55,13 @@ void Crates::TickImpact(double x, double y) {
         if (!Collides)
             continue;
 
-        m_Health -= 2;
+
     }
 }
 
+void Crates::DamageCrate(double Damage) {
+    m_Health -= Damage;
+}
 
 void Crates::Tick() {
     TickImpact(m_x, m_y);

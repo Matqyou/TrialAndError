@@ -29,7 +29,7 @@ public:
     ~Crates();
     Crates(GameWorld* world, double start_x, double start_y, double Health);
     DropType Type() const{ return m_Type; }
-
+    void DamageCrate(double Damage);
     void Tick() override;
     void Draw() override;
 };

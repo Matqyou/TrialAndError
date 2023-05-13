@@ -43,8 +43,7 @@ private:
     bool m_Movement[NUM_CONTROLS] {};
     bool m_Controllable;
     bool m_Using, m_LastUsing;
-    bool IsReversed;
-    bool ConfusingHP;
+    bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise;
     unsigned long long m_LastFisted;
     unsigned long long m_LastFistedL, m_LastFistedR;
     const double m_HandSpacing;
@@ -115,6 +114,9 @@ public:
     void SwitchWeapon(WeaponType type);
     void ReverseMovement();
     void ConfuseHP();
+    void MakeInvincible();
+    void MakeSpiky();
+    void MakeHealer();
 
     void Event(const SDL_Event& currentEvent);
     void Tick() override;

@@ -5,6 +5,7 @@
 #include "Bullets.h"
 #include <cmath>
 #include <iostream>
+#include "Crates.h"
 #include "character/Character.h"
 Texture* Bullets::ms_Texture = nullptr;
 
@@ -64,15 +65,27 @@ bool Bullets::TickHitPoint(double x, double y) {
     auto Player = m_World->FirstPlayer();
     for (; Player; Player = (Character*)(Player->NextType())) {
         bool Shooter = m_Shooter == Player;
-        bool Collides = (Player->m_x - 25 < x) &&
+        bool CollidesPlayer = (Player->m_x - 25 < x) &&
                         (Player->m_x + 25 > x) &&
                         (Player->m_y - 25 < y) &&
                         (Player->m_y + 25 > y);
 
-        if (Shooter && !Collides) { m_StillCollidesShooter = false; }
-        else if (Collides && !Shooter || (Shooter && !m_StillCollidesShooter)) {
+        if (Shooter && !CollidesPlayer) { m_StillCollidesShooter = false; }
+        else if (CollidesPlayer && !Shooter || (Shooter && !m_StillCollidesShooter)) {
             Player->Damage(m_Damage, true);
             Player->Accelerate(m_xvel * 0.05, m_yvel * 0.05);
+            delete this;
+            return true;
+        }
+    }
+    auto Crate = m_World->FirstCrate();
+    for(; Crate; Crate = (Crates*)(Crate->NextType())){
+        bool CollidesCrate = (Crate->GetX() - Crate->GetW()/2 < x) &&
+                (Crate->GetX() + Crate->GetW()/2 > x) &&
+                (Crate->GetY() - Crate->GetH()/2 < y) &&
+                (Crate->GetY() + Crate->GetH()/2 > y);
+        if(CollidesCrate){
+            Crate->DamageCrate(m_Damage);
             delete this;
             return true;
         }

@@ -12,7 +12,7 @@ Sound* WeaponBurst::ms_ClickSound = nullptr;
 
 WeaponBurst::WeaponBurst(Character* owner)
  : ProjectileWeapon(owner, WEAPON_BURST, 24, 18, 18 * 3, 35.0, false) {
-    m_RecoilForce = 8.0;
+    m_RecoilForce = 6.4;
     m_BurstCooldown = 5;
     m_BurstShots = 3;
 

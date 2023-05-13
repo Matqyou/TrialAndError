@@ -13,7 +13,7 @@ Sound* WeaponShotgun::ms_ClickSound = nullptr;
 WeaponShotgun::WeaponShotgun(Character* owner)
  : ProjectileWeapon(owner, WEAPON_SHOTGUN, 64, 8, 8 * 3, 35.0, false) {
     m_PelletCount = 6;
-    m_RecoilForce = 25.0;
+    m_RecoilForce = 20.0;
 
     SetSpread(12.0, 3);
     SetRandomProjectileSpeed(13.0, 0.5, 1);

@@ -3,12 +3,28 @@
 //
 
 #include "Error.h"
+#include <random>
 Texture* Error::ms_TextureError = nullptr;
 Error::Error(GameWorld* world,double start_x, double start_y)
         : Entity(world, GameWorld::ENTTYPE_ERROR, start_x, start_y, 100, 100, 0.95){
     m_Texture = &ms_TextureError;
     //Make it random which one of  the errors it is
-    m_Type = CONFUSING_HP;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    double interval[] = {0, 0, 1, 100};
+    double weights[] = { .10, 0, .9};
+    std::piecewise_constant_distribution<> dist(std::begin(interval),
+                                                std::end(interval),
+                                                weights);
+    int RandomNumber = dist(gen);
+    std::cout << "The random number for Errors: " << RandomNumber << std::endl;
+    ErrorTypes type;
+    if(RandomNumber < 20)type = DISORIANTED;
+    else if(RandomNumber < 40) type = SPIKY;
+    else if(RandomNumber < 50) type = CONFUSING_HP;
+    else if(RandomNumber < 60) type = INVINCIBLE;
+    else if(RandomNumber < 70) type = HEALERS_PARADISE;
+    m_Type = type;
 }
 
 void Error::TickImpact(double x, double y) {
@@ -36,6 +52,14 @@ void Error::TickImpact(double x, double y) {
                 Players->ConfuseHP();
             }
         }
+        else if(m_Type == INVINCIBLE)Player->MakeInvincible();
+        else if(m_Type == SPIKY) Player->MakeSpiky();
+        else if(m_Type == HEALERS_PARADISE){
+            auto Players = m_World->FirstPlayer();
+            for (; Players; Players = (Character*)(Players->NextType())) {
+            Players->MakeHealer();
+        }
+    }
         delete this;
     }
 }
