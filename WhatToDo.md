@@ -5,6 +5,8 @@
  - character collision with walls
  - hand positions change when holding weapons
  - randomness class in GameReference
+ - move all the initialization garbage (sounds, images) into a seperate function cus main is not the place for garbage
+ - do the menu -_-
 
 Less important
  - save entities and configuration in level files
