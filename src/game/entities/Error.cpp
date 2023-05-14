@@ -4,10 +4,14 @@
 
 #include "Error.h"
 #include <random>
+
 Texture* Error::ms_TextureError = nullptr;
 Error::Error(GameWorld* world,double start_x, double start_y)
         : Entity(world, GameWorld::ENTTYPE_ERROR, start_x, start_y, 100, 100, 0.95){
     m_Texture = &ms_TextureError;
+    m_ErrorText = new TextSurface(m_World->GameWindow()->Assets(),
+                                  m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                  "0", { 0, 0, 0 });
     //Make it random which one of  the errors it is
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -29,7 +33,6 @@ Error::Error(GameWorld* world,double start_x, double start_y)
 
 void Error::TickImpact(double x, double y) {
     auto Player = m_World->FirstPlayer();
-    //TODO change it from collision to bullets/punches breaking it
     for (; Player; Player = (Character*)(Player->NextType())) {
         bool Collides = (Player->GetX() - 25 < x) &&
                         (Player->GetX() + 25 > x) &&
@@ -41,28 +44,37 @@ void Error::TickImpact(double x, double y) {
 
         if(m_Type == DISORIANTED){
             auto Players = m_World->FirstPlayer();
-            for (; Players; Players = (Character*)(Players->NextType())) {
-                Players->ReverseMovement();
-            }
+            for (; Players; Players = (Character*)(Players->NextType())) Players->ReverseMovement();
         }
 
         else if(m_Type == CONFUSING_HP){
             auto Players = m_World->FirstPlayer();
-            for (; Players; Players = (Character*)(Players->NextType())) {
-                Players->ConfuseHP();
-            }
+            for (; Players; Players = (Character*)(Players->NextType())) Players->ConfuseHP();
         }
         else if(m_Type == INVINCIBLE)Player->MakeInvincible();
         else if(m_Type == SPIKY) Player->MakeSpiky();
         else if(m_Type == HEALERS_PARADISE){
             auto Players = m_World->FirstPlayer();
-            for (; Players; Players = (Character*)(Players->NextType())) {
-            Players->MakeHealer();
-        }
+            for (; Players; Players = (Character*)(Players->NextType())) Players->MakeHealer();
     }
+
         delete this;
+        DrawName();
     }
 }
+
+void Error::DrawName() {
+    // TODO Make it so the name of the error appears on top of the screen when its collected, for like 5 seconds
+    Drawing* Render = m_World->GameWindow()->RenderClass();
+
+
+    std::snprintf(msg, sizeof(msg), "%s", "REVERSE MOVEMENT");
+
+    SDL_Rect ErrorRect = { int(m_World->CameraX() /2) ,int(m_World->CameraX()), int(m_World->CameraY()), int(m_World->Height()) /10};
+    // Render->RenderTextureWorld(reinterpret_cast<SDL_Texture *>(m_ErrorText), nullptr, ErrorRect);
+}
+
+
 
 void Error::Tick(){
     TickImpact(m_x, m_y);

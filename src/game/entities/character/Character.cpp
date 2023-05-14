@@ -133,28 +133,56 @@ void Character::Damage(double damage, bool combat_tag) {
 
 void Character::ReverseMovement() {
     if(IsReversed)IsReversed = false;
-    else IsReversed = true;
+    else {
+        IsReversed = true;
+        m_Timer = 1000;
+    }
 }
 
 void Character::ConfuseHP() {
     if(ConfusingHP)ConfusingHP = false;
-    else ConfusingHP = true;
+    else {
+        ConfusingHP = true;
+        m_Timer = 1000;
+    }
 }
 
 void Character::MakeInvincible() {
     if(Invincible)Invincible = false;
-    else Invincible = true;
+    else {
+        Invincible = true;
+        m_Timer = 500;
+    }
 
 }
 
 void Character::MakeSpiky() {
     if(Spiky)Spiky = false;
-    else Spiky = true;
+    else {
+        Spiky = true;
+        m_Timer = 500;
+    }
 }
 
 void Character::MakeHealer(){
     if(HealersParadise)HealersParadise = false;
-    else HealersParadise = true;
+    else {
+        HealersParadise = true;
+        m_Timer = 1000;
+    }
+}
+
+void Character::TickTimer(){
+    if((HealersParadise)||(Spiky)||(Invincible)||(ConfusingHP)||(IsReversed)) {
+        m_Timer -= 1;
+        if (m_Timer <= 0) {
+            if (IsReversed)IsReversed = false;
+            else if (ConfusingHP)ConfusingHP = false;
+            else if (Invincible)Invincible = false;
+            else if (Spiky)Spiky = false;
+            else if (HealersParadise) HealersParadise = false;
+        }
+    }
 }
 void Character::SwitchWeapon(WeaponType type) {
     if (!m_Weapons[type] ||
@@ -603,7 +631,7 @@ void Character::Tick() {
     TickControls();  // Do stuff depending on the current held buttons
     TickCurrentWeapon(); // Shoot accelerate reload etc.
     TickHook();  // Move hook and or player etc.
-
+    TickTimer(); // Ticks timer for errors
     // Need every character to get here..
     // then we apply the accelerations of all
     // hooks and continue with the code below v v v

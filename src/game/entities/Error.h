@@ -26,15 +26,17 @@ enum ErrorTypes {
 class Error : public Entity {
 protected:
     ErrorTypes m_Type;
+    char msg[64];
     double m_Health;
     Texture** m_Texture;
     void TickImpact(double x, double y);
+    TextSurface* m_ErrorText;
 public:
     static Sound* ms_HitSound;
     static Texture* ms_TextureError;
     static Sound* ms_PickupSounds[7];
     Error(GameWorld* world, double start_x, double start_y);
-
+    void DrawName();
     void Tick() override;
     void Draw() override;
 };

@@ -66,6 +66,7 @@ private:
     bool m_Hooking, m_LastHooking;
     bool m_Reloading, m_LastReloading;
     int m_HitTicks;
+    int m_Timer;
     HealthBar m_HealthBar;
 
     SDL_Color m_CharacterColor;
@@ -90,6 +91,7 @@ private:
     void DrawHealthbar();
     void DrawHands();
     void DrawNameplate();
+    void TickTimer();
 
 public:
     static Texture* ms_Texture;

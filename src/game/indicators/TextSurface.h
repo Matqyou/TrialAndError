@@ -16,6 +16,7 @@ private:
     TTF_Font* m_Font;
     SDL_Color m_Color;
     bool m_Update;
+    SDL_Texture* m_SDLTexture;
 
     void UpdateTexture();
 public:
@@ -26,6 +27,7 @@ public:
     std::string GetText() const { return m_Text; }
     TTF_Font* GetFont() const { return m_Font; }
     SDL_Color GetColor() const { return m_Color; }
+    SDL_Texture* SDLTexture() const { return m_SDLTexture; }
 
     void SetText(const std::string& text);
     void SetFont(TTF_Font* font);
