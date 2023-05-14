@@ -24,6 +24,8 @@ GameWorld::GameWorld(GameReference* game_window, int width, int height) {
     m_Last = nullptr;
     for (auto& i : m_FirstType) i = nullptr;
     for (auto& i : m_LastType) i = nullptr;
+    m_FirstPlayer = nullptr;
+    m_LastPlayer = nullptr;
 
     char msg[32];
     std::snprintf(msg, sizeof(msg), "Spawned [%ix, %iy]", (int)m_x, (int)m_y);
@@ -57,6 +59,7 @@ unsigned int GameWorld::NextPlayerIndex() const {
     while (true) {
         bool Used = false;
         for (; pPlayer != nullptr; pPlayer = pPlayer->m_Next) {
+            std::printf("Checking index for %s\n", pPlayer->GetUsername().c_str());
             if (pPlayer->GetIndex() == Index)
                 Used = true;
         }
