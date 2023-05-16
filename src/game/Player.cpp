@@ -28,8 +28,8 @@ Player::~Player() {
 }
 
 void Player::SetCharacter(Character* character) {
-    if (m_Character) std::printf("WARNING: Overwriting existing character for player `%s`\n", m_Username.c_str());
-    m_Character = character;
+    if (m_Character) std::printf("Player `%s` already has a character..\n", m_Username.c_str());
+    else m_Character = character;
 }
 
 // If username is longer than the limit,

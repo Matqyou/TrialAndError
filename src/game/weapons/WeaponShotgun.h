@@ -11,6 +11,7 @@ class WeaponShotgun : public ProjectileWeapon {
 private:
     int m_PelletCount;
     double m_RecoilForce;
+    double m_Damage;
 
 public:
     static Sound* ms_ShootSound;

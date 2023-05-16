@@ -34,7 +34,7 @@ struct Hook {
     void Unhook();
     void HookWall();
 
-    void Tick(bool hooking, bool last_hooking);
+    void Tick();
 };
 
 #endif //TRIALANDERROR_SRC_GAME_ENTITIES_CHARACTER_HOOK_H_

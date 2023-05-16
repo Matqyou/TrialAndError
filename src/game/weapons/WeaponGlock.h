@@ -10,6 +10,7 @@
 class WeaponGlock : public ProjectileWeapon {
 private:
     double m_RecoilForce;
+    double m_Damage;
 
 public:
     static Sound* ms_ShootSound;

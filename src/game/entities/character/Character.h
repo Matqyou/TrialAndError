@@ -15,6 +15,19 @@
 #include "../../indicators/TextSurface.h"
 #include "../Ammo.h"
 #include "Hook.h"
+#include "Hands.h"
+
+struct CharacterInput {
+    bool m_Shooting;
+    bool m_Reloading;
+    bool m_Hooking;
+    bool m_Sneaking;
+    bool m_NextItem, m_PrevItem;
+    double m_GoingX, m_GoingY;
+    double m_LookingX, m_LookingY;
+
+    CharacterInput();
+};
 
 class Character : public Entity {
 public:
@@ -29,10 +42,10 @@ public:
     };
 
 private:
+    friend class Player;
     friend class GameWorld;
     friend class ProjectileWeapon;
-    friend class Bullets;
-    friend class Hook;
+    friend class Bullets; //
     Player* m_Player;
     TextSurface* m_CoordinatePlate;
     TextSurface* m_AmmoCount;
@@ -41,30 +54,22 @@ private:
     int m_SelectedWeaponIndex;
     GameController* m_GameController;
     bool m_Movement[NUM_CONTROLS] {};
-    bool m_Controllable;
-    bool m_Using, m_LastUsing;
+    bool m_NPC;
+    CharacterInput m_Input, m_LastInput;
+    // bool m_Using, m_LastUsing;
     bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise;
-    unsigned long long m_LastFisted;
-    unsigned long long m_LastFistedL, m_LastFistedR;
-    const double m_HandSpacing;
-    const double m_FistingAnimationDuration;
-    double m_FistingRadius;
-    // std::vector<ProjectileWeapon*> m_Weapons; Option to have multiple weapons of same type, dont think we need it yet
+    Hands m_Hands;
     ProjectileWeapon* m_Weapons[NUM_WEAPONS];
     ProjectileWeapon* m_CurrentWeapon;
     double m_MaxHealth, m_Health, m_LastHealth;
     double m_ActiveRegeneration, m_PassiveRegeneration;
-    unsigned long long m_RegenerationCooldown;
+    unsigned long long m_TicksOfCombatUntilRegeneration;
     unsigned long long m_LastInCombat;
     static const int ms_DefaultControls[NUM_CONTROLS];
     double m_xLast, m_yLast;
     const double m_BaseAcceleration;
     double m_Acceleration;
-    double m_xLook, m_yLook;  // direction
-    double AmmoAdded;
     Hook m_Hook;
-    bool m_Hooking, m_LastHooking;
-    bool m_Reloading, m_LastReloading;
     int m_HitTicks;
     int m_Timer;
     HealthBar m_HealthBar;
@@ -95,7 +100,6 @@ private:
 
 public:
     static Texture* ms_Texture;
-    static Texture* ms_FistTexture;
     static Sound* ms_HitSounds[3];
     static Sound* ms_DeathSound;
     static Sound* ms_AmmoPickupSound;
@@ -107,9 +111,11 @@ public:
     Hook* GetHook() { return &m_Hook; }
     Player* GetPlayer() const { return m_Player; }
     GameController* GetGameController() const { return m_GameController; }
-    bool Controllable() const { return m_Controllable; }
+    bool IsNPC() const { return m_NPC; }
+    ProjectileWeapon* GetCurrentWeapon() const { return m_CurrentWeapon; }
+    CharacterInput& GetInput() { return m_Input; }
+    CharacterInput& GetLastInput() { return m_LastInput; }
 
-    void SetPlayer(Player* player);
     void AmmoPickup(Ammo* ammo_box);
     void SetGameController(GameController* gameController);
     void Damage(double damage, bool make_sound);

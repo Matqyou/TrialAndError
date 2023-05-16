@@ -10,6 +10,7 @@
 class WeaponBurst : public ProjectileWeapon {
 private:
     double m_RecoilForce;
+    double m_Damage;
 
     unsigned long long m_BurstTick;
     int m_BurstCooldown;

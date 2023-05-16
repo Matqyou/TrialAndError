@@ -10,6 +10,7 @@
 class Entity {
 protected:
     friend class GameWorld;
+    friend class Hook;
     GameWorld* m_World;
     Entity* m_PrevType, *m_NextType;
     Entity* m_Prev, *m_Next;

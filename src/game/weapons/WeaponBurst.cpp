@@ -11,9 +11,10 @@ Sound* WeaponBurst::ms_ShootSound = nullptr;
 Sound* WeaponBurst::ms_ClickSound = nullptr;
 
 WeaponBurst::WeaponBurst(Character* owner)
- : ProjectileWeapon(owner, WEAPON_BURST, 24, 18, 18 * 3, 35.0, false) {
-    m_RecoilForce = 6.4;
-    m_BurstCooldown = 5;
+ : ProjectileWeapon(owner, WEAPON_BURST, 30, 24, 24 * 3, 35.0, false) {
+    m_RecoilForce = 3.0;
+    m_Damage = 4.5;
+    m_BurstCooldown = 6;
     m_BurstShots = 3;
 
     // Will get rewritten by other code
@@ -40,7 +41,7 @@ void WeaponBurst::Tick() {
 
                 double VelocityX = DirectionX * m_ProjectileSpeed;
                 double VelocityY = DirectionY * m_ProjectileSpeed;
-                new Bullets(World, m_Owner, 7, SpawnX, SpawnY, VelocityX, VelocityY);
+                new Bullets(World, m_Owner, m_Damage, SpawnX, SpawnY, VelocityX, VelocityY);
 
                 double RecoilX = DirectionX * -m_RecoilForce;
                 double RecoilY = DirectionY * -m_RecoilForce;
@@ -67,7 +68,7 @@ void WeaponBurst::Tick() {
 
                 double VelocityX = DirectionX * m_ProjectileSpeed;
                 double VelocityY = DirectionY * m_ProjectileSpeed;
-                new Bullets(World, m_Owner, 6, SpawnX, SpawnY, VelocityX, VelocityY);
+                new Bullets(World, m_Owner, m_Damage, SpawnX, SpawnY, VelocityX, VelocityY);
 
                 double RecoilX = DirectionX * -m_RecoilForce;
                 double RecoilY = DirectionY * -m_RecoilForce;

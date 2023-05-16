@@ -25,7 +25,7 @@ bool Initialize() {
     TextManager* TextHandler = GameWindow->Assets()->TextHandler();
     TextHandler->LoadFont("Minecraft.ttf", 16);
 
-    World = new GameWorld(GameWindow, 25, 25);
+    World = new GameWorld(GameWindow, 50, 25);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
@@ -45,12 +45,12 @@ bool Initialize() {
     auto Player1 = new Player(World, "Crazy speedrunner #1");
     // new Player(World, "Speedrunner crazy #2");
     new Character(World, Player1, 100.0,
-                  30, 30, 10, 10,
+                  32*30, 30, 10, 10,
                   false);
 
     for (int i = 0; i < 2; i++)
-        new Character(World, nullptr, 20.0,
-                      300, 300, 0, 0,
+        new Character(World, nullptr, 100.0,
+                      32*30, 300, 0, 0,
                       true);
 
     return true;
@@ -76,7 +76,7 @@ int main() {
     Vignette->SetAlphaMod(200);
 
     Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
-    Character::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
+    Hands::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     Bullets::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Pellet.png", true);
     Ammo::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/GlockAmmo.png", true);
     Ammo::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/ShotgunAmmo.png", true);
@@ -162,8 +162,8 @@ int main() {
                         if (Pause) SoundHandler->PlaySound(MidUISound);
                         else SoundHandler->PlaySound(LowUISound);
                     } else if (ScancodeKey == SDL_SCANCODE_Z) {
-                        new Character(World, nullptr, 20.0,
-                                      30, 30, 10, 10,
+                        new Character(World, nullptr, 100.0,
+                                      32*30, 30, 10, 10,
                                       true);
                     }
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
@@ -173,7 +173,7 @@ int main() {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
                     auto* NewPlayer = new Character(World, nullptr, 100.0,
-                                                    30, 30, 10, 10,
+                                                    32*30, 30, 10, 10,
                                                     false); // TODO fix ;)
                     NewPlayer->SetGameController(CurrentController);
                     SoundHandler->PlaySound(HighSound);

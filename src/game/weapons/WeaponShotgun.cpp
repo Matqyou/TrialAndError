@@ -14,8 +14,9 @@ WeaponShotgun::WeaponShotgun(Character* owner)
  : ProjectileWeapon(owner, WEAPON_SHOTGUN, 64, 8, 8 * 3, 35.0, false) {
     m_PelletCount = 6;
     m_RecoilForce = 20.0;
+    m_Damage = 6;
 
-    SetSpread(12.0, 3);
+    SetSpread(10.0, 3);
     SetRandomProjectileSpeed(13.0, 0.5, 1);
 }
 
@@ -46,7 +47,7 @@ void WeaponShotgun::Tick() {
                 double VelocityX = cos(ProjectileAngle) * ProjectileSpeed;
                 double VelocityY = sin(ProjectileAngle) * ProjectileSpeed;
 
-                new Bullets(World, m_Owner, 7, SpawnX, SpawnY, VelocityX, VelocityY);
+                new Bullets(World, m_Owner, m_Damage, SpawnX, SpawnY, VelocityX, VelocityY);
             }
 
             double RecoilX = DirectionX * -m_RecoilForce;

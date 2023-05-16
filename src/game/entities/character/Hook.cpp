@@ -14,7 +14,7 @@ Hook::Hook(Character* parent) {
     m_yvel = 0.0;
     m_MaxLength = 300.0;
     m_HookTravelSpeed = 35.0;
-    m_WallDragForce = 1.5;
+    m_WallDragForce = 0.55;
 
     m_HookStrength = 2.0;
     m_HookerInfluenceRatio = 0.0;
@@ -47,16 +47,20 @@ void Hook::HookWall() {
     m_Grabbed = GRABBED_WALL;
 }
 
-void Hook::Tick(bool hooking, bool last_hooking) {
+void Hook::Tick() {
     GameWorld* World = m_Parent->World();
+    bool Hooking = m_Parent->GetInput().m_Hooking;
+    bool LastHooking = m_Parent->GetLastInput().m_Hooking;
+    double LookX = m_Parent->GetInput().m_LookingX;
+    double LookY = m_Parent->GetInput().m_LookingY;
 
-    if (!m_Deployed && hooking && !last_hooking) {
+    if (!m_Deployed && Hooking && !LastHooking) {
         m_Deployed = true;
         m_x = m_Parent->m_x;
         m_y = m_Parent->m_y;
-        m_xvel = m_Parent->m_xLook * m_HookTravelSpeed;
-        m_yvel = m_Parent->m_yLook * m_HookTravelSpeed;
-    } else if (m_Deployed && !hooking && last_hooking) {  // Instant retraction for now
+        m_xvel = LookX * m_HookTravelSpeed;
+        m_yvel = LookY * m_HookTravelSpeed;
+    } else if (m_Deployed && !Hooking && LastHooking) {  // Instant retraction for now
         Unhook();
     }
 
@@ -115,6 +119,13 @@ void Hook::Tick(bool hooking, bool last_hooking) {
             }
         }
     } else if (m_Grabbed == GRABBED_ENTITY) {
+        if (Length > m_MaxLength) {
+            double Slice = (Length - m_MaxLength) / 2;
+            m_GrabbedEntity->m_x -= TravelX * Slice;
+            m_GrabbedEntity->m_y -= TravelY * Slice;
+            m_Parent->m_x += TravelX * Slice;
+            m_Parent->m_y += TravelY * Slice;
+        }
         m_x = m_GrabbedEntity->GetX();
         m_y = m_GrabbedEntity->GetY();
         if (m_GrabbedEntity->EntityType() == GameWorld::ENTTYPE_CHARACTER) {
@@ -125,6 +136,10 @@ void Hook::Tick(bool hooking, bool last_hooking) {
             m_Parent->Accelerate(TravelX * Influence, TravelY * Influence);
         }
     } else if (m_Grabbed == GRABBED_WALL) {
+        if (Length > m_MaxLength) {
+            m_Parent->m_x = m_x + -TravelX * m_MaxLength;
+            m_Parent->m_y = m_y + -TravelY * m_MaxLength;
+        }
         m_Parent->m_xvel += TravelX * m_WallDragForce;
         m_Parent->m_yvel += TravelY * m_WallDragForce;
     }

@@ -57,13 +57,13 @@ void ProjectileWeapon::TickTrigger() {
 void ProjectileWeapon::GetOwnerPosition(double& out_x, double& out_y, double& out_x_dir, double& out_y_dir) const {
     out_x = m_Owner->m_x;
     out_y = m_Owner->m_y;
-    out_x_dir = m_Owner->m_xLook;
-    out_y_dir = m_Owner->m_yLook;
+    out_x_dir = m_Owner->m_Input.m_LookingX;
+    out_y_dir = m_Owner->m_Input.m_LookingY;
 }
 
 void ProjectileWeapon::GetOwnerShooting(bool& out_shoot, bool& out_last_shoot) const {
-    out_shoot = m_Owner->m_Using;
-    out_last_shoot = m_Owner->m_LastUsing;
+    out_shoot = m_Owner->m_Input.m_Shooting;
+    out_last_shoot = m_Owner->m_LastInput.m_Shooting;
 }
 
 unsigned int ProjectileWeapon::NeededAmmo() const {
