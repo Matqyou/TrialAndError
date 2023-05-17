@@ -75,7 +75,7 @@ int main() {
     Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
     Vignette->SetAlphaMod(200);
 
-    Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
+    Character::ms_Texture = ImageHandler->LoadTexture("assets/images/character/Most_Epic_Cactus_W_Hat.png", true);
     Hands::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     Bullets::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Pellet.png", true);
     Ammo::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/GlockAmmo.png", true);

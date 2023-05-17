@@ -28,6 +28,7 @@ Error::Error(GameWorld* world,double start_x, double start_y)
     else if(RandomNumber < 50) type = CONFUSING_HP;
     else if(RandomNumber < 60) type = INVINCIBLE;
     else if(RandomNumber < 70) type = HEALERS_PARADISE;
+    else if(RandomNumber < 80) type = RANGED;
     m_Type = type;
 }
 
@@ -57,6 +58,7 @@ void Error::TickImpact(double x, double y) {
             auto Players = m_World->FirstPlayer();
             for (; Players; Players = (Character*)(Players->NextType())) Players->MakeHealer();
     }
+        else if(m_Type == RANGED)Player->MakeRanged();
 
         delete this;
         DrawName();

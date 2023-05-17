@@ -20,6 +20,7 @@ enum ErrorTypes {
     TELEPORT,
     SLOW_DOWN,
     I_CANT_HEAR,
+    RANGED,
     NUM_ERRORS
 };
 

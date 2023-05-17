@@ -46,6 +46,7 @@ private:
     friend class GameWorld;
     friend class ProjectileWeapon;
     friend class Bullets; //
+    friend class Hands;
     Player* m_Player;
     TextSurface* m_CoordinatePlate;
     TextSurface* m_AmmoCount;
@@ -57,7 +58,7 @@ private:
     bool m_NPC;
     CharacterInput m_Input, m_LastInput;
     // bool m_Using, m_LastUsing;
-    bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise;
+    bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise, Ranged;
     Hands m_Hands;
     ProjectileWeapon* m_Weapons[NUM_WEAPONS];
     ProjectileWeapon* m_CurrentWeapon;
@@ -125,6 +126,7 @@ public:
     void MakeInvincible();
     void MakeSpiky();
     void MakeHealer();
+    void MakeRanged();
 
     void Event(const SDL_Event& currentEvent);
     void Tick() override;

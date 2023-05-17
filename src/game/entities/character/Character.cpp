@@ -169,6 +169,14 @@ void Character::MakeHealer(){
     }
 }
 
+void Character::MakeRanged(){
+    if(!Ranged){
+        Ranged = true;
+        m_Timer = 1000;
+    }
+}
+
+
 void Character::TickTimer(){
     if((HealersParadise)||(Spiky)||(Invincible)||(ConfusingHP)||(IsReversed)) {
         m_Timer -= 1;
@@ -405,7 +413,13 @@ void Character::DrawCharacter() {
     ms_Texture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
 
     double Angle = std::atan2(m_yvel, m_xvel) / M_PI * 180.0;
-    Render->RenderTextureExFWorld(ms_Texture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, SDL_FLIP_NONE);
+    SDL_RendererFlip flip;
+    std::printf("Write%f\n", Angle);
+    if(Angle > 90 || Angle < -90){
+        flip = SDL_FLIP_VERTICAL;
+    }
+    else flip = SDL_FLIP_NONE;
+    Render->RenderTextureExFWorld(ms_Texture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, flip);
 }
 
 void Character::DrawHook() {
