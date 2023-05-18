@@ -58,7 +58,7 @@ private:
     bool m_NPC;
     CharacterInput m_Input, m_LastInput;
     // bool m_Using, m_LastUsing;
-    bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise, Ranged;
+    bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise, Ranged, IsSlow;
     Hands m_Hands;
     ProjectileWeapon* m_Weapons[NUM_WEAPONS];
     ProjectileWeapon* m_CurrentWeapon;
@@ -127,6 +127,7 @@ public:
     void MakeSpiky();
     void MakeHealer();
     void MakeRanged();
+    void SlowDown();
 
     void Event(const SDL_Event& currentEvent);
     void Tick() override;

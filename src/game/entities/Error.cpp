@@ -23,13 +23,14 @@ Error::Error(GameWorld* world,double start_x, double start_y)
     int RandomNumber = dist(gen);
     std::cout << "The random number for Errors: " << RandomNumber << std::endl;
     ErrorTypes type;
-    RandomNumber = 75;
+    RandomNumber = 87;
     if(RandomNumber < 20) type = DISORIANTED;
     else if(RandomNumber < 40) type = SPIKY;
     else if(RandomNumber < 50) type = CONFUSING_HP;
     else if(RandomNumber < 60) type = INVINCIBLE;
     else if(RandomNumber < 70) type = HEALERS_PARADISE;
     else if(RandomNumber < 80) type = RANGED;
+    else if(RandomNumber <90) type = SLOW_DOWN;
     m_Type = type;
 }
 
@@ -60,7 +61,10 @@ void Error::TickImpact(double x, double y) {
             for (; Players; Players = (Character*)(Players->NextType())) Players->MakeHealer();
     }
         else if(m_Type == RANGED)Player->MakeRanged();
-
+        else if(m_Type == SLOW_DOWN) {
+            auto Players = m_World->FirstPlayer();
+            for (; Players; Players = (Character *) (Players->NextType())) Players->SlowDown();
+        }
         delete this;
         DrawName();
     }

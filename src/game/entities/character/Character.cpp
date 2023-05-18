@@ -176,9 +176,16 @@ void Character::MakeRanged(){
     }
 }
 
+void Character::SlowDown(){
+    if(!IsSlow){
+        IsSlow = true;
+        m_Timer = 1000;
+    }
+}
+
 
 void Character::TickTimer(){
-    if((HealersParadise)||(Spiky)||(Invincible)||(ConfusingHP)||(IsReversed)||(Ranged)) {
+    if((HealersParadise)||(Spiky)||(Invincible)||(ConfusingHP)||(IsReversed)||(Ranged)||(IsSlow)) {
         m_Timer -= 1;
         if (m_Timer <= 0) {
             if (IsReversed)IsReversed = false;
@@ -187,6 +194,7 @@ void Character::TickTimer(){
             else if (Spiky)Spiky = false;
             else if (HealersParadise) HealersParadise = false;
             else if(Ranged) Ranged = false;
+            else if(IsSlow) IsSlow = false;
         }
     }
 }
@@ -240,7 +248,7 @@ void Character::TickKeyboardControls() { // TODO: move to characterInput class
     }
 
     // Depending on if shift is held, change accelaration value
-    m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration/3 : m_BaseAcceleration) * (IsReversed ? -1 : 1);
+    m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration/3 : m_BaseAcceleration) * (IsReversed ? -1 : 1) * (IsSlow ? 0.25 : 1);
 
     // Accelerate
     m_xvel += m_Input.m_GoingX * m_Acceleration;
@@ -281,7 +289,8 @@ void Character::TickGameControllerControls() {
     if (GoingLength > 0.2) {  // Fix controller drifting
         // Checks if player is shifting (holding left stick)
         // TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
-        m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration/3 : m_BaseAcceleration) * (IsReversed ? -1 : 1);
+
+        m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration/3 : m_BaseAcceleration) * (IsReversed ? -1 : 1) * (IsSlow ? 0.25 : 1);
 
         // Accelerate in that direction
         m_xvel += m_Input.m_GoingX * m_Acceleration;
