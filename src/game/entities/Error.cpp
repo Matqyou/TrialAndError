@@ -23,7 +23,6 @@ Error::Error(GameWorld* world,double start_x, double start_y)
     int RandomNumber = dist(gen);
     std::cout << "The random number for Errors: " << RandomNumber << std::endl;
     ErrorTypes type;
-    RandomNumber = 99;
     if(RandomNumber < 20) type = DISORIANTED;
     else if(RandomNumber < 40) type = SPIKY;
     else if(RandomNumber < 50) type = CONFUSING_HP;
@@ -38,10 +37,10 @@ Error::Error(GameWorld* world,double start_x, double start_y)
 void Error::TickImpact(double x, double y) {
     auto Player = m_World->FirstPlayer();
     for (; Player; Player = (Character*)(Player->NextType())) {
-        bool Collides = (Player->GetX() - 25 < x) &&
-                        (Player->GetX() + 25 > x) &&
-                        (Player->GetY() - 25 < y) &&
-                        (Player->GetY() + 25 > y);
+        bool Collides = (Player->GetX() - 50 < x) &&
+                        (Player->GetX() + 50 > x) &&
+                        (Player->GetY() - 50 < y) &&
+                        (Player->GetY() + 50 > y);
 
         if (!Collides)
             continue;

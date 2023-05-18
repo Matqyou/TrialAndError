@@ -83,6 +83,8 @@ int main() {
     Ammo::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/BurstAmmo.png", true);
     Ammo::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/entities/MinigunAmmo.png", true);
     Crates::ms_TextureBox = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate.png", true);
+    Crates::ms_TextureBreakingBox1 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_1.png", true);
+    Crates::ms_TextureBreakingBox2 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_2.png", true);
     Error::ms_TextureError = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
     // Load sounds
     Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
@@ -128,6 +130,7 @@ int main() {
     // Ammo::ms_PickupSounds[4] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick5.wav", true);
     // Ammo::ms_PickupSounds[5] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick6.wav", true);
     // Ammo::ms_PickupSounds[6] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick7.wav", true);
+    Crates::ms_BoxSound = SoundHandler->LoadSound("assets/sounds/BoxHit.wav", true);
     Crates::ms_HitSound = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
 
     Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),

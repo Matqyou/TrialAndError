@@ -14,6 +14,7 @@
 #include "../../indicators/HealthBar.h"
 #include "../../indicators/TextSurface.h"
 #include "../Ammo.h"
+#include "../Crates.h"
 #include "Hook.h"
 #include "Hands.h"
 

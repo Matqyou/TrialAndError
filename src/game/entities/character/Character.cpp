@@ -404,6 +404,23 @@ void Character::TickCollision() {
             Player->Damage(1, true);
         }
     }
+    auto Crate = m_World->FirstCrate();
+    for (; Crate; Crate = (Crates*)(Crate->NextType())) {
+        double XDistance = m_x - Crate->GetX();
+        double YDistance = m_y - Crate->GetY();
+        double Distance = std::sqrt(std::pow(XDistance, 2) + std::pow(YDistance, 2));
+
+        if (Distance > 40) continue;
+        else if (Distance < 0.0) {
+            double Radians = (rand()%360) / 180.0 * M_PI;
+            XDistance = cos(Radians);
+            YDistance = sin(Radians);
+            Distance = 1.0;
+        }
+        double XPush = XDistance / Distance* 2;
+        double YPush = YDistance / Distance* 2;
+        Accelerate(XPush, YPush);
+}
 }
 
 void Character::TickCurrentWeapon() {

@@ -75,11 +75,16 @@ void Hands::Tick() {
             if (Distance > m_FistingRadius)
                 continue;
 
-            Ent->Accelerate(m_Parent->GetInput().m_LookingX * 5.0, m_Parent->GetInput().m_LookingY * 5.0);
+            if(Ent->EntityType() == GameWorld::ENTTYPE_BOX){
+                ((Crates*)Ent)->DamageCrate(5);
+                continue;
+            }
+
             if (Ent->EntityType() != GameWorld::ENTTYPE_CHARACTER)
                 continue;
-
+            Ent->Accelerate(m_Parent->GetInput().m_LookingX * 5.0, m_Parent->GetInput().m_LookingY * 5.0);
             ((Character*)Ent)->Damage(7, true);
+
         }
     }
 }

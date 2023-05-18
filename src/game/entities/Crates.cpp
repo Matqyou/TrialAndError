@@ -6,7 +6,11 @@
 #include <iostream>
 #include <random>
 Texture* Crates::ms_TextureBox = nullptr;
+Texture* Crates::ms_TextureBreakingBox1 = nullptr;
+Texture* Crates::ms_TextureBreakingBox2 = nullptr;
 Sound* Crates::ms_HitSound = nullptr;
+Sound* Crates::ms_BoxSound = nullptr;
+
 Crates::Crates(GameWorld* world, double start_x, double start_y, double Health)
         : Entity(world, GameWorld::ENTTYPE_BOX, start_x, start_y, 50, 50, 0.95){
     m_World = world;
@@ -26,7 +30,6 @@ Crates::Crates(GameWorld* world, double start_x, double start_y, double Health)
     }
     else type = ERROR;
     m_Type = type;
-
     m_Texture = &ms_TextureBox;
 
 }
@@ -60,7 +63,11 @@ void Crates::TickImpact(double x, double y) {
 }
 
 void Crates::DamageCrate(double Damage) {
+    Sound *BoxHitSound = ms_BoxSound;
+    m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(BoxHitSound);
     m_Health -= Damage;
+    if(m_Health < 10)m_Texture = &ms_TextureBreakingBox2;
+    else if(m_Health < 20)m_Texture = &ms_TextureBreakingBox1;
 }
 
 void Crates::Tick() {
