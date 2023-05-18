@@ -2,6 +2,7 @@
 #include "GameReference.h"
 #include "GameWorld.h"
 #include "technical stuff/GameControllers.h"
+#include "game/entities/character/npc/CharacterNPC.h"
 #include "game/entities/character/Character.h"
 #include "game/entities/Bullets.h"
 #include "game/indicators/TextSurface.h"
@@ -45,13 +46,10 @@ bool Initialize() {
     auto Player1 = new Player(World, "Crazy speedrunner #1");
     // new Player(World, "Speedrunner crazy #2");
     new Character(World, Player1, 100.0,
-                  32*30, 30, 10, 10,
-                  false);
+                  32*30, 30, 10, 10);
 
     for (int i = 0; i < 2; i++)
-        new Character(World, nullptr, 100.0,
-                      32*30, 300, 0, 0,
-                      true);
+        new CharacterNPC(World, 100.0, 32*30, 300, 0, 0);
 
     return true;
 }
@@ -162,9 +160,7 @@ int main() {
                         if (Pause) SoundHandler->PlaySound(MidUISound);
                         else SoundHandler->PlaySound(LowUISound);
                     } else if (ScancodeKey == SDL_SCANCODE_Z) {
-                        new Character(World, nullptr, 100.0,
-                                      32*30, 30, 10, 10,
-                                      true);
+                        new CharacterNPC(World, 100.0, 32*30, 30, 10, 10);
                     }
                     // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
                     //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
@@ -173,8 +169,7 @@ int main() {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
                     auto* NewPlayer = new Character(World, nullptr, 100.0,
-                                                    32*30, 30, 10, 10,
-                                                    false); // TODO fix ;)
+                                                    32*30, 30, 10, 10); // TODO fix ;)
                     NewPlayer->SetGameController(CurrentController);
                     SoundHandler->PlaySound(HighSound);
                 } break;

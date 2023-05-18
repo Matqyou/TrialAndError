@@ -22,9 +22,9 @@ struct CharacterInput {
     bool m_Reloading;
     bool m_Hooking;
     bool m_Sneaking;
-    bool m_NextItem, m_PrevItem;
-    double m_GoingX, m_GoingY;
-    double m_LookingX, m_LookingY;
+    bool m_NextItem, m_PrevItem, m_DeselectItem;
+    double m_GoingX, m_GoingY, m_GoingLength;
+    double m_LookingX, m_LookingY, m_LookingLength;
 
     CharacterInput();
 };
@@ -41,7 +41,7 @@ public:
         CHARACTER_MAX_NAME_LENGTH = 32
     };
 
-private:
+protected:
     friend class Player;
     friend class GameWorld;
     friend class ProjectileWeapon;
@@ -86,7 +86,8 @@ private:
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickHealth();
-    void TickControls();
+    virtual void TickControls();
+    void ProcessControls();
     void TickHook();
     void TickCollision();
     void TickCurrentWeapon();
@@ -106,7 +107,7 @@ public:
     static Sound* ms_AmmoPickupSound;
     static TextSurface* ms_BotNamePlate;
 
-    Character(GameWorld* world, Player* player, double max_health, double start_x, double start_y, double start_xvel, double start_yvel, bool bot_player);
+    Character(GameWorld* world, Player* player, double max_health, double start_x, double start_y, double start_xvel, double start_yvel);
     ~Character();
 
     Hook* GetHook() { return &m_Hook; }
