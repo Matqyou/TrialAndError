@@ -32,6 +32,9 @@ Less important
 
 # Ze
 ### Tasks:
-- Edit this for notes on what you want to do
-- more stuff
+- Help
+- Make a guide for game
+- Add a lot of music
+- try to do the menu and fail 😑
+- make a display for player connection
 - etc.
