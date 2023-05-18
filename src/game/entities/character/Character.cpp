@@ -46,6 +46,13 @@ Character::Character(GameWorld* world, Player* player, double max_health,
     m_ColorHue = double(rand()%360);
     IsReversed = false;
     ConfusingHP = false;
+    Ranged = false;
+    Invincible = false;
+    Spiky = false;
+    HealersParadise = false;
+    Ranged = false;
+    IsSlow = false;
+    DangerousRecoil = false;
 
     m_CurrentWeapon = nullptr; // Start by holding nothing
     memset(m_Weapons, 0, sizeof(m_Weapons));
@@ -183,9 +190,15 @@ void Character::SlowDown(){
     }
 }
 
+void Character::ActivateDangerousRecoil(){
+    if(!DangerousRecoil){
+        DangerousRecoil = true;
+        m_Timer = 1000;
+    }
+}
 
 void Character::TickTimer(){
-    if((HealersParadise)||(Spiky)||(Invincible)||(ConfusingHP)||(IsReversed)||(Ranged)||(IsSlow)) {
+    if((HealersParadise)||(Spiky)||(Invincible)||(ConfusingHP)||(IsReversed)||(Ranged)||(IsSlow)||(DangerousRecoil)) {
         m_Timer -= 1;
         if (m_Timer <= 0) {
             if (IsReversed)IsReversed = false;
@@ -195,6 +208,7 @@ void Character::TickTimer(){
             else if (HealersParadise) HealersParadise = false;
             else if(Ranged) Ranged = false;
             else if(IsSlow) IsSlow = false;
+            else if(DangerousRecoil) DangerousRecoil = false;
         }
     }
 }

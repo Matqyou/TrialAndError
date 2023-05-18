@@ -9,7 +9,7 @@
 
 class WeaponMinigun : public ProjectileWeapon {
 private:
-    double m_RecoilForce;
+    double m_RecoilForce, m_BaseRecoilForce;
 
     double m_RateAcceleration;
     double m_RateDeacceleration;

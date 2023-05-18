@@ -12,7 +12,8 @@ Sound* WeaponMinigun::ms_ClickSound = nullptr;
 
 WeaponMinigun::WeaponMinigun(Character* owner)
  : ProjectileWeapon(owner, WEAPON_MINIGUN, 14, 64, 64 * 3, 35.0, true) {
-    m_RecoilForce = 3.2;
+    m_BaseRecoilForce = 3.2;
+    m_RecoilForce = m_BaseRecoilForce;
 
     m_FullRate = 10.0;
     m_RateAcceleration = 0.07;
@@ -29,6 +30,8 @@ WeaponMinigun::WeaponMinigun(Character* owner)
 }
 
 void WeaponMinigun::Tick() {
+    if(!m_Owner->GetIfDangerousRecoil())m_RecoilForce = m_BaseRecoilForce ;
+    else if (m_RecoilForce != m_BaseRecoilForce*3)m_RecoilForce = m_BaseRecoilForce*3;
     TickTrigger();
 
     if (m_Owner) {

@@ -9,7 +9,7 @@
 
 class WeaponBurst : public ProjectileWeapon {
 private:
-    double m_RecoilForce;
+    double m_RecoilForce, m_BaseRecoilForce;
     double m_Damage;
 
     unsigned long long m_BurstTick;

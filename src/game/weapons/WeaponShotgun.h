@@ -10,7 +10,7 @@
 class WeaponShotgun : public ProjectileWeapon {
 private:
     int m_PelletCount;
-    double m_RecoilForce;
+    double m_RecoilForce, m_BaseRecoilForce;
     double m_Damage;
 
 public:

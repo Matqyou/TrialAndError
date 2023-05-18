@@ -13,7 +13,8 @@ Sound* WeaponShotgun::ms_ClickSound = nullptr;
 WeaponShotgun::WeaponShotgun(Character* owner)
  : ProjectileWeapon(owner, WEAPON_SHOTGUN, 64, 8, 8 * 3, 35.0, false) {
     m_PelletCount = 6;
-    m_RecoilForce = 20.0;
+    m_BaseRecoilForce = 20.0;
+    m_RecoilForce = m_BaseRecoilForce;
     m_Damage = 6;
 
     SetSpread(10.0, 3);
@@ -21,6 +22,8 @@ WeaponShotgun::WeaponShotgun(Character* owner)
 }
 
 void WeaponShotgun::Tick() {
+    if(!m_Owner->GetIfDangerousRecoil())m_RecoilForce = m_BaseRecoilForce ;
+    else if (m_RecoilForce != m_BaseRecoilForce*3)m_RecoilForce = m_BaseRecoilForce*3;
     TickTrigger();
 
     if (m_Owner && m_Triggered) {  // If want to trigger without an owner, need to save world somewhere

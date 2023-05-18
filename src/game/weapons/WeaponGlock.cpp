@@ -11,11 +11,14 @@ Sound* WeaponGlock::ms_ClickSound = nullptr;
 
 WeaponGlock::WeaponGlock(Character* owner)
  : ProjectileWeapon(owner, WEAPON_GLOCK, 10, 15, 15 * 3, 35.0, false) {
-    m_RecoilForce = 3.0;
+    m_BaseRecoilForce = 3.0;
+    m_RecoilForce = m_BaseRecoilForce;
     m_Damage = 7.5;
 }
 
 void WeaponGlock::Tick() {
+    if(!m_Owner->GetIfDangerousRecoil())m_RecoilForce = m_BaseRecoilForce ;
+    else if (m_RecoilForce != m_BaseRecoilForce*3)m_RecoilForce = m_BaseRecoilForce*3;
     TickTrigger();
 
     if (m_Owner && m_Triggered) { // If want to trigger without an owner, need to save world somewhere

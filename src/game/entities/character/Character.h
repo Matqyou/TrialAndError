@@ -58,7 +58,7 @@ private:
     bool m_NPC;
     CharacterInput m_Input, m_LastInput;
     // bool m_Using, m_LastUsing;
-    bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise, Ranged, IsSlow;
+    bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise, Ranged, IsSlow, DangerousRecoil;
     Hands m_Hands;
     ProjectileWeapon* m_Weapons[NUM_WEAPONS];
     ProjectileWeapon* m_CurrentWeapon;
@@ -117,6 +117,8 @@ public:
     CharacterInput& GetInput() { return m_Input; }
     CharacterInput& GetLastInput() { return m_LastInput; }
 
+    bool GetIfDangerousRecoil(){return DangerousRecoil;}
+
     void AmmoPickup(Ammo* ammo_box);
     void SetGameController(GameController* gameController);
     void Damage(double damage, bool make_sound);
@@ -128,6 +130,7 @@ public:
     void MakeHealer();
     void MakeRanged();
     void SlowDown();
+    void ActivateDangerousRecoil();
 
     void Event(const SDL_Event& currentEvent);
     void Tick() override;

@@ -9,7 +9,7 @@
 
 class WeaponGlock : public ProjectileWeapon {
 private:
-    double m_RecoilForce;
+    double m_RecoilForce, m_BaseRecoilForce;
     double m_Damage;
 
 public:
