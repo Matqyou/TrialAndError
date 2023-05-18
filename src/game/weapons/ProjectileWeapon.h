@@ -19,7 +19,7 @@ class Character;
 class ProjectileWeapon {
 protected:
     unsigned long long m_LastShotAt;
-    unsigned int m_TickCooldown;
+    unsigned long long m_TickCooldown;
     unsigned int m_Ammo, m_AmmoCapacity;
     unsigned int m_TrueAmmo, m_TrueAmmoCapacity;
     double m_ProjectileSpeed;
@@ -54,6 +54,7 @@ public:
     unsigned int TrueAmmo() const {return m_TrueAmmo;}
     unsigned int AmmoCap() const {return m_AmmoCapacity;}
     unsigned int NeededAmmo() const;
+    unsigned long long TickCooldown() const { return m_TickCooldown; }
 
     void AddTrueAmmo(unsigned int count);
     void SetSpread(double degrees, int decimal_places);

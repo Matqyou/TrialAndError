@@ -16,8 +16,10 @@ CharacterInput::CharacterInput() {
     m_PrevItem = false;
     m_GoingX = 0.0;
     m_GoingY = 0.0;
+    m_GoingLength = 0.0;
     m_LookingX = 1.0;
     m_LookingY = 0.0;
+    m_LookingLength = 0.0;
 }
 
 Texture* Character::ms_Texture = nullptr;
@@ -31,8 +33,7 @@ const int Character::ms_DefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W, SDL_SCA
 
 
 Character::Character(GameWorld* world, Player* player, double max_health,
-                     double start_x, double start_y, double start_xvel, double start_yvel,
-                     bool bot_player)
+                     double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, GameWorld::ENTTYPE_CHARACTER, start_x, start_y, 50, 50, 0.93),
    m_BaseAcceleration(0.45),
    m_Hands(this, 40.0, 10.0, 10.0),
@@ -75,7 +76,7 @@ Character::Character(GameWorld* world, Player* player, double max_health,
     for (bool& State : m_Movement)
         State = false;
 
-    m_NPC = bot_player;
+    m_NPC = false;
 
     m_xLast = m_x;
     m_yLast = m_y;
@@ -247,6 +248,9 @@ void Character::TickKeyboardControls() { // TODO: move to characterInput class
     bool Vertical = m_Movement[CONTROL_UP] != m_Movement[CONTROL_DOWN];
     double Unit = Horizontal && Vertical ? M_SQRT1_2 : 1.0;
 
+    if (Horizontal || Vertical)
+        m_Input.m_GoingLength = 1.0;
+
     if (Horizontal) {
         if (m_Movement[CONTROL_LEFT]) m_Input.m_GoingX = -Unit;
         else m_Input.m_GoingX = Unit;
@@ -261,24 +265,17 @@ void Character::TickKeyboardControls() { // TODO: move to characterInput class
         m_Input.m_GoingY = 0.0;
     }
 
-    // Depending on if shift is held, change accelaration value
-    m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration/3 : m_BaseAcceleration) * (IsReversed ? -1 : 1) * (IsSlow ? 0.25 : 1);
-
-    // Accelerate
-    m_xvel += m_Input.m_GoingX * m_Acceleration;
-    m_yvel += m_Input.m_GoingY * m_Acceleration;
-
     // RequestUpdate look direction
     int XMouse, YMouse;
     SDL_GetMouseState(&XMouse, &YMouse);
 
     m_Input.m_LookingX = m_World->CameraX() - m_x + XMouse - m_World->GameWindow()->Width() / 2.0;
     m_Input.m_LookingY = m_World->CameraY() - m_y + YMouse - m_World->GameWindow()->Height() / 2.0;
-    double Distance = std::sqrt(std::pow(m_Input.m_LookingX, 2) + std::pow(m_Input.m_LookingY, 2));
+    m_Input.m_LookingLength = std::sqrt(std::pow(m_Input.m_LookingX, 2) + std::pow(m_Input.m_LookingY, 2));
 
-    if (Distance != 0.0) {
-        m_Input.m_LookingX /= Distance;
-        m_Input.m_LookingY /= Distance;
+    if (m_Input.m_LookingLength != 0.0) {
+        m_Input.m_LookingX /= m_Input.m_LookingLength;
+        m_Input.m_LookingY /= m_Input.m_LookingLength;
     } else {
         m_Input.m_LookingX = 1.0;
         m_Input.m_LookingY = 0.0;
@@ -287,46 +284,29 @@ void Character::TickKeyboardControls() { // TODO: move to characterInput class
     auto MouseState = SDL_GetMouseState(nullptr, nullptr);
     m_Input.m_Shooting = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
     m_Input.m_Hooking = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
+    m_Input.m_Sneaking = m_Movement[CONTROL_SHIFT];
 }
 
 void Character::TickGameControllerControls() {
+    // Sneaking
+    m_Input.m_Sneaking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
+
     // Check for current joystick values
     m_GameController->GetJoystick1(m_Input.m_GoingX, m_Input.m_GoingY);
 
     // AxisX**2 + AxisY**2 <= 1 (keep direction length of 1)
-    double GoingLength = std::sqrt(std::pow(m_Input.m_GoingX, 2) + std::pow(m_Input.m_GoingY, 2));
-    if (GoingLength > 0.0) {
-        m_Input.m_GoingX /= GoingLength;
-        m_Input.m_GoingY /= GoingLength;
-    }
-
-    if (GoingLength > 0.2) {  // Fix controller drifting
-        // Checks if player is shifting (holding left stick)
-        // TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
-
-        m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration/3 : m_BaseAcceleration) * (IsReversed ? -1 : 1) * (IsSlow ? 0.25 : 1);
-
-        // Accelerate in that direction
-        m_xvel += m_Input.m_GoingX * m_Acceleration;
-        m_yvel += m_Input.m_GoingY * m_Acceleration;
-    }
+    m_Input.m_GoingLength = std::sqrt(std::pow(m_Input.m_GoingX, 2) + std::pow(m_Input.m_GoingY, 2));
+    m_Input.m_GoingX /= m_Input.m_GoingLength;
+    m_Input.m_GoingY /= m_Input.m_GoingLength;
 
     // RequestUpdate look direction
     double LookingX, LookingY;
     m_GameController->GetJoystick2(LookingX, LookingY);
 
-    double LookingLength = std::sqrt(std::pow(LookingX, 2) + std::pow(LookingY, 2));
-    if (LookingLength > 0.6) {  // Fix controller drifting
-        if (LookingLength != 0.0) {
-            m_Input.m_LookingX = LookingX / LookingLength;
-            m_Input.m_LookingY = LookingY / LookingLength;
-        } else {
-            m_Input.m_LookingX = 1.0;
-            m_Input.m_LookingY = 0.0;
-        }
-    } else if (GoingLength > 0.2) {
-        m_Input.m_LookingX = m_Input.m_GoingX;
-        m_Input.m_LookingY = m_Input.m_GoingY;
+    m_Input.m_LookingLength = std::sqrt(std::pow(LookingX, 2) + std::pow(LookingY, 2));
+    if (m_Input.m_LookingLength >= 0.6) {
+        m_Input.m_LookingX = LookingX / m_Input.m_LookingLength;
+        m_Input.m_LookingY = LookingY / m_Input.m_LookingLength;
     }
 
     // Shooting
@@ -335,26 +315,10 @@ void Character::TickGameControllerControls() {
     m_Input.m_Reloading = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X);
 
     // Switch weapons
-    bool SwitchForward = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-    bool SwitchBackward = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-    bool SwitchHands = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_UP) ||
+    m_Input.m_NextItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+    m_Input.m_PrevItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+    m_Input.m_DeselectItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_UP) ||
             m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN) && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-
-    if (SwitchForward ^ SwitchBackward ^ SwitchHands) { // I hope this works as intended, only 1 at a time | ignore if multiple inputs at the same time
-        if (SwitchHands) { m_SelectedWeaponIndex = -1; }
-        else if (SwitchForward) {
-            m_SelectedWeaponIndex++;
-            if (m_SelectedWeaponIndex == NUM_WEAPONS)
-                m_SelectedWeaponIndex = -1;
-        } else {
-            m_SelectedWeaponIndex--;
-            if (m_SelectedWeaponIndex == -2)
-                m_SelectedWeaponIndex = NUM_WEAPONS - 1;
-        }
-
-        if (m_SelectedWeaponIndex == -1) { m_CurrentWeapon = nullptr; }
-        else { SwitchWeapon((WeaponType)m_SelectedWeaponIndex); } // yeaaaaaaa
-    }
 }
 
 // When in combat heal differently than out of combat
@@ -368,10 +332,42 @@ void Character::TickHealth() {
 }
 
 void Character::TickControls() {
-    if (m_NPC) return;
-
     if (m_GameController) TickGameControllerControls();
     else TickKeyboardControls();
+
+    if (m_Input.m_LookingLength <= 0.6 && m_Input.m_GoingLength > 0.2) {
+        m_Input.m_LookingX = m_Input.m_GoingX;
+        m_Input.m_LookingY = m_Input.m_GoingY;
+    }
+}
+
+void Character::ProcessControls() {
+    if (m_Input.m_GoingLength > 0.2) {  // Fix controller drifting
+        // Checks if player is shifting (holding left stick)
+        // TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
+
+        m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration/3 : m_BaseAcceleration) * (IsReversed ? -1 : 1) * (IsSlow ? 0.25 : 1) * (bool(m_CurrentWeapon) ? 0.75 : 1.0);
+
+        // Accelerate in that direction
+        m_xvel += m_Input.m_GoingX * m_Acceleration;
+        m_yvel += m_Input.m_GoingY * m_Acceleration;
+    }
+
+    if (m_Input.m_NextItem ^ m_Input.m_PrevItem ^ m_Input.m_DeselectItem) { // I hope this works as intended, only 1 at a time | ignore if multiple inputs at the same time
+        if (m_Input.m_DeselectItem) { m_SelectedWeaponIndex = -1; }
+        else if (m_Input.m_NextItem) {
+            m_SelectedWeaponIndex++;
+            if (m_SelectedWeaponIndex == NUM_WEAPONS)
+                m_SelectedWeaponIndex = -1;
+        } else {
+            m_SelectedWeaponIndex--;
+            if (m_SelectedWeaponIndex == -2)
+                m_SelectedWeaponIndex = NUM_WEAPONS - 1;
+        }
+
+        if (m_SelectedWeaponIndex == -1) { m_CurrentWeapon = nullptr; }
+        else { SwitchWeapon((WeaponType)m_SelectedWeaponIndex); } // yeaaaaaaa
+    }
 }
 
 void Character::TickHook() {
@@ -600,7 +596,8 @@ void Character::Event(const SDL_Event& currentEvent) {
 void Character::Tick() {
     // TODO: Make controls come from m_Player/m_AI rather than m_GameController
     TickHealth();
-    TickControls();  // Do stuff depending on the current held buttons
+    TickControls(); // Parse the inputs of each device keyboard/controller/AI
+    ProcessControls(); // Do stuff depending on the current held buttons
     TickHook();  // Move hook and or player etc.
     TickCurrentWeapon(); // Shoot accelerate reload etc.
     m_Hands.Tick();
