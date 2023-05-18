@@ -17,7 +17,7 @@ private:
     unsigned long long m_LastFistedL, m_LastFistedR;
     const double m_HandSpacing;
     const double m_FistingAnimationDuration;
-    double m_FistingRadius;
+    double m_FistingRadius, m_BaseFistingRadius;
 
     double m_xLeft, m_yLeft;
     double m_xRight, m_yRight;

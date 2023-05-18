@@ -172,13 +172,13 @@ void Character::MakeHealer(){
 void Character::MakeRanged(){
     if(!Ranged){
         Ranged = true;
-        m_Timer = 1000;
+        m_Timer = 166;
     }
 }
 
 
 void Character::TickTimer(){
-    if((HealersParadise)||(Spiky)||(Invincible)||(ConfusingHP)||(IsReversed)) {
+    if((HealersParadise)||(Spiky)||(Invincible)||(ConfusingHP)||(IsReversed)||(Ranged)) {
         m_Timer -= 1;
         if (m_Timer <= 0) {
             if (IsReversed)IsReversed = false;
@@ -186,6 +186,7 @@ void Character::TickTimer(){
             else if (Invincible)Invincible = false;
             else if (Spiky)Spiky = false;
             else if (HealersParadise) HealersParadise = false;
+            else if(Ranged) Ranged = false;
         }
     }
 }
@@ -414,7 +415,6 @@ void Character::DrawCharacter() {
 
     double Angle = std::atan2(m_yvel, m_xvel) / M_PI * 180.0;
     SDL_RendererFlip flip;
-    std::printf("Write%f\n", Angle);
     if(Angle > 90 || Angle < -90){
         flip = SDL_FLIP_VERTICAL;
     }

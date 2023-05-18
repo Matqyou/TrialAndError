@@ -16,7 +16,7 @@ Hands::Hands(Character* parent, double hand_spacing, double fist_animation_durat
     m_LastFisted = 0;
     m_LastFistedL = 0;
     m_LastFistedR = 0;
-
+    m_BaseFistingRadius = fisting_radius;
     m_FistingRadius = fisting_radius;
 
     m_xLeft = m_Parent->GetW() / 2.0;
@@ -36,6 +36,10 @@ void Hands::SetColor(SDL_Color& color) {
 }
 
 void Hands::Tick() {
+    if(!m_Parent->Ranged){
+        m_FistingRadius = m_BaseFistingRadius;
+    }
+    else if (m_Parent->Ranged && m_FistingRadius != m_BaseFistingRadius+100)m_FistingRadius = m_BaseFistingRadius + 100;
     if (m_Parent->GetCurrentWeapon())
         return;
 
