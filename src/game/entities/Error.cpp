@@ -5,10 +5,17 @@
 #include "Error.h"
 #include <random>
 
+Texture* Error::ms_TextureErrorDisorianted = nullptr;
+Texture* Error::ms_TextureErrorSpiky = nullptr;
+Texture* Error::ms_TextureErrorConfusingHP = nullptr;
+Texture* Error::ms_TextureErrorInvincible = nullptr;
+Texture* Error::ms_TextureErrorHealersParadise = nullptr;
+Texture* Error::ms_TextureErrorRanged = nullptr;
+Texture* Error::ms_TextureErrorSlowDown = nullptr;
+Texture* Error::ms_TextureErrorDangerousRecoil = nullptr;
 Texture* Error::ms_TextureError = nullptr;
 Error::Error(GameWorld* world,double start_x, double start_y)
         : Entity(world, GameWorld::ENTTYPE_ERROR, start_x, start_y, 100, 100, 0.95){
-    m_Texture = &ms_TextureError;
     m_ErrorText = new TextSurface(m_World->GameWindow()->Assets(),
                                   m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
                                   "0", { 0, 0, 0 });
@@ -32,6 +39,14 @@ Error::Error(GameWorld* world,double start_x, double start_y)
     else if(RandomNumber < 90) type = SLOW_DOWN;
     else if(RandomNumber < 100) type = DANGEROUS_RECOIL;
     m_Type = type;
+    if(type == SPIKY)m_Texture = &ms_TextureErrorSpiky;
+    else if(type == INVINCIBLE) m_Texture = &ms_TextureErrorInvincible;
+    else if(type == SLOW_DOWN) m_Texture =&ms_TextureErrorSlowDown;
+    else if(type == HEALERS_PARADISE) m_Texture =&ms_TextureErrorHealersParadise;
+    else if(type == DISORIANTED) m_Texture = &ms_TextureErrorDisorianted;
+    else if(type == CONFUSING_HP) m_Texture = &ms_TextureErrorConfusingHP;
+    else if(type == RANGED) m_Texture = &ms_TextureErrorRanged;
+    else m_Texture = &ms_TextureError;
 }
 
 void Error::TickImpact(double x, double y) {

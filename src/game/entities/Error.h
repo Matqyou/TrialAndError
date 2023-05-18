@@ -30,11 +30,20 @@ protected:
     char msg[64];
     double m_Health;
     Texture** m_Texture;
+
     void TickImpact(double x, double y);
     TextSurface* m_ErrorText;
 public:
     static Sound* ms_HitSound;
     static Texture* ms_TextureError;
+    static Texture* ms_TextureErrorDisorianted;
+    static Texture* ms_TextureErrorSpiky;
+    static Texture* ms_TextureErrorConfusingHP;
+    static Texture* ms_TextureErrorInvincible;
+    static Texture* ms_TextureErrorHealersParadise;
+    static Texture* ms_TextureErrorRanged;
+    static Texture* ms_TextureErrorSlowDown;
+    static Texture* ms_TextureErrorDangerousRecoil;
     static Sound* ms_PickupSounds[7];
     Error(GameWorld* world, double start_x, double start_y);
     void DrawName();

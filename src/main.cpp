@@ -85,6 +85,13 @@ int main() {
     Crates::ms_TextureBox = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate.png", true);
     Crates::ms_TextureBreakingBox1 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_1.png", true);
     Crates::ms_TextureBreakingBox2 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_2.png", true);
+    Error::ms_TextureErrorInvincible = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
+    Error::ms_TextureErrorSpiky = ImageHandler->LoadTexture("assets/images/entities/Cactus.png", true);
+    Error::ms_TextureErrorSlowDown = ImageHandler->LoadTexture("assets/images/entities/Clock.png", true);
+    Error::ms_TextureErrorDisorianted = ImageHandler->LoadTexture("assets/images/entities/Disorianted.png", true);
+    Error::ms_TextureErrorHealersParadise = ImageHandler->LoadTexture("assets/images/entities/Healer.png", true);
+    Error::ms_TextureErrorConfusingHP = ImageHandler->LoadTexture("assets/images/entities/Confusion.png", true);
+    Error::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/entities/Ranged.png", true);
     Error::ms_TextureError = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
     // Load sounds
     Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
