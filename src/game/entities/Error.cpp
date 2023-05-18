@@ -23,7 +23,6 @@ Error::Error(GameWorld* world,double start_x, double start_y)
     int RandomNumber = dist(gen);
     std::cout << "The random number for Errors: " << RandomNumber << std::endl;
     ErrorTypes type;
-    RandomNumber = 87;
     if(RandomNumber < 20) type = DISORIANTED;
     else if(RandomNumber < 40) type = SPIKY;
     else if(RandomNumber < 50) type = CONFUSING_HP;
