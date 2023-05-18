@@ -49,7 +49,7 @@ bool Initialize() {
                   32*30, 30, 10, 10);
 
     for (int i = 0; i < 2; i++)
-        new CharacterNPC(World, 100.0, 32*30, 300, 0, 0);
+        new CharacterNPC(World, 100.0, 0, 0, 0, 0);
 
     return true;
 }
@@ -172,7 +172,7 @@ int main() {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
                     auto* NewPlayer = new Character(World, nullptr, 100.0,
-                                                    32*30, 30, 10, 10); // TODO fix ;)
+                                                    32*32, 0, 10, 10); // TODO fix ;)
                     NewPlayer->SetGameController(CurrentController);
                     SoundHandler->PlaySound(HighSound);
                 } break;
@@ -211,7 +211,7 @@ int main() {
         Controllers->TickLast();
 
         // Drawing
-        Draw->SetColor(120, 0, 120, 255);
+        Draw->SetColor(120, 120, 0, 255);
         Draw->Clear();
 
         World->Draw();

@@ -21,16 +21,15 @@ Error::Error(GameWorld* world,double start_x, double start_y)
                                                 std::end(interval),
                                                 weights);
     int RandomNumber = dist(gen);
-    std::cout << "The random number for Errors: " << RandomNumber << std::endl;
     ErrorTypes type;
     if(RandomNumber < 20) type = DISORIANTED;
-    else if(RandomNumber < 40) type = SPIKY;
-    else if(RandomNumber < 50) type = CONFUSING_HP;
-    else if(RandomNumber < 60) type = INVINCIBLE;
-    else if(RandomNumber < 70) type = HEALERS_PARADISE;
-    else if(RandomNumber < 80) type = RANGED;
-    else if(RandomNumber < 90) type = SLOW_DOWN;
-    else if(RandomNumber < 100) type = DANGEROUS_RECOIL;
+    else if(RandomNumber < 40) { type = SPIKY; std::printf("Collected SPIKY %i\n", RandomNumber); }
+    else if(RandomNumber < 50) { type = CONFUSING_HP; std::printf("Collected CONFUSING_HP %i\n", RandomNumber); }
+    else if(RandomNumber < 60) { type = INVINCIBLE; std::printf("Collected INVINCIBLE %i\n", RandomNumber); }
+    else if(RandomNumber < 70) { type = HEALERS_PARADISE; std::printf("Collected HEALERS_PARADISE %i\n", RandomNumber); }
+    else if(RandomNumber < 80) { type = RANGED; std::printf("Collected RANGED %i\n", RandomNumber); }
+    else if(RandomNumber < 90) { type = SLOW_DOWN; std::printf("Collected SLOW_DOWN %i\n", RandomNumber); }
+    else if(RandomNumber < 100) { type = DANGEROUS_RECOIL; std::printf("Collected DANGEROUS_RECOIL %i\n", RandomNumber); }
     m_Type = type;
 }
 

@@ -56,9 +56,6 @@ void CharacterNPC::TickControls() {
         m_Input.m_LookingX = TravelX / m_Input.m_GoingLength;
         m_Input.m_LookingY = TravelY / m_Input.m_GoingLength;
 
-        if (Closest <= 300.0)
-            m_Input.m_GoingLength = 0.0;
-
         m_Input.m_Reloading = false;
 
         if (!m_CurrentWeapon) {
@@ -68,6 +65,9 @@ void CharacterNPC::TickControls() {
                 m_Input.m_Shooting = true;
             }
         } else {
+            if (Closest <= 300.0)
+                m_Input.m_GoingLength = 0.0;
+
             if (!m_CurrentWeapon->Ammo()) {
                 if (m_CurrentWeapon->TrueAmmo()) {
                     m_Input.m_Reloading = true;
