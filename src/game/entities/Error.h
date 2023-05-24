@@ -5,7 +5,7 @@
 #ifndef TRIALANDERROR_ERROR_H
 #define TRIALANDERROR_ERROR_H
 #include "Entity.h"
-#include "../weapons/ProjectileWeapon.h"
+#include "../weapons/projectile/ProjectileWeapon.h"
 #include "character/Character.h"
 
 

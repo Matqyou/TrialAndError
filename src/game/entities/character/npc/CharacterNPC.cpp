@@ -7,10 +7,12 @@
 
 CharacterNPC::CharacterNPC(GameWorld* world, double max_health,
                            double start_x, double start_y,
-                           double start_xvel, double start_yvel)
+                           double start_xvel, double start_yvel,
+                           NPCType ai_type)
  : Character(world, nullptr, max_health, start_x, start_y, start_xvel, start_yvel) {
     m_NPC = true;
     m_NPCLastShot = 0;
+    m_AIType = ai_type;
 }
 
 CharacterNPC::~CharacterNPC() {
@@ -18,6 +20,9 @@ CharacterNPC::~CharacterNPC() {
 }
 
 void CharacterNPC::TickControls() {
+    if (m_AIType == NPC_DUMMY)
+        return;
+
     auto CurrentTick = m_World->CurrentTick();
 
     auto Char = m_World->FirstPlayer();
@@ -26,7 +31,8 @@ void CharacterNPC::TickControls() {
     for (; Char != nullptr; Char = (Character*)(Char->NextType())) {
         if (Char == this || Char->IsNPC()) continue;
 
-        double Distance = std::sqrt(std::pow(Char->GetX() - m_x, 2) + std::pow(Char->GetY() - m_y, 2));
+        EntityCore* CharCore = Char->GetCore();
+        double Distance = std::sqrt(std::pow(CharCore->m_x - m_Core->m_x, 2) + std::pow(CharCore->m_y - m_Core->m_y, 2));
         if (Distance < 1000.0 && (!ClosestChar || Distance < Closest)) {
             Closest = Distance;
             ClosestChar = Char;
@@ -47,8 +53,9 @@ void CharacterNPC::TickControls() {
         if (m_CurrentWeapon)
             m_Input.m_NextItem = true;
     } else {
-        double TravelX = ClosestChar->GetX() - m_x;
-        double TravelY = ClosestChar->GetY() - m_y;
+        EntityCore* ClosestCore = ClosestChar->GetCore();
+        double TravelX = ClosestCore->m_x - m_Core->m_x;
+        double TravelY = ClosestCore->m_y - m_Core->m_y;
         m_Input.m_GoingLength = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
         m_Input.m_GoingX = TravelX / m_Input.m_GoingLength;
         m_Input.m_GoingY = TravelY / m_Input.m_GoingLength;

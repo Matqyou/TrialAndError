@@ -3,8 +3,8 @@
 //
 
 #include "ProjectileWeapon.h"
-#include "../entities/character/Character.h"
-#include "../entities/Bullets.h"
+#include "../../entities/character/Character.h"
+#include "../../entities/Bullets.h"
 #include <cmath>
 
 Sound* ProjectileWeapon::ms_ReloadSound = nullptr;
@@ -20,7 +20,7 @@ double ProjectileWeapon::GenerateRandomProjectileSpeed() const {
 }
 
 ProjectileWeapon::ProjectileWeapon(Character* owner, WeaponType type, int tick_cooldown, int ammo_capacity, int total_ammo_capacity, double projectile_speed, bool automatic) {
-    m_Owner = owner;
+    m_Shooter = owner;
     m_Type = type;
     m_LastShotAt = 0;
     m_TickCooldown = tick_cooldown;
@@ -42,7 +42,7 @@ ProjectileWeapon::ProjectileWeapon(Character* owner, WeaponType type, int tick_c
 }
 
 void ProjectileWeapon::TickTrigger() {
-    if (m_Owner) {
+    if (m_Shooter) {
         bool Shoot, LastShoot;
         GetOwnerShooting(Shoot, LastShoot);
 
@@ -54,16 +54,9 @@ void ProjectileWeapon::TickTrigger() {
     }
 }
 
-void ProjectileWeapon::GetOwnerPosition(double& out_x, double& out_y, double& out_x_dir, double& out_y_dir) const {
-    out_x = m_Owner->m_x;
-    out_y = m_Owner->m_y;
-    out_x_dir = m_Owner->m_Input.m_LookingX;
-    out_y_dir = m_Owner->m_Input.m_LookingY;
-}
-
 void ProjectileWeapon::GetOwnerShooting(bool& out_shoot, bool& out_last_shoot) const {
-    out_shoot = m_Owner->m_Input.m_Shooting;
-    out_last_shoot = m_Owner->m_LastInput.m_Shooting;
+    out_shoot = m_Shooter->m_Input.m_Shooting;
+    out_last_shoot = m_Shooter->m_LastInput.m_Shooting;
 }
 
 unsigned int ProjectileWeapon::NeededAmmo() const {
@@ -90,10 +83,10 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed, double delta
 
 void ProjectileWeapon::Reload() {
     if(m_TrueAmmo != 0){
-        m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ReloadSound);
+        m_Shooter->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ReloadSound);
     }
     else {
-        m_Owner->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_NoAmmo);
+        m_Shooter->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_NoAmmo);
     }
     unsigned int AmmoNeeded = m_AmmoCapacity - m_Ammo;
     if (m_TrueAmmo >= AmmoNeeded){

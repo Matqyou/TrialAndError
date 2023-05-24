@@ -49,7 +49,7 @@ bool Initialize() {
                   32*30, 30, 10, 10);
 
     for (int i = 0; i < 2; i++)
-        new CharacterNPC(World, 100.0, 0, 0, 0, 0);
+        new CharacterNPC(World, 100.0, 0, 0, 0, 0, NPC_DUMMY);
 
     return true;
 }
@@ -170,10 +170,8 @@ int main() {
                         if (Pause) SoundHandler->PlaySound(MidUISound);
                         else SoundHandler->PlaySound(LowUISound);
                     } else if (ScancodeKey == SDL_SCANCODE_Z) {
-                        new CharacterNPC(World, 100.0, 32*30, 30, 10, 10);
+                        new CharacterNPC(World, 100.0, 32*30, 30, 10, 10, NPC_DUMMY);
                     }
-                    // else if (CurrentEvent.key.keysym.scancode == SDL_SCANCODE_F11)
-                    //     SDL_SetWindowFullscreen(Window, !(SDL_GetWindowFlags(Window) & SDL_WINDOW_FULLSCREEN));
                 } break;
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;

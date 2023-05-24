@@ -215,15 +215,16 @@ void GameWorld::Tick() {
         double CameraX = 0.0;
         double CameraY = 0.0;
 
-        auto Player = FirstPlayer();
-        for (; Player; Player = (Character*)Player->NextType()) {
-            if (Player->IsNPC())
+        auto Char = FirstPlayer();
+        for (; Char; Char = (Character*)Char->NextType()) {
+            if (Char->IsNPC())
                 continue;
 
             num_player++;
 
-            CameraX += Player->GetX();
-            CameraY += Player->GetY();
+            EntityCore* CharCore = Char->GetCore();
+            CameraX += CharCore->m_x;
+            CameraY += CharCore->m_y;
         }
 
         if (num_player) {

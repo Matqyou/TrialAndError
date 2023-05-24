@@ -12,7 +12,7 @@ Texture* Ammo::ms_TextureMinigun = nullptr;
 // Sound* Ammo::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 Ammo::Ammo(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount)
- : Entity(world, GameWorld::ENTTYPE_AMMO, start_x, start_y, 50, 35, 0.95){
+ : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_AMMO, start_x, start_y, 50, 35, 0.0, 0.0, 0.95){
     m_AmmoCount = AmmoCount;
     m_Type = type;
 
@@ -21,19 +21,20 @@ Ammo::Ammo(GameWorld* world, AmmoType type, double start_x, double start_y, doub
     else if (type == AMMO_BURST) m_Texture = &ms_TextureBurst;
     else if (type == AMMO_MINIGUN) m_Texture = &ms_TextureMinigun;
 }
-void Ammo::TickPickup(double x, double y) {
+void Ammo::TickPickup() {
     // Check if position collides any of the players
-    auto Player = m_World->FirstPlayer();
-    for (; Player; Player = (Character*)(Player->NextType())) {
-        bool Collides = (Player->GetX() - 25 < x) &&
-                        (Player->GetX() + 25 > x) &&
-                        (Player->GetY() - 25 < y) &&
-                        (Player->GetY() + 25 > y);
+    auto Char = m_World->FirstPlayer();
+    for (; Char; Char = (Character*)(Char->NextType())) {
+        EntityCore* CharCore = Char->GetCore();
+        bool Collides = (CharCore->m_x - 25 < m_Core->m_x) &&
+                        (CharCore->m_x + 25 > m_Core->m_x) &&
+                        (CharCore->m_y - 25 < m_Core->m_y) &&
+                        (CharCore->m_y + 25 > m_Core->m_y);
 
         if (!Collides)
             continue;
 
-        Player->AmmoPickup(this);
+        Char->AmmoPickup(this);
 
         // TODO Increase ammo amount, also check which type of ammo has been picked up aswell
         // something like if(m_Type == AMMO_GLOCK){
@@ -57,7 +58,7 @@ unsigned int Ammo::TakeAmmo(unsigned int request) {
 }
 
 void Ammo::Tick() {
-    TickPickup(m_x, m_y);
+    TickPickup();
 
     TickVelocity();
     TickWalls();
@@ -68,10 +69,10 @@ void Ammo::Tick() {
 void Ammo::Draw() {
     Drawing* Render = m_World->GameWindow()->RenderClass();
 
-    SDL_FRect DrawRect = {float(m_x) - float(m_w / 2.0),
-                          float(m_y) - float(m_h / 2.0),
-                          float(m_w),
-                          float(m_h)};
+    SDL_FRect DrawRect = {float(m_Core->m_x) - float(m_Core->m_w / 2.0),
+                          float(m_Core->m_y) - float(m_Core->m_h / 2.0),
+                          float(m_Core->m_w),
+                          float(m_Core->m_h)};
 
     Render->RenderTextureFWorld((*m_Texture)->SDLTexture(), nullptr, DrawRect);
 }

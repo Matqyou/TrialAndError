@@ -15,7 +15,7 @@ Texture* Error::ms_TextureErrorSlowDown = nullptr;
 Texture* Error::ms_TextureErrorDangerousRecoil = nullptr;
 Texture* Error::ms_TextureError = nullptr;
 Error::Error(GameWorld* world,double start_x, double start_y)
-        : Entity(world, GameWorld::ENTTYPE_ERROR, start_x, start_y, 100, 100, 0.95){
+ : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_ERROR, start_x, start_y, 100, 100, 0.0, 0.0, 0.95){
     m_ErrorText = new TextSurface(m_World->GameWindow()->Assets(),
                                   m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
                                   "0", { 0, 0, 0 });
@@ -49,12 +49,13 @@ Error::Error(GameWorld* world,double start_x, double start_y)
 }
 
 void Error::TickImpact(double x, double y) {
-    auto Player = m_World->FirstPlayer();
-    for (; Player; Player = (Character*)(Player->NextType())) {
-        bool Collides = (Player->GetX() - 50 < x) &&
-                        (Player->GetX() + 50 > x) &&
-                        (Player->GetY() - 50 < y) &&
-                        (Player->GetY() + 50 > y);
+    auto Char = m_World->FirstPlayer();
+    for (; Char; Char = (Character*)(Char->NextType())) {
+        EntityCore* CharCore = Char->GetCore();
+        bool Collides = (CharCore->m_x - 50 < x) &&
+                        (CharCore->m_x + 50 > x) &&
+                        (CharCore->m_y - 50 < y) &&
+                        (CharCore->m_y + 50 > y);
 
         if (!Collides)
             continue;
@@ -68,18 +69,18 @@ void Error::TickImpact(double x, double y) {
             auto Players = m_World->FirstPlayer();
             for (; Players; Players = (Character*)(Players->NextType())) Players->ConfuseHP();
         }
-        else if(m_Type == INVINCIBLE)Player->MakeInvincible();
-        else if(m_Type == SPIKY) Player->MakeSpiky();
+        else if(m_Type == INVINCIBLE) Char->MakeInvincible();
+        else if(m_Type == SPIKY) Char->MakeSpiky();
         else if(m_Type == HEALERS_PARADISE){
             auto Players = m_World->FirstPlayer();
             for (; Players; Players = (Character*)(Players->NextType())) Players->MakeHealer();
     }
-        else if(m_Type == RANGED)Player->MakeRanged();
+        else if(m_Type == RANGED) Char->MakeRanged();
         else if(m_Type == SLOW_DOWN) {
             auto Players = m_World->FirstPlayer();
             for (; Players; Players = (Character *) (Players->NextType())) Players->SlowDown();
         }
-        else if(m_Type == DANGEROUS_RECOIL)Player->ActivateDangerousRecoil();
+        else if(m_Type == DANGEROUS_RECOIL) Char->ActivateDangerousRecoil();
         delete this;
         DrawName();
     }
@@ -99,17 +100,17 @@ void Error::DrawName() {
 
 
 void Error::Tick(){
-    TickImpact(m_x, m_y);
-    TickWalls();
+    TickImpact(m_Core->m_x, m_Core->m_y);
+    TickWalls(); // todo: don't have any functions after a function that self-destructs the object..... (crash)
 }
 
 void Error::Draw() {
     Drawing* Render = m_World->GameWindow()->RenderClass();
 
-    SDL_FRect DrawRect = {float(m_x) - float(m_w / 2.0),
-                          float(m_y) - float(m_h / 2.0),
-                          float(m_w),
-                          float(m_h)};
+    SDL_FRect DrawRect = {float(m_Core->m_x) - float(m_Core->m_w / 2.0),
+                          float(m_Core->m_y) - float(m_Core->m_h / 2.0),
+                          float(m_Core->m_w),
+                          float(m_Core->m_h)};
 
     Render->RenderTextureFWorld((*m_Texture)->SDLTexture(), nullptr, DrawRect);
 }

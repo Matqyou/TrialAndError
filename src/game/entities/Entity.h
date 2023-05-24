@@ -7,6 +7,23 @@
 
 #include "../../GameWorld.h"
 
+struct EntityCore {
+    double m_x, m_y, m_w, m_h;
+    double m_xvel, m_yvel;
+    double m_BaseDamping;
+
+    void Accelerate(double x, double y);
+};
+
+struct LookingEntityCore : public EntityCore {
+    double m_xlook, m_ylook;
+};
+
+enum EntityFormFactor {
+    ENTITY_NORMAL,
+    ENTITY_LOOKING
+};
+
 class Entity {
 protected:
     friend class GameWorld;
@@ -14,20 +31,21 @@ protected:
     GameWorld* m_World;
     Entity* m_PrevType, *m_NextType;
     Entity* m_Prev, *m_Next;
-    double m_x, m_y, m_w, m_h;
-    double m_BaseDamping;
-    double m_xvel, m_yvel;
-    double m_ExistsSince;
-    // bool m_Destroy; //
+    unsigned long long m_ExistsSince;
+    EntityCore* m_Core, *m_LastCore;
+    GameWorld::EntityType m_EntityType;
 
-    GameWorld::EntityType m_EntityType; // .._. .. _.._   ._.. ._ _ . ._.
+    virtual void TickLastCore();
     void TickVelocity();
     void TickWalls();
-    void TickBouncyWalls();
 
 public:
-    Entity(GameWorld* world, GameWorld::EntityType entityType,
-           double start_x, double start_y, double start_w, double start_h,
+    Entity(GameWorld* world,
+           EntityFormFactor form_factor,
+           GameWorld::EntityType entity_type,
+           double start_x, double start_y,
+           double start_w, double start_h,
+           double start_xvel, double start_yvel,
            double base_damping);
     ~Entity();
 
@@ -38,15 +56,29 @@ public:
     Entity* NextType() const { return m_NextType; }
     Entity* PrevType() const { return m_PrevType; }
     bool PointCollides(double x, double y) const;
-    double GetX() const { return m_x; }
-    double GetY() const { return m_y; }
-    double GetW() const { return m_w; }
-    double GetH() const { return m_h; }
+    EntityCore* GetCore() const { return m_Core; }
+    EntityCore* GetLastCore() const { return m_LastCore; }
 
     void Accelerate(double accelerate_x, double accelerate_y);
 
     virtual void Tick();
     virtual void Draw();
+};
+
+class LookingEntity : public Entity {
+protected:
+    LookingEntityCore* m_LookingCore, *m_LastLookingCore;
+    void TickLastCore() override;
+
+public:
+    LookingEntity(GameWorld* world,
+                  GameWorld::EntityType entity_type,
+                  double start_x, double start_y,
+                  double start_w, double start_h,
+                  double start_xvel, double start_yvel,
+                  double start_xlook, double start_ylook,
+                  double base_damping);
+    ~LookingEntity();
 };
 
 #endif //TRIALANDERROR_ENTITY_H

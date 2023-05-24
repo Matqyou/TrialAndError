@@ -3,8 +3,8 @@
 //
 
 #include "WeaponBurst.h"
-#include "../entities/character/Character.h"
-#include "../entities/Bullets.h"
+#include "../../entities/character/Character.h"
+#include "../../entities/Bullets.h"
 #include <cmath>
 
 Sound* WeaponBurst::ms_ShootSound = nullptr;
@@ -24,12 +24,13 @@ WeaponBurst::WeaponBurst(Character* owner)
 }
 
 void WeaponBurst::Tick() {
-    if(!m_Owner->GetIfDangerousRecoil())m_RecoilForce = m_BaseRecoilForce;
+    if(!m_Shooter->GetIfDangerousRecoil())m_RecoilForce = m_BaseRecoilForce;
     else if (m_RecoilForce != m_BaseRecoilForce*3)m_RecoilForce = m_BaseRecoilForce*3;
     TickTrigger();
 
-    if (m_Owner) {
-        GameWorld* World = m_Owner->World();
+    if (m_Shooter) {
+        GameWorld* World = m_Shooter->World();
+        auto ShooterCore = (LookingEntityCore*)m_Shooter->GetCore();
         SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
         auto CurrentTick = World->CurrentTick();
         if (m_BurstShotsLeft && CurrentTick - m_BurstTick > m_BurstCooldown) {
@@ -39,16 +40,13 @@ void WeaponBurst::Tick() {
                 m_Ammo--;
                 SoundHandler->PlaySound(ms_ShootSound);
 
-                double SpawnX, SpawnY, DirectionX, DirectionY;
-                GetOwnerPosition(SpawnX, SpawnY, DirectionX, DirectionY);
+                double VelocityX = ShooterCore->m_xlook * m_ProjectileSpeed;
+                double VelocityY = ShooterCore->m_ylook * m_ProjectileSpeed;
+                new Bullets(World, m_Shooter, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
 
-                double VelocityX = DirectionX * m_ProjectileSpeed;
-                double VelocityY = DirectionY * m_ProjectileSpeed;
-                new Bullets(World, m_Owner, m_Damage, SpawnX, SpawnY, VelocityX, VelocityY);
-
-                double RecoilX = DirectionX * -m_RecoilForce;
-                double RecoilY = DirectionY * -m_RecoilForce;
-                m_Owner->Accelerate(RecoilX, RecoilY);
+                double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
+                double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
+                m_Shooter->Accelerate(RecoilX, RecoilY);
             } else {
                 SoundHandler->PlaySound(ms_ClickSound);
             }
@@ -66,16 +64,13 @@ void WeaponBurst::Tick() {
                 m_LastShotAt = CurrentTick;
                 SoundHandler->PlaySound(ms_ShootSound);
 
-                double SpawnX, SpawnY, DirectionX, DirectionY;
-                GetOwnerPosition(SpawnX, SpawnY, DirectionX, DirectionY);
+                double VelocityX = ShooterCore->m_xlook * m_ProjectileSpeed;
+                double VelocityY = ShooterCore->m_ylook * m_ProjectileSpeed;
+                new Bullets(World, m_Shooter, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
 
-                double VelocityX = DirectionX * m_ProjectileSpeed;
-                double VelocityY = DirectionY * m_ProjectileSpeed;
-                new Bullets(World, m_Owner, m_Damage, SpawnX, SpawnY, VelocityX, VelocityY);
-
-                double RecoilX = DirectionX * -m_RecoilForce;
-                double RecoilY = DirectionY * -m_RecoilForce;
-                m_Owner->Accelerate(RecoilX, RecoilY);
+                double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
+                double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
+                m_Shooter->Accelerate(RecoilX, RecoilY);
             } else {
                 SoundHandler->PlaySound(ms_ClickSound);
             }
