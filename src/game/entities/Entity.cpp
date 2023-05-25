@@ -24,6 +24,7 @@ Entity::Entity(GameWorld* world,
     m_EntityType = entityType;
     m_Core = nullptr;
     m_LastCore = nullptr;
+    m_Alive = true;
     if (form_factor == ENTITY_LOOKING) {
         m_Core = new LookingEntityCore();
         m_LastCore = new LookingEntityCore();
@@ -48,7 +49,8 @@ Entity::Entity(GameWorld* world,
 }
 
 Entity::~Entity() {
-    delete m_Core, m_LastCore;
+    delete m_Core;
+    delete m_LastCore;
     m_World->RemoveEntity(this);
 }
 

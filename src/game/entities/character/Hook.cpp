@@ -38,6 +38,7 @@ void Hook::Unhook() {
     m_Deployed = false;
     m_Grabbed = GRABBED_NONE;
     m_GrabbedEntity = nullptr;
+    std::printf("Unhooked\n");
 }
 
 // Set the hook as grabbed to the wall
@@ -145,4 +146,5 @@ void Hook::Tick() {
         CharCore->m_xvel += TravelX * m_WallDragForce;
         CharCore->m_yvel += TravelY * m_WallDragForce;
     }
+    std::printf("%i\n", m_Grabbed);
 }

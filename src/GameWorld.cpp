@@ -195,21 +195,8 @@ void GameWorld::Event(const SDL_Event& currentEvent) {
     }
 }
 
-void GameWorld::Tick() {
-    if (m_Paused)
-        return;
-
-    if (!m_ShowNames)
-        m_ShowNamesVisibility *= 0.98;
-
-    // Loop allows self-destruction in the ::Tick() method
-    Entity* Next, *Current = m_First;
-    for (; Current; Current = Next) {
-        Next = Current->Next();
-        Current->Tick();
-    }
-
-    if (m_LastType[ENTTYPE_CHARACTER]) {
+void GameWorld::TickCamera() {
+    if (m_FirstType[ENTTYPE_CHARACTER]) {
         int num_player = 0;
 
         double CameraX = 0.0;
@@ -237,6 +224,34 @@ void GameWorld::Tick() {
             m_y += (-m_y + CameraY) * 0.1;
         }
     }
+}
+
+void GameWorld::TickEntities() {
+    // Loop through each entity and tick
+    for (auto Current = m_First; Current; Current = Current->m_Next)
+        Current->Tick();
+}
+
+void GameWorld::TickDestroy() {
+    // Loop through each entity and destroy
+    Entity* Current, *Next;
+    for (Current = m_First; Current; Current = Next) {
+        Next = Current->m_Next;
+        if (!Current->IsAlive())
+            delete Current;
+    }
+}
+
+void GameWorld::Tick() {
+    if (m_Paused)
+        return;
+
+    if (!m_ShowNames)
+        m_ShowNamesVisibility *= 0.98;
+
+    TickEntities();
+    TickDestroy();
+    TickCamera();
 
     if (NamesShown() > 0.05 &&
         ((int)(m_x) != (int)(m_xLast) ||
