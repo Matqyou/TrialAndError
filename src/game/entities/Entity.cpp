@@ -136,5 +136,5 @@ LookingEntity::LookingEntity(GameWorld* world, GameWorld::EntityType entity_type
 }
 
 LookingEntity::~LookingEntity() {
-    delete m_LookingCore;
+
 }

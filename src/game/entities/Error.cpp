@@ -81,7 +81,7 @@ void Error::TickImpact(double x, double y) {
             for (; Players; Players = (Character *) (Players->NextType())) Players->SlowDown();
         }
         else if(m_Type == DANGEROUS_RECOIL) Char->ActivateDangerousRecoil();
-        delete this;
+        m_Alive = false;
         DrawName();
     }
 }

@@ -73,7 +73,7 @@ bool Bullets::TickHitPoint(double x, double y) {
         else if (CollidesPlayer && !Shooter || (Shooter && !m_StillCollidesShooter)) {
             Char->Damage(m_Damage, true);
             Char->Accelerate(m_Core->m_xvel * 0.05, m_Core->m_yvel * 0.05);
-            delete this;
+            m_Alive = false;
             return true;
         }
     }
@@ -86,7 +86,7 @@ bool Bullets::TickHitPoint(double x, double y) {
                              (CrateCore->m_y + CrateCore->m_h /2 > y);
         if(CollidesCrate){
             Crate->DamageCrate(m_Damage);
-            delete this;
+            m_Alive = false;
             return true;
         }
     }
@@ -97,7 +97,7 @@ void Bullets::TickImpact() {
     // Deletes the bullet if it hits the border
     if (m_Core->m_x < 0 || m_Core->m_x > m_World->Width() ||
         m_Core->m_y < 0 || m_Core->m_y > m_World->Height())
-        delete this;
+        m_Alive = false;
 }
 
 void Bullets::Tick() {

@@ -38,7 +38,7 @@ void Hook::Unhook() {
     m_Deployed = false;
     m_Grabbed = GRABBED_NONE;
     m_GrabbedEntity = nullptr;
-    std::printf("Unhooked\n");
+    std::printf("Unhook\n");
 }
 
 // Set the hook as grabbed to the wall
@@ -121,6 +121,7 @@ void Hook::Tick() {
             }
         }
     } else if (m_Grabbed == GRABBED_ENTITY) {
+        std::printf("Tick hook\n");
         EntityCore* GrabbedCore = m_GrabbedEntity->GetCore();
         if (Length > m_MaxLength) {
             double Slice = (Length - m_MaxLength) / 2;
@@ -146,5 +147,4 @@ void Hook::Tick() {
         CharCore->m_xvel += TravelX * m_WallDragForce;
         CharCore->m_yvel += TravelY * m_WallDragForce;
     }
-    std::printf("%i\n", m_Grabbed);
 }

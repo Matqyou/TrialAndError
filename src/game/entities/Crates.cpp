@@ -75,7 +75,7 @@ void Crates::Tick() {
     TickImpact(m_Core->m_x, m_Core->m_y);
     TickWalls();
 
-    if (m_Health <= 0) delete this;
+    if (m_Health <= 0) m_Alive = false;
 }
 
 void Crates::Draw() {
