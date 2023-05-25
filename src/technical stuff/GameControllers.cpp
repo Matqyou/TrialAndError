@@ -48,12 +48,12 @@ bool GameController::VibrateTriggers(int left_rumble, int right_rumble, int dura
 
 void GameController::Event(const SDL_Event& event) {
     switch (event.type) {
-        case SDL_CONTROLLERBUTTONUP:
-        case SDL_CONTROLLERBUTTONDOWN: {
-            bool Pressed = event.type == SDL_CONTROLLERBUTTONDOWN;
+        case SDL_JOYBUTTONUP:
+        case SDL_JOYBUTTONDOWN: {
+            bool Pressed = event.type == SDL_JOYBUTTONDOWN;
             m_Buttons[event.cbutton.button] = Pressed;
         } break;
-        case SDL_CONTROLLERAXISMOTION: {
+        case SDL_JOYAXISMOTION: {
             int AxisID = event.caxis.axis;
             m_Axis[AxisID] = double(event.caxis.value) / SDL_MAX_SINT16;
         } break;

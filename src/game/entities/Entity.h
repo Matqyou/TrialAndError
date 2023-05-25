@@ -34,6 +34,7 @@ protected:
     unsigned long long m_ExistsSince;
     EntityCore* m_Core, *m_LastCore;
     GameWorld::EntityType m_EntityType;
+    bool m_Alive;
 
     virtual void TickLastCore();
     void TickVelocity();
@@ -58,6 +59,7 @@ public:
     bool PointCollides(double x, double y) const;
     EntityCore* GetCore() const { return m_Core; }
     EntityCore* GetLastCore() const { return m_LastCore; }
+    bool IsAlive() const { return m_Alive; }
 
     void Accelerate(double accelerate_x, double accelerate_y);
 

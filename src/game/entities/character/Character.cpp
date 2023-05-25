@@ -106,9 +106,9 @@ Character::Character(GameWorld* world, Player* player, double max_health,
 Character::~Character() {
     delete m_CoordinatePlate;
 
-    Character* Player = m_World->FirstPlayer();
-    for (; Player; Player = (Character*)Player->NextType()) {
-        Hook* TargetHook = Player->GetHook();
+    Character* Char = m_World->FirstPlayer();
+    for (; Char; Char = (Character*)Char->NextType()) {
+        Hook* TargetHook = Char->GetHook();
         if (TargetHook->m_GrabbedEntity == this)
             TargetHook->Unhook();
     }
@@ -628,7 +628,7 @@ void Character::Tick() {
 
     if (m_Health <= 0.0) {
         m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
-        delete this;
+        m_Alive = false;
     }
 }
 

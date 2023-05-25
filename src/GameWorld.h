@@ -45,6 +45,10 @@ private:
     Texture* m_Background;
     int m_BackgroundW{}, m_BackgroundH{};
 
+    void TickCamera();
+    void TickEntities();
+    void TickDestroy();
+
 public:
     GameWorld(GameReference* game_window, int width, int height);
     ~GameWorld();
