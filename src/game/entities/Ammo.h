@@ -22,7 +22,7 @@ protected:
     AmmoType m_Type;
     Texture** m_Texture;
 
-    void TickPickup(double x, double y);
+    void TickPickup();
 public:
     static Texture* ms_TextureGlock;
     static Texture* ms_TextureShotgun;

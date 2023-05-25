@@ -41,20 +41,20 @@ set(PROJECT_FILES
         "src/technical stuff/Drawing.h"
         "src/technical stuff/SoundManager.cpp"
         "src/technical stuff/SoundManager.h"
-        "src/game/weapons/ProjectileWeapon.cpp"
-        "src/game/weapons/ProjectileWeapon.h"
-        "src/game/weapons/WeaponGlock.cpp"
-        "src/game/weapons/WeaponGlock.h"
-        "src/game/weapons/WeaponShotgun.cpp"
-        "src/game/weapons/WeaponShotgun.h"
-        "src/game/weapons/WeaponBurst.cpp"
-        "src/game/weapons/WeaponBurst.h"
-        "src/game/weapons/WeaponMinigun.cpp"
-        "src/game/weapons/WeaponMinigun.h"
+        "src/game/weapons/projectile/ProjectileWeapon.cpp"
+        "src/game/weapons/projectile/ProjectileWeapon.h"
+        "src/game/weapons/projectile/WeaponGlock.cpp"
+        "src/game/weapons/projectile/WeaponGlock.h"
+        "src/game/weapons/projectile/WeaponShotgun.cpp"
+        "src/game/weapons/projectile/WeaponShotgun.h"
+        "src/game/weapons/projectile/WeaponBurst.cpp"
+        "src/game/weapons/projectile/WeaponBurst.h"
+        "src/game/weapons/projectile/WeaponMinigun.cpp"
+        "src/game/weapons/projectile/WeaponMinigun.h"
         "src/game/indicators/HealthBar.cpp"
         "src/game/indicators/HealthBar.h"
         "src/game/entities/character/Hook.cpp"
-        "src/game/entities/character/Hook.h" "src/technical stuff/AssetsManager.cpp" "src/technical stuff/AssetsManager.h" src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.h src/game/collision/TileMap.cpp src/game/collision/TileMap.h src/game/entities/Ammo.cpp src/game/Player.cpp src/game/Player.h src/game/entities/Crates.cpp src/game/entities/Crates.h src/game/entities/Error.cpp src/game/entities/Error.h src/game/entities/character/Hands.cpp src/game/entities/character/Hands.h src/game/entities/character/npc/CharacterNPC.cpp src/game/entities/character/npc/CharacterNPC.h)
+        "src/game/entities/character/Hook.h" "src/technical stuff/AssetsManager.cpp" "src/technical stuff/AssetsManager.h" src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.h src/game/collision/TileMap.cpp src/game/collision/TileMap.h src/game/entities/Ammo.cpp src/game/Player.cpp src/game/Player.h src/game/entities/Crates.cpp src/game/entities/Crates.h src/game/entities/Error.cpp src/game/entities/Error.h src/game/entities/character/Hands.cpp src/game/entities/character/Hands.h src/game/entities/character/npc/CharacterNPC.cpp src/game/entities/character/npc/CharacterNPC.h src/game/weapons/laser/LaserWeapon.cpp src/game/weapons/laser/LaserWeapon.h)
 
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES} src/game/entities/Ammo.h src/game/entities/Crates.cpp src/game/entities/Crates.h src/game/entities/Error.cpp src/game/entities/Error.h)
 target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)

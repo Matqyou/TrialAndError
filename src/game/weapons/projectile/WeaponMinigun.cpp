@@ -3,8 +3,8 @@
 //
 
 #include "WeaponMinigun.h"
-#include "../entities/character/Character.h"
-#include "../entities/Bullets.h"
+#include "../../entities/character/Character.h"
+#include "../../entities/Bullets.h"
 #include <cmath>
 
 Sound* WeaponMinigun::ms_ShootSound = nullptr;
@@ -30,15 +30,15 @@ WeaponMinigun::WeaponMinigun(Character* owner)
 }
 
 void WeaponMinigun::Tick() {
-    if(!m_Owner->GetIfDangerousRecoil())m_RecoilForce = m_BaseRecoilForce ;
+    if(!m_Shooter->GetIfDangerousRecoil())m_RecoilForce = m_BaseRecoilForce ;
     else if (m_RecoilForce != m_BaseRecoilForce*3)m_RecoilForce = m_BaseRecoilForce*3;
     TickTrigger();
 
-    if (m_Owner) {
-        GameWorld* World = m_Owner->World();
+    if (m_Shooter) {
+        GameWorld* World = m_Shooter->World();
+        auto ShooterCore = (LookingEntityCore*)m_Shooter->GetCore();
         SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
         auto CurrentTick = World->CurrentTick();
-
         if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere
             m_ShootRate += m_RateAcceleration;
             if (m_ShootRate > m_FullRate) m_ShootRate = m_FullRate;
@@ -51,18 +51,15 @@ void WeaponMinigun::Tick() {
                 m_LastShotAt = CurrentTick;
                 SoundHandler->PlaySound(ms_ShootSound);
 
-                double SpawnX, SpawnY, DirectionX, DirectionY;
-                GetOwnerPosition(SpawnX, SpawnY, DirectionX, DirectionY);
-
-                double Angle = atan2(DirectionY, DirectionX) + GenerateSpreadAngle();
+                double Angle = atan2(ShooterCore->m_ylook, ShooterCore->m_xlook) + GenerateSpreadAngle();
 
                 double VelocityX = cos(Angle) * m_ProjectileSpeed;
                 double VelocityY = sin(Angle) * m_ProjectileSpeed;
-                new Bullets(World, m_Owner, 4, SpawnX, SpawnY, VelocityX, VelocityY);
+                new Bullets(World, m_Shooter, 4, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
 
-                double RecoilX = DirectionX * -m_RecoilForce;
-                double RecoilY = DirectionY * -m_RecoilForce;
-                m_Owner->Accelerate(RecoilX, RecoilY);
+                double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
+                double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
+                m_Shooter->Accelerate(RecoilX, RecoilY);
             } else {
                 SoundHandler->PlaySound(ms_ClickSound);
             }

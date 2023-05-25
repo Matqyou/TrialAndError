@@ -19,10 +19,11 @@ Hands::Hands(Character* parent, double hand_spacing, double fist_animation_durat
     m_BaseFistingRadius = fisting_radius;
     m_FistingRadius = fisting_radius;
 
-    m_xLeft = m_Parent->GetW() / 2.0;
-    m_yLeft = -m_Parent->GetH() / 2.0;
-    m_xRight = m_Parent->GetW() / 2.0;
-    m_yRight = m_Parent->GetH() / 2.0;
+    auto ParentCore = (LookingEntityCore*)m_Parent->GetCore();
+    m_xLeft = ParentCore->m_w / 2.0;
+    m_yLeft = -ParentCore->m_h / 2.0;
+    m_xRight = ParentCore->m_w / 2.0;
+    m_yRight = ParentCore->m_h / 2.0;
     m_Size = 18.0;
     m_Size2 = m_Size / 2.0;
 }
@@ -36,10 +37,11 @@ void Hands::SetColor(SDL_Color& color) {
 }
 
 void Hands::Tick() {
-    if(!m_Parent->Ranged){
+    if(!m_Parent->Ranged)
         m_FistingRadius = m_BaseFistingRadius;
-    }
-    else if (m_Parent->Ranged && m_FistingRadius != m_BaseFistingRadius+100)m_FistingRadius = m_BaseFistingRadius + 100;
+    else if (m_Parent->Ranged && m_FistingRadius != m_BaseFistingRadius+100)
+        m_FistingRadius = m_BaseFistingRadius + 100;
+
     if (m_Parent->GetCurrentWeapon())
         return;
 
@@ -51,17 +53,18 @@ void Hands::Tick() {
     if (m_Parent->GetInput().m_Shooting && !m_Parent->GetLastInput().m_Shooting) { // TODO: Fix inputs
         m_LastFisted = CurrentTick;
 
+        auto ParentCore = (LookingEntityCore*)m_Parent->GetCore();
         double Radians = std::atan2(m_Parent->GetInput().m_LookingY, m_Parent->GetInput().m_LookingX);
 
         double XHands, YHands;
         if (m_LastFistedR < m_LastFistedL) {
             m_LastFistedR = CurrentTick;
-            XHands = m_Parent->GetX() + std::cos(m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingX * m_FistingRadius;
-            YHands = m_Parent->GetY() + std::sin(m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingY * m_FistingRadius;
+            XHands = ParentCore->m_x + std::cos(m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingX * m_FistingRadius;
+            YHands = ParentCore->m_y + std::sin(m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingY * m_FistingRadius;
         } else {
             m_LastFistedL = CurrentTick;
-            XHands = m_Parent->GetX() + std::cos(-m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingX * m_FistingRadius;
-            YHands = m_Parent->GetY() + std::sin(-m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingY * m_FistingRadius;
+            XHands = ParentCore->m_x + std::cos(-m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingX * m_FistingRadius;
+            YHands = ParentCore->m_y + std::sin(-m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingY * m_FistingRadius;
         }
 
         auto Ent = World->FirstEntity();
@@ -69,8 +72,9 @@ void Hands::Tick() {
             if (Ent == m_Parent)
                 continue;
 
-            double XClosest = std::max(Ent->GetX() - Ent->GetW() / 2.0, std::min(Ent->GetX() + Ent->GetW() / 2.0, XHands));
-            double YClosest = std::max(Ent->GetY() - Ent->GetH() / 2.0, std::min(Ent->GetY() + Ent->GetH() / 2.0, YHands));
+            EntityCore* EntCore = Ent->GetCore();
+            double XClosest = std::max(EntCore->m_x - EntCore->m_w / 2.0, std::min(EntCore->m_x + EntCore->m_w / 2.0, XHands));
+            double YClosest = std::max(EntCore->m_y - EntCore->m_h / 2.0, std::min(EntCore->m_y + EntCore->m_h / 2.0, YHands));
             double Distance = std::sqrt(std::pow(XClosest - XHands, 2) + std::pow(YClosest - YHands, 2));
             if (Distance > m_FistingRadius)
                 continue;
@@ -91,6 +95,7 @@ void Hands::Tick() {
 
 void Hands::Draw() {
     GameWorld* World = m_Parent->World();
+    auto ParentCore = (LookingEntityCore*)m_Parent->GetCore();
     Drawing* Render = World->GameWindow()->RenderClass();
 
     // TODO: Make different hand positions for different weapons (interesting)
@@ -115,11 +120,11 @@ void Hands::Draw() {
     double XOffRight = std::cos(m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingX * FistingKoefficientR;
     double YOffRight = std::sin(m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingY * FistingKoefficientR;
 
-    SDL_FRect HandRectLeft = { float(m_Parent->GetX() - m_Size2 + XOffLeft),
-                               float(m_Parent->GetY() - m_Size2 + YOffLeft),
+    SDL_FRect HandRectLeft = { float(ParentCore->m_x - m_Size2 + XOffLeft),
+                               float(ParentCore->m_y - m_Size2 + YOffLeft),
                                float(m_Size), float(m_Size) };
-    SDL_FRect HandRectRight = { float(m_Parent->GetX() - m_Size2 + XOffRight),
-                                float(m_Parent->GetY() - m_Size2 + YOffRight),
+    SDL_FRect HandRectRight = { float(ParentCore->m_x - m_Size2 + XOffRight),
+                                float(ParentCore->m_y - m_Size2 + YOffRight),
                                 float(m_Size), float(m_Size) };
 
     ms_FistTexture->SetColorMod(m_Color.r, m_Color.g, m_Color.b);

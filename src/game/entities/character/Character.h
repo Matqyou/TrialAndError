@@ -5,10 +5,10 @@
 #include <cstring>
 #include "../Entity.h"
 #include "../../Player.h"
-#include "../../weapons/WeaponGlock.h"
-#include "../../weapons/WeaponShotgun.h"
-#include "../../weapons/WeaponBurst.h"
-#include "../../weapons/WeaponMinigun.h"
+#include "../../weapons/projectile/WeaponGlock.h"
+#include "../../weapons/projectile/WeaponShotgun.h"
+#include "../../weapons/projectile/WeaponBurst.h"
+#include "../../weapons/projectile/WeaponMinigun.h"
 #include "../../../technical stuff/GameControllers.h"
 #include "../../../technical stuff/Colors.h"
 #include "../../indicators/HealthBar.h"
@@ -30,7 +30,7 @@ struct CharacterInput {
     CharacterInput();
 };
 
-class Character : public Entity {
+class Character : public LookingEntity {
 public:
     enum {
         CONTROL_UP,
@@ -68,7 +68,7 @@ protected:
     unsigned long long m_TicksOfCombatUntilRegeneration;
     unsigned long long m_LastInCombat;
     static const int ms_DefaultControls[NUM_CONTROLS];
-    double m_xLast, m_yLast;
+
     const double m_BaseAcceleration;
     double m_Acceleration;
     Hook m_Hook;

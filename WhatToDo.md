@@ -24,10 +24,11 @@ Less important
 - Add more "Errors"
 - Change how some "Errors" work, so they're more in sync with other game mechanics
 - Change crates and "Errors" to not have a fully random drop, but a predetermined one when spawning it, so we can spawn ones with custom drops for game purposes
-- Player collision with crates
-- Breaking crates with fists
-- Crates with different breaking stages (like health for them but with textures)
-- etc.
+- Player collision with crates ✓
+- Breaking crates with fists ✓
+- Crates with different breaking stages (like health for them but with textures) ✓
+- Making textures for both the "Error" drops and the icons for when you pick em up
+- etc. 
 ---
 
 # Ze

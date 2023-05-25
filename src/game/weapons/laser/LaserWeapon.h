@@ -1,11 +1,11 @@
 //
-// Created by Matq on 30/03/2023.
+// Created by Matq on 24/05/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_GAME_WEAPONS_WEAPON_H_
-#define TRIALANDERROR_SRC_GAME_WEAPONS_WEAPON_H_
+#ifndef TRIALANDERROR_SRC_GAME_WEAPONS_LASER_LASERWEAPON_H_
+#define TRIALANDERROR_SRC_GAME_WEAPONS_LASER_LASERWEAPON_H_
 
-#include "../../GameWorld.h"
+#include "../../../GameWorld.h"
 
 enum WeaponType {
     WEAPON_GLOCK,
@@ -35,7 +35,7 @@ protected:
     double m_NegativeRandomProjectileSpeed;
     int m_FullRandomProjectileSpeed;
 
-    Character* m_Owner;
+    Character* m_Shooter;
     WeaponType m_Type;
 
     virtual void TickTrigger();
@@ -64,4 +64,4 @@ public:
     virtual void Tick();
 };
 
-#endif //TRIALANDERROR_SRC_GAME_WEAPONS_WEAPON_H_
+#endif //TRIALANDERROR_SRC_GAME_WEAPONS_LASER_LASERWEAPON_H_
