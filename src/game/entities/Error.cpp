@@ -14,8 +14,9 @@ Texture* Error::ms_TextureErrorRanged = nullptr;
 Texture* Error::ms_TextureErrorSlowDown = nullptr;
 Texture* Error::ms_TextureErrorDangerousRecoil = nullptr;
 Texture* Error::ms_TextureError = nullptr;
+
 Error::Error(GameWorld* world,double start_x, double start_y)
- : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_ERROR, start_x, start_y, 100, 100, 0.0, 0.0, 0.95){
+ : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_ERROR, start_x, start_y, 45, 45, 0.0, 0.0, 0.95){
     m_ErrorText = new TextSurface(m_World->GameWindow()->Assets(),
                                   m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
                                   "0", { 0, 0, 0 });
@@ -48,7 +49,7 @@ Error::Error(GameWorld* world,double start_x, double start_y)
     else m_Texture = &ms_TextureError;
 }
 
-void Error::TickImpact(double x, double y) {
+void Error::TickPickup(double x, double y) {
     auto Char = m_World->FirstPlayer();
     for (; Char; Char = (Character*)(Char->NextType())) {
         EntityCore* CharCore = Char->GetCore();
@@ -100,7 +101,7 @@ void Error::DrawName() {
 
 
 void Error::Tick(){
-    TickImpact(m_Core->m_x, m_Core->m_y);
+    TickPickup(m_Core->m_x, m_Core->m_y);
     TickWalls(); // todo: don't have any functions after a function that self-destructs the object..... (crash)
 }
 

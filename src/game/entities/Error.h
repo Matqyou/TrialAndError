@@ -31,7 +31,7 @@ protected:
     double m_Health;
     Texture** m_Texture;
 
-    void TickImpact(double x, double y);
+    void TickPickup(double x, double y);
     TextSurface* m_ErrorText;
 public:
     static Sound* ms_HitSound;
