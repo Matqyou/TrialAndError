@@ -15,37 +15,21 @@ Texture* Error::ms_TextureErrorSlowDown = nullptr;
 Texture* Error::ms_TextureErrorDangerousRecoil = nullptr;
 Texture* Error::ms_TextureError = nullptr;
 
-Error::Error(GameWorld* world,double start_x, double start_y)
+Error::Error(GameWorld* world,double start_x, double start_y, int typeID)
  : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_ERROR, start_x, start_y, 45, 45, 0.0, 0.0, 0.95){
     m_ErrorText = new TextSurface(m_World->GameWindow()->Assets(),
                                   m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
                                   "0", { 0, 0, 0 });
     //Make it random which one of  the errors it is
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    double interval[] = {0, 0, 1, 100};
-    double weights[] = { .10, 0, .9};
-    std::piecewise_constant_distribution<> dist(std::begin(interval),
-                                                std::end(interval),
-                                                weights);
-    int RandomNumber = dist(gen);
-    ErrorTypes type;
-    if(RandomNumber < 20) type = DISORIANTED;
-    else if(RandomNumber < 40) { type = SPIKY; std::printf("Collected SPIKY %i\n", RandomNumber); }
-    else if(RandomNumber < 50) { type = CONFUSING_HP; std::printf("Collected CONFUSING_HP %i\n", RandomNumber); }
-    else if(RandomNumber < 60) { type = INVINCIBLE; std::printf("Collected INVINCIBLE %i\n", RandomNumber); }
-    else if(RandomNumber < 70) { type = HEALERS_PARADISE; std::printf("Collected HEALERS_PARADISE %i\n", RandomNumber); }
-    else if(RandomNumber < 80) { type = RANGED; std::printf("Collected RANGED %i\n", RandomNumber); }
-    else if(RandomNumber < 90) { type = SLOW_DOWN; std::printf("Collected SLOW_DOWN %i\n", RandomNumber); }
-    else if(RandomNumber < 100) { type = DANGEROUS_RECOIL; std::printf("Collected DANGEROUS_RECOIL %i\n", RandomNumber); }
-    m_Type = type;
-    if(type == SPIKY)m_Texture = &ms_TextureErrorSpiky;
-    else if(type == INVINCIBLE) m_Texture = &ms_TextureErrorInvincible;
-    else if(type == SLOW_DOWN) m_Texture =&ms_TextureErrorSlowDown;
-    else if(type == HEALERS_PARADISE) m_Texture =&ms_TextureErrorHealersParadise;
-    else if(type == DISORIANTED) m_Texture = &ms_TextureErrorDisorianted;
-    else if(type == CONFUSING_HP) m_Texture = &ms_TextureErrorConfusingHP;
-    else if(type == RANGED) m_Texture = &ms_TextureErrorRanged;
+
+    m_Type = static_cast<ErrorTypes>(typeID);
+    if(m_Type == SPIKY)m_Texture = &ms_TextureErrorSpiky;
+    else if(m_Type == INVINCIBLE) m_Texture = &ms_TextureErrorInvincible;
+    else if(m_Type == SLOW_DOWN) m_Texture =&ms_TextureErrorSlowDown;
+    else if(m_Type == HEALERS_PARADISE) m_Texture =&ms_TextureErrorHealersParadise;
+    else if(m_Type == DISORIANTED) m_Texture = &ms_TextureErrorDisorianted;
+    else if(m_Type == CONFUSING_HP) m_Texture = &ms_TextureErrorConfusingHP;
+    else if(m_Type == RANGED) m_Texture = &ms_TextureErrorRanged;
     else m_Texture = &ms_TextureError;
 }
 

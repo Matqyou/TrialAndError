@@ -17,6 +17,15 @@ GameReference* GameWindow;
 GameWorld* World;
 GameControllers* Controllers;
 
+// ofc gotta move to seperate class, i dont get how the randomiser rly works either lmao
+std::random_device rd;
+std::mt19937 gen(rd());
+double interval[] = {1, 1, 0, 1};
+double weights[] = { .10, 0.5, .3};
+std::piecewise_constant_distribution<> dist(std::begin(interval),
+                                            std::end(interval),
+                                            weights);
+
 bool Initialize() {
     srand(time(nullptr));
     GameWindow = new GameReference();
@@ -30,17 +39,29 @@ bool Initialize() {
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
-    //Temp ammo spawn
-
-    new Crates(World,200, 200, 20);
-    new Crates(World,400, 200, 20);
-    new Crates(World,600, 200, 20);
-    new Crates(World,200, 400, 20);
-    new Crates(World,400, 400, 20);
-    new Crates(World,600, 400, 20);
-    new Crates(World,200, 600, 20);
-    new Crates(World,400, 600, 20);
-    new Crates(World,600, 600, 20);
+    //Temp ammo spawn, had to generate random and set the value for each one, also changed it to also sending an int
+    // to the Crates constructor, so its easier to work with and i dont need to have acess to DropTypes, which i do, but no,
+    // it only works cuz this is main and i prefer to use the same typa fix on both ERRORS and crates, since
+    // for ERRORS that fix wouldnt have worked, also it lowers the line count cuz i dont gotta set the ERROR/AMMO types
+    // to each random number, can just send the number straight up
+    int RandomNumber = dist(gen);
+    new Crates(World,200, 200, 20, RandomNumber);
+    RandomNumber = dist(gen);
+    new Crates(World,400, 200, 20, RandomNumber);
+    RandomNumber = dist(gen);
+    new Crates(World,600, 200, 20, RandomNumber);
+    RandomNumber = dist(gen);
+    new Crates(World,200, 400, 20, RandomNumber);
+    RandomNumber = dist(gen);
+    new Crates(World,400, 400, 20, RandomNumber);
+    RandomNumber = dist(gen);
+    new Crates(World,600, 400, 20, RandomNumber);
+    RandomNumber = dist(gen);
+    new Crates(World,200, 600, 20, RandomNumber);
+    RandomNumber = dist(gen);
+    new Crates(World,400, 600, 20, RandomNumber);
+    RandomNumber = dist(gen);
+    new Crates(World,600, 600, 20, RandomNumber);
 
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Crazy speedrunner #1");
