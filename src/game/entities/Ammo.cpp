@@ -63,7 +63,7 @@ void Ammo::Tick() {
     TickVelocity();
     TickWalls();
 
-    if (m_AmmoCount <= 0) delete this;
+    if (m_AmmoCount <= 0) m_Alive = false;
 }
 
 void Ammo::Draw() {

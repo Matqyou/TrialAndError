@@ -38,7 +38,6 @@ void Hook::Unhook() {
     m_Deployed = false;
     m_Grabbed = GRABBED_NONE;
     m_GrabbedEntity = nullptr;
-    std::printf("Unhook\n");
 }
 
 // Set the hook as grabbed to the wall

@@ -14,6 +14,7 @@ CharacterInput::CharacterInput() {
     m_Sneaking = false;
     m_NextItem = false;
     m_PrevItem = false;
+    m_DeselectItem = false;
     m_GoingX = 0.0;
     m_GoingY = 0.0;
     m_GoingLength = 0.0;
@@ -43,7 +44,6 @@ Character::Character(GameWorld* world, Player* player, double max_health,
    m_LastInput() {
     m_Player = player;
     if (m_Player) m_Player->SetCharacter(this);
-
 
     m_ColorHue = double(rand()%360);
     IsReversed = false;
@@ -575,12 +575,10 @@ void Character::Event(const SDL_Event& currentEvent) {
         if (State) {
             int KeyCode = currentEvent.key.keysym.scancode;
             if (KeyCode == SDL_SCANCODE_GRAVE) { m_CurrentWeapon = nullptr; }
-            else {
-                if (KeyCode == SDL_SCANCODE_1) { SwitchWeapon(WEAPON_GLOCK); }
-                else if (KeyCode == SDL_SCANCODE_2) { SwitchWeapon(WEAPON_SHOTGUN); }
-                else if (KeyCode == SDL_SCANCODE_3) { SwitchWeapon(WEAPON_BURST); }
-                else if (KeyCode == SDL_SCANCODE_4) { SwitchWeapon(WEAPON_MINIGUN); }
-            }
+            else if (KeyCode == SDL_SCANCODE_1) { SwitchWeapon(WEAPON_GLOCK); }
+            else if (KeyCode == SDL_SCANCODE_2) { SwitchWeapon(WEAPON_SHOTGUN); }
+            else if (KeyCode == SDL_SCANCODE_3) { SwitchWeapon(WEAPON_BURST); }
+            else if (KeyCode == SDL_SCANCODE_4) { SwitchWeapon(WEAPON_MINIGUN); }
         }
 
         // Reloads weapon on keyboard player with R button press

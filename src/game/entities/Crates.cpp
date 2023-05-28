@@ -27,30 +27,20 @@ Crates::Crates(GameWorld* world, double start_x, double start_y, double Health, 
                                                 std::end(interval),
                                                 weights);
     int RandomNumber = dist(gen);
-    typeID;
     // Here it will set the an int value to typeID so it can later be sent into the errors so they spawn with a set drop
     if(RandomNumber < 20)  typeID = DISORIANTED;
-    else if(RandomNumber < 40) { typeID = SPIKY; std::printf("Collected SPIKY %i\n", RandomNumber); }
-    else if(RandomNumber < 50) { typeID = CONFUSING_HP; std::printf("Collected CONFUSING_HP %i\n", RandomNumber); }
-    else if(RandomNumber < 60) { typeID = INVINCIBLE; std::printf("Collected INVINCIBLE %i\n", RandomNumber); }
-    else if(RandomNumber < 70) { typeID = HEALERS_PARADISE; std::printf("Collected HEALERS_PARADISE %i\n", RandomNumber); }
-    else if(RandomNumber < 80) { typeID = RANGED; std::printf("Collected RANGED %i\n", RandomNumber); }
-    else if(RandomNumber < 90) { typeID = SLOW_DOWN; std::printf("Collected SLOW_DOWN %i\n", RandomNumber); }
-    else if(RandomNumber < 100) { typeID = DANGEROUS_RECOIL; std::printf("Collected DANGEROUS_RECOIL %i\n", RandomNumber); }
-
+    else if(RandomNumber < 40) { typeID = SPIKY; }
+    else if(RandomNumber < 50) { typeID = CONFUSING_HP; }
+    else if(RandomNumber < 60) { typeID = INVINCIBLE; }
+    else if(RandomNumber < 70) { typeID = HEALERS_PARADISE; }
+    else if(RandomNumber < 80) { typeID = RANGED; }
+    else if(RandomNumber < 90) { typeID = SLOW_DOWN; }
+    else if(RandomNumber < 100) { typeID = DANGEROUS_RECOIL; }
 }
 
 Crates::~Crates(){
-    m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_HitSound);
-    if (m_Type != ERROR){
-        srand (time(NULL));
-        int Ammo_type = rand()%4;
-        new Ammo(m_World, static_cast<AmmoType>(Ammo_type), m_Core->m_x, m_Core->m_y, 20);
-    }
 
-    else new Error(m_World, m_Core->m_x, m_Core->m_y, typeID); // To change the drop just change typeID the enum value of whatever ERROR is needed
 }
-
 
 void Crates::TickImpact(double x, double y) {
     auto Char = m_World->FirstPlayer();
@@ -63,8 +53,6 @@ void Crates::TickImpact(double x, double y) {
 
         if (!Collides)
             continue;
-
-
     }
 }
 
@@ -80,8 +68,17 @@ void Crates::Tick() {
     TickImpact(m_Core->m_x, m_Core->m_y);
     TickWalls();
 
-
-    if (m_Health <= 0) m_Alive = false;
+    if (m_Health <= 0) {
+        m_Alive = false;
+        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_HitSound);
+        if (m_Type != ERROR){
+            srand (time(NULL));
+            int Ammo_type = rand()%4;
+            new Ammo(m_World, static_cast<AmmoType>(Ammo_type), m_Core->m_x, m_Core->m_y, 20);
+        } else {
+            new Error(m_World, m_Core->m_x, m_Core->m_y, typeID); // To change the drop just change typeID the enum value of whatever ERROR is needed
+        }
+    }
 }
 
 void Crates::Draw() {

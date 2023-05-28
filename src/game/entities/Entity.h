@@ -48,7 +48,7 @@ public:
            double start_w, double start_h,
            double start_xvel, double start_yvel,
            double base_damping);
-    ~Entity();
+    virtual ~Entity();
 
     GameWorld* World() const { return m_World; }
     GameWorld::EntityType EntityType() const { return m_EntityType; }
@@ -80,7 +80,7 @@ public:
                   double start_xvel, double start_yvel,
                   double start_xlook, double start_ylook,
                   double base_damping);
-    ~LookingEntity();
+    virtual ~LookingEntity();
 };
 
 #endif //TRIALANDERROR_ENTITY_H
