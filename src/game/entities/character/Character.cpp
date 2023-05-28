@@ -7,6 +7,10 @@
 #include "../Bullets.h"
 #include <vector>
 
+#ifndef M_SQRT1_2
+#define M_SQRT1_2 0.70710678118654752440
+#endif
+
 CharacterInput::CharacterInput() {
     m_Shooting = false;
     m_Reloading = false;
