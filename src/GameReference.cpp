@@ -51,8 +51,8 @@ bool GameReference::InitializeMix() {
 
 bool GameReference::InitializeAudio() {
     if (!m_InitializedAudio) {
-        m_InitializedAudio = !Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
-
+        m_InitializedAudio = !Mix_OpenAudio(44100*2, MIX_DEFAULT_FORMAT, 2, 1024*4);
+        Mix_AllocateChannels(16);
         if (!m_InitializedAudio) std::printf("Warning while opening audio %s\n", Mix_GetError());
     }
 
