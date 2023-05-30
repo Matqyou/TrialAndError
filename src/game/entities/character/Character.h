@@ -73,7 +73,9 @@ protected:
     double m_Acceleration;
     Hook m_Hook;
     int m_HitTicks;
-    int m_Timer;
+    int m_IsReverseTimer, m_ConfusingHPTimer, m_InvincibleTimer, m_SpikyTimer, m_HealersParadiseTimer, m_RangedTimer;
+    int m_IsSlowTimer, m_DangerousRecoilTimer;
+    float Displacement;
     HealthBar m_HealthBar;
 
     SDL_Color m_CharacterColor;
@@ -83,6 +85,11 @@ protected:
     SDL_Color m_NameplateColor;
     SDL_Color m_HealthRed;
     SDL_Color m_HealthBlack;
+
+    SDL_FRect DrawErrorIsReversed, DrawErrorConfusingHP, DrawErrorInvincible,DrawErrorSpiky, DrawErrorHealersParadise;
+    SDL_FRect DrawErrorRanged, DrawErrorIsSlow, DrawErrorDangerousRecoil;
+    // This is how i did le spawning of icons to be displaced, big brain me yes yes
+
 
     void TickKeyboardControls();
     void TickGameControllerControls();
@@ -94,6 +101,7 @@ protected:
     void TickCurrentWeapon();
     void DrawAmmo();
 
+    void DrawErrorIcons();
     void DrawCharacter();
     void DrawHook();
     void DrawHealthbar();
@@ -103,6 +111,15 @@ protected:
 
 public:
     static Texture* ms_Texture;
+    static Texture* ms_TextureError;
+    static Texture* ms_TextureErrorDisorianted;
+    static Texture* ms_TextureErrorSpiky;
+    static Texture* ms_TextureErrorConfusingHP;
+    static Texture* ms_TextureErrorInvincible;
+    static Texture* ms_TextureErrorHealersParadise;
+    static Texture* ms_TextureErrorRanged;
+    static Texture* ms_TextureErrorSlowDown;
+    static Texture* ms_TextureErrorDangerousRecoil;
     static Sound* ms_HitSounds[3];
     static Sound* ms_DeathSound;
     static Sound* ms_AmmoPickupSound;

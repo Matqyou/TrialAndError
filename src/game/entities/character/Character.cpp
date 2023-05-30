@@ -26,6 +26,15 @@ CharacterInput::CharacterInput() {
     m_LookingY = 0.0;
     m_LookingLength = 0.0;
 }
+Texture* Character::ms_TextureErrorDisorianted = nullptr;
+Texture* Character::ms_TextureErrorSpiky = nullptr;
+Texture* Character::ms_TextureErrorConfusingHP = nullptr;
+Texture* Character::ms_TextureErrorInvincible = nullptr;
+Texture* Character::ms_TextureErrorHealersParadise = nullptr;
+Texture* Character::ms_TextureErrorRanged = nullptr;
+Texture* Character::ms_TextureErrorSlowDown = nullptr;
+Texture* Character::ms_TextureErrorDangerousRecoil = nullptr;
+Texture* Character::ms_TextureError = nullptr;
 
 Texture* Character::ms_Texture = nullptr;
 Sound* Character::ms_HitSounds[3] = { nullptr, nullptr, nullptr };
@@ -59,6 +68,17 @@ Character::Character(GameWorld* world, Player* player, double max_health,
     Ranged = false;
     IsSlow = false;
     DangerousRecoil = false;
+
+    // Yes yes, dont question my intelligence
+    DrawErrorIsReversed = {-1000};
+    DrawErrorConfusingHP = {-1000};
+    DrawErrorInvincible = {-1000};
+    DrawErrorSpiky = {-1000};
+    DrawErrorHealersParadise = {-1000};
+    DrawErrorRanged = {-1000};
+    DrawErrorIsSlow = {-1000};
+    DrawErrorDangerousRecoil = {-1000};
+    Displacement = 0; // Sets the base displacement to 0, so when an error gets picked up, the icon spawns in the lowest spot
 
     m_CurrentWeapon = nullptr; // Start by holding nothing
     memset(m_Weapons, 0, sizeof(m_Weapons));
@@ -137,81 +157,102 @@ void Character::Damage(double damage, bool combat_tag) {
 }
 
 void Character::ReverseMovement() {
-    if(IsReversed)IsReversed = false;
-    else {
-        IsReversed = true;
-        m_Timer = 1000;
-    }
+    IsReversed = true;
+    m_IsReverseTimer = 1000;
 }
 
 void Character::ConfuseHP() {
-    if(ConfusingHP)ConfusingHP = false;
-    else {
-        ConfusingHP = true;
-        m_Timer = 1000;
-    }
+    ConfusingHP = true;
+    m_ConfusingHPTimer = 1000;
 }
 
 void Character::MakeInvincible() {
-    if(Invincible)Invincible = false;
-    else {
-        Invincible = true;
-        m_Timer = 500;
-    }
-
+    Invincible = true;
+    m_InvincibleTimer = 500;
 }
 
 void Character::MakeSpiky() {
-    if(Spiky)Spiky = false;
-    else {
-        Spiky = true;
-        m_Timer = 500;
-    }
+    Spiky = true;
+    m_SpikyTimer = 500;
 }
 
 void Character::MakeHealer(){
-    if(HealersParadise)HealersParadise = false;
-    else {
-        HealersParadise = true;
-        m_Timer = 1000;
-    }
+    HealersParadise = true;
+    m_HealersParadiseTimer = 1000;
 }
 
 void Character::MakeRanged(){
-    if(!Ranged){
-        Ranged = true;
-        m_Timer = 166;
-    }
+    Ranged = true;
+    m_RangedTimer = 166;
 }
 
 void Character::SlowDown(){
-    if(!IsSlow){
-        IsSlow = true;
-        m_Timer = 1000;
-    }
+    IsSlow = true;
+    m_IsSlowTimer = 1000;
 }
 
 void Character::ActivateDangerousRecoil(){
-    if(!DangerousRecoil){
-        DangerousRecoil = true;
-        m_Timer = 1000;
-    }
+    DangerousRecoil = true;
+    m_DangerousRecoilTimer = 1000;
 }
 
 void Character::TickTimer(){
+    if(HealersParadise)m_HealersParadiseTimer -= 1;
+    if(Spiky) m_SpikyTimer -= 1;
+    if(Invincible) m_InvincibleTimer -= 1;
+    if(ConfusingHP) m_ConfusingHPTimer -= 1;
+    if(IsReversed) m_IsReverseTimer -= 1;
+    if(Ranged) m_RangedTimer -= 1;
+    if(IsSlow) m_IsSlowTimer -= 1;
+    if(DangerousRecoil) m_DangerousRecoilTimer -=1;
     if((HealersParadise)||(Spiky)||(Invincible)||(ConfusingHP)||(IsReversed)||(Ranged)||(IsSlow)||(DangerousRecoil)) {
-        m_Timer -= 1;
-        if (m_Timer <= 0) {
-            if (IsReversed)IsReversed = false;
-            else if (ConfusingHP)ConfusingHP = false;
-            else if (Invincible)Invincible = false;
-            else if (Spiky)Spiky = false;
-            else if (HealersParadise) HealersParadise = false;
-            else if(Ranged) Ranged = false;
-            else if(IsSlow) IsSlow = false;
-            else if(DangerousRecoil) DangerousRecoil = false;
+        if (m_IsReverseTimer <= 0 && IsReversed){
+            IsReversed = false;
+            Displacement = DrawErrorIsReversed.y;
+            DrawErrorIsReversed = {-1000};
+
+        }
+        if (m_ConfusingHPTimer <= 0 && ConfusingHP){
+            ConfusingHP = false;
+            Displacement = DrawErrorConfusingHP.y; // Sets it so the next ERROR icon will be shown where the last one ended
+            DrawErrorConfusingHP = {-1000};
+
+        }
+        if (m_InvincibleTimer <= 0 && Invincible){
+            Invincible = false;
+            Displacement = DrawErrorInvincible.y;
+            DrawErrorInvincible = {-1000};
+
+        }
+        if (m_SpikyTimer <= 0 && Spiky){
+            Spiky = false;
+            Displacement = DrawErrorSpiky.y;
+            DrawErrorSpiky = {-1000};
+
+        }
+        if (m_HealersParadiseTimer <= 0 && HealersParadise) {
+            HealersParadise = false;
+            Displacement = DrawErrorHealersParadise.y;
+            DrawErrorHealersParadise = {-1000};
+        }
+        if(m_RangedTimer <= 0 && Ranged) {
+            Ranged = false;
+            Displacement = DrawErrorRanged.y;
+            DrawErrorRanged = {-1000};
+        }
+        if(m_IsSlowTimer <= 0 && IsSlow) {
+            IsSlow = false;
+            Displacement = DrawErrorIsSlow.y;
+            DrawErrorIsSlow = {-1000};
+
+        }
+        if(m_DangerousRecoilTimer <= 0 && DangerousRecoil) {
+            DangerousRecoil = false;
+            Displacement = DrawErrorDangerousRecoil.y;
+            DrawErrorDangerousRecoil = {-1000};
         }
     }
+    else Displacement = 0;
 }
 void Character::SwitchWeapon(WeaponType type) {
     if (!m_Weapons[type] ||
@@ -439,6 +480,123 @@ void Character::TickCurrentWeapon() {
         }
     }
 }
+// Function to draw icons for error pickup
+void Character::DrawErrorIcons(){
+    SDL_FRect DrawRectError = {float(m_Core->m_x) - float(m_Core->m_w / 2.0) + 50,
+                     float(m_Core->m_y) - float(m_Core->m_h / 2.0) + 50,
+                     float(20),
+                     float(20)};
+
+    Drawing* Render = m_World->GameWindow()->RenderClass();
+    // Goes through all active ERRORS
+    if(IsReversed){
+        if(DrawErrorIsReversed.x == -1000){ // If is the first time drawing it
+            Render->RenderTextureFWorld(ms_TextureErrorDisorianted->SDLTexture(), nullptr, DrawRectError);
+            DrawErrorIsReversed = DrawRectError; // Need this so the .x value isnt -1000 after this
+            DrawErrorIsReversed.y = Displacement; // Saves the current displacement value in the .y position
+            Displacement -= 20; // Changes the displacement by -20 so the next one spawns above it
+        }
+        else{// When its not the first time, but repeat drawing of the same instance of ERROR
+            DrawRectError.y += DrawErrorIsReversed.y;  // Changes the y by the displacement when picked up
+            Render->RenderTextureFWorld(ms_TextureErrorDisorianted->SDLTexture(), nullptr, DrawRectError);
+            DrawRectError.y -= DrawErrorIsReversed.y; // Changes it back
+            //Then i do that for EVERY SINGLE ERROR!!
+        }
+    }
+    if(ConfusingHP){
+        if(DrawErrorConfusingHP.x == -1000){
+            Render->RenderTextureFWorld(ms_TextureErrorConfusingHP->SDLTexture(), nullptr, DrawRectError);
+            DrawErrorConfusingHP = DrawRectError;
+            DrawErrorConfusingHP.y = Displacement;
+            Displacement -= 20;
+        }
+        else {
+            DrawRectError.y += DrawErrorConfusingHP.y;
+            Render->RenderTextureFWorld(ms_TextureErrorConfusingHP->SDLTexture(), nullptr, DrawRectError);
+            DrawRectError.y -= DrawErrorConfusingHP.y;
+        }
+    }
+    if(Invincible) {
+        if (DrawErrorInvincible.x == -1000){
+            Render->RenderTextureFWorld(ms_TextureErrorInvincible->SDLTexture(), nullptr, DrawRectError);
+            DrawErrorInvincible = DrawRectError;
+            DrawErrorInvincible.y = Displacement;
+            Displacement -= 20;
+        }
+        else {
+            DrawRectError.y += DrawErrorInvincible.y;
+            Render->RenderTextureFWorld(ms_TextureError->SDLTexture(), nullptr, DrawRectError);
+            DrawRectError.y -= DrawErrorInvincible.y;
+        }
+    }
+
+    if(Spiky) {
+        if (DrawErrorSpiky.x == -1000) {
+            Render->RenderTextureFWorld(ms_TextureErrorSpiky->SDLTexture(), nullptr, DrawRectError);
+            DrawErrorSpiky = DrawRectError;
+            DrawErrorSpiky.y = Displacement;
+            Displacement -= 20;
+        }
+        else {
+            DrawRectError.y += DrawErrorSpiky.y;
+            Render->RenderTextureFWorld(ms_TextureErrorSpiky->SDLTexture(), nullptr, DrawRectError);
+            DrawRectError.y -= DrawErrorSpiky.y;
+        }
+    }
+
+    if(HealersParadise){
+        if(DrawErrorHealersParadise.x == -1000) {
+            Render->RenderTextureFWorld(ms_TextureErrorHealersParadise->SDLTexture(), nullptr, DrawRectError);
+            DrawErrorHealersParadise = DrawRectError;
+            DrawErrorHealersParadise.y = Displacement;
+            Displacement -= 20;
+        }
+        else {
+            DrawRectError.y += DrawErrorHealersParadise.y;
+            Render->RenderTextureFWorld(ms_TextureErrorHealersParadise->SDLTexture(), nullptr, DrawRectError);
+            DrawRectError.y -= DrawErrorHealersParadise.y;
+        }
+    }
+    if(Ranged){
+        if(DrawErrorRanged.x == -1000){
+            Render->RenderTextureFWorld(ms_TextureErrorRanged->SDLTexture(), nullptr, DrawRectError);
+            DrawErrorRanged = DrawRectError;
+            DrawErrorRanged.y = Displacement;
+            Displacement -= 20;
+        }
+        else {
+            DrawRectError.y += DrawErrorRanged.y;
+            Render->RenderTextureFWorld(ms_TextureErrorRanged->SDLTexture(), nullptr, DrawRectError);
+            DrawRectError.y -= DrawErrorRanged.y;
+        }
+    }
+    if(DangerousRecoil){
+        if(DrawErrorDangerousRecoil.x == -1000){
+            Render->RenderTextureFWorld(ms_TextureError->SDLTexture(), nullptr, DrawRectError);
+            DrawErrorDangerousRecoil = DrawRectError;
+            DrawErrorDangerousRecoil.y = Displacement;
+            Displacement -= 20;
+        }
+        else {
+            DrawRectError.y +=DrawErrorDangerousRecoil.y;
+            Render->RenderTextureFWorld(ms_TextureError->SDLTexture(), nullptr, DrawRectError);
+            DrawRectError.y -= DrawErrorDangerousRecoil.y;
+        }
+    }
+    if(IsSlow){
+        if(DrawErrorIsSlow.x == -1000){
+            Render->RenderTextureFWorld(ms_TextureErrorSlowDown->SDLTexture(), nullptr, DrawRectError);
+            DrawErrorIsSlow = DrawRectError;
+            DrawErrorIsSlow.y = Displacement;
+            Displacement -= 20;
+        }
+        else {
+            DrawRectError.y += DrawErrorIsSlow.y;
+            Render->RenderTextureFWorld(ms_TextureErrorSlowDown->SDLTexture(), nullptr, DrawRectError);
+            DrawRectError.y -= DrawErrorIsSlow.y;
+        }
+    }
+}
 
 void Character::DrawCharacter() {
     Drawing* Render = m_World->GameWindow()->RenderClass();
@@ -650,5 +808,6 @@ void Character::Draw() {
     DrawCharacter();
     DrawHealthbar();
     DrawNameplate();
+    DrawErrorIcons();
     if(m_CurrentWeapon) DrawAmmo();
 }

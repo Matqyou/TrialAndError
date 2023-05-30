@@ -20,7 +20,7 @@ GameControllers* Controllers;
 // ofc gotta move to seperate class, i dont get how the randomiser rly works either lmao
 std::random_device rd;
 std::mt19937 gen(rd());
-double interval[] = {1, 1, 0, 1};
+double interval[] = {1, 1, 1, 1};
 double weights[] = { .10, 0.5, .3};
 std::piecewise_constant_distribution<> dist(std::begin(interval),
                                             std::end(interval),
@@ -112,6 +112,16 @@ int main() {
     Error::ms_TextureErrorConfusingHP = ImageHandler->LoadTexture("assets/images/entities/Confusion.png", true);
     Error::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/entities/Ranged.png", true);
     Error::ms_TextureError = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
+
+
+    Character::ms_TextureErrorInvincible = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
+    Character::ms_TextureErrorSpiky = ImageHandler->LoadTexture("assets/images/entities/Cactus.png", true);
+    Character::ms_TextureErrorSlowDown = ImageHandler->LoadTexture("assets/images/entities/Clock.png", true);
+    Character::ms_TextureErrorDisorianted = ImageHandler->LoadTexture("assets/images/entities/Disorianted.png", true);
+    Character::ms_TextureErrorHealersParadise = ImageHandler->LoadTexture("assets/images/entities/Healer.png", true);
+    Character::ms_TextureErrorConfusingHP = ImageHandler->LoadTexture("assets/images/entities/Confusion.png", true);
+    Character::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/entities/Ranged.png", true);
+    Character::ms_TextureError = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
     // Load sounds
     Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
     Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);

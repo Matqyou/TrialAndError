@@ -26,7 +26,7 @@ Crates::Crates(GameWorld* world, double start_x, double start_y, double Health, 
     std::piecewise_constant_distribution<> dist(std::begin(interval),
                                                 std::end(interval),
                                                 weights);
-    int RandomNumber = dist(gen);
+    int RandomNumber = rand()%100;
     // Here it will set the an int value to typeID so it can later be sent into the errors so they spawn with a set drop
     if(RandomNumber < 20)  typeID = DISORIANTED;
     else if(RandomNumber < 40) { typeID = SPIKY; }
@@ -57,6 +57,7 @@ void Crates::TickImpact(double x, double y) {
 }
 
 void Crates::DamageCrate(double Damage) {
+    srand(time(NULL));
     Sound *BoxHitSound = ms_BoxSound;
     m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(BoxHitSound);
     m_Health -= Damage;
