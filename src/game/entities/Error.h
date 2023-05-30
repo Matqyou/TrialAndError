@@ -27,12 +27,11 @@ enum ErrorTypes {
 class Error : public Entity {
 protected:
     ErrorTypes m_Type;
-    char msg[64];
     double m_Health;
     Texture** m_Texture;
 
     void TickPickup(double x, double y);
-    TextSurface* m_ErrorText;
+
 public:
     static Sound* ms_HitSound;
     static Texture* ms_TextureError;

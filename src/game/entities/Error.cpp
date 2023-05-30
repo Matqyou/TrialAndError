@@ -4,6 +4,7 @@
 
 #include "Error.h"
 #include <random>
+#include <string>
 
 Texture* Error::ms_TextureErrorDisorianted = nullptr;
 Texture* Error::ms_TextureErrorSpiky = nullptr;
@@ -17,9 +18,7 @@ Texture* Error::ms_TextureError = nullptr;
 
 Error::Error(GameWorld* world,double start_x, double start_y, int typeID)
  : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_ERROR, start_x, start_y, 45, 45, 0.0, 0.0, 0.95){
-    m_ErrorText = new TextSurface(m_World->GameWindow()->Assets(),
-                                  m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
-                                  "0", { 0, 0, 0 });
+
     //Make it random which one of  the errors it is
 
     m_Type = static_cast<ErrorTypes>(typeID);
@@ -67,21 +66,8 @@ void Error::TickPickup(double x, double y) {
         }
         else if(m_Type == DANGEROUS_RECOIL) Char->ActivateDangerousRecoil();
         m_Alive = false;
-        DrawName();
     }
 }
-
-void Error::DrawName() {
-    // TODO Make it so the name of the error appears on top of the screen when its collected, for like 5 seconds
-    Drawing* Render = m_World->GameWindow()->RenderClass();
-
-
-    std::snprintf(msg, sizeof(msg), "%s", "REVERSE MOVEMENT");
-
-    SDL_Rect ErrorRect = { int(m_World->CameraX() /2) ,int(m_World->CameraX()), int(m_World->CameraY()), int(m_World->Height()) /10};
-    // Render->RenderTextureWorld(reinterpret_cast<SDL_Texture *>(m_ErrorText), nullptr, ErrorRect);
-}
-
 
 
 void Error::Tick(){
@@ -98,4 +84,5 @@ void Error::Draw() {
                           float(m_Core->m_h)};
 
     Render->RenderTextureFWorld((*m_Texture)->SDLTexture(), nullptr, DrawRect);
+
 }

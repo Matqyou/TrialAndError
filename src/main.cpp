@@ -17,14 +17,6 @@ GameReference* GameWindow;
 GameWorld* World;
 GameControllers* Controllers;
 
-// ofc gotta move to seperate class, i dont get how the randomiser rly works either lmao
-std::random_device rd;
-std::mt19937 gen(rd());
-double interval[] = {1, 1, 1, 1};
-double weights[] = { .10, 0.5, .3};
-std::piecewise_constant_distribution<> dist(std::begin(interval),
-                                            std::end(interval),
-                                            weights);
 
 bool Initialize() {
     srand(time(nullptr));
@@ -44,23 +36,23 @@ bool Initialize() {
     // it only works cuz this is main and i prefer to use the same typa fix on both ERRORS and crates, since
     // for ERRORS that fix wouldnt have worked, also it lowers the line count cuz i dont gotta set the ERROR/AMMO types
     // to each random number, can just send the number straight up
-    int RandomNumber = dist(gen);
+    int RandomNumber = rand()%2;
     new Crates(World,200, 200, 20, RandomNumber);
-    RandomNumber = dist(gen);
+    RandomNumber = rand()%2;
     new Crates(World,400, 200, 20, RandomNumber);
-    RandomNumber = dist(gen);
+    RandomNumber = rand()%2;
     new Crates(World,600, 200, 20, RandomNumber);
-    RandomNumber = dist(gen);
+    RandomNumber = rand()%2;
     new Crates(World,200, 400, 20, RandomNumber);
-    RandomNumber = dist(gen);
+    RandomNumber = rand()%2;
     new Crates(World,400, 400, 20, RandomNumber);
-    RandomNumber = dist(gen);
+    RandomNumber = rand()%2;
     new Crates(World,600, 400, 20, RandomNumber);
-    RandomNumber = dist(gen);
+    RandomNumber = rand()%2;
     new Crates(World,200, 600, 20, RandomNumber);
-    RandomNumber = dist(gen);
+    RandomNumber = rand()%2;
     new Crates(World,400, 600, 20, RandomNumber);
-    RandomNumber = dist(gen);
+    RandomNumber = rand()%2;
     new Crates(World,600, 600, 20, RandomNumber);
 
     Controllers = new GameControllers();

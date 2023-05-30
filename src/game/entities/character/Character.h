@@ -60,6 +60,7 @@ protected:
     CharacterInput m_Input, m_LastInput;
     // bool m_Using, m_LastUsing;
     bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise, Ranged, IsSlow, DangerousRecoil;
+    bool ReverseMSG,ConfusingHPMSG, InvincibleMSG, SpikyMSG, HealersMSG, RangedMSG, IsSlowMSG, RecoilMSG;
     Hands m_Hands;
     ProjectileWeapon* m_Weapons[NUM_WEAPONS];
     ProjectileWeapon* m_CurrentWeapon;
@@ -124,6 +125,7 @@ public:
     static Sound* ms_DeathSound;
     static Sound* ms_AmmoPickupSound;
     static TextSurface* ms_BotNamePlate;
+    TextSurface* m_ErrorText;
 
     Character(GameWorld* world, Player* player, double max_health, double start_x, double start_y, double start_xvel, double start_yvel);
     ~Character();
@@ -150,6 +152,7 @@ public:
     void MakeRanged();
     void SlowDown();
     void ActivateDangerousRecoil();
+    void DrawErrorName();
 
     void Event(const SDL_Event& currentEvent);
     void Tick() override;

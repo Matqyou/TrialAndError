@@ -26,13 +26,12 @@ void Ammo::TickPickup() {
     auto Char = m_World->FirstPlayer();
     for (; Char; Char = (Character*)(Char->NextType())) {
         EntityCore* CharCore = Char->GetCore();
-        bool Collides = (CharCore->m_x - 25 < m_Core->m_x) &&
-                        (CharCore->m_x + 25 > m_Core->m_x) &&
-                        (CharCore->m_y - 25 < m_Core->m_y) &&
-                        (CharCore->m_y + 25 > m_Core->m_y);
+        double XDistance = m_Core->m_x - CharCore->m_x;
+        double YDistance = m_Core->m_y - CharCore->m_y;
+        double Distance = std::sqrt(std::pow(XDistance, 2) + std::pow(YDistance, 2));
 
-        if (!Collides)
-            continue;
+        if (Distance > 45) continue;
+
 
         Char->AmmoPickup(this);
 
