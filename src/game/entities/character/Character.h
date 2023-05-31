@@ -142,7 +142,6 @@ public:
     CharacterInput& GetInput() { return m_Input; }
     CharacterInput& GetLastInput() { return m_LastInput; }
     bool GetIfDangerousRecoil() { return DangerousRecoil; }
-    bool IsAlive() const override { return m_Alive || m_Health <= 0.0; }
 
     void RemoveCombat();
     void GiveWeapon(WeaponType weapon_type);

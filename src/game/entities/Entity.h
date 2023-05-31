@@ -59,7 +59,7 @@ public:
     bool PointCollides(double x, double y) const;
     EntityCore* GetCore() const { return m_Core; }
     EntityCore* GetLastCore() const { return m_LastCore; }
-    virtual bool IsAlive() const { return m_Alive; }
+    bool IsAlive() const { return m_Alive; }
 
     void Accelerate(double accelerate_x, double accelerate_y);
 
