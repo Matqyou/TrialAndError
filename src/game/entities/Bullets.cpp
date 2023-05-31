@@ -7,10 +7,28 @@
 #include <iostream>
 #include "Crates.h"
 #include "character/Character.h"
-Texture* Bullets::ms_Texture = nullptr;
 
-Bullets::Bullets(GameWorld* world, Entity* shooter, double damage, double start_x, double start_y, double start_xvel, double start_yvel)
- : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_BULLET, start_x, start_y, 8, 8, start_xvel, start_yvel, 1.0){
+Texture* Bullets::ms_TextureGlock = nullptr;
+Texture* Bullets::ms_TextureBurst = nullptr;
+Texture* Bullets::ms_TextureShotgun = nullptr;
+Texture* Bullets::ms_TextureMinigun = nullptr;
+
+Bullets::Bullets(GameWorld* world, Entity* shooter, WeaponType weapon_type, double damage, double start_x, double start_y, double start_xvel, double start_yvel)
+ : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_BULLET, start_x, start_y, 6, 10, start_xvel, start_yvel, 1.0){
+    switch (weapon_type) {
+        case WEAPON_GLOCK: {
+            m_Texture = ms_TextureGlock;
+        } break;
+        case WEAPON_BURST: {
+            m_Texture = ms_TextureBurst;
+        } break;
+        case WEAPON_SHOTGUN: {
+            m_Texture = ms_TextureShotgun;
+        } break;
+        case WEAPON_MINIGUN: {
+            m_Texture = ms_TextureMinigun;
+        } break;
+    }
     m_Shooter = shooter;
     m_Damage = damage;
     m_StillCollidesShooter = true;
@@ -23,39 +41,7 @@ bool Bullets::TickVelocity() {
     m_Core->m_x += m_Core->m_xvel;
     m_Core->m_y += m_Core->m_yvel;
 
-    return TickHitPoint(m_Core->m_x, m_Core->m_y);
-    // Problems with code below :::::::)
-
-//    double CurrentX = m_x;
-//    double CurrentY = m_x;
-//    double Distance = std::sqrt(std::pow(m_xvel, 2) + std::pow(m_yvel, 2));
-//    double SliceX = m_xvel / Distance;
-//    double SliceY = m_yvel / Distance;
-//    int Iterations = (int)(Distance);
-//    double RemainingDistance = Distance - (double)(Iterations);
-//
-//    // Slowly move toward the end point
-//    bool Hit;
-//    for (int i = 0; i < Iterations; i++) {
-//        CurrentX += SliceX;
-//        CurrentY += SliceY;
-//
-//        Hit = TickHitPoint(CurrentX, CurrentY);
-//        if (Hit) break;
-//    }
-//
-//    if (!Hit && RemainingDistance > 0.0) {
-//        CurrentX += SliceX * RemainingDistance;
-//        CurrentY += SliceY * RemainingDistance;
-//
-//        if (TickHitPoint(CurrentX, CurrentY))
-//            return;
-//    }
-//
-//    m_x += m_xvel;
-//    m_y += m_yvel;
-
-    // m_Destroy = Hit; //
+    return TickHitPoint(m_Core->m_x, m_Core->m_y); // TODO: interpolate
 }
 
 bool Bullets::TickHitPoint(double x, double y) {
@@ -107,7 +93,7 @@ void Bullets::Tick() {
 
 void Bullets::Draw() {
     Drawing* Render = m_World->GameWindow()->RenderClass();
-
+    double Angle = std::atan2(m_Core->m_yvel, m_Core->m_xvel) / M_PI * 180.0 + 90.0;
     SDL_Rect BulletRect = { int(m_Core->m_x - m_Core->m_w / 2.0), int(m_Core->m_y - m_Core->m_h / 2.0), int(m_Core->m_w), int(m_Core->m_h) };
-    Render->RenderTextureWorld(ms_Texture->SDLTexture(), nullptr, BulletRect);
+    Render->RenderTextureExWorld(m_Texture->SDLTexture(), nullptr, BulletRect, Angle, nullptr, SDL_FLIP_NONE);
 }

@@ -55,7 +55,7 @@ void WeaponMinigun::Tick() {
 
                 double VelocityX = cos(Angle) * m_ProjectileSpeed;
                 double VelocityY = sin(Angle) * m_ProjectileSpeed;
-                new Bullets(World, m_Shooter, 4, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
+                new Bullets(World, m_Shooter, WEAPON_MINIGUN, 4, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
 
                 double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
                 double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
