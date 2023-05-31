@@ -120,7 +120,6 @@ void Hook::Tick() {
             }
         }
     } else if (m_Grabbed == GRABBED_ENTITY) {
-        std::printf("Tick hook\n");
         EntityCore* GrabbedCore = m_GrabbedEntity->GetCore();
         if (Length > m_MaxLength) {
             double Slice = (Length - m_MaxLength) / 2;

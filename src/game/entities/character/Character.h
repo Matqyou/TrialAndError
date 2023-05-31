@@ -112,7 +112,10 @@ protected:
 
 public:
     static Texture* ms_Texture;
-    static Texture* ms_TextureError;
+    static Texture* ms_TextureGlock;
+    static Texture* ms_TextureShotgun;
+    static Texture* ms_TextureBurst;
+    static Texture* ms_TexturesMinigun[2];
     static Texture* ms_TextureErrorDisorianted;
     static Texture* ms_TextureErrorSpiky;
     static Texture* ms_TextureErrorConfusingHP;

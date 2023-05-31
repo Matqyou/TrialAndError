@@ -34,7 +34,11 @@ Texture* Character::ms_TextureErrorHealersParadise = nullptr;
 Texture* Character::ms_TextureErrorRanged = nullptr;
 Texture* Character::ms_TextureErrorSlowDown = nullptr;
 Texture* Character::ms_TextureErrorDangerousRecoil = nullptr;
-Texture* Character::ms_TextureError = nullptr;
+Texture* Character::ms_TextureGlock = nullptr;
+Texture* Character::ms_TextureShotgun = nullptr;
+Texture* Character::ms_TextureBurst = nullptr;
+Texture* Character::ms_TexturesMinigun[2] = { nullptr, nullptr };
+
 
 Texture* Character::ms_Texture = nullptr;
 Sound* Character::ms_HitSounds[3] = { nullptr, nullptr, nullptr };
@@ -562,7 +566,7 @@ void Character::DrawErrorIcons(){
         }
         else {
             DrawRectError.y += DrawErrorInvincible.y;
-            Render->RenderTextureFWorld(ms_TextureError->SDLTexture(), nullptr, DrawRectError);
+            Render->RenderTextureFWorld(ms_TextureGlock->SDLTexture(), nullptr, DrawRectError);
             DrawRectError.y -= DrawErrorInvincible.y;
         }
     }
@@ -609,14 +613,14 @@ void Character::DrawErrorIcons(){
     }
     if(DangerousRecoil){
         if(DrawErrorDangerousRecoil.x == -1000){
-            Render->RenderTextureFWorld(ms_TextureError->SDLTexture(), nullptr, DrawRectError);
+            Render->RenderTextureFWorld(ms_TextureGlock->SDLTexture(), nullptr, DrawRectError);
             DrawErrorDangerousRecoil = DrawRectError;
             DrawErrorDangerousRecoil.y = Displacement;
             Displacement -= 20;
         }
         else {
             DrawRectError.y +=DrawErrorDangerousRecoil.y;
-            Render->RenderTextureFWorld(ms_TextureError->SDLTexture(), nullptr, DrawRectError);
+            Render->RenderTextureFWorld(ms_TextureGlock->SDLTexture(), nullptr, DrawRectError);
             DrawRectError.y -= DrawErrorDangerousRecoil.y;
         }
     }
@@ -705,20 +709,41 @@ void Character::DrawHealthbar() {
 void Character::DrawHands() {
     Drawing* Render = m_World->GameWindow()->RenderClass();
 
-    double XLook = m_Core->m_x + m_Input.m_LookingX * 50.0;
-    double YLook = m_Core->m_y + m_Input.m_LookingY * 50.0;
-    Render->SetColor(m_HandColor);
-    double Angle = std::atan2(m_Input.m_LookingY * 50.0, m_Input.m_LookingX * 50.0) / M_PI * 180.0;
-    SDL_RendererFlip flip;
-    if(Angle > 90 || Angle < -90){
-        flip = SDL_FLIP_VERTICAL;
+     double XLook = m_Input.m_LookingX * 15.0;
+     double YLook = m_Input.m_LookingY * 15.0;
+
+    ProjectileWeapon* CurrentWeapon = m_CurrentWeapon;
+    if (m_CurrentWeapon) {
+        Texture* WeaponTexture;
+        switch (m_CurrentWeapon->Type()) {
+            case WEAPON_GLOCK: {
+                WeaponTexture = ms_TextureGlock;
+            } break;
+            case WEAPON_BURST: {
+                WeaponTexture = ms_TextureBurst;
+            } break;
+            case WEAPON_SHOTGUN: {
+                WeaponTexture = ms_TextureShotgun;
+            } break;
+            case WEAPON_MINIGUN: {
+                WeaponTexture = ms_TexturesMinigun[0];
+            } break;
+        }
+
+        SDL_Rect WeaponRect;
+        WeaponTexture->Query(nullptr, nullptr, &WeaponRect.w, &WeaponRect.h);
+        WeaponRect.w *= 4;
+        WeaponRect.h *= 4;
+        WeaponRect.x = int(XLook + m_Core->m_x - float(WeaponRect.w) / 2.0);
+        WeaponRect.y = int(YLook + m_Core->m_y);
+        SDL_Point WeaponPivot = { int(float(WeaponRect.w) / 2.0), 0 };
+
+        SDL_FRect GunRect = {float(m_Core->m_x), float(m_Core->m_y), 15, 100};
+        double Angle = std::atan2(m_Input.m_LookingY * 50.0, m_Input.m_LookingX * 50.0) / M_PI * 180.0;
+        // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
+        // and not the center of the player
+        Render->RenderTextureExWorld(WeaponTexture->SDLTexture(), nullptr, WeaponRect, Angle - 90, &WeaponPivot, SDL_FLIP_VERTICAL);
     }
-    else flip = SDL_FLIP_VERTICAL;
-    SDL_FRect GunRect = {float(m_Core->m_x), float(m_Core->m_y),15 ,100 };
-    // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
-    // and not the center of the player
-    SDL_FPoint GunPoint = {float(0), float(0)};
-    if(GetCurrentWeapon())Render->RenderTextureExFWorld(ms_TextureError->SDLTexture(),nullptr, GunRect, Angle-90,&GunPoint, flip);
 
     m_Hands.SetColor(m_HandColor);
     m_Hands.Draw();
