@@ -20,14 +20,10 @@ Less important
 
 # Mim
 ### Tasks:
-- Optimise timers for "Errors"  done
-- Add more "Errors" done
-- Change how some "Errors" work, so they're more in sync with other game mechanics 
-- Change crates and "Errors" to not have a fully random drop, but a predetermined one when spawning it, so we can spawn ones with custom drops for game purposes done
-- Player collision with crates ✓
-- Breaking crates with fists ✓
-- Crates with different breaking stages (like health for them but with textures) ✓
 - Making textures for both the "Error" drops and the icons for when you pick em up
+- Making more gun textures
+- Seperate gun drawing into their classes instead of Character class
+- Making weapons shoot from the tip of the gun instead of the center of the player itself
 - etc. 
 ---
 
