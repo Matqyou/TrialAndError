@@ -36,24 +36,15 @@ bool Initialize() {
     // it only works cuz this is main and i prefer to use the same typa fix on both ERRORS and crates, since
     // for ERRORS that fix wouldnt have worked, also it lowers the line count cuz i dont gotta set the ERROR/AMMO types
     // to each random number, can just send the number straight up
-    int RandomNumber = rand()%2;
-    new Crates(World,200, 200, 20, RandomNumber);
-    RandomNumber = rand()%2;
-    new Crates(World,400, 200, 20, RandomNumber);
-    RandomNumber = rand()%2;
-    new Crates(World,600, 200, 20, RandomNumber);
-    RandomNumber = rand()%2;
-    new Crates(World,200, 400, 20, RandomNumber);
-    RandomNumber = rand()%2;
-    new Crates(World,400, 400, 20, RandomNumber);
-    RandomNumber = rand()%2;
-    new Crates(World,600, 400, 20, RandomNumber);
-    RandomNumber = rand()%2;
-    new Crates(World,200, 600, 20, RandomNumber);
-    RandomNumber = rand()%2;
-    new Crates(World,400, 600, 20, RandomNumber);
-    RandomNumber = rand()%2;
-    new Crates(World,600, 600, 20, RandomNumber);
+    new Crates(World,200, 200, 20, rand()%2);
+    new Crates(World,400, 200, 20, rand()%2);
+    new Crates(World,600, 200, 20, rand()%2);
+    new Crates(World,200, 400, 20, rand()%2);
+    new Crates(World,400, 400, 20, rand()%2);
+    new Crates(World,600, 400, 20, rand()%2);
+    new Crates(World,200, 600, 20, rand()%2);
+    new Crates(World,400, 600, 20, rand()%2);
+    new Crates(World,600, 600, 20, rand()%2);
 
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Crazy speedrunner #1");
@@ -88,7 +79,10 @@ int main() {
 
     Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     Hands::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
-    Bullets::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Pellet.png", true);
+    Bullets::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/Bullets/GlockBullet.png", true);
+    Bullets::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/Bullets/BurstBullet.png", true);
+    Bullets::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/Bullets/ShotgunBullet.png", true);
+    Bullets::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/Bullets/MinigunBullet.png", true);
     Ammo::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/GlockAmmo.png", true);
     Ammo::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/ShotgunAmmo.png", true);
     Ammo::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/BurstAmmo.png", true);
@@ -245,8 +239,8 @@ int main() {
         Controllers->TickLast();
 
         // Drawing
-        Draw->SetColor(120, 120, 0, 255);
-        Draw->Clear();
+        //Draw->SetColor(120, 120, 0, 255);
+        //Draw->Clear();
 
         World->Draw();
 

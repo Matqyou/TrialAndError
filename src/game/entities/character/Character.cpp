@@ -655,11 +655,7 @@ void Character::DrawCharacter() {
     ms_Texture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
 
     double Angle = std::atan2(m_Core->m_yvel, m_Core->m_xvel) / M_PI * 180.0;
-    SDL_RendererFlip flip;
-    if(Angle > 90 || Angle < -90){
-        flip = SDL_FLIP_VERTICAL;
-    }
-    else flip = SDL_FLIP_NONE;
+    SDL_RendererFlip flip = Angle > 90 || Angle < -90 ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
     Render->RenderTextureExFWorld(ms_Texture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, flip);
 }
 
@@ -739,7 +735,6 @@ void Character::DrawHands() {
         WeaponRect.y = int(YLook + m_Core->m_y);
         SDL_Point WeaponPivot = { int(float(WeaponRect.w) / 2.0), 0 };
 
-        SDL_FRect GunRect = {float(m_Core->m_x), float(m_Core->m_y), 15, 100};
         double Angle = std::atan2(m_Input.m_LookingY * 50.0, m_Input.m_LookingX * 50.0) / M_PI * 180.0;
         // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
         // and not the center of the player

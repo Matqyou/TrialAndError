@@ -62,7 +62,7 @@ void WeaponBurst::Tick() {
 
                 double VelocityX = ShooterCore->m_xlook * m_ProjectileSpeed;
                 double VelocityY = ShooterCore->m_ylook * m_ProjectileSpeed;
-                new Bullets(World, m_Shooter, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
+                new Bullets(World, m_Shooter, WEAPON_BURST, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
 
                 double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
                 double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
@@ -86,7 +86,7 @@ void WeaponBurst::Tick() {
 
                 double VelocityX = ShooterCore->m_xlook * m_ProjectileSpeed;
                 double VelocityY = ShooterCore->m_ylook * m_ProjectileSpeed;
-                new Bullets(World, m_Shooter, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
+                new Bullets(World, m_Shooter, WEAPON_BURST, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
 
                 double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
                 double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
