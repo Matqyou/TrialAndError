@@ -34,6 +34,7 @@ Texture* Character::ms_TextureErrorHealersParadise = nullptr;
 Texture* Character::ms_TextureErrorRanged = nullptr;
 Texture* Character::ms_TextureErrorSlowDown = nullptr;
 Texture* Character::ms_TextureErrorDangerousRecoil = nullptr;
+Texture* Character::ms_TextureError = nullptr;
 Texture* Character::ms_TextureGlock = nullptr;
 Texture* Character::ms_TextureShotgun = nullptr;
 Texture* Character::ms_TextureBurst = nullptr;
@@ -566,7 +567,7 @@ void Character::DrawErrorIcons(){
         }
         else {
             DrawRectError.y += DrawErrorInvincible.y;
-            Render->RenderTextureFWorld(ms_TextureGlock->SDLTexture(), nullptr, DrawRectError);
+            Render->RenderTextureFWorld(ms_TextureErrorInvincible->SDLTexture(), nullptr, DrawRectError);
             DrawRectError.y -= DrawErrorInvincible.y;
         }
     }
@@ -613,14 +614,14 @@ void Character::DrawErrorIcons(){
     }
     if(DangerousRecoil){
         if(DrawErrorDangerousRecoil.x == -1000){
-            Render->RenderTextureFWorld(ms_TextureGlock->SDLTexture(), nullptr, DrawRectError);
+            Render->RenderTextureFWorld(ms_TextureError->SDLTexture(), nullptr, DrawRectError);
             DrawErrorDangerousRecoil = DrawRectError;
             DrawErrorDangerousRecoil.y = Displacement;
             Displacement -= 20;
         }
         else {
             DrawRectError.y +=DrawErrorDangerousRecoil.y;
-            Render->RenderTextureFWorld(ms_TextureGlock->SDLTexture(), nullptr, DrawRectError);
+            Render->RenderTextureFWorld(ms_TextureError->SDLTexture(), nullptr, DrawRectError);
             DrawRectError.y -= DrawErrorDangerousRecoil.y;
         }
     }

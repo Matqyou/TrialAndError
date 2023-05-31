@@ -11,6 +11,7 @@ class WeaponBurst : public ProjectileWeapon {
 private:
     double m_RecoilForce, m_BaseRecoilForce;
     double m_Damage;
+    Character* m_owner;
 
     unsigned long long m_BurstTick;
     int m_BurstCooldown;
@@ -22,7 +23,7 @@ public:
     static Sound* ms_ClickSound;
 
     WeaponBurst(Character* owner);
-
+    void Draw();
     void Tick() override;
 };
 

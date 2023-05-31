@@ -96,24 +96,25 @@ int main() {
     Crates::ms_TextureBox = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate.png", true);
     Crates::ms_TextureBreakingBox1 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_1.png", true);
     Crates::ms_TextureBreakingBox2 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_2.png", true);
-    Error::ms_TextureErrorInvincible = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
+    Error::ms_TextureErrorInvincible = ImageHandler->LoadTexture("assets/images/entities/Invincible.png", true);
     Error::ms_TextureErrorSpiky = ImageHandler->LoadTexture("assets/images/entities/Cactus.png", true);
     Error::ms_TextureErrorSlowDown = ImageHandler->LoadTexture("assets/images/entities/Clock.png", true);
     Error::ms_TextureErrorDisorianted = ImageHandler->LoadTexture("assets/images/entities/Disorianted.png", true);
     Error::ms_TextureErrorHealersParadise = ImageHandler->LoadTexture("assets/images/entities/Healer.png", true);
     Error::ms_TextureErrorConfusingHP = ImageHandler->LoadTexture("assets/images/entities/Confusion.png", true);
     Error::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/entities/Ranged.png", true);
-    Error::ms_TextureError = ImageHandler->LoadTexture("assets/images/gun/Assault.png", true);
+    Error::ms_TextureError = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
 
 
-    Character::ms_TextureErrorInvincible = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
-    Character::ms_TextureErrorSpiky = ImageHandler->LoadTexture("assets/images/entities/Cactus.png", true);
-    Character::ms_TextureErrorSlowDown = ImageHandler->LoadTexture("assets/images/entities/Clock.png", true);
-    Character::ms_TextureErrorDisorianted = ImageHandler->LoadTexture("assets/images/entities/Disorianted.png", true);
-    Character::ms_TextureErrorHealersParadise = ImageHandler->LoadTexture("assets/images/entities/Healer.png", true);
-    Character::ms_TextureErrorConfusingHP = ImageHandler->LoadTexture("assets/images/entities/Confusion.png", true);
-    Character::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/entities/Ranged.png", true);
-    //Character::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
+    Character::ms_TextureErrorInvincible = ImageHandler->LoadTexture("assets/images/icons/Invincible.png", true);
+    Character::ms_TextureErrorSpiky = ImageHandler->LoadTexture("assets/images/icons/Cactus.png", true);
+    Character::ms_TextureErrorSlowDown = ImageHandler->LoadTexture("assets/images/icons/Clock.png", true);
+    Character::ms_TextureErrorDisorianted = ImageHandler->LoadTexture("assets/images/icons/Disorianted.png", true);
+    Character::ms_TextureErrorHealersParadise = ImageHandler->LoadTexture("assets/images/icons/Healer.png", true);
+    Character::ms_TextureErrorConfusingHP = ImageHandler->LoadTexture("assets/images/icons/Confusion.png", true);
+    Character::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/icons/Ranged.png", true);
+    Character::ms_TextureError = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
+
     Character::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/gun/Glock.png", true);
     Character::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/gun/Burst.png", true);
     Character::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/gun/Shotgun.png", true);

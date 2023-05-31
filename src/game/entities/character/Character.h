@@ -124,6 +124,7 @@ public:
     static Texture* ms_TextureErrorRanged;
     static Texture* ms_TextureErrorSlowDown;
     static Texture* ms_TextureErrorDangerousRecoil;
+    static Texture* ms_TextureError;
     static Sound* ms_HitSounds[3];
     static Sound* ms_DeathSound;
     static Sound* ms_AmmoPickupSound;
