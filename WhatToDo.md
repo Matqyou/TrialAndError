@@ -20,10 +20,10 @@ Less important
 
 # Mim
 ### Tasks:
-- Optimise timers for "Errors" 
-- Add more "Errors"
-- Change how some "Errors" work, so they're more in sync with other game mechanics
-- Change crates and "Errors" to not have a fully random drop, but a predetermined one when spawning it, so we can spawn ones with custom drops for game purposes
+- Optimise timers for "Errors"  done
+- Add more "Errors" done
+- Change how some "Errors" work, so they're more in sync with other game mechanics 
+- Change crates and "Errors" to not have a fully random drop, but a predetermined one when spawning it, so we can spawn ones with custom drops for game purposes done
 - Player collision with crates ✓
 - Breaking crates with fists ✓
 - Crates with different breaking stages (like health for them but with textures) ✓
