@@ -261,7 +261,7 @@ void GameWorld::TickSpawner() {
 
     m_LastWave = m_CurrentTick;
     m_Round += 1;
-    m_TimeBetweenWaves = (unsigned long long)((5 + m_Round * 3) * m_GameWindow->Timer()->GetFramerate());
+    m_TimeBetweenWaves = (unsigned long long)((5 + m_Round * 2.5) * m_GameWindow->Timer()->GetFramerate());
     m_NumEnemiesPerWave = 2 + int(m_Round / 0.75);
     m_Score += m_Round * 50;
     m_ScoreText->FlagForUpdate();
