@@ -70,6 +70,8 @@ Character::Character(GameWorld* world, Player* player, double max_health,
     m_SpikyTimer = 0;
     m_HealersParadiseTimer = 0;
     m_RangedTimer= 0;
+    m_IsSlowTimer = 0;
+    m_DangerousRecoilTimer = 0;
 
     m_ColorHue = double(rand()%360);
 
@@ -184,49 +186,49 @@ void Character::Damage(double damage, bool combat_tag) {
 void Character::ReverseMovement() {
     IsReversed = true;
     ReverseMSG = true; // In addition to setting reversed to true itself, also sets MSG to be drawn
-    m_IsReverseTimer = 1000;
+    m_IsReverseTimer = 600;
 }
 
 void Character::ConfuseHP() {
     ConfusingHP = true;
     ConfusingHPMSG = true;
-    m_ConfusingHPTimer = 1000;
+    m_ConfusingHPTimer = 1200;
 }
 
 void Character::MakeInvincible() {
     Invincible = true;
     InvincibleMSG = true;
-    m_InvincibleTimer = 500;
+    m_InvincibleTimer = 600;
 }
 
 void Character::MakeSpiky() {
     Spiky = true;
     SpikyMSG = true;
-    m_SpikyTimer = 500;
+    m_SpikyTimer = 900;
 }
 
 void Character::MakeHealer(){
     HealersParadise = true;
     HealersMSG = true;
-    m_HealersParadiseTimer = 1000;
+    m_HealersParadiseTimer = 1200;
 }
 
 void Character::MakeRanged(){
     Ranged = true;
     RangedMSG = true;
-    m_RangedTimer = 166;
+    m_RangedTimer = 600;
 }
 
 void Character::SlowDown(){
     IsSlow = true;
     IsSlowMSG= true;
-    m_IsSlowTimer = 1000;
+    m_IsSlowTimer = 300;
 }
 
 void Character::ActivateDangerousRecoil(){
     DangerousRecoil = true;
     RecoilMSG = true;
-    m_DangerousRecoilTimer = 1000;
+    m_DangerousRecoilTimer = 600;
 }
 
 void Character::TickTimer(){
@@ -239,7 +241,7 @@ void Character::TickTimer(){
     if(IsSlow) m_IsSlowTimer -= 1;
     if(DangerousRecoil) m_DangerousRecoilTimer -=1;
     if((HealersParadise)||(Spiky)||(Invincible)||(ConfusingHP)||(IsReversed)||(Ranged)||(IsSlow)||(DangerousRecoil)) {
-        if(m_IsReverseTimer <= 880)ReverseMSG = false; // Changes the MSG drawing to false if its above 2 seconds
+        if(m_IsReverseTimer <= 480)ReverseMSG = false; // Changes the MSG drawing to false if its above 2 seconds
                                                         // of active time
         if (m_IsReverseTimer <= 0 && IsReversed){
             IsReversed = false;
@@ -247,47 +249,47 @@ void Character::TickTimer(){
             DrawErrorIsReversed = {-1000};
 
         }
-        if(m_ConfusingHPTimer <= 880) ConfusingHPMSG = false;
+        if(m_ConfusingHPTimer <= 1080) ConfusingHPMSG = false;
         if (m_ConfusingHPTimer <= 0 && ConfusingHP){
             ConfusingHP = false;
             Displacement = DrawErrorConfusingHP.y; // Sets it so the next ERROR icon will be shown where the last one ended
             DrawErrorConfusingHP = {-1000};
 
         }
-        if(m_InvincibleTimer <= 380) InvincibleMSG = false;
+        if(m_InvincibleTimer <= 480) InvincibleMSG = false;
         if (m_InvincibleTimer <= 0 && Invincible){
             Invincible = false;
             Displacement = DrawErrorInvincible.y;
             DrawErrorInvincible = {-1000};
 
         }
-        if(m_SpikyTimer <= 380) SpikyMSG = false;
+        if(m_SpikyTimer <= 780) SpikyMSG = false;
         if (m_SpikyTimer <= 0 && Spiky){
             Spiky = false;
             Displacement = DrawErrorSpiky.y;
             DrawErrorSpiky = {-1000};
 
         }
-        if(m_HealersParadiseTimer  <= 880) HealersMSG = false;
+        if(m_HealersParadiseTimer  <= 1080) HealersMSG = false;
         if (m_HealersParadiseTimer <= 0 && HealersParadise) {
             HealersParadise = false;
             Displacement = DrawErrorHealersParadise.y;
             DrawErrorHealersParadise = {-1000};
         }
-        if(m_RangedTimer <= 49) RangedMSG = false;
+        if(m_RangedTimer <= 480) RangedMSG = false;
         if(m_RangedTimer <= 0 && Ranged) {
             Ranged = false;
             Displacement = DrawErrorRanged.y;
             DrawErrorRanged = {-1000};
         }
-        if(m_IsSlowTimer <= 880) IsSlowMSG = false;
+        if(m_IsSlowTimer <= 180) IsSlowMSG = false;
         if(m_IsSlowTimer <= 0 && IsSlow) {
             IsSlow = false;
             Displacement = DrawErrorIsSlow.y;
             DrawErrorIsSlow = {-1000};
 
         }
-        if(m_DangerousRecoilTimer <= 880) RecoilMSG = false;
+        if(m_DangerousRecoilTimer <= 480) RecoilMSG = false;
         if(m_DangerousRecoilTimer <= 0 && DangerousRecoil) {
             DangerousRecoil = false;
             Displacement = DrawErrorDangerousRecoil.y;
@@ -802,17 +804,17 @@ void Character::DrawErrorName() {
     // Changes the "msg" to whatever Error has been picked up( not else if's cuz then it wouldnt update on new pickup
     // aka, this is so it overrides the last msg too)
     if(ReverseMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Reverse Movement\"");
-    if(ConfusingHPMSG) std::snprintf(msg, sizeof(msg), "ERROR activated \"Confusing HP\"");
-    if(InvincibleMSG) std::snprintf(msg, sizeof(msg), "ERROR activated \"Invincible\"");
-    if(SpikyMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Spiky\"");
-    if(HealersMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Healers paradise\"");
-    if(RangedMSG) std::snprintf(msg, sizeof(msg), "ERROR activated \"Ranged\"");
-    if (IsSlowMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Slow down\"");
-    if (RecoilMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Dangerous recoil\"");
+    else if(ConfusingHPMSG) std::snprintf(msg, sizeof(msg), "ERROR activated \"Confusing HP\"");
+    else if(InvincibleMSG) std::snprintf(msg, sizeof(msg), "ERROR activated \"Invincible\"");
+    else if(SpikyMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Spiky\"");
+    else if(HealersMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Healers paradise\"");
+    else if(RangedMSG) std::snprintf(msg, sizeof(msg), "ERROR activated \"Ranged\"");
+    else if (IsSlowMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Slow down\"");
+    else if (RecoilMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Dangerous recoil\"");
 
     m_ErrorText = new TextSurface(m_World->GameWindow()->Assets(),
                                   m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
-                                  msg, { 0, 0, 0 });
+                                  msg, { 255, 255, 255 });
     m_ErrorText->SetText(msg);
     Texture* ErrorTexture = m_ErrorText->RequestUpdate();
     int Text_h = 5;
@@ -907,7 +909,7 @@ void Character::Draw() {
     if(m_CurrentWeapon) DrawAmmo();
     // Only draws the Error names, if the timers havent been going down for any more than 2 seconds
     // 1000(Most Error activity time)-120(2 seconds)
-    if(m_IsReverseTimer>880 || m_ConfusingHPTimer>880 || m_InvincibleTimer>380 || m_SpikyTimer>380 ||
-    m_HealersParadiseTimer>880 || m_RangedTimer>46)
+    if(m_IsReverseTimer>480 || m_ConfusingHPTimer>1080 || m_InvincibleTimer>480 || m_SpikyTimer>780 ||
+    m_HealersParadiseTimer>1080 || m_RangedTimer>480 ||m_DangerousRecoilTimer>480 || m_IsSlowTimer>180)
         DrawErrorName();
 }
