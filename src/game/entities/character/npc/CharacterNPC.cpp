@@ -90,3 +90,41 @@ void CharacterNPC::TickControls() {
         }
     }
 }
+
+void CharacterNPC::Tick() {
+    TickHealth();
+    TickControls(); // Parse the inputs of each device keyboard/controller/AI
+    ProcessControls(); // Do stuff depending on the current held buttons
+    TickHook();  // Move hook and or player etc.
+    TickCurrentWeapon(); // Shoot accelerate reload etc.
+    m_Hands.Tick();
+    TickTimer(); // Ticks timer for errors
+    // Need every character to get here..
+    // then we apply the accelerations of all
+    // hooks and continue with the code below v v v
+    // like collisions and velocity tick
+
+    TickCollision();
+    TickVelocity();  // Move the character entity
+    TickWalls();  // Check if colliding with walls
+
+    if ((int)(m_Health) != (int)(m_LastHealth)) m_HealthInt->FlagForUpdate();
+    if (m_World->NamesShown() > 0.05 &&
+        ((int)(m_Core->m_x) != (int)(m_LastCore->m_x) ||
+            (int)(m_Core->m_y) != (int)(m_LastCore->m_y)))
+        m_CoordinatePlate->FlagForUpdate();
+
+    m_LastHealth = m_Health;
+    TickLastCore();
+    memcpy(&m_LastInput, &m_Input, sizeof(CharacterInput));
+
+    m_HitTicks -= 1;
+    if (m_HitTicks < 0)
+        m_HitTicks = 0;
+
+    if (m_Health <= 0.0) {
+        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
+        m_Alive = false;
+        new Crates(m_World, m_Core->m_x, m_Core->m_y, 20.0, rand()%2);
+    }
+}

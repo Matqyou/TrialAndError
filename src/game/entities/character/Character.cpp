@@ -865,7 +865,6 @@ void Character::Event(const SDL_Event& currentEvent) {
 }
 
 void Character::Tick() {
-    // TODO: Make controls come from m_Player/m_AI rather than m_GameController
     TickHealth();
     TickControls(); // Parse the inputs of each device keyboard/controller/AI
     ProcessControls(); // Do stuff depending on the current held buttons

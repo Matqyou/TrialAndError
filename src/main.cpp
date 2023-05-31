@@ -27,7 +27,7 @@ bool Initialize() {
     TextManager* TextHandler = GameWindow->Assets()->TextHandler();
     TextHandler->LoadFont("Minecraft.ttf", 16);
 
-    World = new GameWorld(GameWindow, 50, 50);
+    World = new GameWorld(GameWindow, 100, 100);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
@@ -49,7 +49,7 @@ bool Initialize() {
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Keyboard");
     auto Char1 = new Character(World, Player1, 100.0,
-                                32*30, 30, 10, 10);
+                                32*50, 32*50, 10, 10);
     Char1->GiveWeapon(WEAPON_GLOCK);
     Char1->GiveWeapon(WEAPON_BURST);
     Char1->GiveWeapon(WEAPON_SHOTGUN);
@@ -204,7 +204,7 @@ int main() {
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
                     auto NewPlayer = new Player(World, "Controller");
                     auto NewChar = new Character(World, NewPlayer, 100.0,
-                                               32*30, 30, 10, 10);
+                                                 32*50, 32*50, 10, 10);
                     NewChar->GiveWeapon(WEAPON_GLOCK);
                     NewChar->GiveWeapon(WEAPON_BURST);
                     NewChar->GiveWeapon(WEAPON_SHOTGUN);

@@ -25,6 +25,7 @@ public:
     ~CharacterNPC();
 
     void TickControls() override;
+    void Tick();
 };
 
 #endif //TRIALANDERROR_CHARACTERNPC_H
