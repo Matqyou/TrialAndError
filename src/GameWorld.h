@@ -45,7 +45,13 @@ private:
     Texture* m_Background;
     int m_BackgroundW{}, m_BackgroundH{};
 
+    unsigned long long m_LastWave;
+    unsigned long long m_TimeBetweenWaves;
+    unsigned int m_NumEnemiesPerWave;
+    unsigned int m_Round;
+
     void TickCamera();
+    void TickSpawner();
     void TickEntities();
     void TickDestroy();
 
@@ -64,6 +70,7 @@ public:
     unsigned int NextPlayerIndex() const;
     void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
+    void EnemiesKilled();
     void SetCameraPos(double x, double y);  // Move the camera to a position
     Player* AddPlayer(Player* player);
     void RemovePlayer(Player* player);

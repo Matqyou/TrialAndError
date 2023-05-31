@@ -14,7 +14,7 @@ WeaponBurst::WeaponBurst(Character* owner)
  : ProjectileWeapon(owner, WEAPON_BURST, 30, 24, 24 * 3, 35.0, false) {
     m_BaseRecoilForce = 3.0;
     m_RecoilForce = m_BaseRecoilForce;
-    m_Damage = 4.5;
+    m_Damage = 7.5;
     m_BurstCooldown = 6;
     m_BurstShots = 3;
     m_owner;

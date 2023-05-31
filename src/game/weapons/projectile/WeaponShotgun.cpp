@@ -11,7 +11,7 @@ Sound* WeaponShotgun::ms_ShootSound = nullptr;
 Sound* WeaponShotgun::ms_ClickSound = nullptr;
 
 WeaponShotgun::WeaponShotgun(Character* owner)
- : ProjectileWeapon(owner, WEAPON_SHOTGUN, 64, 8, 8 * 3, 35.0, false) {
+ : ProjectileWeapon(owner, WEAPON_SHOTGUN, 42, 8, 8 * 3, 35.0, false) {
     m_PelletCount = 6;
     m_BaseRecoilForce = 20.0;
     m_RecoilForce = m_BaseRecoilForce;

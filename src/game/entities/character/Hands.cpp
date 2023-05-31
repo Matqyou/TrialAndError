@@ -79,7 +79,7 @@ void Hands::Tick() {
             if (Distance > m_FistingRadius)
                 continue;
 
-            if(Ent->EntityType() == GameWorld::ENTTYPE_BOX){
+            if(!m_Parent->IsNPC() && Ent->EntityType() == GameWorld::ENTTYPE_BOX){
                 ((Crates*)Ent)->DamageCrate(5);
                 continue;
             }

@@ -143,6 +143,7 @@ public:
     CharacterInput& GetLastInput() { return m_LastInput; }
     bool GetIfDangerousRecoil() { return DangerousRecoil; }
 
+    void RemoveCombat();
     void GiveWeapon(WeaponType weapon_type);
     void AmmoPickup(Ammo* ammo_box);
     void SetGameController(GameController* gameController);

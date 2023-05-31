@@ -15,12 +15,15 @@ private:
     double m_RateDeacceleration;
     double m_ShootRate;
     double m_FullRate;
+    double m_Rotation;
 
 public:
     static Sound* ms_ShootSound;
     static Sound* ms_ClickSound;
 
     WeaponMinigun(Character* owner);
+
+    double Rotation() const { return m_Rotation; }
 
     void Tick() override;
 };

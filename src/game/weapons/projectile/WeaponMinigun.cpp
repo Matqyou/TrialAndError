@@ -17,7 +17,7 @@ WeaponMinigun::WeaponMinigun(Character* owner)
 
     m_FullRate = 10.0;
     m_RateAcceleration = 0.07;
-    m_RateDeacceleration = 0.4;
+    m_RateDeacceleration = 0.05;
 
     // Will get rewritten by other code
     m_ShootRate = 0.0;
@@ -42,8 +42,10 @@ void WeaponMinigun::Tick() {
         if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere
             m_ShootRate += m_RateAcceleration;
             if (m_ShootRate > m_FullRate) m_ShootRate = m_FullRate;
-            if (CurrentTick - m_LastShotAt <= int(m_TickCooldown - m_ShootRate))
+            if (CurrentTick - m_LastShotAt <= int(m_TickCooldown - m_ShootRate)) {
+                m_Rotation += m_ShootRate;
                 return;
+            }
 
             m_LastShot = m_Ammo == 1;
             if (m_Ammo) {
@@ -67,5 +69,6 @@ void WeaponMinigun::Tick() {
             m_ShootRate -= m_RateDeacceleration;
             if (m_ShootRate < 0.0) m_ShootRate = 0.0;
         }
+        m_Rotation += m_ShootRate;
     }
 }

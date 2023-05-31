@@ -12,7 +12,7 @@ Texture* Ammo::ms_TextureMinigun = nullptr;
 // Sound* Ammo::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 Ammo::Ammo(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount)
- : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_AMMO, start_x, start_y, 50, 35, 0.0, 0.0, 0.95){
+ : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_AMMO, start_x, start_y, 40, 28, 0.0, 0.0, 0.95){
     m_AmmoCount = AmmoCount;
     m_Type = type;
 

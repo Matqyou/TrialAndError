@@ -57,8 +57,8 @@ void CharacterNPC::TickControls() {
         double TravelX = ClosestCore->m_x - m_Core->m_x;
         double TravelY = ClosestCore->m_y - m_Core->m_y;
         m_Input.m_GoingLength = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
-        m_Input.m_GoingX = TravelX / m_Input.m_GoingLength;
-        m_Input.m_GoingY = TravelY / m_Input.m_GoingLength;
+        m_Input.m_GoingX = TravelX / m_Input.m_GoingLength * (m_CurrentWeapon ? 1 : 0.5);
+        m_Input.m_GoingY = TravelY / m_Input.m_GoingLength * (m_CurrentWeapon ? 1 : 0.5);
         m_Input.m_LookingLength = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
         m_Input.m_LookingX = TravelX / m_Input.m_GoingLength;
         m_Input.m_LookingY = TravelY / m_Input.m_GoingLength;
@@ -67,7 +67,7 @@ void CharacterNPC::TickControls() {
 
         if (!m_CurrentWeapon) {
             m_Input.m_NextItem = true;
-            if (CurrentTick - m_NPCLastShot > 8) {
+            if (CurrentTick - m_NPCLastShot > 20) {
                 m_NPCLastShot = CurrentTick;
                 m_Input.m_Shooting = true;
             }
@@ -82,7 +82,7 @@ void CharacterNPC::TickControls() {
                     m_Input.m_NextItem = true;
                 }
             } else {
-                if (CurrentTick - m_NPCLastShot > (unsigned long long)(m_CurrentWeapon->TickCooldown() * 2) + rand()%10) {
+                if (CurrentTick - m_NPCLastShot > (unsigned long long)(m_CurrentWeapon->TickCooldown() * 10 - 150.0 / Closest)) {
                     m_NPCLastShot = CurrentTick;
                     m_Input.m_Shooting = true;
                 }
@@ -125,6 +125,18 @@ void CharacterNPC::Tick() {
     if (m_Health <= 0.0) {
         m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
         m_Alive = false;
-        new Crates(m_World, m_Core->m_x, m_Core->m_y, 20.0, rand()%2);
+        if (rand()%100 <= 20) new Crates(m_World, m_Core->m_x, m_Core->m_y, 20.0, rand()%2);
+
+        m_World->EnemiesKilled();
+        int NumNPCS = 0;
+        for (auto Char = m_World->FirstPlayer(); Char; Char = (Character*)Char->NextType()) {
+            if (Char->IsNPC() && Char->IsAlive())
+                NumNPCS++;
+        }
+
+        if (NumNPCS == 0) {
+            for (auto Char = m_World->FirstPlayer(); Char; Char = (Character*)Char->NextType())
+                Char->RemoveCombat();
+        }
     }
 }

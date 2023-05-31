@@ -6,6 +6,8 @@
 #include "game/Player.h"
 #include "game/entities/Entity.h"
 #include "game/entities/character/Character.h"
+#include "game/entities/character/npc/CharacterNPC.h"
+#include <cmath>
 Texture* GameWorld::Chad = nullptr;
 
 GameWorld::GameWorld(GameReference* game_window, int width, int height) {
@@ -37,6 +39,11 @@ GameWorld::GameWorld(GameReference* game_window, int width, int height) {
     m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
     //SDL_SetTextureAlphaMod(m_Background->SDLTexture(), 10);
     //SDL_SetTextureBlendMode(m_Background->SDLTexture(), SDL_BLENDMODE_BLEND);
+
+    m_LastWave = 0;
+    m_TimeBetweenWaves = 300;
+    m_NumEnemiesPerWave = 1;
+    m_Round = 0;
 }
 
 GameWorld::~GameWorld() {
@@ -71,6 +78,11 @@ unsigned int GameWorld::NextPlayerIndex() const {
 void GameWorld::GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const {
     out_x = m_x + (relative_x - m_GameWindow->Width() / 2.0);
     out_y = m_y + (relative_y - m_GameWindow->Height() / 2.0);
+}
+
+void GameWorld::EnemiesKilled() {
+    if (m_CurrentTick - m_LastWave > 600)
+        m_LastWave = m_CurrentTick - m_TimeBetweenWaves + 600;
 }
 
 void GameWorld::SetCameraPos(double x, double y) {
@@ -236,6 +248,42 @@ void GameWorld::TickCamera() {
     }
 }
 
+void GameWorld::TickSpawner() {
+    if (m_CurrentTick - m_LastWave < m_TimeBetweenWaves)
+        return;
+
+    m_LastWave = m_CurrentTick;
+    m_Round += 1;
+    m_TimeBetweenWaves = (unsigned long long)((5 + m_Round * 3) * m_GameWindow->Timer()->GetFramerate());
+    m_NumEnemiesPerWave = 2 + int(m_Round / 0.75);
+
+    double Width2 = m_Width / 2.0;
+    double Height2 = m_Height / 2.0;
+
+    for (int i = 0; i < m_NumEnemiesPerWave; i++) {
+        double Angle = (180.0 + (rand()%180)) / 180.0 * M_PI;
+        double XSpawn = Width2 + std::cos(Angle) * Width2;
+        double YSpawn = Height2 + std::sin(Angle) * Height2;
+        auto NewNPC = new CharacterNPC(this, 10.0 + m_Round, XSpawn, YSpawn, 0.0, 0.0, NPC_TURRET);
+        int Weaponizer = rand()%100;
+        if (m_Round >= 20) {
+            if (Weaponizer < 10) NewNPC->GiveWeapon(WEAPON_GLOCK);
+            else if (Weaponizer < 20) NewNPC->GiveWeapon(WEAPON_SHOTGUN);
+            else if (Weaponizer < 30) NewNPC->GiveWeapon(WEAPON_BURST);
+            else if (Weaponizer < 40) NewNPC->GiveWeapon(WEAPON_MINIGUN);
+        } else if (m_Round >= 15) {
+            if (Weaponizer < 10) NewNPC->GiveWeapon(WEAPON_GLOCK);
+            else if (Weaponizer < 20) NewNPC->GiveWeapon(WEAPON_SHOTGUN);
+            else if (Weaponizer < 30) NewNPC->GiveWeapon(WEAPON_BURST);
+        } else if (m_Round >= 10) {
+            if (Weaponizer < 10) NewNPC->GiveWeapon(WEAPON_GLOCK);
+            else if (Weaponizer < 20) NewNPC->GiveWeapon(WEAPON_SHOTGUN);
+        } else if (m_Round >= 5) {
+            if (Weaponizer < 10) NewNPC->GiveWeapon(WEAPON_GLOCK);
+        }
+    }
+}
+
 void GameWorld::TickEntities() {
     // Loop through each entity and tick
     for (auto Current = m_First; Current; Current = Current->m_Next)
@@ -259,6 +307,7 @@ void GameWorld::Tick() {
     if (!m_ShowNames)
         m_ShowNamesVisibility *= 0.98;
 
+    TickSpawner();
     TickEntities();
     TickDestroy();
     TickCamera();

@@ -26,6 +26,7 @@ private:
 
 public:
     explicit Clock(double framerate);
+    double GetFramerate() const { return Framerate; }
     double GetTimeElapsed() const { return (double)(NanoElapsed) / 1.0e9; }
     double GetTotalTimeElapsed() const { return (double)(TotalNanoElapsed) / 1.0e9; }
     unsigned long long CurrentTick() const { return Ticks; }

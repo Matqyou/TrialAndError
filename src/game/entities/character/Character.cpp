@@ -65,7 +65,7 @@ Character::Character(GameWorld* world, Player* player, double max_health,
         m_Player->SetCharacter(this);
         m_ColorHue = 30.0 + double(m_Player->GetIndex() * 30);
     } else {
-        m_ColorHue = 120.0;
+        m_ColorHue = 120.0 + (rand()%90) - 45;
     }
 
     // Initialises all timers as 0
@@ -176,8 +176,12 @@ void Character::SetGameController(GameController* gameController) {
 
 void Character::Damage(double damage, bool combat_tag) {
     if(!Invincible) {
-        if(HealersParadise)m_Health += damage;
-        else m_Health -= damage;
+        if(HealersParadise) {
+            double HealBack = damage * 0.2;
+            if (HealBack > 5) HealBack = 5;
+            m_Health += HealBack;
+        }
+        m_Health -= damage;
         m_HitTicks = 7;
 
         Sound *HurtSound = ms_HitSounds[rand() % 3];
@@ -189,49 +193,49 @@ void Character::Damage(double damage, bool combat_tag) {
 void Character::ReverseMovement() {
     IsReversed = true;
     ReverseMSG = true; // In addition to setting reversed to true itself, also sets MSG to be drawn
-    m_IsReverseTimer = 600;
+    m_IsReverseTimer = 1500;
 }
 
 void Character::ConfuseHP() {
     ConfusingHP = true;
     ConfusingHPMSG = true;
-    m_ConfusingHPTimer = 1200;
+    m_ConfusingHPTimer = 1500;
 }
 
 void Character::MakeInvincible() {
     Invincible = true;
     InvincibleMSG = true;
-    m_InvincibleTimer = 600;
+    m_InvincibleTimer = 1500;
 }
 
 void Character::MakeSpiky() {
     Spiky = true;
     SpikyMSG = true;
-    m_SpikyTimer = 900;
+    m_SpikyTimer = 3000;
 }
 
 void Character::MakeHealer(){
     HealersParadise = true;
     HealersMSG = true;
-    m_HealersParadiseTimer = 1200;
+    m_HealersParadiseTimer = 1500;
 }
 
 void Character::MakeRanged(){
     Ranged = true;
     RangedMSG = true;
-    m_RangedTimer = 600;
+    m_RangedTimer = 3000;
 }
 
 void Character::SlowDown(){
     IsSlow = true;
     IsSlowMSG= true;
-    m_IsSlowTimer = 300;
+    m_IsSlowTimer = 1500;
 }
 
 void Character::ActivateDangerousRecoil(){
     DangerousRecoil = true;
     RecoilMSG = true;
-    m_DangerousRecoilTimer = 600;
+    m_DangerousRecoilTimer = 3000;
 }
 
 void Character::TickTimer(){
@@ -309,6 +313,12 @@ void Character::SwitchWeapon(WeaponType type) {
         m_CurrentWeapon = m_Weapons[type];
         m_AmmoCount->FlagForUpdate();
     }
+}
+
+void Character::RemoveCombat() {
+    auto CurrentTick = m_World->CurrentTick();
+    if (m_TicksOfCombatUntilRegeneration > CurrentTick) m_LastInCombat = 0;
+    else m_LastInCombat = CurrentTick - m_TicksOfCombatUntilRegeneration;
 }
 
 void Character::GiveWeapon(WeaponType weapon_type) {
@@ -442,20 +452,23 @@ void Character::TickControls() {
 }
 
 void Character::ProcessControls() {
-    if (m_Input.m_GoingLength > 0.2) {  // Fix controller drifting
+    if (m_Input.m_GoingLength >= 0.2) {  // Fix controller drifting
         // Checks if player is shifting (holding left stick)
         // TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
 
-        m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration/3 : m_BaseAcceleration) * (IsReversed ? -1 : 1) * (IsSlow ? 0.5 : 1) * (bool(m_CurrentWeapon) ? 0.8 : 1.0);
+        m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration/3 : m_BaseAcceleration) * (IsReversed ? -1 : 1) * (IsSlow ? 0.5 : 1) * (bool(m_CurrentWeapon) ? 0.9 : 1.0);
 
         // Accelerate in that direction
         m_Core->m_xvel += m_Input.m_GoingX * m_Acceleration;
         m_Core->m_yvel += m_Input.m_GoingY * m_Acceleration;
     }
 
-    if (m_Input.m_LookingLength > 0.6) {
-        m_LookingCore->m_xlook = m_Input.m_LookingX;
-        m_LookingCore->m_ylook = m_Input.m_LookingY;
+    if (m_Input.m_LookingLength >= 0.6) {
+        m_LookingCore->m_xlook = m_Input.m_LookingX * (IsReversed ? -1 : 1);
+        m_LookingCore->m_ylook = m_Input.m_LookingY * (IsReversed ? -1 : 1);
+    } else if (m_Input.m_GoingLength >= 0.2) {
+        m_LookingCore->m_xlook = m_Input.m_GoingX * (IsReversed ? -1 : 1);
+        m_LookingCore->m_ylook = m_Input.m_GoingY * (IsReversed ? -1 : 1);
     }
 
     if (m_Input.m_NextItem ^ m_Input.m_PrevItem ^ m_Input.m_DeselectItem) { // I hope this works as intended, only 1 at a time | ignore if multiple inputs at the same time
@@ -726,7 +739,6 @@ void Character::DrawHands() {
      double XLook = m_Input.m_LookingX * 15.0;
      double YLook = m_Input.m_LookingY * 15.0;
 
-    ProjectileWeapon* CurrentWeapon = m_CurrentWeapon;
     if (m_CurrentWeapon) {
         Texture* WeaponTexture;
         switch (m_CurrentWeapon->Type()) {
@@ -740,7 +752,8 @@ void Character::DrawHands() {
                 WeaponTexture = ms_TextureShotgun;
             } break;
             case WEAPON_MINIGUN: {
-                WeaponTexture = ms_TexturesMinigun[0];
+                int Phase = int(std::fmod(((WeaponMinigun*)m_Weapons[WEAPON_MINIGUN])->Rotation(), 50.0) / 25.0);
+                WeaponTexture = ms_TexturesMinigun[Phase];
             } break;
         }
 
@@ -752,7 +765,7 @@ void Character::DrawHands() {
         WeaponRect.y = int(YLook + m_Core->m_y);
         SDL_Point WeaponPivot = { int(float(WeaponRect.w) / 2.0), 0 };
 
-        double Angle = std::atan2(m_Input.m_LookingY * 50.0, m_Input.m_LookingX * 50.0) / M_PI * 180.0;
+        double Angle = std::atan2(m_LookingCore->m_ylook * 50.0, m_LookingCore->m_xlook * 50.0) / M_PI * 180.0;
         // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
         // and not the center of the player
         Render->RenderTextureExWorld(WeaponTexture->SDLTexture(), nullptr, WeaponRect, Angle - 90, &WeaponPivot, SDL_FLIP_VERTICAL);

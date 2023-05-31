@@ -12,7 +12,7 @@ enum NPCType {
     NPC_TURRET
 };
 
-class CharacterNPC : Character {
+class CharacterNPC : public Character {
 private:
     unsigned long long m_NPCLastShot;
     NPCType m_AIType;

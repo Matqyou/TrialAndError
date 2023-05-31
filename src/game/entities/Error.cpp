@@ -44,27 +44,41 @@ void Error::TickPickup(double x, double y) {
         if (!Collides)
             continue;
 
-        if(m_Type == DISORIANTED){
-            auto Players = m_World->FirstPlayer();
-            for (; Players; Players = (Character*)(Players->NextType())) Players->ReverseMovement();
+        if(m_Type == DISORIANTED) {
+            if (Char->IsNPC()) { Char->ReverseMovement(); }
+            else {
+                auto Plr = m_World->FirstPlayer();
+                for (; Plr; Plr = (Character*) (Plr->NextType())) {
+                    if (!Plr->IsNPC()) continue;
+                    Plr->ReverseMovement();
+                }
+            }
+        } else if (m_Type == CONFUSING_HP){
+            Char->ConfuseHP();
+        } else if (m_Type == INVINCIBLE) { Char->MakeInvincible(); }
+        else if (m_Type == SPIKY) { Char->MakeSpiky(); }
+        else if (m_Type == HEALERS_PARADISE) {
+            if (Char->IsNPC()) { Char->MakeHealer(); }
+            else {
+                auto Plr = m_World->FirstPlayer();
+                for (; Plr; Plr = (Character*) (Plr->NextType())) {
+                    if (Plr->IsNPC()) continue;
+                    Plr->MakeHealer();
+                }
+            }
         }
-
-        else if(m_Type == CONFUSING_HP){
-            auto Players = m_World->FirstPlayer();
-            for (; Players; Players = (Character*)(Players->NextType())) Players->ConfuseHP();
+        else if (m_Type == RANGED) { Char->MakeRanged(); }
+        else if (m_Type == SLOW_DOWN) {
+            if (Char->IsNPC()) { Char->SlowDown(); }
+            else {
+                auto Plr = m_World->FirstPlayer();
+                for (; Plr; Plr = (Character*) (Plr->NextType())) {
+                    if (!Plr->IsNPC()) continue;
+                    Plr->SlowDown();
+                }
+            }
         }
-        else if(m_Type == INVINCIBLE) Char->MakeInvincible();
-        else if(m_Type == SPIKY) Char->MakeSpiky();
-        else if(m_Type == HEALERS_PARADISE){
-            auto Players = m_World->FirstPlayer();
-            for (; Players; Players = (Character*)(Players->NextType())) Players->MakeHealer();
-    }
-        else if(m_Type == RANGED) Char->MakeRanged();
-        else if(m_Type == SLOW_DOWN) {
-            auto Players = m_World->FirstPlayer();
-            for (; Players; Players = (Character *) (Players->NextType())) Players->SlowDown();
-        }
-        else if(m_Type == DANGEROUS_RECOIL) Char->ActivateDangerousRecoil();
+        else if (m_Type == DANGEROUS_RECOIL) { Char->ActivateDangerousRecoil(); }
         m_Alive = false;
     }
 }
