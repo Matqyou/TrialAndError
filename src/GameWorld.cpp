@@ -59,7 +59,6 @@ unsigned int GameWorld::NextPlayerIndex() const {
     while (true) {
         bool Used = false;
         for (; pPlayer != nullptr; pPlayer = pPlayer->m_Next) {
-            std::printf("Checking index for %s\n", pPlayer->GetUsername().c_str());
             if (pPlayer->GetIndex() == Index)
                 Used = true;
         }
@@ -153,10 +152,21 @@ void GameWorld::RemoveEntity(Entity* entity) {
 }
 
 void GameWorld::DestroyPlayerByController(GameController* DeletedController) const {
-    Character* Player = FirstPlayer();
-    for (; Player; Player = (Character*)(Player->NextType())) {
-        if (Player->GetGameController() == DeletedController) {
-            delete Player;
+    Player* Plr = m_FirstPlayer;
+    for (; Plr; Plr = Plr->m_Next) {
+        Character* Char = Plr->GetCharacter();
+        if (Char->GetGameController() == DeletedController) {
+            delete Plr;
+            return;
+        }
+    }
+}
+
+void GameWorld::DestroyCharacterByController(GameController* DeletedController) const {
+    Character* Char = FirstPlayer();
+    for (; Char; Char = (Character*)(Char->NextType())) {
+        if (Char->GetGameController() == DeletedController) {
+            delete Char;
             return;
         }
     }

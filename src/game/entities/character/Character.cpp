@@ -61,7 +61,12 @@ Character::Character(GameWorld* world, Player* player, double max_health,
    m_Input(),
    m_LastInput() {
     m_Player = player;
-    if (m_Player) m_Player->SetCharacter(this);
+    if (m_Player) {
+        m_Player->SetCharacter(this);
+        m_ColorHue = 30.0 + double(m_Player->GetIndex() * 30);
+    } else {
+        m_ColorHue = 120.0;
+    }
 
     // Initialises all timers as 0
     m_IsReverseTimer = 0;
@@ -72,8 +77,6 @@ Character::Character(GameWorld* world, Player* player, double max_health,
     m_RangedTimer= 0;
     m_IsSlowTimer = 0;
     m_DangerousRecoilTimer = 0;
-
-    m_ColorHue = double(rand()%360);
 
     // Initialises all ERROR abilities to be false
     IsReversed = false;
@@ -111,10 +114,10 @@ Character::Character(GameWorld* world, Player* player, double max_health,
     memset(m_Weapons, 0, sizeof(m_Weapons));
 
     // But this is Latvia and we give the character free guns
-    m_Weapons[WEAPON_GLOCK] = new WeaponGlock(this);
-    m_Weapons[WEAPON_BURST] = new WeaponBurst(this);
-    m_Weapons[WEAPON_SHOTGUN] = new WeaponShotgun(this);
-    m_Weapons[WEAPON_MINIGUN] = new WeaponMinigun(this);
+    // m_Weapons[WEAPON_GLOCK] = new WeaponGlock(this);
+    // m_Weapons[WEAPON_BURST] = new WeaponBurst(this);
+    // m_Weapons[WEAPON_SHOTGUN] = new WeaponShotgun(this);
+    // m_Weapons[WEAPON_MINIGUN] = new WeaponMinigun(this);
 
     m_MaxHealth = max_health;
     m_Health = m_MaxHealth;
@@ -308,6 +311,18 @@ void Character::SwitchWeapon(WeaponType type) {
     }
 }
 
+void Character::GiveWeapon(WeaponType weapon_type) {
+    if (m_Weapons[weapon_type])
+        delete m_Weapons[weapon_type];
+
+    switch (weapon_type) {
+        case WEAPON_GLOCK: { m_Weapons[WEAPON_GLOCK] = new WeaponGlock(this); } break;
+        case WEAPON_BURST: { m_Weapons[WEAPON_BURST] = new WeaponBurst(this); } break;
+        case WEAPON_SHOTGUN: { m_Weapons[WEAPON_SHOTGUN] = new WeaponShotgun(this); } break;
+        case WEAPON_MINIGUN: { m_Weapons[WEAPON_MINIGUN] = new WeaponMinigun(this); } break;
+    }
+}
+
 void Character::AmmoPickup(Ammo* ammo_box){
     WeaponType ReloadWeapon;
     if (ammo_box->Type() == AMMO_GLOCK) ReloadWeapon = WEAPON_GLOCK;
@@ -431,7 +446,7 @@ void Character::ProcessControls() {
         // Checks if player is shifting (holding left stick)
         // TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
 
-        m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration/3 : m_BaseAcceleration) * (IsReversed ? -1 : 1) * (IsSlow ? 0.25 : 1) * (bool(m_CurrentWeapon) ? 0.75 : 1.0);
+        m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration/3 : m_BaseAcceleration) * (IsReversed ? -1 : 1) * (IsSlow ? 0.5 : 1) * (bool(m_CurrentWeapon) ? 0.8 : 1.0);
 
         // Accelerate in that direction
         m_Core->m_xvel += m_Input.m_GoingX * m_Acceleration;
@@ -487,7 +502,7 @@ void Character::TickCollision() {
         double YPush = YDistance / Distance * 0.5;
         m_Core->Accelerate(XPush, YPush);
         EntCore->Accelerate(-XPush, -YPush);
-        if(Spiky) Char->Damage(3, true);
+        if (Spiky && m_NPC != Char->IsNPC()) Char->Damage(3, true);
     }
     auto Crate = m_World->FirstCrate();
     for (; Crate; Crate = (Crates*)(Crate->NextType())) {
@@ -498,15 +513,15 @@ void Character::TickCollision() {
 
         if (Distance > 40) continue;
         else if (Distance < 0.0) {
-            double Radians = (rand()%360) / 180.0 * M_PI;
+            double Radians = (rand() % 360) / 180.0 * M_PI;
             XDistance = cos(Radians);
             YDistance = sin(Radians);
             Distance = 1.0;
         }
-        double XPush = XDistance / Distance* 2;
-        double YPush = YDistance / Distance* 2;
+        double XPush = XDistance / Distance * 2;
+        double YPush = YDistance / Distance * 2;
         Accelerate(XPush, YPush);
-}
+    }
 }
 
 void Character::TickCurrentWeapon() {
@@ -892,13 +907,12 @@ void Character::Tick() {
 
 void Character::Draw() {
     auto CurrentTick = m_World->CurrentTick();
-    double Light = 0.5 + (std::sin(double(CurrentTick - m_ExistsSince)/60.0) + 1.0) / 4.0;
 
     double Hue = m_HitTicks ? 0.0 : m_ColorHue;
-    m_CharacterColor = HSLtoRGB({ Hue, Light, 1.0 });
-    m_HookColor = HSLtoRGB({ Hue, 1.0, Light });
+    m_CharacterColor = HSLtoRGB({ Hue, 1.0, 0.75 });
+    m_HookColor = HSLtoRGB({ Hue, 0.5, 1.0 });
     m_HealthbarColor = m_CharacterColor;
-    m_HandColor = HSLtoRGB({ Hue, 1.0 - Light, 1.0 });
+    m_HandColor = HSLtoRGB({ Hue, 1.0, 0.5 });
     m_NameplateColor = m_HandColor;
     DrawHook();
     DrawHands();

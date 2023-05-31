@@ -27,7 +27,7 @@ bool Initialize() {
     TextManager* TextHandler = GameWindow->Assets()->TextHandler();
     TextHandler->LoadFont("Minecraft.ttf", 16);
 
-    World = new GameWorld(GameWindow, 50, 25);
+    World = new GameWorld(GameWindow, 50, 50);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
@@ -47,13 +47,17 @@ bool Initialize() {
     new Crates(World,600, 600, 20, rand()%2);
 
     Controllers = new GameControllers();
-    auto Player1 = new Player(World, "Crazy speedrunner #1");
-    // new Player(World, "Speedrunner crazy #2");
-    new Character(World, Player1, 100.0,
-                  32*30, 30, 10, 10);
+    auto Player1 = new Player(World, "Keyboard");
+    auto Char1 = new Character(World, Player1, 100.0,
+                                32*30, 30, 10, 10);
+    Char1->GiveWeapon(WEAPON_GLOCK);
+    Char1->GiveWeapon(WEAPON_BURST);
+    Char1->GiveWeapon(WEAPON_SHOTGUN);
+    Char1->GiveWeapon(WEAPON_MINIGUN);
+
 
     for (int i = 0; i < 2; i++)
-        new CharacterNPC(World, 100.0, 0, 0, 0, 0, NPC_DUMMY);
+        new CharacterNPC(World, 20.0, 0, 0, 0, 0, NPC_DUMMY);
 
     return true;
 }
@@ -193,21 +197,27 @@ int main() {
                         if (Pause) SoundHandler->PlaySound(MidUISound);
                         else SoundHandler->PlaySound(LowUISound);
                     } else if (ScancodeKey == SDL_SCANCODE_Z) {
-                        new CharacterNPC(World, 100.0, 32*30, 30, 10, 10, NPC_DUMMY);
+                        new CharacterNPC(World, 20.0, 32*30, 30, 10, 10, NPC_TURRET);
                     }
                 } break;
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto* NewPlayer = new Character(World, nullptr, 100.0,
-                                                    32*32, 0, 10, 10); // TODO fix ;)
-                    NewPlayer->SetGameController(CurrentController);
+                    auto NewPlayer = new Player(World, "Controller");
+                    auto NewChar = new Character(World, NewPlayer, 100.0,
+                                               32*30, 30, 10, 10);
+                    NewChar->GiveWeapon(WEAPON_GLOCK);
+                    NewChar->GiveWeapon(WEAPON_BURST);
+                    NewChar->GiveWeapon(WEAPON_SHOTGUN);
+                    NewChar->GiveWeapon(WEAPON_MINIGUN);
+                    NewChar->SetGameController(CurrentController);
                     SoundHandler->PlaySound(HighSound);
                 } break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
                     GameController* DeletedController = Controllers->CloseController(InstanceID);
                     World->DestroyPlayerByController(DeletedController);
+                    World->DestroyCharacterByController(DeletedController);
                     SoundHandler->PlaySound(LowSound);
                 } break;
                 case SDL_MOUSEBUTTONDOWN: {

@@ -141,9 +141,9 @@ public:
     ProjectileWeapon* GetCurrentWeapon() const { return m_CurrentWeapon; }
     CharacterInput& GetInput() { return m_Input; }
     CharacterInput& GetLastInput() { return m_LastInput; }
+    bool GetIfDangerousRecoil() { return DangerousRecoil; }
 
-    bool GetIfDangerousRecoil(){return DangerousRecoil;}
-
+    void GiveWeapon(WeaponType weapon_type);
     void AmmoPickup(Ammo* ammo_box);
     void SetGameController(GameController* gameController);
     void Damage(double damage, bool make_sound);

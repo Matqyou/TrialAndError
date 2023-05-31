@@ -70,6 +70,7 @@ public:
     Entity* AddEntity(Entity* entity);
     void RemoveEntity(Entity* entity);
     void DestroyPlayerByController(GameController* DeletedController) const;
+    void DestroyCharacterByController(GameController* DeletedController) const;
     void ToggleShowNames();
     void SetPaused(bool state);
     Entity* FirstEntity() const { return m_First; }
