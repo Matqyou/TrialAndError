@@ -708,7 +708,17 @@ void Character::DrawHands() {
     double XLook = m_Core->m_x + m_Input.m_LookingX * 50.0;
     double YLook = m_Core->m_y + m_Input.m_LookingY * 50.0;
     Render->SetColor(m_HandColor);
-    Render->LineWorld(int(m_Core->m_x), int(m_Core->m_y), int(XLook), int(YLook));
+    double Angle = std::atan2(m_Input.m_LookingY * 50.0, m_Input.m_LookingX * 50.0) / M_PI * 180.0;
+    SDL_RendererFlip flip;
+    if(Angle > 90 || Angle < -90){
+        flip = SDL_FLIP_VERTICAL;
+    }
+    else flip = SDL_FLIP_VERTICAL;
+    SDL_FRect GunRect = {float(m_Core->m_x), float(m_Core->m_y),15 ,100 };
+    // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
+    // and not the center of the player
+    SDL_FPoint GunPoint = {float(0), float(0)};
+    if(GetCurrentWeapon())Render->RenderTextureExFWorld(ms_TextureError->SDLTexture(),nullptr, GunRect, Angle-90,&GunPoint, flip);
 
     m_Hands.SetColor(m_HandColor);
     m_Hands.Draw();
@@ -766,7 +776,6 @@ void Character::DrawAmmo(){
 
 
 void Character::DrawErrorName() {
-    // TODO Make it so the name of the error appears on top of the screen when its collected, for like 5 seconds
     Drawing* Render = m_World->GameWindow()->RenderClass();
     char msg[64];
     // Changes the "msg" to whatever Error has been picked up( not else if's cuz then it wouldnt update on new pickup

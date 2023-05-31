@@ -103,7 +103,7 @@ int main() {
     Error::ms_TextureErrorHealersParadise = ImageHandler->LoadTexture("assets/images/entities/Healer.png", true);
     Error::ms_TextureErrorConfusingHP = ImageHandler->LoadTexture("assets/images/entities/Confusion.png", true);
     Error::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/entities/Ranged.png", true);
-    Error::ms_TextureError = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
+    Error::ms_TextureError = ImageHandler->LoadTexture("assets/images/gun/Assault.png", true);
 
 
     Character::ms_TextureErrorInvincible = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
@@ -113,7 +113,8 @@ int main() {
     Character::ms_TextureErrorHealersParadise = ImageHandler->LoadTexture("assets/images/entities/Healer.png", true);
     Character::ms_TextureErrorConfusingHP = ImageHandler->LoadTexture("assets/images/entities/Confusion.png", true);
     Character::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/entities/Ranged.png", true);
-    Character::ms_TextureError = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
+    //Character::ms_TextureError = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
+    Character::ms_TextureError = ImageHandler->LoadTexture("assets/images/gun/Assault.png", true);
     // Load sounds
     Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
     Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);
