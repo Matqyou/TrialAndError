@@ -69,8 +69,8 @@ void Hands::Tick() {
 
         auto Ent = World->FirstEntity();
         for (; Ent; Ent = Ent->Next()) {
-            if (Ent == m_Parent)
-                continue;
+            if (Ent == m_Parent) continue;
+            if (Ent->EntityType() == GameWorld::ENTTYPE_CHARACTER && m_Parent->IsNPC() == ((Character*)Ent)->IsNPC()) continue;
 
             EntityCore* EntCore = Ent->GetCore();
             double XClosest = std::max(EntCore->m_x - EntCore->m_w / 2.0, std::min(EntCore->m_x + EntCore->m_w / 2.0, XHands));
