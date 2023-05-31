@@ -49,6 +49,8 @@ private:
     unsigned long long m_TimeBetweenWaves;
     unsigned int m_NumEnemiesPerWave;
     unsigned int m_Round;
+    unsigned int m_Score;
+    TextSurface* m_ScoreText;
 
     void TickCamera();
     void TickSpawner();
@@ -58,7 +60,7 @@ private:
 public:
     GameWorld(GameReference* game_window, int width, int height);
     ~GameWorld();
-    static Texture* Chad;
+
     GameReference* GameWindow() const { return m_GameWindow; }
     double Width() const { return m_Width; }
     double Height() const { return m_Height; }
@@ -70,6 +72,7 @@ public:
     unsigned int NextPlayerIndex() const;
     void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
+    void AddScore(unsigned int score);
     void EnemiesKilled();
     void SetCameraPos(double x, double y);  // Move the camera to a position
     Player* AddPlayer(Player* player);

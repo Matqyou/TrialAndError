@@ -165,8 +165,6 @@ int main() {
                                                  World->GameWindow()->Assets()->TextHandler()->FirstFont(),
                                                  "Bot User", { 255, 150, 150, 255 });
 
-    TextSurface TestText = TextSurface(AssetsHandler, TextHandler->FirstFont(), "Jesse -.. .. .", {255, 255, 255, 255 });
-
     bool Running = true;
     bool Config = true;
     while (Running) {
@@ -251,13 +249,6 @@ int main() {
         World->Draw();
 
         Draw->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
-
-        Texture* TextTexture = TestText.RequestUpdate();
-        SDL_Rect DestinationRect;
-        TextTexture->Query(nullptr, nullptr, &DestinationRect.w, &DestinationRect.h);
-        DestinationRect.x = 0;
-        DestinationRect.y = GameWindow->Height() - DestinationRect.h;
-        Draw->RenderTexture(TextTexture->SDLTexture(), nullptr, DestinationRect);
 
         if (World->Paused()) {
             Draw->SetBlendingMode(SDL_BLENDMODE_BLEND);

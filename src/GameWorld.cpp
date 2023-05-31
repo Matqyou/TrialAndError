@@ -8,7 +8,6 @@
 #include "game/entities/character/Character.h"
 #include "game/entities/character/npc/CharacterNPC.h"
 #include <cmath>
-Texture* GameWorld::Chad = nullptr;
 
 GameWorld::GameWorld(GameReference* game_window, int width, int height) {
     m_GameWindow = game_window;
@@ -44,12 +43,15 @@ GameWorld::GameWorld(GameReference* game_window, int width, int height) {
     m_TimeBetweenWaves = 300;
     m_NumEnemiesPerWave = 1;
     m_Round = 0;
+    m_Score = 0;
+    m_ScoreText = new TextSurface(m_GameWindow->Assets(),
+                                  m_GameWindow->Assets()->TextHandler()->FirstFont(),
+                                  "Score: 0", { 255, 255, 255});
 }
 
 GameWorld::~GameWorld() {
     delete m_Tiles;
     delete m_CoordinatePlate;
-
 
     Entity* CurrentEntity = m_Last;
     while (CurrentEntity) {
@@ -78,6 +80,11 @@ unsigned int GameWorld::NextPlayerIndex() const {
 void GameWorld::GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const {
     out_x = m_x + (relative_x - m_GameWindow->Width() / 2.0);
     out_y = m_y + (relative_y - m_GameWindow->Height() / 2.0);
+}
+
+void GameWorld::AddScore(unsigned int score) {
+    m_Score += score;
+    m_ScoreText->FlagForUpdate();
 }
 
 void GameWorld::EnemiesKilled() {
@@ -256,6 +263,8 @@ void GameWorld::TickSpawner() {
     m_Round += 1;
     m_TimeBetweenWaves = (unsigned long long)((5 + m_Round * 3) * m_GameWindow->Timer()->GetFramerate());
     m_NumEnemiesPerWave = 2 + int(m_Round / 0.75);
+    m_Score += m_Round * 50;
+    m_ScoreText->FlagForUpdate();
 
     double Width2 = m_Width / 2.0;
     double Height2 = m_Height / 2.0;
@@ -339,19 +348,32 @@ void GameWorld::Draw() {
 
     m_Tiles->Draw();
 
-    if (m_ShowNamesVisibility <= 0.05)
-        return;
+    if (m_ShowNamesVisibility > 0.05) {
 
-    int Opacity = int(m_ShowNamesVisibility * 255.0);
+        int Opacity = int(m_ShowNamesVisibility * 255.0);
+
+        char msg[64];
+        std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
+        m_CoordinatePlate->SetText(msg);
+        Texture* CoordinateTexture = m_CoordinatePlate->RequestUpdate();
+
+        int coordinate_w, coordinate_h;
+        CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
+        SDL_Rect CoordinateRect = {int(m_x - coordinate_w / 2.0), int(m_y - coordinate_h / 2.0), coordinate_w, coordinate_h};
+        SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
+        Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
+
+    }
 
     char msg[64];
-    std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
-    m_CoordinatePlate->SetText(msg);
-    Texture* CoordinateTexture = m_CoordinatePlate->RequestUpdate();
+    std::snprintf(msg, sizeof(msg), "Score: %i", m_Score);
+    m_ScoreText->SetText(msg);
+    Texture* ScoreTexture = m_ScoreText->RequestUpdate();
 
-    int coordinate_w, coordinate_h;
-    CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
-    SDL_Rect CoordinateRect = { int(m_x - coordinate_w / 2.0), int(m_y - coordinate_h / 2.0), coordinate_w, coordinate_h };
-    SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
-    Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
+    int score_w, score_h;
+    ScoreTexture->Query(nullptr, nullptr, &score_w, &score_h);
+    score_w *= 2.5;
+    score_h *= 2.5;
+    SDL_Rect ScoreRect = { 0, int(m_GameWindow->Height() - score_h), score_w, score_h };
+    Render->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
 }

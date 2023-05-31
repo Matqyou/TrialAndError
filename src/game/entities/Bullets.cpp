@@ -49,7 +49,7 @@ bool Bullets::TickHitPoint(double x, double y) {
     auto Char = m_World->FirstPlayer();
     for (; Char; Char = (Character*)(Char->NextType())) {
         bool Shooter = m_Shooter == Char;
-        if (!Shooter && m_Shooter->EntityType() == GameWorld::ENTTYPE_CHARACTER && ((Character*)m_Shooter)->IsNPC() == Char->IsNPC()) continue;
+        if (!Char->IsAlive() || !Shooter && m_Shooter->EntityType() == GameWorld::ENTTYPE_CHARACTER && ((Character*)m_Shooter)->IsNPC() == Char->IsNPC()) continue;
 
         EntityCore* CharCore = Char->GetCore();
         bool CollidesPlayer = (CharCore->m_x - CharCore->m_w < x) &&

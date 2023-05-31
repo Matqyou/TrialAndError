@@ -127,14 +127,15 @@ void CharacterNPC::Tick() {
         m_Alive = false;
         if (rand()%100 <= 20) new Crates(m_World, m_Core->m_x, m_Core->m_y, 20.0, rand()%2);
 
-        m_World->EnemiesKilled();
         int NumNPCS = 0;
         for (auto Char = m_World->FirstPlayer(); Char; Char = (Character*)Char->NextType()) {
             if (Char->IsNPC() && Char->IsAlive())
                 NumNPCS++;
         }
 
+        m_World->AddScore(20);
         if (NumNPCS == 0) {
+            m_World->EnemiesKilled();
             for (auto Char = m_World->FirstPlayer(); Char; Char = (Character*)Char->NextType())
                 Char->RemoveCombat();
         }

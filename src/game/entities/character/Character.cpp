@@ -177,8 +177,8 @@ void Character::SetGameController(GameController* gameController) {
 void Character::Damage(double damage, bool combat_tag) {
     if(!Invincible) {
         if(HealersParadise) {
-            double HealBack = damage * 0.2;
-            if (HealBack > 5) HealBack = 5;
+            double HealBack = damage;
+            if (HealBack > 10) HealBack = 10;
             m_Health += HealBack;
         }
         m_Health -= damage;
