@@ -54,7 +54,9 @@ void Error::TickPickup(double x, double y) {
                 }
             }
         } else if (m_Type == CONFUSING_HP){
-            Char->ConfuseHP();
+            auto Plr = m_World->FirstPlayer();
+            for (; Plr; Plr = (Character*) (Plr->NextType()))
+                Plr->ConfuseHP();
         } else if (m_Type == INVINCIBLE) { Char->MakeInvincible(); }
         else if (m_Type == SPIKY) { Char->MakeSpiky(); }
         else if (m_Type == HEALERS_PARADISE) {

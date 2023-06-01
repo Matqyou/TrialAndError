@@ -54,6 +54,7 @@ public:
     unsigned int AmmoCap() const {return m_AmmoCapacity;}
     unsigned int NeededAmmo() const;
     unsigned long long TickCooldown() const { return m_TickCooldown; }
+    bool IsAutomatic() const { return m_Automatic; }
 
     void AddTrueAmmo(unsigned int count);
     void SetSpread(double degrees, int decimal_places);

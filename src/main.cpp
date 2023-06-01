@@ -27,7 +27,7 @@ bool Initialize() {
     TextManager* TextHandler = GameWindow->Assets()->TextHandler();
     TextHandler->LoadFont("Minecraft.ttf", 16);
 
-    World = new GameWorld(GameWindow, 50, 50);
+    World = new GameWorld(GameWindow, 50, 40);
     World->SetCameraPos(30, 30);
     GameWindow->RenderClass()->SetWorld(World);
 
@@ -191,7 +191,7 @@ int main() {
                         if (Pause) SoundHandler->PlaySound(MidUISound);
                         else SoundHandler->PlaySound(LowUISound);
                     } else if (ScancodeKey == SDL_SCANCODE_Z) {
-                        new CharacterNPC(World, 20.0, 32*30, 30, 10, 10, NPC_TURRET);
+                        new CharacterNPC(World, 20.0, 32*30, 30, 10, 10, NPC_TURRET,true);
                     }
                 } break;
                 case SDL_CONTROLLERDEVICEADDED: {

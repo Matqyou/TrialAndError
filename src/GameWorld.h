@@ -32,6 +32,7 @@ private:
     double m_ShowNamesVisibility;
     bool m_ShowNames;
     bool m_Paused;
+    bool THE_END;
     Player* m_FirstPlayer, *m_LastPlayer;
     Entity* m_FirstType[NUM_ENTTYPES], *m_LastType[NUM_ENTTYPES];
     Entity* m_First, *m_Last;
@@ -74,6 +75,7 @@ public:
 
     void AddScore(unsigned int score);
     void EnemiesKilled();
+    void AlliesGone();
     void SetCameraPos(double x, double y);  // Move the camera to a position
     Player* AddPlayer(Player* player);
     void RemovePlayer(Player* player);

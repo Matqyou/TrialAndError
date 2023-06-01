@@ -63,9 +63,9 @@ Character::Character(GameWorld* world, Player* player, double max_health,
     m_Player = player;
     if (m_Player) {
         m_Player->SetCharacter(this);
-        m_ColorHue = 30.0 + double(m_Player->GetIndex() * 30);
+        m_ColorHue = 60.0-double(m_Player->GetIndex() * 30);
     } else {
-        m_ColorHue = 120.0 + (rand()%90) - 45;
+        m_ColorHue = 0.0;
     }
 
     // Initialises all timers as 0
@@ -248,7 +248,7 @@ void Character::TickTimer(){
     if(IsSlow) m_IsSlowTimer -= 1;
     if(DangerousRecoil) m_DangerousRecoilTimer -=1;
     if((HealersParadise)||(Spiky)||(Invincible)||(ConfusingHP)||(IsReversed)||(Ranged)||(IsSlow)||(DangerousRecoil)) {
-        if(m_IsReverseTimer <= 480)ReverseMSG = false; // Changes the MSG drawing to false if its above 2 seconds
+        if(m_IsReverseTimer <= 1380)ReverseMSG = false; // Changes the MSG drawing to false if its above 2 seconds
                                                         // of active time
         if (m_IsReverseTimer <= 0 && IsReversed){
             IsReversed = false;
@@ -256,47 +256,47 @@ void Character::TickTimer(){
             DrawErrorIsReversed = {-1000};
 
         }
-        if(m_ConfusingHPTimer <= 1080) ConfusingHPMSG = false;
+        if(m_ConfusingHPTimer <= 1380) ConfusingHPMSG = false;
         if (m_ConfusingHPTimer <= 0 && ConfusingHP){
             ConfusingHP = false;
             Displacement = DrawErrorConfusingHP.y; // Sets it so the next ERROR icon will be shown where the last one ended
             DrawErrorConfusingHP = {-1000};
 
         }
-        if(m_InvincibleTimer <= 480) InvincibleMSG = false;
+        if(m_InvincibleTimer <= 1380) InvincibleMSG = false;
         if (m_InvincibleTimer <= 0 && Invincible){
             Invincible = false;
             Displacement = DrawErrorInvincible.y;
             DrawErrorInvincible = {-1000};
 
         }
-        if(m_SpikyTimer <= 780) SpikyMSG = false;
+        if(m_SpikyTimer <= 2880) SpikyMSG = false;
         if (m_SpikyTimer <= 0 && Spiky){
             Spiky = false;
             Displacement = DrawErrorSpiky.y;
             DrawErrorSpiky = {-1000};
 
         }
-        if(m_HealersParadiseTimer  <= 1080) HealersMSG = false;
+        if(m_HealersParadiseTimer  <= 1380) HealersMSG = false;
         if (m_HealersParadiseTimer <= 0 && HealersParadise) {
             HealersParadise = false;
             Displacement = DrawErrorHealersParadise.y;
             DrawErrorHealersParadise = {-1000};
         }
-        if(m_RangedTimer <= 480) RangedMSG = false;
+        if(m_RangedTimer <= 2880) RangedMSG = false;
         if(m_RangedTimer <= 0 && Ranged) {
             Ranged = false;
             Displacement = DrawErrorRanged.y;
             DrawErrorRanged = {-1000};
         }
-        if(m_IsSlowTimer <= 180) IsSlowMSG = false;
+        if(m_IsSlowTimer <= 1380) IsSlowMSG = false;
         if(m_IsSlowTimer <= 0 && IsSlow) {
             IsSlow = false;
             Displacement = DrawErrorIsSlow.y;
             DrawErrorIsSlow = {-1000};
 
         }
-        if(m_DangerousRecoilTimer <= 480) RecoilMSG = false;
+        if(m_DangerousRecoilTimer <= 2880) RecoilMSG = false;
         if(m_DangerousRecoilTimer <= 0 && DangerousRecoil) {
             DangerousRecoil = false;
             Displacement = DrawErrorDangerousRecoil.y;
@@ -525,7 +525,7 @@ void Character::TickCollision() {
         double Distance = std::sqrt(std::pow(XDistance, 2) + std::pow(YDistance, 2));
 
         if (Distance > 40) continue;
-        else if (Distance < 0.0) {
+        else if (Distance <= 0.0) {
             double Radians = (rand() % 360) / 180.0 * M_PI;
             XDistance = cos(Radians);
             YDistance = sin(Radians);
@@ -563,7 +563,6 @@ void Character::DrawErrorIcons(){
     // Goes through all active ERRORS
     if(IsReversed){
         if(DrawErrorIsReversed.x == -1000){ // If is the first time drawing it
-            Render->RenderTextureFWorld(ms_TextureErrorDisorianted->SDLTexture(), nullptr, DrawRectError);
             DrawErrorIsReversed = DrawRectError; // Need this so the .x value isnt -1000 after this
             DrawErrorIsReversed.y = Displacement; // Saves the current displacement value in the .y position
             Displacement -= 20; // Changes the displacement by -20 so the next one spawns above it
@@ -577,7 +576,6 @@ void Character::DrawErrorIcons(){
     }
     if(ConfusingHP){
         if(DrawErrorConfusingHP.x == -1000){
-            Render->RenderTextureFWorld(ms_TextureErrorConfusingHP->SDLTexture(), nullptr, DrawRectError);
             DrawErrorConfusingHP = DrawRectError;
             DrawErrorConfusingHP.y = Displacement;
             Displacement -= 20;
@@ -590,7 +588,6 @@ void Character::DrawErrorIcons(){
     }
     if(Invincible) {
         if (DrawErrorInvincible.x == -1000){
-            Render->RenderTextureFWorld(ms_TextureErrorInvincible->SDLTexture(), nullptr, DrawRectError);
             DrawErrorInvincible = DrawRectError;
             DrawErrorInvincible.y = Displacement;
             Displacement -= 20;
@@ -604,7 +601,6 @@ void Character::DrawErrorIcons(){
 
     if(Spiky) {
         if (DrawErrorSpiky.x == -1000) {
-            Render->RenderTextureFWorld(ms_TextureErrorSpiky->SDLTexture(), nullptr, DrawRectError);
             DrawErrorSpiky = DrawRectError;
             DrawErrorSpiky.y = Displacement;
             Displacement -= 20;
@@ -618,7 +614,6 @@ void Character::DrawErrorIcons(){
 
     if(HealersParadise){
         if(DrawErrorHealersParadise.x == -1000) {
-            Render->RenderTextureFWorld(ms_TextureErrorHealersParadise->SDLTexture(), nullptr, DrawRectError);
             DrawErrorHealersParadise = DrawRectError;
             DrawErrorHealersParadise.y = Displacement;
             Displacement -= 20;
@@ -631,7 +626,6 @@ void Character::DrawErrorIcons(){
     }
     if(Ranged){
         if(DrawErrorRanged.x == -1000){
-            Render->RenderTextureFWorld(ms_TextureErrorRanged->SDLTexture(), nullptr, DrawRectError);
             DrawErrorRanged = DrawRectError;
             DrawErrorRanged.y = Displacement;
             Displacement -= 20;
@@ -644,7 +638,6 @@ void Character::DrawErrorIcons(){
     }
     if(DangerousRecoil){
         if(DrawErrorDangerousRecoil.x == -1000){
-            Render->RenderTextureFWorld(ms_TextureError->SDLTexture(), nullptr, DrawRectError);
             DrawErrorDangerousRecoil = DrawRectError;
             DrawErrorDangerousRecoil.y = Displacement;
             Displacement -= 20;
@@ -657,7 +650,6 @@ void Character::DrawErrorIcons(){
     }
     if(IsSlow){
         if(DrawErrorIsSlow.x == -1000){
-            Render->RenderTextureFWorld(ms_TextureErrorSlowDown->SDLTexture(), nullptr, DrawRectError);
             DrawErrorIsSlow = DrawRectError;
             DrawErrorIsSlow.y = Displacement;
             Displacement -= 20;
@@ -763,7 +755,7 @@ void Character::DrawHands() {
         WeaponRect.h *= 4;
         WeaponRect.x = int(XLook + m_Core->m_x - float(WeaponRect.w) / 2.0);
         WeaponRect.y = int(YLook + m_Core->m_y);
-        SDL_Point WeaponPivot = { int(float(WeaponRect.w) / 2.0), 0 };
+        SDL_Point WeaponPivot = { int(float(WeaponRect.w) / 2.0 * Render->GetZoom()), 0 };
 
         double Angle = std::atan2(m_LookingCore->m_ylook * 50.0, m_LookingCore->m_xlook * 50.0) / M_PI * 180.0;
         // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
@@ -837,8 +829,8 @@ void Character::DrawErrorName() {
     else if(SpikyMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Spiky\"");
     else if(HealersMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Healers paradise\"");
     else if(RangedMSG) std::snprintf(msg, sizeof(msg), "ERROR activated \"Ranged\"");
-    else if (IsSlowMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Slow down\"");
-    else if (RecoilMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Dangerous recoil\"");
+    else if(IsSlowMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Slow down\"");
+    else if(RecoilMSG)std::snprintf(msg, sizeof(msg), "ERROR activated \"Dangerous recoil\"");
 
     m_ErrorText = new TextSurface(m_World->GameWindow()->Assets(),
                                   m_World->GameWindow()->Assets()->TextHandler()->FirstFont(),
@@ -849,7 +841,7 @@ void Character::DrawErrorName() {
     int Text_w = 1000;
     ErrorTexture->Query(nullptr, nullptr, &Text_h, &Text_w);
     // Draws it in the top middle of the screen
-    SDL_Rect ErrorRect = { int(m_World->CameraX() -100), int(m_World->CameraY()-200), Text_h, Text_w};
+    SDL_Rect ErrorRect = { int(m_Core->m_x - 100-(Text_w/Render->GetZoom())), int(m_Core->m_y - 50), int(Text_h/Render->GetZoom()), int(Text_w/Render->GetZoom())};
     Render->RenderTextureWorld(ErrorTexture->SDLTexture(), nullptr, ErrorRect);
 }
 
@@ -914,7 +906,14 @@ void Character::Tick() {
     if (m_Health <= 0.0) {
         m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
         m_Alive = false;
+        int NumRealCharacters = 0;
+        for(auto Char = m_World->FirstPlayer(); Char;Char = (Character*)Char->NextType()) {
+            if (!Char->IsNPC())NumRealCharacters++;
+        }
+        if(NumRealCharacters == 1)
+            m_World->AlliesGone();
     }
+
 }
 
 void Character::Draw() {
@@ -935,7 +934,7 @@ void Character::Draw() {
     if(m_CurrentWeapon) DrawAmmo();
     // Only draws the Error names, if the timers havent been going down for any more than 2 seconds
     // 1000(Most Error activity time)-120(2 seconds)
-    if(m_IsReverseTimer>480 || m_ConfusingHPTimer>1080 || m_InvincibleTimer>480 || m_SpikyTimer>780 ||
-    m_HealersParadiseTimer>1080 || m_RangedTimer>480 ||m_DangerousRecoilTimer>480 || m_IsSlowTimer>180)
+    if(m_IsReverseTimer>1380 || m_ConfusingHPTimer>1380 || m_InvincibleTimer>1380 || m_SpikyTimer>2880 ||
+    m_HealersParadiseTimer>1380 || m_RangedTimer>2880 ||m_DangerousRecoilTimer>2880 || m_IsSlowTimer>1380)
         DrawErrorName();
 }

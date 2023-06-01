@@ -17,6 +17,7 @@ GameWorld::GameWorld(GameReference* game_window, int width, int height) {
     m_ShowNamesVisibility = 0.0;
     m_ShowNames = false;
     m_Paused = false;
+    THE_END = false;
     m_x = 0.0;
     m_y = 0.0;
     m_CurrentTick = 0;
@@ -36,8 +37,7 @@ GameWorld::GameWorld(GameReference* game_window, int width, int height) {
 
     m_Background = GameWindow()->Assets()->ImageHandler()->LoadTexture("assets/images/backgrounds/background_pattern.png", true);
     m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
-    //SDL_SetTextureAlphaMod(m_Background->SDLTexture(), 10);
-    //SDL_SetTextureBlendMode(m_Background->SDLTexture(), SDL_BLENDMODE_BLEND);
+    //SDL_SetTextureAlphaMod(m_Background->SDLTexture(), 0);
 
     m_LastWave = 0;
     m_TimeBetweenWaves = 300;
@@ -46,7 +46,7 @@ GameWorld::GameWorld(GameReference* game_window, int width, int height) {
     m_Score = 0;
     m_ScoreText = new TextSurface(m_GameWindow->Assets(),
                                   m_GameWindow->Assets()->TextHandler()->FirstFont(),
-                                  "Score: 0", { 255, 255, 255});
+                                  "Score: 0", { 150, 150, 0});
 }
 
 GameWorld::~GameWorld() {
@@ -63,11 +63,10 @@ GameWorld::~GameWorld() {
 
 unsigned int GameWorld::NextPlayerIndex() const {
     unsigned int Index = 0;
-    auto pPlayer = m_FirstPlayer;
 
     while (true) {
         bool Used = false;
-        for (; pPlayer != nullptr; pPlayer = pPlayer->m_Next) {
+        for (auto pPlayer = m_FirstPlayer; pPlayer != nullptr; pPlayer = pPlayer->m_Next) {
             if (pPlayer->GetIndex() == Index)
                 Used = true;
         }
@@ -84,12 +83,23 @@ void GameWorld::GetPointInWorld(double relative_x, double relative_y, double& ou
 
 void GameWorld::AddScore(unsigned int score) {
     m_Score += score;
+    char msg[64];
+    std::snprintf(msg, sizeof(msg), "Score: %i", m_Score);
+    m_ScoreText->SetText(msg);
     m_ScoreText->FlagForUpdate();
 }
 
 void GameWorld::EnemiesKilled() {
     if (m_CurrentTick - m_LastWave > 600)
         m_LastWave = m_CurrentTick - m_TimeBetweenWaves + 600;
+}
+
+void GameWorld::AlliesGone(){
+    THE_END = true;
+    char msg[64];
+    std::snprintf(msg, sizeof(msg), "%i", m_Score);
+    m_ScoreText->SetText(msg);
+    m_ScoreText->FlagForUpdate();
 }
 
 void GameWorld::SetCameraPos(double x, double y) {
@@ -228,8 +238,8 @@ void GameWorld::TickCamera() {
     if (m_FirstType[ENTTYPE_CHARACTER]) {
         int num_player = 0;
 
-        double CameraX = 0.0;
-        double CameraY = 0.0;
+        bool SomethingSpecial = false;
+        double minX, maxX, minY, maxY;
 
         auto Char = FirstPlayer();
         for (; Char; Char = (Character*)Char->NextType()) {
@@ -239,16 +249,31 @@ void GameWorld::TickCamera() {
             num_player++;
 
             EntityCore* CharCore = Char->GetCore();
-            CameraX += CharCore->m_x;
-            CameraY += CharCore->m_y;
+
+            if (!SomethingSpecial) {
+                SomethingSpecial = true;
+                minX = CharCore->m_x;
+                maxX = CharCore->m_x;
+                minY = CharCore->m_y;
+                maxY = CharCore->m_y;
+            } else {
+                if (CharCore->m_x < minX) minX = CharCore->m_x;
+                if (CharCore->m_x > maxX) maxX = CharCore->m_x;
+                if (CharCore->m_y < minY) minY = CharCore->m_y;
+                if (CharCore->m_y > maxY) maxY = CharCore->m_y;
+            }
         }
 
         if (num_player) {
-            CameraX /= num_player;
-            CameraY /= num_player;
+            double CameraX = (maxX + minX) / 2.0;
+            double CameraY = (maxY + minY) / 2.0;
             // Accelerate camera closer to
             // the midpoint of characters
             // TODO: Zoom value
+            double zoomX = m_GameWindow->Width() / (maxX - minX + 500);
+            double zoomY = m_GameWindow->Height() / (maxY - minY + 500);
+            double Zoom = std::min(zoomX, zoomY);
+            m_GameWindow->RenderClass()->SetZoom(Zoom > 1 ? 1 : Zoom);
             m_x += (-m_x + CameraX) * 0.1;
             m_y += (-m_y + CameraY) * 0.1;
         }
@@ -264,16 +289,25 @@ void GameWorld::TickSpawner() {
     m_TimeBetweenWaves = (unsigned long long)((5 + m_Round * 2.5) * m_GameWindow->Timer()->GetFramerate());
     m_NumEnemiesPerWave = 2 + int(m_Round / 0.75);
     m_Score += m_Round * 50;
+    char msg[64];
+    std::snprintf(msg, sizeof(msg), "Score: %i", m_Score);
+    m_ScoreText->SetText(msg);
     m_ScoreText->FlagForUpdate();
 
     double Width2 = m_Width / 2.0;
     double Height2 = m_Height / 2.0;
-
+    if(m_Round%10 == 0){
+        double Angle = (180.0 + (rand()%180)) / 180.0 * M_PI;
+        double XSpawn = Width2 + std::cos(Angle) * Width2;
+        double YSpawn = Height2 + std::sin(Angle) * Height2;
+        auto NewNPC = new CharacterNPC(this, 1000.0 + m_Round, XSpawn, YSpawn, 0.0, 0.0, NPC_TURRET, true);
+        NewNPC->GiveWeapon(WEAPON_MINIGUN);
+    }
     for (int i = 0; i < m_NumEnemiesPerWave; i++) {
         double Angle = (180.0 + (rand()%180)) / 180.0 * M_PI;
         double XSpawn = Width2 + std::cos(Angle) * Width2;
         double YSpawn = Height2 + std::sin(Angle) * Height2;
-        auto NewNPC = new CharacterNPC(this, 10.0 + m_Round, XSpawn, YSpawn, 0.0, 0.0, NPC_TURRET);
+        auto NewNPC = new CharacterNPC(this, 10.0 + m_Round, XSpawn, YSpawn, 0.0, 0.0, NPC_TURRET,false);
         int Weaponizer = rand()%100;
         if (m_Round >= 20) {
             if (Weaponizer < 10) NewNPC->GiveWeapon(WEAPON_GLOCK);
@@ -310,7 +344,7 @@ void GameWorld::TickDestroy() {
 }
 
 void GameWorld::Tick() {
-    if (m_Paused)
+    if (m_Paused||THE_END)
         return;
 
     if (!m_ShowNames)
@@ -334,40 +368,42 @@ void GameWorld::Tick() {
 void GameWorld::Draw() {
     Drawing* Render = m_GameWindow->RenderClass();
 
-    SDL_Rect DestinationRect = {0, 0, int(m_Width), int(m_Height) };
-    Render->RenderTextureWorld(m_Background->SDLTexture(), nullptr, DestinationRect);
+    if (!THE_END) {
+        SDL_Rect DestinationRect = {0, 0, int(m_Width), int(m_Height)};
+        SDL_SetTextureBlendMode(m_Background->SDLTexture(), SDL_BLENDMODE_BLEND);
+        Render->RenderTextureWorld(m_Background->SDLTexture(), nullptr, DestinationRect);
+        SDL_SetTextureBlendMode(m_Background->SDLTexture(), SDL_BLENDMODE_NONE);
 
-    SDL_Rect DrawRect = { 0, 0, int(m_Width), int(m_Height) };
-    Render->SetColor(255, 0, 0, 255);
-    Render->DrawRectWorld(DrawRect);
+        SDL_Rect DrawRect = {0, 0, int(m_Width), int(m_Height)};
+        Render->SetColor(255, 0, 0, 255);
+        Render->DrawRectWorld(DrawRect);
 
-    for (auto Current : m_FirstType) {
-        for (; Current; Current = Current->NextType())
-            Current->Draw();
+        for (auto Current: m_FirstType) {
+            for (; Current; Current = Current->NextType())
+                Current->Draw();
+        }
+
+        m_Tiles->Draw();
+
+        if (m_ShowNamesVisibility > 0.05) {
+
+            int Opacity = int(m_ShowNamesVisibility * 255.0);
+
+            char msg[64];
+            std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
+            m_CoordinatePlate->SetText(msg);
+            Texture *CoordinateTexture = m_CoordinatePlate->RequestUpdate();
+
+            int coordinate_w, coordinate_h;
+            CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
+            SDL_Rect CoordinateRect = {int(m_x - coordinate_w / 2.0), int(m_y - coordinate_h / 2.0), coordinate_w,
+                                       coordinate_h};
+            SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
+            Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
+
+        }
     }
 
-    m_Tiles->Draw();
-
-    if (m_ShowNamesVisibility > 0.05) {
-
-        int Opacity = int(m_ShowNamesVisibility * 255.0);
-
-        char msg[64];
-        std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
-        m_CoordinatePlate->SetText(msg);
-        Texture* CoordinateTexture = m_CoordinatePlate->RequestUpdate();
-
-        int coordinate_w, coordinate_h;
-        CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
-        SDL_Rect CoordinateRect = {int(m_x - coordinate_w / 2.0), int(m_y - coordinate_h / 2.0), coordinate_w, coordinate_h};
-        SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
-        Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
-
-    }
-
-    char msg[64];
-    std::snprintf(msg, sizeof(msg), "Score: %i", m_Score);
-    m_ScoreText->SetText(msg);
     Texture* ScoreTexture = m_ScoreText->RequestUpdate();
 
     int score_w, score_h;
@@ -375,5 +411,6 @@ void GameWorld::Draw() {
     score_w *= 2.5;
     score_h *= 2.5;
     SDL_Rect ScoreRect = { 0, int(m_GameWindow->Height() - score_h), score_w, score_h };
-    Render->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
+    if(!THE_END) Render->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
+    else Render->RenderTextureFullscreen(ScoreTexture->SDLTexture(), nullptr);
 }

@@ -15,6 +15,7 @@ private:
     GameReference* m_GameWindow;
     GameWorld* m_World;
     SDL_Renderer* m_Renderer;
+    double m_Zoom;
 
     double TranslateX(double x);
     double TranslateY(double y);
@@ -26,7 +27,9 @@ public:
 
     GameWorld* World() const { return m_World; }
     SDL_Renderer* Renderer() const { return m_Renderer; }
+    double GetZoom() const { return m_Zoom; }
 
+    double SetZoom(double zoom) { m_Zoom = zoom; }
     void SetWorld(GameWorld* world);
     void SetRenderTarget(Texture* target);
     void SetBlendingMode(SDL_BlendMode blend_mode);  // Ability to change blending modes

@@ -9,6 +9,7 @@ Drawing::Drawing(GameReference* game_window) {
     m_GameWindow = game_window;
     m_World = nullptr;
     m_Renderer = m_GameWindow->Renderer();
+    m_Zoom = 0.5;
 }
 
 Drawing::~Drawing() {
@@ -16,24 +17,26 @@ Drawing::~Drawing() {
 }
 
 double Drawing::TranslateX(double x) {
-    return x - m_World->CameraX() + m_World->GameWindow()->Width() / 2.0;
+    return (x - m_World->CameraX()) * m_Zoom + m_World->GameWindow()->Width() / 2.0;
 }
 
 double Drawing::TranslateY(double y) {
-    return y - m_World->CameraY() + m_World->GameWindow()->Height() / 2.0;
+    return (y - m_World->CameraY()) * m_Zoom + m_World->GameWindow()->Height() / 2.0;
 }
 
 
 SDL_Rect Drawing::TranslateRect(const SDL_Rect& rect) {
     return { int(TranslateX(rect.x)),
              int(TranslateY(rect.y)),
-             rect.w, rect.h };
+             int(rect.w * m_Zoom),
+             int(rect.h * m_Zoom) };
 }
 
 SDL_FRect Drawing::TranslateFRect(const SDL_FRect& rect) {
     return { float(TranslateX(rect.x)),
              float(TranslateY(rect.y)),
-             rect.w, rect.h };
+             float(rect.w * m_Zoom),
+             float(rect.h * m_Zoom) };
 }
 
 void Drawing::SetWorld(GameWorld* world) {
