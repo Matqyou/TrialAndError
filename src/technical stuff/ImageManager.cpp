@@ -23,6 +23,10 @@ void Texture::Query(Uint32* format, int* access, int* w, int* h) {
     SDL_QueryTexture(m_SDLTexture, format, access, w, h);
 }
 
+void Texture::SetBlendMode(SDL_BlendMode blend_mode) {
+    SDL_SetTextureBlendMode(m_SDLTexture, blend_mode);
+}
+
 void Texture::SetColorMod(Uint8 r, Uint8 g, Uint8 b) {
     SDL_SetTextureColorMod(m_SDLTexture, r, g, b);
 }

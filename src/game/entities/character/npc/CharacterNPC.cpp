@@ -52,8 +52,6 @@ void CharacterNPC::TickControls() {
         m_Input.m_LookingX = cos(Angle);
         m_Input.m_LookingY = sin(Angle);
         m_Input.m_Shooting = false;
-        if (m_CurrentWeapon)
-            m_Input.m_NextItem = true;
     } else {
         EntityCore* ClosestCore = ClosestChar->GetCore();
         double TravelX = ClosestCore->m_x - m_Core->m_x;

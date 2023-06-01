@@ -29,7 +29,7 @@ public:
     SDL_Renderer* Renderer() const { return m_Renderer; }
     double GetZoom() const { return m_Zoom; }
 
-    double SetZoom(double zoom) { m_Zoom = zoom; }
+    void SetZoom(double zoom) { m_Zoom = zoom; }
     void SetWorld(GameWorld* world);
     void SetRenderTarget(Texture* target);
     void SetBlendingMode(SDL_BlendMode blend_mode);  // Ability to change blending modes

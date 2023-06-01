@@ -81,6 +81,9 @@ public:
                   double start_xlook, double start_ylook,
                   double base_damping);
     virtual ~LookingEntity();
+
+    LookingEntityCore* GetLookingCore() const { return m_LookingCore; }
+    LookingEntityCore* GetLastLookingCore() const { return m_LastLookingCore; }
 };
 
 #endif //TRIALANDERROR_ENTITY_H

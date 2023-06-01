@@ -378,9 +378,9 @@ void Character::TickKeyboardControls() { // TODO: move to characterInput class
     // RequestUpdate look direction
     int XMouse, YMouse;
     SDL_GetMouseState(&XMouse, &YMouse);
-
-    m_Input.m_LookingX = m_World->CameraX() - m_Core->m_x + XMouse - m_World->GameWindow()->Width() / 2.0;
-    m_Input.m_LookingY = m_World->CameraY() - m_Core->m_y + YMouse - m_World->GameWindow()->Height() / 2.0;
+    auto Zoomies = m_World->GameWindow()->RenderClass()->GetZoom();
+    m_Input.m_LookingX = m_World->CameraX() - m_Core->m_x + (XMouse - m_World->GameWindow()->Width() / 2.0) / Zoomies;
+    m_Input.m_LookingY = m_World->CameraY() - m_Core->m_y + (YMouse - m_World->GameWindow()->Height() / 2.0) / Zoomies;
     m_Input.m_LookingLength = std::sqrt(std::pow(m_Input.m_LookingX, 2) + std::pow(m_Input.m_LookingY, 2));
 
     if (m_Input.m_LookingLength != 0.0) {
@@ -569,7 +569,18 @@ void Character::DrawErrorIcons(){
         }
         else{// When its not the first time, but repeat drawing of the same instance of ERROR
             DrawRectError.y += DrawErrorIsReversed.y;  // Changes the y by the displacement when picked up
-            Render->RenderTextureFWorld(ms_TextureErrorDisorianted->SDLTexture(), nullptr, DrawRectError);
+            double Percentage = float(m_IsReverseTimer) / 1500;
+            SDL_Rect SourceRect = { 0,0 };
+            ms_TextureErrorDisorianted->Query(nullptr, nullptr, &SourceRect.w, &SourceRect.h);
+            int NewSourceH = int(SourceRect.h * Percentage);
+            SourceRect.y = SourceRect.h - NewSourceH;
+            SourceRect.h = NewSourceH;
+
+            SDL_Rect DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) } ;
+            int NewDrawH = int(DrawRect.h * Percentage);
+            DrawRect.y += DrawRect.h - NewDrawH;
+            DrawRect.h = NewDrawH;
+            Render->RenderTextureWorld(ms_TextureErrorDisorianted->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorIsReversed.y; // Changes it back
             //Then i do that for EVERY SINGLE ERROR!!
         }
@@ -581,8 +592,19 @@ void Character::DrawErrorIcons(){
             Displacement -= 20;
         }
         else {
-            DrawRectError.y += DrawErrorConfusingHP.y;
-            Render->RenderTextureFWorld(ms_TextureErrorConfusingHP->SDLTexture(), nullptr, DrawRectError);
+            DrawRectError.y += DrawErrorConfusingHP.y;  // Changes the y by the displacement when picked up
+            double Percentage = float(m_ConfusingHPTimer) / 1500;
+            SDL_Rect SourceRect = { 0,0 };
+            ms_TextureErrorConfusingHP->Query(nullptr, nullptr, &SourceRect.w, &SourceRect.h);
+            int NewSourceH = int(SourceRect.h * Percentage);
+            SourceRect.y = SourceRect.h - NewSourceH;
+            SourceRect.h = NewSourceH;
+
+            SDL_Rect DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) } ;
+            int NewDrawH = int(DrawRect.h * Percentage);
+            DrawRect.y += DrawRect.h - NewDrawH;
+            DrawRect.h = NewDrawH;
+            Render->RenderTextureWorld(ms_TextureErrorConfusingHP->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorConfusingHP.y;
         }
     }
@@ -594,7 +616,18 @@ void Character::DrawErrorIcons(){
         }
         else {
             DrawRectError.y += DrawErrorInvincible.y;
-            Render->RenderTextureFWorld(ms_TextureErrorInvincible->SDLTexture(), nullptr, DrawRectError);
+            double Percentage = float(m_InvincibleTimer) / 1500;
+            SDL_Rect SourceRect = { 0,0 };
+            ms_TextureErrorInvincible->Query(nullptr, nullptr, &SourceRect.w, &SourceRect.h);
+            int NewSourceH = int(SourceRect.h * Percentage);
+            SourceRect.y = SourceRect.h - NewSourceH;
+            SourceRect.h = NewSourceH;
+
+            SDL_Rect DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) } ;
+            int NewDrawH = int(DrawRect.h * Percentage);
+            DrawRect.y += DrawRect.h - NewDrawH;
+            DrawRect.h = NewDrawH;
+            Render->RenderTextureWorld(ms_TextureErrorInvincible->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorInvincible.y;
         }
     }
@@ -607,7 +640,18 @@ void Character::DrawErrorIcons(){
         }
         else {
             DrawRectError.y += DrawErrorSpiky.y;
-            Render->RenderTextureFWorld(ms_TextureErrorSpiky->SDLTexture(), nullptr, DrawRectError);
+            double Percentage = float(m_SpikyTimer) / 3000;
+            SDL_Rect SourceRect = { 0,0 };
+            ms_TextureErrorSpiky->Query(nullptr, nullptr, &SourceRect.w, &SourceRect.h);
+            int NewSourceH = int(SourceRect.h * Percentage);
+            SourceRect.y = SourceRect.h - NewSourceH;
+            SourceRect.h = NewSourceH;
+
+            SDL_Rect DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) } ;
+            int NewDrawH = int(DrawRect.h * Percentage);
+            DrawRect.y += DrawRect.h - NewDrawH;
+            DrawRect.h = NewDrawH;
+            Render->RenderTextureWorld(ms_TextureErrorSpiky->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorSpiky.y;
         }
     }
@@ -620,7 +664,18 @@ void Character::DrawErrorIcons(){
         }
         else {
             DrawRectError.y += DrawErrorHealersParadise.y;
-            Render->RenderTextureFWorld(ms_TextureErrorHealersParadise->SDLTexture(), nullptr, DrawRectError);
+            double Percentage = float(m_HealersParadiseTimer) / 1500;
+            SDL_Rect SourceRect = { 0,0 };
+            ms_TextureErrorHealersParadise->Query(nullptr, nullptr, &SourceRect.w, &SourceRect.h);
+            int NewSourceH = int(SourceRect.h * Percentage);
+            SourceRect.y = SourceRect.h - NewSourceH;
+            SourceRect.h = NewSourceH;
+
+            SDL_Rect DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) } ;
+            int NewDrawH = int(DrawRect.h * Percentage);
+            DrawRect.y += DrawRect.h - NewDrawH;
+            DrawRect.h = NewDrawH;
+            Render->RenderTextureWorld(ms_TextureErrorHealersParadise->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorHealersParadise.y;
         }
     }
@@ -632,7 +687,18 @@ void Character::DrawErrorIcons(){
         }
         else {
             DrawRectError.y += DrawErrorRanged.y;
-            Render->RenderTextureFWorld(ms_TextureErrorRanged->SDLTexture(), nullptr, DrawRectError);
+            double Percentage = float(m_RangedTimer) / 3000;
+            SDL_Rect SourceRect = { 0,0 };
+            ms_TextureErrorRanged->Query(nullptr, nullptr, &SourceRect.w, &SourceRect.h);
+            int NewSourceH = int(SourceRect.h * Percentage);
+            SourceRect.y = SourceRect.h - NewSourceH;
+            SourceRect.h = NewSourceH;
+
+            SDL_Rect DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) } ;
+            int NewDrawH = int(DrawRect.h * Percentage);
+            DrawRect.y += DrawRect.h - NewDrawH;
+            DrawRect.h = NewDrawH;
+            Render->RenderTextureWorld(ms_TextureErrorRanged->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorRanged.y;
         }
     }
@@ -643,8 +709,19 @@ void Character::DrawErrorIcons(){
             Displacement -= 20;
         }
         else {
-            DrawRectError.y +=DrawErrorDangerousRecoil.y;
-            Render->RenderTextureFWorld(ms_TextureError->SDLTexture(), nullptr, DrawRectError);
+            DrawRectError.y += DrawErrorDangerousRecoil.y;
+            double Percentage = float(m_DangerousRecoilTimer) / 3000;
+            SDL_Rect SourceRect = { 0,0 };
+            ms_TextureError->Query(nullptr, nullptr, &SourceRect.w, &SourceRect.h);
+            int NewSourceH = int(SourceRect.h * Percentage);
+            SourceRect.y = SourceRect.h - NewSourceH;
+            SourceRect.h = NewSourceH;
+
+            SDL_Rect DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) } ;
+            int NewDrawH = int(DrawRect.h * Percentage);
+            DrawRect.y += DrawRect.h - NewDrawH;
+            DrawRect.h = NewDrawH;
+            Render->RenderTextureWorld(ms_TextureError->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorDangerousRecoil.y;
         }
     }
@@ -656,7 +733,18 @@ void Character::DrawErrorIcons(){
         }
         else {
             DrawRectError.y += DrawErrorIsSlow.y;
-            Render->RenderTextureFWorld(ms_TextureErrorSlowDown->SDLTexture(), nullptr, DrawRectError);
+            double Percentage = float(m_IsSlowTimer) / 1500;
+            SDL_Rect SourceRect = { 0,0 };
+            ms_TextureErrorSlowDown->Query(nullptr, nullptr, &SourceRect.w, &SourceRect.h);
+            int NewSourceH = int(SourceRect.h * Percentage);
+            SourceRect.y = SourceRect.h - NewSourceH;
+            SourceRect.h = NewSourceH;
+
+            SDL_Rect DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) } ;
+            int NewDrawH = int(DrawRect.h * Percentage);
+            DrawRect.y += DrawRect.h - NewDrawH;
+            DrawRect.h = NewDrawH;
+            Render->RenderTextureWorld(ms_TextureErrorSlowDown->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorIsSlow.y;
         }
     }
@@ -690,7 +778,6 @@ void Character::DrawHook() {
         Render->LineWorld(m_Core->m_x, m_Core->m_y, m_Hook.m_x, m_Hook.m_y);
     }
 }
-
 
 void Character::DrawHealthbar() {
     Drawing* Render = m_World->GameWindow()->RenderClass();

@@ -54,7 +54,7 @@ void Hands::Tick() {
         m_LastFisted = CurrentTick;
 
         auto ParentCore = (LookingEntityCore*)m_Parent->GetCore();
-        double Radians = std::atan2(m_Parent->GetInput().m_LookingY, m_Parent->GetInput().m_LookingX);
+        double Radians = std::atan2(m_Parent->GetLookingCore()->m_ylook, m_Parent->GetLookingCore()->m_xlook);
 
         double XHands, YHands;
         if (m_LastFistedR < m_LastFistedL) {
@@ -103,9 +103,10 @@ void Hands::Draw() {
         return;
 
     auto CurrentTick = World->CurrentTick();
-    double Radians = std::atan2(m_Parent->GetInput().m_LookingY, m_Parent->GetInput().m_LookingX); // Y, X
+    double XDirection = m_Parent->GetLookingCore()->m_xlook;
+    double YDirection = m_Parent->GetLookingCore()->m_ylook;
+    double Radians = std::atan2(YDirection, XDirection); // Y, X
     double Angle = Radians / M_PI * 180.0;
-
 
     double FistingKoefficientL = double(CurrentTick - m_LastFistedL) / double(m_FistingAnimationDuration);
     double FistingKoefficientR = double(CurrentTick - m_LastFistedR) / double(m_FistingAnimationDuration);
@@ -115,10 +116,10 @@ void Hands::Draw() {
     FistingKoefficientL = (1.0 - FistingKoefficientL) * m_FistingRadius;
     FistingKoefficientR = (1.0 - FistingKoefficientR) * m_FistingRadius;
 
-    double XOffLeft = std::cos(-m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingX * FistingKoefficientL;
-    double YOffLeft = std::sin(-m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingY * FistingKoefficientL;
-    double XOffRight = std::cos(m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingX * FistingKoefficientR;
-    double YOffRight = std::sin(m_HandSpacing + Radians) * 25.0 + m_Parent->GetInput().m_LookingY * FistingKoefficientR;
+    double XOffLeft = std::cos(-m_HandSpacing + Radians) * 25.0 + XDirection * FistingKoefficientL;
+    double YOffLeft = std::sin(-m_HandSpacing + Radians) * 25.0 + YDirection * FistingKoefficientL;
+    double XOffRight = std::cos(m_HandSpacing + Radians) * 25.0 + XDirection * FistingKoefficientR;
+    double YOffRight = std::sin(m_HandSpacing + Radians) * 25.0 + YDirection * FistingKoefficientR;
 
     SDL_FRect HandRectLeft = { float(ParentCore->m_x - m_Size2 + XOffLeft),
                                float(ParentCore->m_y - m_Size2 + YOffLeft),

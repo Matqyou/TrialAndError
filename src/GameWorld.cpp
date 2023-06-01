@@ -37,7 +37,8 @@ GameWorld::GameWorld(GameReference* game_window, int width, int height) {
 
     m_Background = GameWindow()->Assets()->ImageHandler()->LoadTexture("assets/images/backgrounds/background_pattern.png", true);
     m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
-    //SDL_SetTextureAlphaMod(m_Background->SDLTexture(), 0);
+    // m_Background->SetAlphaMod(128);
+    // m_Background->SetBlendMode(SDL_BLENDMODE_BLEND);
 
     m_LastWave = 0;
     m_TimeBetweenWaves = 300;
@@ -90,8 +91,8 @@ void GameWorld::AddScore(unsigned int score) {
 }
 
 void GameWorld::EnemiesKilled() {
-    if (m_CurrentTick - m_LastWave > 600)
-        m_LastWave = m_CurrentTick - m_TimeBetweenWaves + 600;
+    if (m_TimeBetweenWaves - (m_CurrentTick - m_LastWave) > 300)
+        m_LastWave = m_CurrentTick - m_TimeBetweenWaves + 300;
 }
 
 void GameWorld::AlliesGone(){
@@ -243,8 +244,10 @@ void GameWorld::TickCamera() {
 
         auto Char = FirstPlayer();
         for (; Char; Char = (Character*)Char->NextType()) {
-            if (Char->IsNPC())
-                continue;
+            if (Char->IsNPC()) {
+                auto NPC = (CharacterNPC*)Char;
+                if (!NPC->GetCurrentWeapon()) continue;
+            }
 
             num_player++;
 
@@ -286,8 +289,8 @@ void GameWorld::TickSpawner() {
 
     m_LastWave = m_CurrentTick;
     m_Round += 1;
-    m_TimeBetweenWaves = (unsigned long long)((5 + m_Round * 2.5) * m_GameWindow->Timer()->GetFramerate());
-    m_NumEnemiesPerWave = 2 + int(m_Round / 0.75);
+    m_NumEnemiesPerWave = (unsigned int)(1 + std::pow(m_Round, 0.5) * 2);
+    m_TimeBetweenWaves = (unsigned long long)((m_Round * m_NumEnemiesPerWave) * m_GameWindow->Timer()->GetFramerate());
     m_Score += m_Round * 50;
     char msg[64];
     std::snprintf(msg, sizeof(msg), "Score: %i", m_Score);
@@ -300,14 +303,15 @@ void GameWorld::TickSpawner() {
         double Angle = (180.0 + (rand()%180)) / 180.0 * M_PI;
         double XSpawn = Width2 + std::cos(Angle) * Width2;
         double YSpawn = Height2 + std::sin(Angle) * Height2;
-        auto NewNPC = new CharacterNPC(this, 1000.0 + m_Round, XSpawn, YSpawn, 0.0, 0.0, NPC_TURRET, true);
+        auto NewNPC = new CharacterNPC(this, 200.0 + m_Round * 10.0, XSpawn, YSpawn, 0.0, 0.0, NPC_TURRET, true);
         NewNPC->GiveWeapon(WEAPON_MINIGUN);
     }
     for (int i = 0; i < m_NumEnemiesPerWave; i++) {
         double Angle = (180.0 + (rand()%180)) / 180.0 * M_PI;
         double XSpawn = Width2 + std::cos(Angle) * Width2;
         double YSpawn = Height2 + std::sin(Angle) * Height2;
-        auto NewNPC = new CharacterNPC(this, 10.0 + m_Round, XSpawn, YSpawn, 0.0, 0.0, NPC_TURRET,false);
+        double Health = std::pow(m_Round, 0.3333333333333333333333333) * 10.0;
+        auto NewNPC = new CharacterNPC(this, Health, XSpawn, YSpawn, 0.0, 0.0, NPC_TURRET,false);
         int Weaponizer = rand()%100;
         if (m_Round >= 20) {
             if (Weaponizer < 10) NewNPC->GiveWeapon(WEAPON_GLOCK);
@@ -370,9 +374,7 @@ void GameWorld::Draw() {
 
     if (!THE_END) {
         SDL_Rect DestinationRect = {0, 0, int(m_Width), int(m_Height)};
-        SDL_SetTextureBlendMode(m_Background->SDLTexture(), SDL_BLENDMODE_BLEND);
         Render->RenderTextureWorld(m_Background->SDLTexture(), nullptr, DestinationRect);
-        SDL_SetTextureBlendMode(m_Background->SDLTexture(), SDL_BLENDMODE_NONE);
 
         SDL_Rect DrawRect = {0, 0, int(m_Width), int(m_Height)};
         Render->SetColor(255, 0, 0, 255);
