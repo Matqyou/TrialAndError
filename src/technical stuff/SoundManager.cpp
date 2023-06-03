@@ -75,7 +75,7 @@ void SoundManager::RemoveSoundAutoCleanup(Sound* sound) {
     }
 }
 
-Sound* SoundManager::LoadSound(const char *filepath, bool auto_cleanup) {
+Sound* SoundManager::LoadSound(const char* filepath, bool auto_cleanup) {
     Mix_Chunk* NewMixChunk = Mix_LoadWAV(filepath);
     if (!NewMixChunk) {
         std::printf("Failed to load sound '%s'\n", filepath);

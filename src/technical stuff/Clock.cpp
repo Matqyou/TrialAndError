@@ -34,5 +34,5 @@ void Clock::SetFramerate(double framerate) {
         throw std::invalid_argument("Invalid clock framerate was set");
 
     Framerate = framerate;
-    NanoDelay = (long long)(1e9 / framerate);
+    NanoDelay = (long long) (1e9 / framerate);
 }

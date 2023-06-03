@@ -40,11 +40,13 @@ void GameController::Event(const SDL_Event& event) {
         case SDL_JOYBUTTONDOWN: {
             bool Pressed = event.type == SDL_JOYBUTTONDOWN;
             m_Buttons[event.cbutton.button] = Pressed;
-        } break;
+        }
+            break;
         case SDL_JOYAXISMOTION: {
             int AxisID = event.caxis.axis;
             m_Axis[AxisID] = double(event.caxis.value) / SDL_MAX_SINT16;
-        } break;
+        }
+            break;
     }
 }
 
@@ -61,7 +63,7 @@ GameControllers::~GameControllers() {
         delete Controller;
 }
 
-GameController *GameControllers::OpenController(int device_id) {
+GameController* GameControllers::OpenController(int device_id) {
     auto* NewController = new GameController(device_id);
     m_Controllers.push_back(NewController);
     return NewController;

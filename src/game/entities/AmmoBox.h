@@ -35,7 +35,7 @@ public:
     AmmoBox(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount);
 
     // Getting
-    [[nodiscard]] AmmoType Type() const{ return m_Type; }
+    [[nodiscard]] AmmoType Type() const { return m_Type; }
 
     // Manipulating
     unsigned int TakeAmmo(unsigned int request);

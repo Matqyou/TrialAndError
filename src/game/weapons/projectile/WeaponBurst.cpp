@@ -11,7 +11,7 @@ Sound* WeaponBurst::ms_ShootSound = nullptr;
 Sound* WeaponBurst::ms_ClickSound = nullptr;
 
 WeaponBurst::WeaponBurst(Character* owner)
- : ProjectileWeapon(owner, WEAPON_BURST, 30, 24, 24 * 3, 35.0, false) {
+    : ProjectileWeapon(owner, WEAPON_BURST, 30, 24, 24 * 3, 35.0, false) {
     m_BaseRecoilForce = 3.0;
     m_RecoilForce = m_BaseRecoilForce;
     m_Damage = 7.5;
@@ -44,13 +44,13 @@ WeaponBurst::WeaponBurst(Character* owner)
 //
 //}
 void WeaponBurst::Tick() {
-    if(!m_Shooter->HasDangerousRecoil())m_RecoilForce = m_BaseRecoilForce;
-    else if (m_RecoilForce != m_BaseRecoilForce*3)m_RecoilForce = m_BaseRecoilForce*3;
+    if (!m_Shooter->HasDangerousRecoil())m_RecoilForce = m_BaseRecoilForce;
+    else if (m_RecoilForce != m_BaseRecoilForce * 3)m_RecoilForce = m_BaseRecoilForce * 3;
     TickTrigger();
 
     if (m_Shooter) {
         GameWorld* World = m_Shooter->World();
-        auto ShooterCore = (LookingEntityCore*)m_Shooter->GetCore();
+        auto ShooterCore = (LookingEntityCore*) m_Shooter->GetCore();
         SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
         auto CurrentTick = World->GetTick();
         if (m_BurstShotsLeft && CurrentTick - m_BurstTick > m_BurstCooldown) {
@@ -62,7 +62,14 @@ void WeaponBurst::Tick() {
 
                 double VelocityX = ShooterCore->m_xlook * m_ProjectileSpeed;
                 double VelocityY = ShooterCore->m_ylook * m_ProjectileSpeed;
-                new Projectile(World, m_Shooter, WEAPON_BURST, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
+                new Projectile(World,
+                               m_Shooter,
+                               WEAPON_BURST,
+                               m_Damage,
+                               ShooterCore->m_x,
+                               ShooterCore->m_y,
+                               VelocityX,
+                               VelocityY);
 
                 double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
                 double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
@@ -86,7 +93,14 @@ void WeaponBurst::Tick() {
 
                 double VelocityX = ShooterCore->m_xlook * m_ProjectileSpeed;
                 double VelocityY = ShooterCore->m_ylook * m_ProjectileSpeed;
-                new Projectile(World, m_Shooter, WEAPON_BURST, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
+                new Projectile(World,
+                               m_Shooter,
+                               WEAPON_BURST,
+                               m_Damage,
+                               ShooterCore->m_x,
+                               ShooterCore->m_y,
+                               VelocityX,
+                               VelocityY);
 
                 double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
                 double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;

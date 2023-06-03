@@ -29,10 +29,10 @@ protected:
     friend class GameWorld;
     friend class Hook;
     GameWorld* m_World;
-    Entity* m_PrevType, *m_NextType;
-    Entity* m_Prev, *m_Next;
+    Entity* m_PrevType, * m_NextType;
+    Entity* m_Prev, * m_Next;
     unsigned long long m_SpawnedTick;
-    EntityCore* m_Core, *m_LastCore;
+    EntityCore* m_Core, * m_LastCore;
     GameWorld::EntityType m_EntityType;
     bool m_Alive;
 
@@ -69,7 +69,7 @@ public:
 
 class LookingEntity : public Entity {
 protected:
-    LookingEntityCore* m_LookingCore, *m_LastLookingCore;
+    LookingEntityCore* m_LookingCore, * m_LastLookingCore;
     void TickLastCore() override;
 
 public:

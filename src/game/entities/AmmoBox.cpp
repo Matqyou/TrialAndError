@@ -12,7 +12,7 @@ Texture* AmmoBox::ms_TextureMinigun = nullptr;
 // Sound* AmmoBox::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 AmmoBox::AmmoBox(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount)
- : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_AMMO, start_x, start_y, 40, 28, 0.0, 0.0, 0.95){
+    : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_AMMO, start_x, start_y, 40, 28, 0.0, 0.0, 0.95) {
     m_AmmoCount = AmmoCount;
     m_Type = type;
 
@@ -24,14 +24,13 @@ AmmoBox::AmmoBox(GameWorld* world, AmmoType type, double start_x, double start_y
 void AmmoBox::TickPickup() {
     // Check if position collides any of the players
     auto Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character*)(Char->NextType())) {
+    for (; Char; Char = (Character*) (Char->NextType())) {
         EntityCore* CharCore = Char->GetCore();
         double XDistance = m_Core->m_x - CharCore->m_x;
         double YDistance = m_Core->m_y - CharCore->m_y;
         double Distance = std::sqrt(std::pow(XDistance, 2) + std::pow(YDistance, 2));
 
         if (Distance > 45) continue;
-
 
         Char->AmmoPickup(this);
 
@@ -68,10 +67,10 @@ void AmmoBox::Tick() {
 void AmmoBox::Draw() {
     Drawing* Render = m_World->GameWindow()->Render();
 
-    SDL_FRect DrawRect = {float(m_Core->m_x) - float(m_Core->m_w / 2.0),
-                          float(m_Core->m_y) - float(m_Core->m_h / 2.0),
-                          float(m_Core->m_w),
-                          float(m_Core->m_h)};
+    SDL_FRect DrawRect = { float(m_Core->m_x) - float(m_Core->m_w / 2.0),
+                           float(m_Core->m_y) - float(m_Core->m_h / 2.0),
+                           float(m_Core->m_w),
+                           float(m_Core->m_h) };
 
     Render->RenderTextureFWorld((*m_Texture)->SDLTexture(), nullptr, DrawRect);
 }

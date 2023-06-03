@@ -16,8 +16,8 @@ Texture* Error::ms_TextureErrorSlowDown = nullptr;
 Texture* Error::ms_TextureErrorDangerousRecoil = nullptr;
 Texture* Error::ms_TextureError = nullptr;
 
-Error::Error(GameWorld* world,double start_x, double start_y, int typeID)
- : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_ERROR, start_x, start_y, 45, 45, 0.0, 0.0, 0.95){
+Error::Error(GameWorld* world, double start_x, double start_y, int typeID)
+    : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_ERROR, start_x, start_y, 45, 45, 0.0, 0.0, 0.95) {
 
     m_Type = static_cast<ErrorTypes>(typeID);
     if (m_Type == SPIKY) m_Texture = ms_TextureErrorSpiky;
@@ -32,17 +32,17 @@ Error::Error(GameWorld* world,double start_x, double start_y, int typeID)
 
 void Error::TickPickup(double x, double y) {
     auto Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character*)(Char->NextType())) {
+    for (; Char; Char = (Character*) (Char->NextType())) {
         EntityCore* CharCore = Char->GetCore();
         bool Collides = (CharCore->m_x - 50 < x) &&
-                        (CharCore->m_x + 50 > x) &&
-                        (CharCore->m_y - 50 < y) &&
-                        (CharCore->m_y + 50 > y);
+            (CharCore->m_x + 50 > x) &&
+            (CharCore->m_y - 50 < y) &&
+            (CharCore->m_y + 50 > y);
 
         if (!Collides)
             continue;
 
-        if(m_Type == DISORIANTED) {
+        if (m_Type == DISORIANTED) {
             if (Char->IsNPC()) { Char->ReverseMovement(); }
             else {
                 auto Plr = m_World->FirstCharacter();
@@ -51,7 +51,7 @@ void Error::TickPickup(double x, double y) {
                     Plr->ReverseMovement();
                 }
             }
-        } else if (m_Type == CONFUSING_HP){
+        } else if (m_Type == CONFUSING_HP) {
             auto Plr = m_World->FirstCharacter();
             for (; Plr; Plr = (Character*) (Plr->NextType()))
                 Plr->ConfuseHP();
@@ -66,8 +66,7 @@ void Error::TickPickup(double x, double y) {
                     Plr->MakeHealer();
                 }
             }
-        }
-        else if (m_Type == RANGED) { Char->MakeRanged(); }
+        } else if (m_Type == RANGED) { Char->MakeRanged(); }
         else if (m_Type == SLOW_DOWN) {
             if (Char->IsNPC()) { Char->SlowDown(); }
             else {
@@ -77,14 +76,12 @@ void Error::TickPickup(double x, double y) {
                     Plr->SlowDown();
                 }
             }
-        }
-        else if (m_Type == DANGEROUS_RECOIL) { Char->ActivateDangerousRecoil(); }
+        } else if (m_Type == DANGEROUS_RECOIL) { Char->ActivateDangerousRecoil(); }
         m_Alive = false;
     }
 }
 
-
-void Error::Tick(){
+void Error::Tick() {
     TickPickup(m_Core->m_x, m_Core->m_y);
     TickWalls(); // todo: don't have any functions after a function that self-destructs the object..... (crash)
 }
@@ -92,10 +89,10 @@ void Error::Tick(){
 void Error::Draw() {
     Drawing* Render = m_World->GameWindow()->Render();
 
-    SDL_FRect DrawRect = {float(m_Core->m_x) - float(m_Core->m_w / 2.0),
-                          float(m_Core->m_y) - float(m_Core->m_h / 2.0),
-                          float(m_Core->m_w),
-                          float(m_Core->m_h)};
+    SDL_FRect DrawRect = { float(m_Core->m_x) - float(m_Core->m_w / 2.0),
+                           float(m_Core->m_y) - float(m_Core->m_h / 2.0),
+                           float(m_Core->m_w),
+                           float(m_Core->m_h) };
 
     Render->RenderTextureFWorld(m_Texture->SDLTexture(), nullptr, DrawRect);
 

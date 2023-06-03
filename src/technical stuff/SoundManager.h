@@ -13,7 +13,7 @@ private:
     friend class SoundManager;
     SoundManager* m_SoundHandler;
     Mix_Chunk* m_MixChunk;
-    Sound* m_NextSound, *m_PrevSound;
+    Sound* m_NextSound, * m_PrevSound;
     bool m_AutoCleanup;
 
 public:

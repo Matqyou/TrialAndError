@@ -8,12 +8,12 @@
 #include <iostream>
 
 TileMap::TileMap(Drawing* render, int tilesize, int width, int height)
- : m_Tilesize(tilesize),
-   m_Width(width),
-   m_Height(height),
-   m_Area(width * height) {
+    : m_Tilesize(tilesize),
+      m_Width(width),
+      m_Height(height),
+      m_Area(width * height) {
     m_Render = render;
-    m_Map = new Tile*[m_Area];
+    m_Map = new Tile* [m_Area];
     memset(m_Map, 0, 8 * m_Area);
 
     //for (int y = 0; y < m_Height; y++) {
@@ -59,8 +59,8 @@ void TileMap::SaveTilemap(const char* filepath) {
         return;
     }
 
-    File.write((char*)(&m_Width), sizeof(m_Width));
-    File.write((char*)(&m_Height), sizeof(m_Height));
+    File.write((char*) (&m_Width), sizeof(m_Width));
+    File.write((char*) (&m_Height), sizeof(m_Height));
 
     const unsigned char Zero = 0;
     const unsigned char One = 5;
@@ -68,16 +68,16 @@ void TileMap::SaveTilemap(const char* filepath) {
     for (int i = 0; i < m_Area; i++) {
         Tile* pTile = m_Map[i];
         if (!pTile) {
-            File.write((char*)(&Zero), sizeof(Zero));
+            File.write((char*) (&Zero), sizeof(Zero));
             continue;
         }
 
         SDL_Color* Color = &pTile->m_Color;
 
-        File.write((char*)(&One), sizeof(One));
-        File.write((char*)(&Color->r), sizeof(Color->r));
-        File.write((char*)(&Color->g), sizeof(Color->g));
-        File.write((char*)(&Color->b), sizeof(Color->b));
+        File.write((char*) (&One), sizeof(One));
+        File.write((char*) (&Color->r), sizeof(Color->r));
+        File.write((char*) (&Color->g), sizeof(Color->g));
+        File.write((char*) (&Color->b), sizeof(Color->b));
 
         Tiles++;
     }
@@ -101,23 +101,23 @@ void TileMap::LoadTilemap(const char* filepath) {
         return;
     }
 
-    File.read((char*)(&tWidth), sizeof(tWidth));
-    File.read((char*)(&tHeight), sizeof(tHeight));
+    File.read((char*) (&tWidth), sizeof(tWidth));
+    File.read((char*) (&tHeight), sizeof(tHeight));
     tArea = tWidth * tHeight;
     std::printf("Width: %i | Height: %i\n", tWidth, tHeight);
     std::printf("Area: %i \n", tArea);
 
-    Tile** tMap = new Tile*[tArea];
+    Tile** tMap = new Tile* [tArea];
     unsigned char tExists;
     for (int i = 0; i < tArea; i++) {
-        File.read((char*)(&tExists), sizeof(tExists));
+        File.read((char*) (&tExists), sizeof(tExists));
         if (tExists) {
             Tile* pTile = new Tile();
             SDL_Color* Color = &pTile->m_Color;
 
-            File.read((char*)(&Color->r), sizeof(Color->r));
-            File.read((char*)(&Color->g), sizeof(Color->g));
-            File.read((char*)(&Color->b), sizeof(Color->b));
+            File.read((char*) (&Color->r), sizeof(Color->r));
+            File.read((char*) (&Color->g), sizeof(Color->g));
+            File.read((char*) (&Color->b), sizeof(Color->b));
 
             tMap[i] = pTile;
         } else { tMap[i] = nullptr; }
@@ -139,10 +139,9 @@ void TileMap::LoadTilemap(const char* filepath) {
     File.close();
 }
 
-
 void TileMap::Draw() {
     for (int y = 0; y < m_Height; y++) {
-        for(int x = 0; x < m_Width; x++) {
+        for (int x = 0; x < m_Width; x++) {
             Tile* DrawTile = m_Map[y * m_Width + x];
             if (!DrawTile)
                 continue;

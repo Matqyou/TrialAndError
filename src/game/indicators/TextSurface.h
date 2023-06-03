@@ -22,7 +22,7 @@ private:
     Texture* UpdateTexture();
 
 public:
-    TextSurface(AssetsManager *assets_handler, TTF_Font *font, const std::string& text, SDL_Color color);
+    TextSurface(AssetsManager* assets_handler, TTF_Font* font, const std::string& text, SDL_Color color);
     ~TextSurface();
 
     // Getting

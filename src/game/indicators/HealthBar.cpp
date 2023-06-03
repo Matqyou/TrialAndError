@@ -4,7 +4,13 @@
 
 #include "HealthBar.h"
 
-HealthBar::HealthBar(GameReference* game_window, double* value, double* max_value, int width, int height, int spacing_w, int spacing_h) {
+HealthBar::HealthBar(GameReference* game_window,
+                     double* value,
+                     double* max_value,
+                     int width,
+                     int height,
+                     int spacing_w,
+                     int spacing_h) {
     m_GameWindow = game_window;
     m_MaxValue = max_value;
     m_Value = value;
@@ -20,7 +26,11 @@ HealthBar::HealthBar(GameReference* game_window, double* value, double* max_valu
     m_a = 0;
     m_InnerWidth = m_Width - m_SpacingW * 2;
     m_InnerHeight = m_Height - m_SpacingH * 2;
-    m_Texture = m_GameWindow->Assets()->ImageHandler()->CreateTexture(SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,  width, height, false);
+    m_Texture = m_GameWindow->Assets()->ImageHandler()->CreateTexture(SDL_PIXELFORMAT_RGBA8888,
+                                                                      SDL_TEXTUREACCESS_TARGET,
+                                                                      width,
+                                                                      height,
+                                                                      false);
 }
 
 HealthBar::~HealthBar() {
@@ -36,9 +46,9 @@ void HealthBar::SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 
 Texture* HealthBar::UpdateTexture() {
     m_Ratio = *m_Value / *m_MaxValue;
-    int InnerWidth = (int)((double)(m_InnerWidth) * m_Ratio);
+    int InnerWidth = (int) ((double) (m_InnerWidth) * m_Ratio);
 
-    Drawing *Render = m_GameWindow->Render();
+    Drawing* Render = m_GameWindow->Render();
     Render->SetRenderTarget(m_Texture);
     Render->SetColor(255, 255, 255, 255);
     Render->Clear();

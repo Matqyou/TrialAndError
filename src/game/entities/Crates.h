@@ -32,7 +32,7 @@ public:
 
     ~Crates();
     Crates(GameWorld* world, double start_x, double start_y, double Health, int RandomDrop);
-    DropType Type() const{ return m_Type; }
+    DropType Type() const { return m_Type; }
     void DamageCrate(double Damage);
     void Tick() override;
     void Draw() override;

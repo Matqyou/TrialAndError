@@ -83,8 +83,10 @@ int main() {
     Hands::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     Projectile::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/projectiles/GlockBullet.png", true);
     Projectile::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/projectiles/BurstBullet.png", true);
-    Projectile::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/projectiles/ShotgunBullet.png", true);
-    Projectile::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/entities/projectiles/MinigunBullet.png", true);
+    Projectile::ms_TextureShotgun =
+        ImageHandler->LoadTexture("assets/images/entities/projectiles/ShotgunBullet.png", true);
+    Projectile::ms_TextureMinigun =
+        ImageHandler->LoadTexture("assets/images/entities/projectiles/MinigunBullet.png", true);
     AmmoBox::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/GlockAmmo.png", true);
     AmmoBox::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/ShotgunAmmo.png", true);
     AmmoBox::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/BurstAmmo.png", true);
@@ -188,7 +190,8 @@ int main() {
             switch (CurrentEvent.type) {
                 case SDL_QUIT: {
                     Running = false;
-                } break;
+                }
+                    break;
                 case SDL_KEYDOWN: {
                     SDL_Scancode ScancodeKey = CurrentEvent.key.keysym.scancode;
                     if (ScancodeKey == SDL_SCANCODE_ESCAPE) {
@@ -200,7 +203,8 @@ int main() {
                     } else if (ScancodeKey == SDL_SCANCODE_Z) {
                         new CharacterNPC(World, 20.0, 32 * 30, 30, 10, 10, NPC_TURRET, true);
                     }
-                } break;
+                }
+                    break;
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
@@ -221,7 +225,8 @@ int main() {
                     World->DestroyPlayerByController(DeletedController);
                     World->DestroyCharacterByController(DeletedController);
                     SoundHandler->PlaySound(LowSound);
-                } break;
+                }
+                    break;
                 case SDL_MOUSEBUTTONDOWN: {
                     if (World->GetPaused()) {
                         if (CurrentEvent.button.button == SDL_BUTTON_LEFT) {
@@ -237,7 +242,8 @@ int main() {
                             }
                         }
                     }
-                } break;
+                }
+                    break;
             }
         }
 

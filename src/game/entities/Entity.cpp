@@ -111,10 +111,10 @@ void Entity::Draw() {
     Drawing* Render = m_World->GameWindow()->Render();
 
     Render->SetColor(255, 255, 255, 255);
-    SDL_FRect DrawRect = {float(m_Core->m_x) - float(m_Core->m_w / 2),
-                          float(m_Core->m_y) - float(m_Core->m_h / 2),
-                          float(m_Core->m_w),
-                          float(m_Core->m_h)};
+    SDL_FRect DrawRect = { float(m_Core->m_x) - float(m_Core->m_w / 2),
+                           float(m_Core->m_y) - float(m_Core->m_h / 2),
+                           float(m_Core->m_w),
+                           float(m_Core->m_h) };
     Render->FillRectFWorld(DrawRect);
 }
 
@@ -128,9 +128,18 @@ LookingEntity::LookingEntity(GameWorld* world, GameWorld::EntityType entity_type
                              double start_xvel, double start_yvel,
                              double start_xlook, double start_ylook,
                              double base_damping)
- : Entity(world, ENTITY_LOOKING, entity_type, start_x, start_y, start_w, start_h, start_xvel, start_yvel, base_damping) {
-    m_LookingCore = (LookingEntityCore*)m_Core;
-    m_LastLookingCore = (LookingEntityCore*)m_LastCore;
+    : Entity(world,
+             ENTITY_LOOKING,
+             entity_type,
+             start_x,
+             start_y,
+             start_w,
+             start_h,
+             start_xvel,
+             start_yvel,
+             base_damping) {
+    m_LookingCore = (LookingEntityCore*) m_Core;
+    m_LastLookingCore = (LookingEntityCore*) m_LastCore;
     m_LookingCore->m_xlook = start_xlook;
     m_LookingCore->m_ylook = start_ylook;
 }

@@ -19,7 +19,13 @@ double ProjectileWeapon::GenerateRandomProjectileSpeed() const {
         - m_NegativeRandomProjectileSpeed) / m_RandomProjectileSpeedDivisor;
 }
 
-ProjectileWeapon::ProjectileWeapon(Character* owner, WeaponType type, int tick_cooldown, int ammo_capacity, int total_ammo_capacity, double projectile_speed, bool automatic) {
+ProjectileWeapon::ProjectileWeapon(Character* owner,
+                                   WeaponType type,
+                                   int tick_cooldown,
+                                   int ammo_capacity,
+                                   int total_ammo_capacity,
+                                   double projectile_speed,
+                                   bool automatic) {
     m_Shooter = owner;
     m_Type = type;
     m_LastShotAt = 0;
@@ -43,8 +49,8 @@ ProjectileWeapon::ProjectileWeapon(Character* owner, WeaponType type, int tick_c
 
 void ProjectileWeapon::TickTrigger() {
     if (m_Shooter) {
-        bool Shoot = (Character*)(m_Shooter)->m_Input.m_Shooting;
-        bool LastShoot = (Character*)(m_Shooter)->m_LastInput.m_Shooting;
+        bool Shoot = (Character*) (m_Shooter)->m_Input.m_Shooting;
+        bool LastShoot = (Character*) (m_Shooter)->m_LastInput.m_Shooting;
 
         m_Triggered = Shoot && !LastShoot;  // Always trigger on semi
         if (!m_Triggered) {
@@ -68,7 +74,9 @@ void ProjectileWeapon::SetSpread(double degrees, int decimal_places) {
     m_FullRandomSpread = int(m_HalfRandomSpread * 2.0) + 1;
 }
 
-void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed, double delta_percentage_negative, int delta_decimal_places) {
+void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed,
+                                                double delta_percentage_negative,
+                                                int delta_decimal_places) {
     m_RandomProjectileSpeedDivisor = std::pow(10, delta_decimal_places);
     double FullSpeed = delta_speed * m_RandomProjectileSpeedDivisor;
     m_NegativeRandomProjectileSpeed = FullSpeed * delta_percentage_negative;
@@ -76,18 +84,16 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed, double delta
 }
 
 void ProjectileWeapon::Reload() {
-    if(m_TrueAmmo != 0){
+    if (m_TrueAmmo != 0) {
         m_Shooter->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ReloadSound);
-    }
-    else {
+    } else {
         m_Shooter->World()->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_NoAmmo);
     }
     unsigned int AmmoNeeded = m_AmmoCapacity - m_Ammo;
-    if (m_TrueAmmo >= AmmoNeeded){
+    if (m_TrueAmmo >= AmmoNeeded) {
         m_TrueAmmo -= AmmoNeeded;
         m_Ammo = m_AmmoCapacity;
-    }
-    else {
+    } else {
         m_Ammo += m_TrueAmmo;
         m_TrueAmmo = 0;
     }

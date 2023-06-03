@@ -47,12 +47,18 @@ public:
     static Sound* ms_ReloadSound;
     static Sound* ms_NoAmmo;
 
-    ProjectileWeapon(Character* owner, WeaponType type, int tick_cooldown, int ammo_capacity, int total_ammo_capacity, double projectile_speed, bool automatic);
+    ProjectileWeapon(Character* owner,
+                     WeaponType type,
+                     int tick_cooldown,
+                     int ammo_capacity,
+                     int total_ammo_capacity,
+                     double projectile_speed,
+                     bool automatic);
 
     WeaponType Type() const { return m_Type; }
     unsigned int Ammo() const { return m_Ammo; }
-    unsigned int TrueAmmo() const {return m_TrueAmmo;}
-    unsigned int AmmoCap() const {return m_AmmoCapacity;}
+    unsigned int TrueAmmo() const { return m_TrueAmmo; }
+    unsigned int AmmoCap() const { return m_AmmoCapacity; }
     unsigned int NeededAmmo() const;
     unsigned long long TickCooldown() const { return m_TickCooldown; }
 

@@ -1049,7 +1049,7 @@ void Character::Tick() {
 void Character::Draw() {
     double Health = m_Health / m_MaxHealth;
     double Hue = m_HitTicks ? 0.0 : m_ColorHue;
-    m_CharacterColor = HSLtoRGB({ Hue, 1.0, 0.4 + Health * 0.35});
+    m_CharacterColor = HSLtoRGB({ Hue, 1.0, 0.4 + Health * 0.35 });
     m_HookColor = HSLtoRGB({ Hue, 0.5, 1.0 });
     m_HealthbarColor = m_CharacterColor;
     m_HandColor = HSLtoRGB({ Hue, 1.0, 0.2 + Health * 0.3 });

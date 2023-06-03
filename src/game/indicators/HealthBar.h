@@ -10,7 +10,7 @@
 class HealthBar {
 private:
     GameReference* m_GameWindow;
-    double* m_MaxValue, *m_Value;
+    double* m_MaxValue, * m_Value;
     int m_Width, m_Height, m_SpacingW, m_SpacingH;
     double m_Ratio;
 
@@ -19,7 +19,13 @@ private:
     Texture* m_Texture;
 
 public:
-    HealthBar(GameReference* game_window, double* value, double* max_value, int width, int height, int spacing_w, int spacing_h);
+    HealthBar(GameReference* game_window,
+              double* value,
+              double* max_value,
+              int width,
+              int height,
+              int spacing_w,
+              int spacing_h);
     ~HealthBar();
 
     // Getting

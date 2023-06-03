@@ -24,7 +24,6 @@ double Drawing::TranslateY(double y) {
     return (y - m_CameraY) * m_Zoom + m_World->GameWindow()->GetHeight2();
 }
 
-
 SDL_Rect Drawing::TranslateRect(const SDL_Rect& rect) {
     return { int(TranslateX(rect.x)),
              int(TranslateY(rect.y)),
@@ -54,7 +53,7 @@ void Drawing::LineWorld(double x1, double y1, double x2, double y2) {
                        int(TranslateX(x2)), int(TranslateY(y2)));
 }
 
-void Drawing::DrawRectWorld(const SDL_Rect &rect) {
+void Drawing::DrawRectWorld(const SDL_Rect& rect) {
     SDL_Rect MovedRect = TranslateRect(rect);
     SDL_RenderDrawRect(m_Renderer, &MovedRect);
 }
@@ -82,7 +81,12 @@ void Drawing::RenderTextureWorld(SDL_Texture* texture, SDL_Rect* srcrect, const 
     SDL_RenderCopy(m_Renderer, texture, srcrect, &MovedRect);
 }
 
-void Drawing::RenderTextureExWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_Rect& dstrect, double angle, SDL_Point* center, SDL_RendererFlip flip) {
+void Drawing::RenderTextureExWorld(SDL_Texture* texture,
+                                   SDL_Rect* srcrect,
+                                   const SDL_Rect& dstrect,
+                                   double angle,
+                                   SDL_Point* center,
+                                   SDL_RendererFlip flip) {
     SDL_Rect MovedRect = TranslateRect(dstrect);
     SDL_RenderCopyEx(m_Renderer, texture, srcrect, &MovedRect, angle, center, flip);
 }
@@ -96,11 +100,15 @@ void Drawing::RenderTextureFWorld(SDL_Texture* texture, SDL_Rect* srcrect, const
     SDL_RenderCopyF(m_Renderer, texture, srcrect, &MovedRect);
 }
 
-void Drawing::RenderTextureExFWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect, double angle, SDL_FPoint* center, SDL_RendererFlip flip) {
+void Drawing::RenderTextureExFWorld(SDL_Texture* texture,
+                                    SDL_Rect* srcrect,
+                                    const SDL_FRect& dstrect,
+                                    double angle,
+                                    SDL_FPoint* center,
+                                    SDL_RendererFlip flip) {
     SDL_FRect MovedRect = TranslateFRect(dstrect);
     SDL_RenderCopyExF(m_Renderer, texture, srcrect, &MovedRect, angle, center, flip);
 }
-
 
 void Drawing::RenderTextureFullscreen(SDL_Texture* texture, SDL_Rect* srcrect) {
     SDL_RenderCopy(m_Renderer, texture, srcrect, nullptr);

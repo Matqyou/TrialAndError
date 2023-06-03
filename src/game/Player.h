@@ -22,7 +22,7 @@ private:
     unsigned int m_Index;
     TextSurface* m_NamePlate;
 
-    Player* m_Prev, *m_Next;
+    Player* m_Prev, * m_Next;
 
 public:
     Player(GameWorld* game_world, const std::string& username);

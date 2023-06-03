@@ -22,7 +22,7 @@ private:
     ImageManager* m_ImageHandler;
     SDL_Texture* m_SDLTexture;
     TextureInfo m_Information;
-    Texture* m_NextTexture, *m_PrevTexture;
+    Texture* m_NextTexture, * m_PrevTexture;
     bool m_AutoCleanup;
 
 public:

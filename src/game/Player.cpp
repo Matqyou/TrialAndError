@@ -6,11 +6,11 @@
 #include "entities/character/Character.h"
 
 Player::Player(GameWorld* game_world, const std::string& username)
-: m_GameWorld(game_world),
-  m_Character(nullptr),
-  m_Username(),
-  m_Prev(nullptr),
-  m_Next(nullptr) {
+    : m_GameWorld(game_world),
+      m_Character(nullptr),
+      m_Username(),
+      m_Prev(nullptr),
+      m_Next(nullptr) {
     SetUsername(username);
     m_Index = -1;
     m_Index = m_GameWorld->GetNextPlayerIndex();

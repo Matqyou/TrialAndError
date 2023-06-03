@@ -11,7 +11,7 @@ Sound* WeaponShotgun::ms_ShootSound = nullptr;
 Sound* WeaponShotgun::ms_ClickSound = nullptr;
 
 WeaponShotgun::WeaponShotgun(Character* owner)
- : ProjectileWeapon(owner, WEAPON_SHOTGUN, 42, 8, 8 * 3, 35.0, false) {
+    : ProjectileWeapon(owner, WEAPON_SHOTGUN, 42, 8, 8 * 3, 35.0, false) {
     m_PelletCount = 6;
     m_BaseRecoilForce = 20.0;
     m_RecoilForce = m_BaseRecoilForce;
@@ -22,13 +22,13 @@ WeaponShotgun::WeaponShotgun(Character* owner)
 }
 
 void WeaponShotgun::Tick() {
-    if(!m_Shooter->HasDangerousRecoil())m_RecoilForce = m_BaseRecoilForce ;
-    else if (m_RecoilForce != m_BaseRecoilForce*3)m_RecoilForce = m_BaseRecoilForce*3;
+    if (!m_Shooter->HasDangerousRecoil())m_RecoilForce = m_BaseRecoilForce;
+    else if (m_RecoilForce != m_BaseRecoilForce * 3)m_RecoilForce = m_BaseRecoilForce * 3;
     TickTrigger();
 
     if (m_Shooter && m_Triggered) {  // If want to trigger without an owner, need to save world somewhere
         GameWorld* World = m_Shooter->World();
-        auto ShooterCore = (LookingEntityCore*)m_Shooter->GetCore();
+        auto ShooterCore = (LookingEntityCore*) m_Shooter->GetCore();
         auto CurrentTick = World->GetTick();
         if (CurrentTick - m_LastShotAt <= m_TickCooldown)
             return;
@@ -48,7 +48,14 @@ void WeaponShotgun::Tick() {
                 double VelocityX = cos(ProjectileAngle) * ProjectileSpeed;
                 double VelocityY = sin(ProjectileAngle) * ProjectileSpeed;
 
-                new Projectile(World, m_Shooter, WEAPON_SHOTGUN, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
+                new Projectile(World,
+                               m_Shooter,
+                               WEAPON_SHOTGUN,
+                               m_Damage,
+                               ShooterCore->m_x,
+                               ShooterCore->m_y,
+                               VelocityX,
+                               VelocityY);
             }
 
             double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;

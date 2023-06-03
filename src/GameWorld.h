@@ -33,9 +33,9 @@ private:
     bool m_ShowNames;
     bool m_Paused;
     bool m_GameOver;
-    Player* m_FirstPlayer, *m_LastPlayer;
-    Entity* m_FirstType[NUM_ENTTYPES]{}, *m_LastType[NUM_ENTTYPES]{};
-    Entity* m_First, *m_Last;
+    Player* m_FirstPlayer, * m_LastPlayer;
+    Entity* m_FirstType[NUM_ENTTYPES]{}, * m_LastType[NUM_ENTTYPES]{};
+    Entity* m_First, * m_Last;
     unsigned long long m_CurrentTick;
 
     // Cool scrolling background                                        cap
@@ -70,8 +70,8 @@ public:
     [[nodiscard]] Entity* LastEntity() const { return m_Last; }
     [[nodiscard]] Entity* FirstEntityType(EntityType entity_type) const { return m_FirstType[entity_type]; }
     [[nodiscard]] Entity* LastEntityType(EntityType entity_type) const { return m_LastType[entity_type]; }
-    [[nodiscard]] Character* FirstCharacter() const { return (Character*)(FirstEntityType(ENTTYPE_CHARACTER)); }
-    [[nodiscard]] Crates* FirstCrate() const { return (Crates*)(FirstEntityType(ENTTYPE_BOX)); }
+    [[nodiscard]] Character* FirstCharacter() const { return (Character*) (FirstEntityType(ENTTYPE_CHARACTER)); }
+    [[nodiscard]] Crates* FirstCrate() const { return (Crates*) (FirstEntityType(ENTTYPE_BOX)); }
     // void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
     // Setting

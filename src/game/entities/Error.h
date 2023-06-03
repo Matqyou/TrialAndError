@@ -8,7 +8,6 @@
 #include "../weapons/projectile/ProjectileWeapon.h"
 #include "character/Character.h"
 
-
 enum ErrorTypes {
     HEALERS_PARADISE,
     DISORIANTED,
@@ -48,6 +47,5 @@ public:
     void Tick() override;
     void Draw() override;
 };
-
 
 #endif //TRIALANDERROR_ERROR_H
