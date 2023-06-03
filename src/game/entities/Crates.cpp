@@ -1,8 +1,8 @@
 //
 // Created by Mim on 5/8/2023.
 //
-#include "Crates.h"
 #include "character/Character.h"
+#include "Crates.h"
 #include <iostream>
 #include <random>
 Texture* Crates::ms_TextureBox = nullptr;
@@ -42,20 +42,6 @@ Crates::~Crates(){
 
 }
 
-void Crates::TickImpact(double x, double y) {
-    auto Char = m_World->FirstPlayer();
-    for (; Char; Char = (Character*)(Char->NextType())) {
-        EntityCore* CharCore = Char->GetCore();
-        bool Collides = (CharCore->m_x - 25 < x) &&
-                        (CharCore->m_x + 25 > x) &&
-                        (CharCore->m_y - 25 < y) &&
-                        (CharCore->m_y + 25 > y);
-
-        if (!Collides)
-            continue;
-    }
-}
-
 void Crates::DamageCrate(double Damage) {
     srand(time(NULL));
     Sound *BoxHitSound = ms_BoxSound;
@@ -66,7 +52,6 @@ void Crates::DamageCrate(double Damage) {
 }
 
 void Crates::Tick() {
-    TickImpact(m_Core->m_x, m_Core->m_y);
     TickWalls();
 
     if (m_Health <= 0) {
@@ -83,7 +68,7 @@ void Crates::Tick() {
 }
 
 void Crates::Draw() {
-    Drawing* Render = m_World->GameWindow()->RenderClass();
+    Drawing* Render = m_World->GameWindow()->Render();
 
     SDL_FRect DrawRect = {float(m_Core->m_x) - float(m_Core->m_w / 2.0),
                           float(m_Core->m_y) - float(m_Core->m_h / 2.0),

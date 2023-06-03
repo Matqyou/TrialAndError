@@ -12,16 +12,14 @@ Drawing::Drawing(GameReference* game_window) {
     m_Zoom = 0.5;
 }
 
-Drawing::~Drawing() {
-
-}
+Drawing::~Drawing() = default;
 
 double Drawing::TranslateX(double x) {
-    return (x - m_World->CameraX()) * m_Zoom + m_World->GameWindow()->Width() / 2.0;
+    return (x - m_CameraX) * m_Zoom + m_World->GameWindow()->GetWidth2();
 }
 
 double Drawing::TranslateY(double y) {
-    return (y - m_World->CameraY()) * m_Zoom + m_World->GameWindow()->Height() / 2.0;
+    return (y - m_CameraY) * m_Zoom + m_World->GameWindow()->GetHeight2();
 }
 
 
@@ -39,17 +37,14 @@ SDL_FRect Drawing::TranslateFRect(const SDL_FRect& rect) {
              float(rect.h * m_Zoom) };
 }
 
-void Drawing::SetWorld(GameWorld* world) {
-    m_World = world;
-}
-
 void Drawing::SetRenderTarget(Texture* target) {
     if (target) SDL_SetRenderTarget(m_Renderer, target->SDLTexture());
     else SDL_SetRenderTarget(m_Renderer, nullptr);
 }
 
-void Drawing::SetBlendingMode(SDL_BlendMode blend_mode) {
-    SDL_SetRenderDrawBlendMode(m_Renderer, blend_mode);
+void Drawing::SetCameraPos(double camera_x, double camera_y) {
+    m_CameraX = camera_x;
+    m_CameraY = camera_y;
 }
 
 void Drawing::LineWorld(double x1, double y1, double x2, double y2) {
@@ -107,14 +102,6 @@ void Drawing::RenderTextureExFWorld(SDL_Texture* texture, SDL_Rect* srcrect, con
 
 void Drawing::RenderTextureFullscreen(SDL_Texture* texture, SDL_Rect* srcrect) {
     SDL_RenderCopy(m_Renderer, texture, srcrect, nullptr);
-}
-
-void Drawing::SetColor(SDL_Color color) {
-    SetColor(color.r, color.g, color.b, color.a);
-}
-
-void Drawing::SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-    SDL_SetRenderDrawColor(m_Renderer, r, g, b, a);
 }
 
 void Drawing::Clear() {

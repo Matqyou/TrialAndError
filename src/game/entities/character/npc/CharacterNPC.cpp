@@ -9,12 +9,12 @@ CharacterNPC::CharacterNPC(GameWorld* world, double max_health,
                            double start_x, double start_y,
                            double start_xvel, double start_yvel,
                            NPCType ai_type, bool is_boss)
- : Character(world, nullptr, max_health, start_x, start_y, start_xvel, start_yvel) {
+    : Character(world, nullptr, max_health, start_x, start_y, start_xvel, start_yvel) {
     m_NPC = true;
     m_NPCLastShot = 0;
     m_AIType = ai_type;
     m_IsBoss = is_boss;
-    m_ColorHue = is_boss ? 250.0 + (rand()%90) - 45 : 120.0 + (rand()%90) - 45;
+    m_ColorHue = is_boss ? 250.0 + (rand() % 90) - 45 : 120.0 + (rand() % 90) - 45;
 }
 
 CharacterNPC::~CharacterNPC() {
@@ -25,16 +25,17 @@ void CharacterNPC::TickControls() {
     if (m_AIType == NPC_DUMMY)
         return;
 
-    auto CurrentTick = m_World->CurrentTick();
+    auto CurrentTick = m_World->GetTick();
 
-    auto Char = m_World->FirstPlayer();
+    auto Char = m_World->FirstCharacter();
     Character* ClosestChar = nullptr;
     double Closest = -1;
-    for (; Char != nullptr; Char = (Character*)(Char->NextType())) {
+    for (; Char != nullptr; Char = (Character*) (Char->NextType())) {
         if (Char == this || Char->IsNPC()) continue;
 
         EntityCore* CharCore = Char->GetCore();
-        double Distance = std::sqrt(std::pow(CharCore->m_x - m_Core->m_x, 2) + std::pow(CharCore->m_y - m_Core->m_y, 2));
+        double
+            Distance = std::sqrt(std::pow(CharCore->m_x - m_Core->m_x, 2) + std::pow(CharCore->m_y - m_Core->m_y, 2));
         if (Distance < 1000.0 && (!ClosestChar || Distance < Closest)) {
             Closest = Distance;
             ClosestChar = Char;
@@ -47,7 +48,7 @@ void CharacterNPC::TickControls() {
     if (!ClosestChar) {
         m_Input.m_GoingLength = 0.0;
         m_Input.m_LookingLength = 1.0;
-        const double OneDegree = double(rand()%10-5) /180.0*M_PI;
+        const double OneDegree = double(rand() % 10 - 5) / 180.0 * M_PI;
         double Angle = std::atan2(m_Input.m_LookingY, m_Input.m_LookingX) + OneDegree;
         m_Input.m_LookingX = cos(Angle);
         m_Input.m_LookingY = sin(Angle);
@@ -82,7 +83,8 @@ void CharacterNPC::TickControls() {
                     m_Input.m_NextItem = true;
                 }
             } else {
-                if (m_CurrentWeapon->IsAutomatic() || CurrentTick - m_NPCLastShot > (unsigned long long)(m_CurrentWeapon->TickCooldown() * 10 - 150.0 / Closest)) {
+                if (m_CurrentWeapon->IsAutomatic() || CurrentTick - m_NPCLastShot
+                    > (unsigned long long) (m_CurrentWeapon->TickCooldown() * 10 - 150.0 / Closest)) {
                     m_NPCLastShot = CurrentTick;
                     m_Input.m_Shooting = true;
                 }
@@ -98,7 +100,7 @@ void CharacterNPC::Tick() {
     TickHook();  // Move hook and or player etc.
     TickCurrentWeapon(); // Shoot accelerate reload etc.
     m_Hands.Tick();
-    TickTimer(); // Ticks timer for errors
+    TickErrorTimers(); // Ticks timer for errors
     // Need every character to get here..
     // then we apply the accelerations of all
     // hooks and continue with the code below v v v
@@ -108,10 +110,10 @@ void CharacterNPC::Tick() {
     TickVelocity();  // Move the character entity
     TickWalls();  // Check if colliding with walls
 
-    if ((int)(m_Health) != (int)(m_LastHealth)) m_HealthInt->FlagForUpdate();
-    if (m_World->NamesShown() > 0.05 &&
-        ((int)(m_Core->m_x) != (int)(m_LastCore->m_x) ||
-            (int)(m_Core->m_y) != (int)(m_LastCore->m_y)))
+    if ((int) (m_Health) != (int) (m_LastHealth)) m_HealthInt->FlagForUpdate();
+    if (m_World->GetNamesShown() > 0.05 &&
+        ((int) (m_Core->m_x) != (int) (m_LastCore->m_x) ||
+            (int) (m_Core->m_y) != (int) (m_LastCore->m_y)))
         m_CoordinatePlate->FlagForUpdate();
 
     m_LastHealth = m_Health;
@@ -125,17 +127,17 @@ void CharacterNPC::Tick() {
     if (m_Health <= 0.0) {
         m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
         m_Alive = false;
-        if (rand()%100 <= 20) new Crates(m_World, m_Core->m_x, m_Core->m_y, 20.0, rand()%2);
+        if (rand() % 100 <= 20) new Crates(m_World, m_Core->m_x, m_Core->m_y, 20.0, rand() % 2);
 
         int NumNPCS = 0;
-        for (auto Char = m_World->FirstPlayer(); Char; Char = (Character*)Char->NextType()) {
+        for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType()) {
             if (Char->IsNPC() && Char->IsAlive())
                 NumNPCS++;
         }
-        m_World->AddScore(m_IsBoss ? 20*5:20);
+        m_World->AddScore(m_IsBoss ? 20 * 5 : 20);
         if (NumNPCS == 0) {
             m_World->EnemiesKilled();
-            for (auto Char = m_World->FirstPlayer(); Char; Char = (Character*)Char->NextType())
+            for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType())
                 Char->RemoveCombat();
         }
     }

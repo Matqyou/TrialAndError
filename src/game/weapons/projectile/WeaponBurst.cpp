@@ -24,7 +24,7 @@ WeaponBurst::WeaponBurst(Character* owner)
 }
 //void WeaponBurst::Draw(){
 //    GameWorld* World = m_owner->World();
-//    Drawing* Render = World->GameWindow()->RenderClass();
+//    Drawing* Render = World->GameWindow()->Render();
 //
 //    auto ShooterCore = m_owner->GetCore();
 //    auto ShooterInput = m_owner->GetInput();
@@ -52,7 +52,7 @@ void WeaponBurst::Tick() {
         GameWorld* World = m_Shooter->World();
         auto ShooterCore = (LookingEntityCore*)m_Shooter->GetCore();
         SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
-        auto CurrentTick = World->CurrentTick();
+        auto CurrentTick = World->GetTick();
         if (m_BurstShotsLeft && CurrentTick - m_BurstTick > m_BurstCooldown) {
             m_BurstTick = CurrentTick;
             m_BurstShotsLeft--;

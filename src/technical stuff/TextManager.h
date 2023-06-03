@@ -10,19 +10,27 @@
 #include <vector>
 #include <string>
 
+std::string FString(const char* format, ...);
+
 class TextManager {
 private:
     ImageManager* m_ImageHandler;
+    TTF_Font* m_MainFont;
+
     std::vector<TTF_Font*> m_Fonts;
 
 public:
-    TextManager(ImageManager* image_handler);
+    explicit TextManager(ImageManager* image_handler);
     ~TextManager();
 
-    Texture* Render(TTF_Font* font, const char* text, SDL_Color color, bool auto_cleanup);
+    // Getting
+    [[nodiscard]] ImageManager* ImageHandler() const { return m_ImageHandler; }
+    [[nodiscard]] TTF_Font* GetFont(int font_index) const { return m_Fonts[font_index]; }
+    [[nodiscard]] TTF_Font* GetMainFont() const { return m_MainFont; }
 
-    TTF_Font* LoadFont(const char *filepath, int ptsize);
-    TTF_Font* FirstFont() const { return m_Fonts[0]; }
+    // Generating
+    [[nodiscard]] Texture* Render(TTF_Font* font, const char* text, SDL_Color color, bool auto_cleanup);
+    [[nodiscard]] TTF_Font* LoadFont(const char* filepath, int ptsize);
 };
 
 #endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_TEXTMANAGER_H_

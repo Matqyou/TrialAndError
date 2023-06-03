@@ -5,8 +5,30 @@
 #include "TextManager.h"
 #include <iostream>
 
+std::string FString(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    // Determine the required buffer size
+    va_list argsCopy;
+    va_copy(argsCopy, args);
+    int bufferSize = std::vsnprintf(nullptr, 0, format, argsCopy) + 1;  // +1 for null terminator
+    va_end(argsCopy);
+
+    // Create the buffer with the required size
+    char* buffer = new char[bufferSize];
+
+    // Format the string
+    std::vsnprintf(buffer, bufferSize, format, args);
+    va_end(args);
+    std::string message(buffer);
+    delete[] buffer;
+    return message;
+}
+
 TextManager::TextManager(ImageManager* image_handler) {
     m_ImageHandler = image_handler;
+    m_MainFont = LoadFont("Minecraft.ttf", 16);
 }
 
 TextManager::~TextManager() {

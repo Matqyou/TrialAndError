@@ -27,8 +27,7 @@ enum ErrorTypes {
 class Error : public Entity {
 protected:
     ErrorTypes m_Type;
-    double m_Health;
-    Texture** m_Texture;
+    Texture* m_Texture;
 
     void TickPickup(double x, double y);
 

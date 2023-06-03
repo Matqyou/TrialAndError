@@ -17,39 +17,34 @@ GameReference* GameWindow;
 GameWorld* World;
 GameControllers* Controllers;
 
-
 bool Initialize() {
     srand(time(nullptr));
     GameWindow = new GameReference();
     if (!GameWindow->Initialize())
         return false;
 
-    TextManager* TextHandler = GameWindow->Assets()->TextHandler();
-    TextHandler->LoadFont("Minecraft.ttf", 16);
-
     World = new GameWorld(GameWindow, 50, 40);
-    World->SetCameraPos(30, 30);
-    GameWindow->RenderClass()->SetWorld(World);
+    GameWindow->Render()->SetWorld(World);
 
     //Temp ammo spawn, had to generate random and set the value for each one, also changed it to also sending an int
     // to the Crates constructor, so its easier to work with and i dont need to have acess to DropTypes, which i do, but no,
     // it only works cuz this is main and i prefer to use the same typa fix on both ERRORS and crates, since
     // for ERRORS that fix wouldnt have worked, also it lowers the line count cuz i dont gotta set the ERROR/AMMO types
     // to each random number, can just send the number straight up
-    new Crates(World,200, 200, 20, rand()%2);
-    new Crates(World,400, 200, 20, rand()%2);
-    new Crates(World,600, 200, 20, rand()%2);
-    new Crates(World,200, 400, 20, rand()%2);
-    new Crates(World,400, 400, 20, rand()%2);
-    new Crates(World,600, 400, 20, rand()%2);
-    new Crates(World,200, 600, 20, rand()%2);
-    new Crates(World,400, 600, 20, rand()%2);
-    new Crates(World,600, 600, 20, rand()%2);
+    new Crates(World, 200, 200, 20, rand() % 2);
+    new Crates(World, 400, 200, 20, rand() % 2);
+    new Crates(World, 600, 200, 20, rand() % 2);
+    new Crates(World, 200, 400, 20, rand() % 2);
+    new Crates(World, 400, 400, 20, rand() % 2);
+    new Crates(World, 600, 400, 20, rand() % 2);
+    new Crates(World, 200, 600, 20, rand() % 2);
+    new Crates(World, 400, 600, 20, rand() % 2);
+    new Crates(World, 600, 600, 20, rand() % 2);
 
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Keyboard");
     auto Char1 = new Character(World, Player1, 100.0,
-                                32*17.5, 32*17.5, 10, 10);
+                               32 * 17.5, 32 * 17.5, 10, 10);
     Char1->GiveWeapon(WEAPON_GLOCK);
     Char1->GiveWeapon(WEAPON_BURST);
     Char1->GiveWeapon(WEAPON_SHOTGUN);
@@ -65,7 +60,7 @@ int main() {
     }
 
     Clock* Timer = GameWindow->Timer();
-    Drawing* Draw = GameWindow->RenderClass();
+    Drawing* Draw = GameWindow->Render();
     AssetsManager* AssetsHandler = GameWindow->Assets();
     SoundManager* SoundHandler = AssetsHandler->SoundHandler();
     ImageManager* ImageHandler = AssetsHandler->ImageHandler();
@@ -98,7 +93,6 @@ int main() {
     Error::ms_TextureErrorConfusingHP = ImageHandler->LoadTexture("assets/images/entities/Confusion.png", true);
     Error::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/entities/Ranged.png", true);
     Error::ms_TextureError = ImageHandler->LoadTexture("assets/images/character/golden_apple.png", true);
-
 
     Character::ms_TextureErrorInvincible = ImageHandler->LoadTexture("assets/images/icons/Invincible.png", true);
     Character::ms_TextureErrorSpiky = ImageHandler->LoadTexture("assets/images/icons/Cactus.png", true);
@@ -162,16 +156,18 @@ int main() {
     Crates::ms_HitSound = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
 
     Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),
-                                                 World->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                                 World->GameWindow()->Assets()->TextHandler()->GetMainFont(),
                                                  "Bot User", { 255, 150, 150, 255 });
 
+    SDL_Rect StartButtonRect = { int(GameWindow->GetWidth2()) - 150,
+                                 int(GameWindow->GetHeight2()) - 200,
+                                 300, 100 };
+    SDL_Rect SettingsButtonRect = { int(GameWindow->GetWidth2()) - 150,
+                                    int(GameWindow->GetHeight2()) - 50,
+                                    300, 100 };
+
     bool Running = true;
-    bool Config = true;
     while (Running) {
-        // Render the Start button
-        SDL_Rect startButtonRect = { GameWindow->Width()/2-150, GameWindow->Height()/2-200, 300, 100 };
-        // Render the Settings button
-        SDL_Rect settingsButtonRect = { GameWindow->Width()/2-150, GameWindow->Height()/2-50, 300, 100 };
         // Input and events
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
@@ -186,12 +182,13 @@ int main() {
                 case SDL_KEYDOWN: {
                     SDL_Scancode ScancodeKey = CurrentEvent.key.keysym.scancode;
                     if (ScancodeKey == SDL_SCANCODE_ESCAPE) {
-                        bool Pause = !World->Paused();
+                        bool Pause = !World->GetPaused();
                         World->SetPaused(Pause);
+
                         if (Pause) SoundHandler->PlaySound(MidUISound);
                         else SoundHandler->PlaySound(LowUISound);
                     } else if (ScancodeKey == SDL_SCANCODE_Z) {
-                        new CharacterNPC(World, 20.0, 32*30, 30, 10, 10, NPC_TURRET,true);
+                        new CharacterNPC(World, 20.0, 32 * 30, 30, 10, 10, NPC_TURRET, true);
                     }
                 } break;
                 case SDL_CONTROLLERDEVICEADDED: {
@@ -199,14 +196,15 @@ int main() {
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
                     auto NewPlayer = new Player(World, "Controller");
                     auto NewChar = new Character(World, NewPlayer, 100.0,
-                                                 32*17.5, 32*17.5, 10, 10);
+                                                 32 * 17.5, 32 * 17.5, 10, 10);
                     NewChar->GiveWeapon(WEAPON_GLOCK);
                     NewChar->GiveWeapon(WEAPON_BURST);
                     NewChar->GiveWeapon(WEAPON_SHOTGUN);
                     NewChar->GiveWeapon(WEAPON_MINIGUN);
                     NewChar->SetGameController(CurrentController);
                     SoundHandler->PlaySound(HighSound);
-                } break;
+                }
+                    break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
                     GameController* DeletedController = Controllers->CloseController(InstanceID);
@@ -215,29 +213,24 @@ int main() {
                     SoundHandler->PlaySound(LowSound);
                 } break;
                 case SDL_MOUSEBUTTONDOWN: {
-                    if (CurrentEvent.button.button == SDL_BUTTON_LEFT)
-                    {
-                        int x = CurrentEvent.button.x;
-                        int y = CurrentEvent.button.y;
-                        if (x >= startButtonRect.x && x < startButtonRect.x + startButtonRect.w &&
-                            y >= startButtonRect.y && y < startButtonRect.y + startButtonRect.h)
-                        {
-                            if(World->Paused()) {
+                    if (World->GetPaused()) {
+                        if (CurrentEvent.button.button == SDL_BUTTON_LEFT) {
+                            int x = CurrentEvent.button.x;
+                            int y = CurrentEvent.button.y;
+                            if (x >= StartButtonRect.x && x < StartButtonRect.x + StartButtonRect.w &&
+                                y >= StartButtonRect.y && y < StartButtonRect.y + StartButtonRect.h) {
                                 SoundHandler->PlaySound(LowUISound);
                                 World->SetPaused(false);
+                            } else if (x >= SettingsButtonRect.x && x < SettingsButtonRect.x + SettingsButtonRect.w &&
+                                y >= SettingsButtonRect.y && y < SettingsButtonRect.y + SettingsButtonRect.h) {
+                                SoundHandler->PlaySound(MidUISound);
                             }
-                        }
-                        else if (x >= settingsButtonRect.x && x < settingsButtonRect.x + settingsButtonRect.w &&
-                            y >= settingsButtonRect.y && y < settingsButtonRect.y + settingsButtonRect.h)
-                        {
-                            Config = !Config;
-                            if(World->Paused())SoundHandler->PlaySound(MidUISound);
                         }
                     }
                 } break;
             }
         }
-    
+
         // Ticking
         World->Tick();
         Controllers->TickLast();
@@ -247,32 +240,16 @@ int main() {
         //Draw->Clear();
 
         World->Draw();
-
         Draw->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
-        if (World->Paused()) {
-            Draw->SetBlendingMode(SDL_BLENDMODE_BLEND);
+        if (World->GetPaused()) {
+            Draw->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
             Draw->SetColor(0, 0, 0, 100);
             Draw->FillAll();
-            Draw->SetBlendingMode(SDL_BLENDMODE_NONE);
+            Draw->SetDrawBlendMode(SDL_BLENDMODE_NONE);
 
-            // start
-            Draw->SetColor(90, 20, 20, 255);
-            Draw->FillRect({ GameWindow->Width() / 2 - 150, GameWindow->Height()/2-200, 300, 100 });
-            //   setting
-            Draw->SetColor(20, 20, 90, 255);
-            Draw->FillRect({ GameWindow->Width() / 2 - 150, GameWindow->Height()/2-50, 300, 100 });
-
-            Draw->RenderTexture(TextureStart->SDLTexture(), nullptr, startButtonRect);
-            Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, settingsButtonRect);
-
-            if (!Config) {
-                //   setting
-                Draw->SetColor(20, 20, 90, 255);
-                Draw->FillRect(settingsButtonRect);
-
-                Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, settingsButtonRect);
-            }
+            Draw->RenderTexture(TextureStart->SDLTexture(), nullptr, StartButtonRect);
+            Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, SettingsButtonRect);
         }
 
         Draw->UpdateWindow();
@@ -284,7 +261,7 @@ int main() {
 
     delete Controllers;
     delete World;
-    while(Mix_Playing(-1)) { }  // wait until last sound is done playing
+    while (Mix_Playing(-1)) {} // wait until last sound is done playing
     delete GameWindow;
     return 0;
 }

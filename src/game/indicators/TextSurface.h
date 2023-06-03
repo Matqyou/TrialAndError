@@ -18,22 +18,28 @@ private:
     bool m_Update;
     SDL_Texture* m_SDLTexture;
 
-    void UpdateTexture();
+    // Generating
+    Texture* UpdateTexture();
+
 public:
     TextSurface(AssetsManager *assets_handler, TTF_Font *font, const std::string& text, SDL_Color color);
     ~TextSurface();
 
-    Texture* GetTexture() const { return m_Texture; }
-    std::string GetText() const { return m_Text; }
-    TTF_Font* GetFont() const { return m_Font; }
-    SDL_Color GetColor() const { return m_Color; }
-    SDL_Texture* SDLTexture() const { return m_SDLTexture; }
+    // Getting
+    [[nodiscard]] Texture* GetTexture() const { return m_Texture; }
+    [[nodiscard]] std::string GetText() const { return m_Text; }
+    [[nodiscard]] TTF_Font* GetFont() const { return m_Font; }
+    [[nodiscard]] SDL_Color GetColor() const { return m_Color; }
+    [[nodiscard]] SDL_Texture* SDLTexture() const { return m_SDLTexture; }
+    [[nodiscard]] bool GetFlaggedForUpdate() const { return m_Update; }
 
+    // Setting
     void SetText(const std::string& text);
     void SetFont(TTF_Font* font);
     void SetColor(SDL_Color color);
     void FlagForUpdate() { m_Update = true; }
 
+    // Generate
     Texture* RequestUpdate();
 };
 

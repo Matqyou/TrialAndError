@@ -12,6 +12,8 @@ GameReference::GameReference() {
     m_AssetsHandler = nullptr;
     m_Width = 0;
     m_Height = 0;
+    m_Width2 = 0.0;
+    m_Height2 = 0.0;
     m_InitializedSDL = false;
     m_InitializedMix = false;
     m_InitializedAudio = false;
@@ -22,6 +24,13 @@ GameReference::GameReference() {
 GameReference::~GameReference() {
     Deinitialize(false);
     delete m_AssetsHandler;
+}
+
+void GameReference::UpdateDimensions(int width, int height) {
+    m_Width = width;
+    m_Height = height;
+    m_Width2 = width / 2.0;
+    m_Height2 = height / 2.0;
 }
 
 bool GameReference::InitializeSDL() {
@@ -51,7 +60,7 @@ bool GameReference::InitializeMix() {
 
 bool GameReference::InitializeAudio() {
     if (!m_InitializedAudio) {
-        m_InitializedAudio = !Mix_OpenAudio(44100*2, MIX_DEFAULT_FORMAT, 2, 1024*4);
+        m_InitializedAudio = !Mix_OpenAudio(44100 * 2, MIX_DEFAULT_FORMAT, 2, 1024 * 4);
         Mix_AllocateChannels(16);
         if (!m_InitializedAudio) std::printf("Warning while opening audio %s\n", Mix_GetError());
     }
@@ -87,7 +96,8 @@ bool GameReference::InitializeTTF() {
 bool GameReference::Initialize() {
     SDL_version Version;
     SDL_GetVersion(&Version);
-    std::cout << "Using SDL " << (int)Version.major << "." << (int)Version.minor << "." << (int)Version.patch << std::endl;
+    std::cout << "Using SDL " << (int) Version.major << "." << (int) Version.minor << "." << (int) Version.patch
+              << std::endl;
 
     if (!InitializeSDL() ||
         !InitializeMix() ||
@@ -97,10 +107,13 @@ bool GameReference::Initialize() {
         return false;
 
     if (!m_Window) {
-        m_Width = 1280;
-        m_Height = 720;
-        m_Window = SDL_CreateWindow("TrialAndError", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                    m_Width, m_Height, SDL_WINDOW_RESIZABLE);
+        UpdateDimensions(1280, 720);
+        m_Window = SDL_CreateWindow("TrialAndError",
+                                    SDL_WINDOWPOS_CENTERED,
+                                    SDL_WINDOWPOS_CENTERED,
+                                    m_Width,
+                                    m_Height,
+                                    SDL_WINDOW_RESIZABLE);
         if (!m_Window) {
             std::printf("Error while creating the window %s\n", SDL_GetError());
             return false;
@@ -163,11 +176,10 @@ void GameReference::Deinitialize(bool keep_sound) {
     }
 }
 
-void GameReference::Event(const SDL_Event& currentEvent) {
-    if (currentEvent.type != SDL_WINDOWEVENT ||
-        currentEvent.window.event != SDL_WINDOWEVENT_SIZE_CHANGED)
+void GameReference::Event(const SDL_Event& event) {
+    if (event.type != SDL_WINDOWEVENT ||
+        event.window.event != SDL_WINDOWEVENT_SIZE_CHANGED)
         return;
 
-    m_Width = currentEvent.window.data1;
-    m_Height = currentEvent.window.data2;
+    UpdateDimensions(event.window.data1, event.window.data2);
 }

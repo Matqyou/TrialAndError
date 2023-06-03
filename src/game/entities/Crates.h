@@ -22,14 +22,14 @@ protected:
     int typeID;
     double m_Health;
     Texture** m_Texture;
-    void TickImpact(double x, double y);
+
 public:
     static Sound* ms_HitSound;
     static Sound* ms_BoxSound;
     static Texture* ms_TextureBox;
     static Texture* ms_TextureBreakingBox1;
     static Texture* ms_TextureBreakingBox2;
-    static Sound* ms_PickupSounds[7];
+
     ~Crates();
     Crates(GameWorld* world, double start_x, double start_y, double Health, int RandomDrop);
     DropType Type() const{ return m_Type; }

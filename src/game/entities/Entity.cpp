@@ -43,7 +43,7 @@ Entity::Entity(GameWorld* world,
     m_Core->m_xvel = start_xvel;
     m_Core->m_yvel = start_yvel;
     m_Core->m_BaseDamping = base_damping;
-    m_ExistsSince = m_World->CurrentTick();
+    m_SpawnedTick = m_World->GetTick();
 
     m_World->AddEntity(this);
 }
@@ -70,8 +70,8 @@ void Entity::TickWalls() {
     double w2 = m_Core->m_w / 2.0;
     double h2 = m_Core->m_h / 2.0;
 
-    double XWall = m_World->Width() - w2;
-    double YWall = m_World->Height() - h2;
+    double XWall = m_World->GetWidth() - w2;
+    double YWall = m_World->GetHeight() - h2;
 
     if (m_Core->m_x < w2) {
         m_Core->m_x = w2;
@@ -108,7 +108,7 @@ void Entity::Tick() {
 }
 
 void Entity::Draw() {
-    Drawing* Render = m_World->GameWindow()->RenderClass();
+    Drawing* Render = m_World->GameWindow()->Render();
 
     Render->SetColor(255, 255, 255, 255);
     SDL_FRect DrawRect = {float(m_Core->m_x) - float(m_Core->m_w / 2),
@@ -135,6 +135,4 @@ LookingEntity::LookingEntity(GameWorld* world, GameWorld::EntityType entity_type
     m_LookingCore->m_ylook = start_ylook;
 }
 
-LookingEntity::~LookingEntity() {
-
-}
+LookingEntity::~LookingEntity() = default;

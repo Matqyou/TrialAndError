@@ -46,7 +46,7 @@ bool Bullets::TickVelocity() {
 
 bool Bullets::TickHitPoint(double x, double y) {
     // Check if position collides any of the players
-    auto Char = m_World->FirstPlayer();
+    auto Char = m_World->FirstCharacter();
     for (; Char; Char = (Character*)(Char->NextType())) {
         bool Shooter = m_Shooter == Char;
         if (!Char->IsAlive() || Char->m_Health <= 0.0) continue;
@@ -86,8 +86,8 @@ bool Bullets::TickHitPoint(double x, double y) {
 
 void Bullets::TickImpact() {
     // Deletes the bullet if it hits the border
-    if (m_Core->m_x < 0 || m_Core->m_x > m_World->Width() ||
-        m_Core->m_y < 0 || m_Core->m_y > m_World->Height())
+    if (m_Core->m_x < 0 || m_Core->m_x > m_World->GetWidth() ||
+        m_Core->m_y < 0 || m_Core->m_y > m_World->GetHeight())
         m_Alive = false;
 }
 
@@ -97,7 +97,7 @@ void Bullets::Tick() {
 }
 
 void Bullets::Draw() {
-    Drawing* Render = m_World->GameWindow()->RenderClass();
+    Drawing* Render = m_World->GameWindow()->Render();
     double Angle = std::atan2(m_Core->m_yvel, m_Core->m_xvel) / M_PI * 180.0 + 90.0;
     SDL_Rect BulletRect = { int(m_Core->m_x - m_Core->m_w / 2.0), int(m_Core->m_y - m_Core->m_h / 2.0), int(m_Core->m_w), int(m_Core->m_h) };
     Render->RenderTextureExWorld(m_Texture->SDLTexture(), nullptr, BulletRect, Angle, nullptr, SDL_FLIP_NONE);

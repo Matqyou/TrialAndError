@@ -29,7 +29,7 @@ void WeaponShotgun::Tick() {
     if (m_Shooter && m_Triggered) {  // If want to trigger without an owner, need to save world somewhere
         GameWorld* World = m_Shooter->World();
         auto ShooterCore = (LookingEntityCore*)m_Shooter->GetCore();
-        auto CurrentTick = World->CurrentTick();
+        auto CurrentTick = World->GetTick();
         if (CurrentTick - m_LastShotAt <= m_TickCooldown)
             return;
 

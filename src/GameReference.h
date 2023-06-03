@@ -21,33 +21,42 @@ private:
     AssetsManager* m_AssetsHandler;
 
     int m_Width, m_Height;
+    double m_Width2, m_Height2;
     bool m_InitializedSDL;
     bool m_InitializedMix;
     bool m_InitializedAudio;
     bool m_InitializedImages;
     bool m_InitializedTTF;
 
+    // Manipulating
+    void UpdateDimensions(int width, int height);
     bool InitializeSDL();
     bool InitializeMix();
     bool InitializeAudio();
     bool InitializeImages();
     bool InitializeTTF();
+
 public:
     GameReference();
     ~GameReference();
 
-    SDL_Window* Window() const { return m_Window; }
-    SDL_Renderer* Renderer() const { return m_Renderer; }
-    Clock* Timer() const { return m_Timer; }
-    Drawing* RenderClass() const { return m_Draw; }
-    AssetsManager* Assets() const { return m_AssetsHandler; }
-    int Width() const { return m_Width; }
-    int Height() const { return m_Height; }
+    // Getting
+    [[nodiscard]] SDL_Window* Window() const { return m_Window; }
+    [[nodiscard]] SDL_Renderer* Renderer() const { return m_Renderer; }
+    [[nodiscard]] Clock* Timer() const { return m_Timer; }
+    [[nodiscard]] Drawing* Render() const { return m_Draw; }
+    [[nodiscard]] AssetsManager* Assets() const { return m_AssetsHandler; }
+    [[nodiscard]] int GetWidth() const { return m_Width; }
+    [[nodiscard]] int GetHeight() const { return m_Height; }
+    [[nodiscard]] double GetWidth2() const { return m_Width2; }
+    [[nodiscard]] double GetHeight2() const { return m_Height2; }
 
+    // Manipulating
     bool Initialize();
     void Deinitialize(bool keep_sound);
 
-    void Event(const SDL_Event& currentEvent);
+    // Listening
+    void Event(const SDL_Event& event);
 };
 
 #endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMEREFERENCE_H_

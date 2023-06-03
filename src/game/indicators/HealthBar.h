@@ -22,9 +22,13 @@ public:
     HealthBar(GameReference* game_window, double* value, double* max_value, int width, int height, int spacing_w, int spacing_h);
     ~HealthBar();
 
-    Texture* GetTexture() const { return m_Texture; }
+    // Getting
+    [[nodiscard]] Texture* GetTexture() const { return m_Texture; }
 
+    // Setting
     void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+    // Generating
     Texture* UpdateTexture();
 };
 

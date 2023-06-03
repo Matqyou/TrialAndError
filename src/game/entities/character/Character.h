@@ -55,12 +55,12 @@ protected:
     double m_ColorHue;
     int m_SelectedWeaponIndex;
     GameController* m_GameController;
-    bool m_Movement[NUM_CONTROLS] {};
+    bool m_Movement[NUM_CONTROLS]{};
     bool m_NPC;
     CharacterInput m_Input, m_LastInput;
     // bool m_Using, m_LastUsing;
     bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise, Ranged, IsSlow, DangerousRecoil;
-    bool ReverseMSG,ConfusingHPMSG, InvincibleMSG, SpikyMSG, HealersMSG, RangedMSG, IsSlowMSG, RecoilMSG;
+    bool ReverseMSG, ConfusingHPMSG, InvincibleMSG, SpikyMSG, HealersMSG, RangedMSG, IsSlowMSG, RecoilMSG;
     Hands m_Hands;
     ProjectileWeapon* m_Weapons[NUM_WEAPONS];
     ProjectileWeapon* m_CurrentWeapon;
@@ -84,13 +84,13 @@ protected:
     SDL_Color m_HealthbarColor;
     SDL_Color m_HandColor;
     SDL_Color m_NameplateColor;
-    SDL_Color m_HealthRed;
+    SDL_Color m_HealthRed; // TODO: why
     SDL_Color m_HealthBlack;
 
-    SDL_FRect DrawErrorIsReversed, DrawErrorConfusingHP, DrawErrorInvincible,DrawErrorSpiky, DrawErrorHealersParadise;
+    SDL_FRect DrawErrorIsReversed, DrawErrorConfusingHP, DrawErrorInvincible, DrawErrorSpiky, DrawErrorHealersParadise;
     SDL_FRect DrawErrorRanged, DrawErrorIsSlow, DrawErrorDangerousRecoil;
     // This is how i did le spawning of icons to be displaced, big brain me yes yes
-
+    // TODO: Texture instance class with SDL_FRect or SDL_Rect
 
     void TickKeyboardControls();
     void TickGameControllerControls();
@@ -108,7 +108,7 @@ protected:
     void DrawHealthbar();
     void DrawHands();
     void DrawNameplate();
-    void TickTimer();
+    void TickErrorTimers();
 
 public:
     static Texture* ms_Texture;
@@ -131,7 +131,13 @@ public:
     static TextSurface* ms_BotNamePlate;
     TextSurface* m_ErrorText;
 
-    Character(GameWorld* world, Player* player, double max_health, double start_x, double start_y, double start_xvel, double start_yvel);
+    Character(GameWorld* world,
+              Player* player,
+              double max_health,
+              double start_x,
+              double start_y,
+              double start_xvel,
+              double start_yvel);
     ~Character();
 
     Hook* GetHook() { return &m_Hook; }
@@ -146,7 +152,7 @@ public:
     void RemoveCombat();
     void GiveWeapon(WeaponType weapon_type);
     void AmmoPickup(Ammo* ammo_box);
-    void SetGameController(GameController* gameController);
+    void SetGameController(GameController* game_controller) { m_GameController = game_controller; }
     void Damage(double damage, bool make_sound);
     void SwitchWeapon(WeaponType type);
     void ReverseMovement();
@@ -163,6 +169,5 @@ public:
     void Tick() override;
     void Draw() override;
 };
-
 
 #endif //TRIALANDERROR_CHARACTER_H

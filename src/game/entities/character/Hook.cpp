@@ -91,7 +91,7 @@ void Hook::Tick() {
         }
 
         // Hook snaps to player - idk if its good or not cus i havent made it yet
-        Character* Player = m_Parent->World()->FirstPlayer();
+        Character* Player = m_Parent->World()->FirstCharacter();
         for (; Player; Player = (Character*)(Player->NextType())) {
             if (Player == m_Parent)
                 continue;
@@ -111,11 +111,11 @@ void Hook::Tick() {
             } else if (m_y < 0.0) {
                 m_y = 0.0;
                 HookWall();
-            } else if (m_x > World->Width()) {
-                m_x = World->Width();
+            } else if (m_x > World->GetWidth()) {
+                m_x = World->GetWidth();
                 HookWall();
-            } else if (m_y > World->Height()) {
-                m_y = World->Height();
+            } else if (m_y > World->GetHeight()) {
+                m_y = World->GetHeight();
                 HookWall();
             }
         }

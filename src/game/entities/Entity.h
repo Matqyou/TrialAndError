@@ -31,7 +31,7 @@ protected:
     GameWorld* m_World;
     Entity* m_PrevType, *m_NextType;
     Entity* m_Prev, *m_Next;
-    unsigned long long m_ExistsSince;
+    unsigned long long m_SpawnedTick;
     EntityCore* m_Core, *m_LastCore;
     GameWorld::EntityType m_EntityType;
     bool m_Alive;

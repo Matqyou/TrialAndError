@@ -32,15 +32,11 @@ private:
     double m_ShowNamesVisibility;
     bool m_ShowNames;
     bool m_Paused;
-    bool THE_END;
+    bool m_GameOver;
     Player* m_FirstPlayer, *m_LastPlayer;
-    Entity* m_FirstType[NUM_ENTTYPES], *m_LastType[NUM_ENTTYPES];
+    Entity* m_FirstType[NUM_ENTTYPES]{}, *m_LastType[NUM_ENTTYPES]{};
     Entity* m_First, *m_Last;
-    double m_x, m_y;
-    double m_xLast ,m_yLast;
     unsigned long long m_CurrentTick;
-
-    TextSurface* m_CoordinatePlate;
 
     // Cool scrolling background                                        cap
     Texture* m_Background;
@@ -62,38 +58,42 @@ public:
     GameWorld(GameReference* game_window, int width, int height);
     ~GameWorld();
 
-    GameReference* GameWindow() const { return m_GameWindow; }
-    double Width() const { return m_Width; }
-    double Height() const { return m_Height; }
-    double NamesShown() const { return m_ShowNamesVisibility; }
-    bool Paused() const { return m_Paused; }
-    double CameraX() const { return m_x; }
-    double CameraY() const { return m_y; }
-    unsigned long long CurrentTick() const { return m_CurrentTick; }
-    unsigned int NextPlayerIndex() const;
-    void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
+    // Getting
+    [[nodiscard]] GameReference* GameWindow() const { return m_GameWindow; }
+    [[nodiscard]] double GetWidth() const { return m_Width; }
+    [[nodiscard]] double GetHeight() const { return m_Height; }
+    [[nodiscard]] double GetNamesShown() const { return m_ShowNamesVisibility < 0.1 ? 0.0 : m_ShowNamesVisibility; }
+    [[nodiscard]] bool GetPaused() const { return m_Paused; }
+    [[nodiscard]] unsigned long long GetTick() const { return m_CurrentTick; }
+    [[nodiscard]] unsigned int GetNextPlayerIndex() const;
+    [[nodiscard]] Entity* FirstEntity() const { return m_First; }
+    [[nodiscard]] Entity* LastEntity() const { return m_Last; }
+    [[nodiscard]] Entity* FirstEntityType(EntityType entity_type) const { return m_FirstType[entity_type]; }
+    [[nodiscard]] Entity* LastEntityType(EntityType entity_type) const { return m_LastType[entity_type]; }
+    [[nodiscard]] Character* FirstCharacter() const { return (Character*)(FirstEntityType(ENTTYPE_CHARACTER)); }
+    [[nodiscard]] Crates* FirstCrate() const { return (Crates*)(FirstEntityType(ENTTYPE_BOX)); }
+    // void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
-    void AddScore(unsigned int score);
+    // Setting
+    void SetPaused(bool state);
+
+    // Events
     void EnemiesKilled();
     void AlliesGone();
-    void SetCameraPos(double x, double y);  // Move the camera to a position
-    Player* AddPlayer(Player* player);
-    void RemovePlayer(Player* player);
-    Entity* AddEntity(Entity* entity);
-    void RemoveEntity(Entity* entity);
+
+    // Manipulating
+    void AddScore(unsigned int score);
     void DestroyPlayerByController(GameController* DeletedController) const;
     void DestroyCharacterByController(GameController* DeletedController) const;
     void ToggleShowNames();
-    void SetPaused(bool state);
-    Entity* FirstEntity() const { return m_First; }
-    Entity* LastEntity() const { return m_Last; }
-    Entity* FirstEntityType(EntityType type) const { return m_FirstType[type]; }
-    Entity* LastEntityType(EntityType type) const { return m_LastType[type]; }
 
-    Character* FirstPlayer() const { return (Character*)(FirstEntityType(ENTTYPE_CHARACTER)); }
-    Character* LastPlayer() const { return (Character*)(LastEntityType(ENTTYPE_CHARACTER)); }
-    Crates* FirstCrate() const {return (Crates*)(FirstEntityType(ENTTYPE_BOX));}
-    Crates* lASTCrate() const {return (Crates*)(LastEntityType(ENTTYPE_BOX));}
+    // Managing
+    Player* AddPlayer(Player* player);
+    Entity* AddEntity(Entity* entity);
+    void RemovePlayer(Player* player);
+    void RemoveEntity(Entity* entity);
+
+    // Listening & Ticking
     void Event(const SDL_Event& currentEvent);
     void Tick();
     void Draw();

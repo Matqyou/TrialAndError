@@ -19,21 +19,19 @@ Texture* Error::ms_TextureError = nullptr;
 Error::Error(GameWorld* world,double start_x, double start_y, int typeID)
  : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_ERROR, start_x, start_y, 45, 45, 0.0, 0.0, 0.95){
 
-    //Make it random which one of  the errors it is
-
     m_Type = static_cast<ErrorTypes>(typeID);
-    if(m_Type == SPIKY)m_Texture = &ms_TextureErrorSpiky;
-    else if(m_Type == INVINCIBLE) m_Texture = &ms_TextureErrorInvincible;
-    else if(m_Type == SLOW_DOWN) m_Texture =&ms_TextureErrorSlowDown;
-    else if(m_Type == HEALERS_PARADISE) m_Texture =&ms_TextureErrorHealersParadise;
-    else if(m_Type == DISORIANTED) m_Texture = &ms_TextureErrorDisorianted;
-    else if(m_Type == CONFUSING_HP) m_Texture = &ms_TextureErrorConfusingHP;
-    else if(m_Type == RANGED) m_Texture = &ms_TextureErrorRanged;
-    else m_Texture = &ms_TextureError;
+    if (m_Type == SPIKY) m_Texture = ms_TextureErrorSpiky;
+    else if (m_Type == INVINCIBLE) m_Texture = ms_TextureErrorInvincible;
+    else if (m_Type == SLOW_DOWN) m_Texture = ms_TextureErrorSlowDown;
+    else if (m_Type == HEALERS_PARADISE) m_Texture = ms_TextureErrorHealersParadise;
+    else if (m_Type == DISORIANTED) m_Texture = ms_TextureErrorDisorianted;
+    else if (m_Type == CONFUSING_HP) m_Texture = ms_TextureErrorConfusingHP;
+    else if (m_Type == RANGED) m_Texture = ms_TextureErrorRanged;
+    else m_Texture = ms_TextureError;
 }
 
 void Error::TickPickup(double x, double y) {
-    auto Char = m_World->FirstPlayer();
+    auto Char = m_World->FirstCharacter();
     for (; Char; Char = (Character*)(Char->NextType())) {
         EntityCore* CharCore = Char->GetCore();
         bool Collides = (CharCore->m_x - 50 < x) &&
@@ -47,14 +45,14 @@ void Error::TickPickup(double x, double y) {
         if(m_Type == DISORIANTED) {
             if (Char->IsNPC()) { Char->ReverseMovement(); }
             else {
-                auto Plr = m_World->FirstPlayer();
+                auto Plr = m_World->FirstCharacter();
                 for (; Plr; Plr = (Character*) (Plr->NextType())) {
                     if (!Plr->IsNPC()) continue;
                     Plr->ReverseMovement();
                 }
             }
         } else if (m_Type == CONFUSING_HP){
-            auto Plr = m_World->FirstPlayer();
+            auto Plr = m_World->FirstCharacter();
             for (; Plr; Plr = (Character*) (Plr->NextType()))
                 Plr->ConfuseHP();
         } else if (m_Type == INVINCIBLE) { Char->MakeInvincible(); }
@@ -62,7 +60,7 @@ void Error::TickPickup(double x, double y) {
         else if (m_Type == HEALERS_PARADISE) {
             if (Char->IsNPC()) { Char->MakeHealer(); }
             else {
-                auto Plr = m_World->FirstPlayer();
+                auto Plr = m_World->FirstCharacter();
                 for (; Plr; Plr = (Character*) (Plr->NextType())) {
                     if (Plr->IsNPC()) continue;
                     Plr->MakeHealer();
@@ -73,7 +71,7 @@ void Error::TickPickup(double x, double y) {
         else if (m_Type == SLOW_DOWN) {
             if (Char->IsNPC()) { Char->SlowDown(); }
             else {
-                auto Plr = m_World->FirstPlayer();
+                auto Plr = m_World->FirstCharacter();
                 for (; Plr; Plr = (Character*) (Plr->NextType())) {
                     if (!Plr->IsNPC()) continue;
                     Plr->SlowDown();
@@ -92,13 +90,13 @@ void Error::Tick(){
 }
 
 void Error::Draw() {
-    Drawing* Render = m_World->GameWindow()->RenderClass();
+    Drawing* Render = m_World->GameWindow()->Render();
 
     SDL_FRect DrawRect = {float(m_Core->m_x) - float(m_Core->m_w / 2.0),
                           float(m_Core->m_y) - float(m_Core->m_h / 2.0),
                           float(m_Core->m_w),
                           float(m_Core->m_h)};
 
-    Render->RenderTextureFWorld((*m_Texture)->SDLTexture(), nullptr, DrawRect);
+    Render->RenderTextureFWorld(m_Texture->SDLTexture(), nullptr, DrawRect);
 
 }

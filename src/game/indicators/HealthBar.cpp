@@ -38,7 +38,7 @@ Texture* HealthBar::UpdateTexture() {
     m_Ratio = *m_Value / *m_MaxValue;
     int InnerWidth = (int)((double)(m_InnerWidth) * m_Ratio);
 
-    Drawing *Render = m_GameWindow->RenderClass();
+    Drawing *Render = m_GameWindow->Render();
     Render->SetRenderTarget(m_Texture);
     Render->SetColor(255, 255, 255, 255);
     Render->Clear();

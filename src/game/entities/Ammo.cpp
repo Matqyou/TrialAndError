@@ -23,7 +23,7 @@ Ammo::Ammo(GameWorld* world, AmmoType type, double start_x, double start_y, doub
 }
 void Ammo::TickPickup() {
     // Check if position collides any of the players
-    auto Char = m_World->FirstPlayer();
+    auto Char = m_World->FirstCharacter();
     for (; Char; Char = (Character*)(Char->NextType())) {
         EntityCore* CharCore = Char->GetCore();
         double XDistance = m_Core->m_x - CharCore->m_x;
@@ -66,7 +66,7 @@ void Ammo::Tick() {
 }
 
 void Ammo::Draw() {
-    Drawing* Render = m_World->GameWindow()->RenderClass();
+    Drawing* Render = m_World->GameWindow()->Render();
 
     SDL_FRect DrawRect = {float(m_Core->m_x) - float(m_Core->m_w / 2.0),
                           float(m_Core->m_y) - float(m_Core->m_h / 2.0),

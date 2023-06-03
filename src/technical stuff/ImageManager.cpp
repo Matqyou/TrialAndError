@@ -7,20 +7,25 @@
 Texture::Texture(ImageManager* image_handler, SDL_Texture* sdl_texture, bool auto_cleanup) {
     m_ImageHandler = image_handler;
     m_SDLTexture = sdl_texture;
+    SDL_QueryTexture(m_SDLTexture,
+                     &m_Information.format,
+                     &m_Information.access,
+                     &m_Information.w,
+                     &m_Information.h);
     m_NextTexture = nullptr;
     m_PrevTexture = nullptr;
     m_AutoCleanup = false;
 
-    this->SetAutoCleanup(auto_cleanup);
+    SetAutoCleanup(auto_cleanup);
 }
 
 Texture::~Texture() {
     m_ImageHandler->RemoveTextureAutoCleanup(this);
-    SDL_DestroyTexture(m_SDLTexture);
+    SDL_DestroyTexture(const_cast<SDL_Texture*>(m_SDLTexture));
 }
 
-void Texture::Query(Uint32* format, int* access, int* w, int* h) {
-    SDL_QueryTexture(m_SDLTexture, format, access, w, h);
+Texture* Texture::CopyTexture(bool auto_cleanup) {
+    return m_ImageHandler->CopyTexture(this, auto_cleanup);
 }
 
 void Texture::SetBlendMode(SDL_BlendMode blend_mode) {
@@ -86,7 +91,7 @@ void ImageManager::RemoveTextureAutoCleanup(Texture* texture) {
     }
 }
 
-Texture* ImageManager::LoadTexture(const char *filepath, bool auto_cleanup) {
+Texture* ImageManager::LoadTexture(const char* filepath, bool auto_cleanup) {
     SDL_Surface* TempSurface = IMG_Load(filepath);
     if (!TempSurface) {
         std::printf("Failed to load texture '%s'\n", filepath);
@@ -112,13 +117,14 @@ Texture* ImageManager::CreateTexture(Uint32 format, int access, int w, int h, bo
 }
 
 Texture* ImageManager::CopyTexture(Texture* original, bool auto_cleanup) {
-    Uint32 format;
-    int access, w, h;
-    original->Query(&format, &access, &w, &h);
-
-    Texture* NewTexture = CreateTexture(format, SDL_TEXTUREACCESS_TARGET, w, h, auto_cleanup);
+    Texture* NewTexture = CreateTexture(original->GetFormat(),
+                                        SDL_TEXTUREACCESS_TARGET,
+                                        original->GetWidth(),
+                                        original->GetHeight(),
+                                        auto_cleanup);
+    SDL_Texture* TempTarget = SDL_GetRenderTarget(m_Renderer);
     SDL_SetRenderTarget(m_Renderer, NewTexture->SDLTexture());
     SDL_RenderCopy(m_Renderer, original->SDLTexture(), nullptr, nullptr);
-    SDL_SetRenderTarget(m_Renderer, nullptr);
+    SDL_SetRenderTarget(m_Renderer, TempTarget);
     return NewTexture;
 }

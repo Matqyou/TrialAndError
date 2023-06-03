@@ -11,34 +11,26 @@
 
 GameWorld::GameWorld(GameReference* game_window, int width, int height) {
     m_GameWindow = game_window;
-    m_Tiles = new TileMap(game_window->RenderClass(), 32, width, height);
+    m_Tiles = new TileMap(game_window->Render(), 32, width, height);
     m_Width = m_Tiles->TotalWidth();
     m_Height = m_Tiles->TotalHeight();
     m_ShowNamesVisibility = 0.0;
     m_ShowNames = false;
     m_Paused = false;
-    THE_END = false;
-    m_x = 0.0;
-    m_y = 0.0;
+    m_GameOver = false;
     m_CurrentTick = 0;
 
     m_First = nullptr;
     m_Last = nullptr;
-    for (auto& i : m_FirstType) i = nullptr;
-    for (auto& i : m_LastType) i = nullptr;
+    memset(m_FirstType, 0, sizeof(m_FirstType));
+    memset(m_LastType, 0, sizeof(m_LastType));
     m_FirstPlayer = nullptr;
     m_LastPlayer = nullptr;
 
-    char msg[32];
-    std::snprintf(msg, sizeof(msg), "Spawned [%ix, %iy]", (int)m_x, (int)m_y);
-    m_CoordinatePlate = new TextSurface(m_GameWindow->Assets(),
-                                    m_GameWindow->Assets()->TextHandler()->FirstFont(),
-                                    msg, { 255, 255, 255 });
-
-    m_Background = GameWindow()->Assets()->ImageHandler()->LoadTexture("assets/images/backgrounds/background_pattern.png", true);
-    m_Background->Query(nullptr, nullptr, &m_BackgroundW, &m_BackgroundH);
-    // m_Background->SetAlphaMod(128);
-    // m_Background->SetBlendMode(SDL_BLENDMODE_BLEND);
+    m_Background =
+        GameWindow()->Assets()->ImageHandler()->LoadTexture("assets/images/backgrounds/background_pattern.png", true);
+    m_BackgroundW = m_Background->GetWidth();
+    m_BackgroundH = m_Background->GetHeight();
 
     m_LastWave = 0;
     m_TimeBetweenWaves = 300;
@@ -46,13 +38,12 @@ GameWorld::GameWorld(GameReference* game_window, int width, int height) {
     m_Round = 0;
     m_Score = 0;
     m_ScoreText = new TextSurface(m_GameWindow->Assets(),
-                                  m_GameWindow->Assets()->TextHandler()->FirstFont(),
-                                  "Score: 0", { 150, 150, 0});
+                                  m_GameWindow->Assets()->TextHandler()->GetMainFont(),
+                                  "Score: 0", { 150, 150, 0 });
 }
 
 GameWorld::~GameWorld() {
     delete m_Tiles;
-    delete m_CoordinatePlate;
 
     Entity* CurrentEntity = m_Last;
     while (CurrentEntity) {
@@ -62,7 +53,7 @@ GameWorld::~GameWorld() {
     }
 }
 
-unsigned int GameWorld::NextPlayerIndex() const {
+unsigned int GameWorld::GetNextPlayerIndex() const {
     unsigned int Index = 0;
 
     while (true) {
@@ -77,10 +68,10 @@ unsigned int GameWorld::NextPlayerIndex() const {
     }
 }
 
-void GameWorld::GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const {
-    out_x = m_x + (relative_x - m_GameWindow->Width() / 2.0);
-    out_y = m_y + (relative_y - m_GameWindow->Height() / 2.0);
-}
+// void GameWorld::GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const {
+//     out_x = m_x + (relative_x - m_GameWindow->Width() / 2.0);
+//     out_y = m_y + (relative_y - m_GameWindow->Height() / 2.0);
+// }
 
 void GameWorld::AddScore(unsigned int score) {
     m_Score += score;
@@ -95,17 +86,12 @@ void GameWorld::EnemiesKilled() {
         m_LastWave = m_CurrentTick - m_TimeBetweenWaves + 300;
 }
 
-void GameWorld::AlliesGone(){
-    THE_END = true;
+void GameWorld::AlliesGone() {
+    m_GameOver = true;
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%i", m_Score);
     m_ScoreText->SetText(msg);
     m_ScoreText->FlagForUpdate();
-}
-
-void GameWorld::SetCameraPos(double x, double y) {
-    m_x = x;
-    m_y = y;
 }
 
 Player* GameWorld::AddPlayer(Player* player) {
@@ -193,8 +179,8 @@ void GameWorld::DestroyPlayerByController(GameController* DeletedController) con
 }
 
 void GameWorld::DestroyCharacterByController(GameController* DeletedController) const {
-    Character* Char = FirstPlayer();
-    for (; Char; Char = (Character*)(Char->NextType())) {
+    Character* Char = FirstCharacter();
+    for (; Char; Char = (Character*) (Char->NextType())) {
         if (Char->GetGameController() == DeletedController) {
             delete Char;
             return;
@@ -222,64 +208,64 @@ void GameWorld::Event(const SDL_Event& currentEvent) {
             m_Tiles->LoadTilemap("assets/tilemaps/test_level");
             m_Width = m_Tiles->TotalWidth();
             m_Height = m_Tiles->TotalHeight();
-        }
-        else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_P)
+        } else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_P)
             m_Tiles->SaveTilemap("assets/tilemaps/test_level");
     }
 
     // Loop allows self-destruction in the ::Event() method
-    Character* Next, *Current = FirstPlayer();
+    Character* Next, * Current = FirstCharacter();
     for (; Current; Current = Next) {
-        Next = (Character*)(Current->NextType());
+        Next = (Character*) (Current->NextType());
         Current->Event(currentEvent);
     }
 }
 
 void GameWorld::TickCamera() {
-    if (m_FirstType[ENTTYPE_CHARACTER]) {
-        int num_player = 0;
+    if (!m_FirstType[ENTTYPE_CHARACTER])
+        return;
 
-        bool SomethingSpecial = false;
-        double minX, maxX, minY, maxY;
+    bool FirstIteration = true;
+    double minX, maxX, minY, maxY;
 
-        auto Char = FirstPlayer();
-        for (; Char; Char = (Character*)Char->NextType()) {
-            if (Char->IsNPC()) {
-                auto NPC = (CharacterNPC*)Char;
-                if (!NPC->GetCurrentWeapon()) continue;
-            }
-
-            num_player++;
-
-            EntityCore* CharCore = Char->GetCore();
-
-            if (!SomethingSpecial) {
-                SomethingSpecial = true;
-                minX = CharCore->m_x;
-                maxX = CharCore->m_x;
-                minY = CharCore->m_y;
-                maxY = CharCore->m_y;
-            } else {
-                if (CharCore->m_x < minX) minX = CharCore->m_x;
-                if (CharCore->m_x > maxX) maxX = CharCore->m_x;
-                if (CharCore->m_y < minY) minY = CharCore->m_y;
-                if (CharCore->m_y > maxY) maxY = CharCore->m_y;
-            }
+    auto Char = FirstCharacter();
+    for (; Char; Char = (Character*) Char->NextType()) {
+        if (Char->IsNPC()) {
+            auto NPC = (CharacterNPC*) Char;
+            if (!NPC->GetCurrentWeapon()) continue;
         }
 
-        if (num_player) {
-            double CameraX = (maxX + minX) / 2.0;
-            double CameraY = (maxY + minY) / 2.0;
-            // Accelerate camera closer to
-            // the midpoint of characters
-            // TODO: Zoom value
-            double zoomX = m_GameWindow->Width() / (maxX - minX + 500);
-            double zoomY = m_GameWindow->Height() / (maxY - minY + 500);
-            double Zoom = std::min(zoomX, zoomY);
-            m_GameWindow->RenderClass()->SetZoom(Zoom > 1 ? 1 : Zoom);
-            m_x += (-m_x + CameraX) * 0.1;
-            m_y += (-m_y + CameraY) * 0.1;
+        EntityCore* CharCore = Char->GetCore();
+
+        if (FirstIteration) {
+            FirstIteration = false;
+            minX = CharCore->m_x;
+            maxX = CharCore->m_x;
+            minY = CharCore->m_y;
+            maxY = CharCore->m_y;
+        } else {
+            if (CharCore->m_x < minX) minX = CharCore->m_x;
+            if (CharCore->m_x > maxX) maxX = CharCore->m_x;
+            if (CharCore->m_y < minY) minY = CharCore->m_y;
+            if (CharCore->m_y > maxY) maxY = CharCore->m_y;
         }
+    }
+
+    if (!FirstIteration) {
+        double CameraX = (maxX + minX) / 2.0;
+        double CameraY = (maxY + minY) / 2.0;
+        double ZoomX = m_GameWindow->GetWidth() / (maxX - minX + 500);
+        double ZoomY = m_GameWindow->GetHeight() / (maxY - minY + 500);
+        double Zoom = std::min(ZoomX, ZoomY);
+
+        Drawing* Render = m_GameWindow->Render();
+        double OldCamX = Render->GetCameraX();
+        double OldCamY = Render->GetCameraY();
+        Render->SetCameraPos(OldCamX + 0.1 * (CameraX - OldCamX),
+                             OldCamY + 0.1 * (CameraY - OldCamY));
+
+        double OldZoom = Render->GetZoom();
+        double NewZoom = OldZoom + 0.1 * (Zoom - OldZoom);
+        Render->SetZoom(NewZoom > 1.0 ? 1.0 : NewZoom);
     }
 }
 
@@ -289,8 +275,8 @@ void GameWorld::TickSpawner() {
 
     m_LastWave = m_CurrentTick;
     m_Round += 1;
-    m_NumEnemiesPerWave = (unsigned int)(1 + std::pow(m_Round, 0.5) * 2);
-    m_TimeBetweenWaves = (unsigned long long)((m_Round * m_NumEnemiesPerWave) * m_GameWindow->Timer()->GetFramerate());
+    m_NumEnemiesPerWave = (unsigned int) (1.0 + std::pow(m_Round, 0.5) * 2);
+    m_TimeBetweenWaves = (unsigned long long) ((m_Round * m_NumEnemiesPerWave) * m_GameWindow->Timer()->GetFramerate());
     m_Score += m_Round * 50;
     char msg[64];
     std::snprintf(msg, sizeof(msg), "Score: %i", m_Score);
@@ -299,26 +285,22 @@ void GameWorld::TickSpawner() {
 
     double Width2 = m_Width / 2.0;
     double Height2 = m_Height / 2.0;
-    if(m_Round%10 == 0){
-        double Angle = (180.0 + (rand()%180)) / 180.0 * M_PI;
+    if (m_Round % 10 == 0) {
+        double Angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
         double XSpawn = Width2 + std::cos(Angle) * Width2;
         double YSpawn = Height2 + std::sin(Angle) * Height2;
         auto NewNPC = new CharacterNPC(this, 200.0 + m_Round * 10.0, XSpawn, YSpawn, 0.0, 0.0, NPC_TURRET, true);
         NewNPC->GiveWeapon(WEAPON_MINIGUN);
     }
     for (int i = 0; i < m_NumEnemiesPerWave; i++) {
-        double Angle = (180.0 + (rand()%180)) / 180.0 * M_PI;
+        double Angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
         double XSpawn = Width2 + std::cos(Angle) * Width2;
         double YSpawn = Height2 + std::sin(Angle) * Height2;
-        double Health = std::pow(m_Round, 0.3333333333333333333333333) * 10.0;
-        auto NewNPC = new CharacterNPC(this, Health, XSpawn, YSpawn, 0.0, 0.0, NPC_TURRET,false);
-        int Weaponizer = rand()%100;
-        if (m_Round >= 20) {
-            if (Weaponizer < 10) NewNPC->GiveWeapon(WEAPON_GLOCK);
-            else if (Weaponizer < 20) NewNPC->GiveWeapon(WEAPON_SHOTGUN);
-            else if (Weaponizer < 30) NewNPC->GiveWeapon(WEAPON_BURST);
-            else if (Weaponizer < 40) NewNPC->GiveWeapon(WEAPON_MINIGUN);
-        } else if (m_Round >= 15) {
+        double Health = std::pow(m_Round, 1.0 / 3) * 10.0;
+        auto NewNPC = new CharacterNPC(this, Health, XSpawn, YSpawn, 0.0, 0.0, NPC_TURRET, false);
+
+        int Weaponizer = rand() % 100;
+        if (m_Round >= 15) {
             if (Weaponizer < 10) NewNPC->GiveWeapon(WEAPON_GLOCK);
             else if (Weaponizer < 20) NewNPC->GiveWeapon(WEAPON_SHOTGUN);
             else if (Weaponizer < 30) NewNPC->GiveWeapon(WEAPON_BURST);
@@ -338,8 +320,8 @@ void GameWorld::TickEntities() {
 }
 
 void GameWorld::TickDestroy() {
-    // Loop through each entity and destroy
-    Entity* Current, *Next;
+    // Loop through each entity and destroy aliven't entities
+    Entity* Current, * Next;
     for (Current = m_First; Current; Current = Next) {
         Next = Current->m_Next;
         if (!Current->IsAlive())
@@ -348,7 +330,7 @@ void GameWorld::TickDestroy() {
 }
 
 void GameWorld::Tick() {
-    if (m_Paused||THE_END)
+    if (m_Paused || m_GameOver)
         return;
 
     if (!m_ShowNames)
@@ -359,60 +341,33 @@ void GameWorld::Tick() {
     TickDestroy();
     TickCamera();
 
-    if (NamesShown() > 0.05 &&
-        ((int)(m_x) != (int)(m_xLast) ||
-        (int)(m_y) != (int)(m_yLast)))
-        m_CoordinatePlate->FlagForUpdate();
-
     m_CurrentTick++;
-    m_xLast = m_x;
-    m_yLast = m_y;
 }
 
 void GameWorld::Draw() {
-    Drawing* Render = m_GameWindow->RenderClass();
+    Drawing* Render = m_GameWindow->Render();
 
-    if (!THE_END) {
-        SDL_Rect DestinationRect = {0, 0, int(m_Width), int(m_Height)};
+    // Stop drawing when the game has been triggered as over
+    if (!m_GameOver) {
+        SDL_Rect DestinationRect = { 0, 0, int(m_Width), int(m_Height) };
         Render->RenderTextureWorld(m_Background->SDLTexture(), nullptr, DestinationRect);
 
-        SDL_Rect DrawRect = {0, 0, int(m_Width), int(m_Height)};
+        SDL_Rect DrawRect = { 0, 0, int(m_Width), int(m_Height) };
         Render->SetColor(255, 0, 0, 255);
         Render->DrawRectWorld(DrawRect);
 
-        for (auto Current: m_FirstType) {
+        for (auto Current : m_FirstType)
             for (; Current; Current = Current->NextType())
                 Current->Draw();
-        }
 
         m_Tiles->Draw();
-
-        if (m_ShowNamesVisibility > 0.05) {
-
-            int Opacity = int(m_ShowNamesVisibility * 255.0);
-
-            char msg[64];
-            std::snprintf(msg, sizeof(msg), "%ix, %iy", int(m_x), int(m_y));
-            m_CoordinatePlate->SetText(msg);
-            Texture *CoordinateTexture = m_CoordinatePlate->RequestUpdate();
-
-            int coordinate_w, coordinate_h;
-            CoordinateTexture->Query(nullptr, nullptr, &coordinate_w, &coordinate_h);
-            SDL_Rect CoordinateRect = {int(m_x - coordinate_w / 2.0), int(m_y - coordinate_h / 2.0), coordinate_w,
-                                       coordinate_h};
-            SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
-            Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
-
-        }
     }
 
+    // Draw the score value
     Texture* ScoreTexture = m_ScoreText->RequestUpdate();
-
-    int score_w, score_h;
-    ScoreTexture->Query(nullptr, nullptr, &score_w, &score_h);
-    score_w *= 2.5;
-    score_h *= 2.5;
-    SDL_Rect ScoreRect = { 0, int(m_GameWindow->Height() - score_h), score_w, score_h };
-    if(!THE_END) Render->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
+    int ScoreWidth = int(ScoreTexture->GetWidth() * 2.5);
+    int ScoreHeight = int(ScoreTexture->GetHeight() * 2.5);
+    SDL_Rect ScoreRect = { 0, int(m_GameWindow->GetHeight() - ScoreHeight), ScoreWidth, ScoreHeight };
+    if (!m_GameOver) Render->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
     else Render->RenderTextureFullscreen(ScoreTexture->SDLTexture(), nullptr);
 }

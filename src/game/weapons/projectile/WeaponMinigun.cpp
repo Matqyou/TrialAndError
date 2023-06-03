@@ -11,7 +11,7 @@ Sound* WeaponMinigun::ms_ShootSound = nullptr;
 Sound* WeaponMinigun::ms_ClickSound = nullptr;
 
 WeaponMinigun::WeaponMinigun(Character* owner)
- : ProjectileWeapon(owner, WEAPON_MINIGUN, 14, 64, 64 * 3, 35.0, true) {
+    : ProjectileWeapon(owner, WEAPON_MINIGUN, 14, 64, 64 * 3, 35.0, true) {
     m_BaseRecoilForce = 3.2;
     m_RecoilForce = m_BaseRecoilForce;
 
@@ -30,15 +30,15 @@ WeaponMinigun::WeaponMinigun(Character* owner)
 }
 
 void WeaponMinigun::Tick() {
-    if(!m_Shooter->GetIfDangerousRecoil())m_RecoilForce = m_BaseRecoilForce ;
-    else if (m_RecoilForce != m_BaseRecoilForce*3)m_RecoilForce = m_BaseRecoilForce*3;
+    if (!m_Shooter->GetIfDangerousRecoil())m_RecoilForce = m_BaseRecoilForce;
+    else if (m_RecoilForce != m_BaseRecoilForce * 3)m_RecoilForce = m_BaseRecoilForce * 3;
     TickTrigger();
 
     if (m_Shooter) {
         GameWorld* World = m_Shooter->World();
-        auto ShooterCore = (LookingEntityCore*)m_Shooter->GetCore();
+        auto ShooterCore = (LookingEntityCore*) m_Shooter->GetCore();
         SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
-        auto CurrentTick = World->CurrentTick();
+        auto CurrentTick = World->GetTick();
         if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere
             m_ShootRate += m_RateAcceleration;
             if (m_ShootRate > m_FullRate) m_ShootRate = m_FullRate;
@@ -57,7 +57,14 @@ void WeaponMinigun::Tick() {
 
                 double VelocityX = cos(Angle) * m_ProjectileSpeed;
                 double VelocityY = sin(Angle) * m_ProjectileSpeed;
-                new Bullets(World, m_Shooter, WEAPON_MINIGUN, 4, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
+                new Bullets(World,
+                            m_Shooter,
+                            WEAPON_MINIGUN,
+                            4,
+                            ShooterCore->m_x,
+                            ShooterCore->m_y,
+                            VelocityX,
+                            VelocityY);
 
                 double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
                 double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;

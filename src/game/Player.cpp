@@ -13,10 +13,10 @@ Player::Player(GameWorld* game_world, const std::string& username)
   m_Next(nullptr) {
     SetUsername(username);
     m_Index = -1;
-    m_Index = m_GameWorld->NextPlayerIndex();
+    m_Index = m_GameWorld->GetNextPlayerIndex();
 
     m_NamePlate = new TextSurface(m_GameWorld->GameWindow()->Assets(),
-                                  m_GameWorld->GameWindow()->Assets()->TextHandler()->FirstFont(),
+                                  m_GameWorld->GameWindow()->Assets()->TextHandler()->GetMainFont(),
                                   m_Username, { 255, 255, 255, 255 });
 
     m_GameWorld->AddPlayer(this);
