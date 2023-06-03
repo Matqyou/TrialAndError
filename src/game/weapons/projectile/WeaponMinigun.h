@@ -13,7 +13,8 @@ private:
 
     double m_RateAcceleration;
     double m_RateDeacceleration;
-    double m_ShootRate;
+    double m_FireRate;
+    double m_MinimumFireRate;
     double m_FullRate;
     double m_Rotation;
 
@@ -21,10 +22,12 @@ public:
     static Sound* ms_ShootSound;
     static Sound* ms_ClickSound;
 
-    WeaponMinigun(Character* owner);
+    explicit WeaponMinigun(Character* owner);
 
-    double Rotation() const { return m_Rotation; }
+    // Getting
+    [[nodiscard]] double Rotation() const { return m_Rotation; }
 
+    // Ticking
     void Tick() override;
 };
 

@@ -96,7 +96,7 @@ void CharacterNPC::TickControls() {
 void CharacterNPC::Tick() {
     TickHealth();
     TickControls(); // Parse the inputs of each device keyboard/controller/AI
-    ProcessControls(); // Do stuff depending on the current held buttons
+    ProcessInputs(); // Do stuff depending on the current held buttons
     TickHook();  // Move hook and or player etc.
     TickCurrentWeapon(); // Shoot accelerate reload etc.
     m_Hands.Tick();

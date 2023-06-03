@@ -38,7 +38,7 @@ Texture* Character::ms_TextureError = nullptr;
 Texture* Character::ms_TextureGlock = nullptr;
 Texture* Character::ms_TextureShotgun = nullptr;
 Texture* Character::ms_TextureBurst = nullptr;
-Texture* Character::ms_TexturesMinigun[2] = { nullptr, nullptr };
+Texture* Character::ms_TexturesMinigun[4] = { nullptr, nullptr, nullptr, nullptr };
 
 Texture* Character::ms_Texture = nullptr;
 Sound* Character::ms_HitSounds[3] = { nullptr, nullptr, nullptr };
@@ -399,11 +399,11 @@ void Character::TickKeyboardControls() { // TODO: move to characterInput class
     m_Input.m_Hooking = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
     m_Input.m_Sneaking = m_Movement[CONTROL_SHIFT];
 
-    // Switch weapons
-    m_Input.m_NextItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
-        && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-    m_Input.m_PrevItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)
-        && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+    // Switch weapons TODO mouse input class
+    //m_Input.m_NextItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
+    //    && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+    //m_Input.m_PrevItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)
+    //    && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
 }
 
 void Character::TickGameControllerControls() {
@@ -464,13 +464,15 @@ void Character::TickControls() {
     }
 }
 
-void Character::ProcessControls() {
+void Character::ProcessInputs() {
     if (m_Input.m_GoingLength >= 0.2) {  // Fix controller drifting
         // Checks if player is shifting (holding left stick)
         // TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
 
-        m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration / 3 : m_BaseAcceleration) * (IsReversed ? -1 : 1)
-            * (IsSlow ? 0.5 : 1) * (bool(m_CurrentWeapon) ? 0.9 : 1.0);
+        m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration / 3 : m_BaseAcceleration) *
+            (IsReversed ? -1 : 1) *
+            (IsSlow ? 0.5 : 1) *
+            (m_CurrentWeapon ? 0.9 : 1.0);
 
         // Accelerate in that direction
         m_Core->m_xvel += m_Input.m_GoingX * m_Acceleration;
@@ -861,7 +863,7 @@ void Character::DrawHands() {
             }
                 break;
             case WEAPON_MINIGUN: {
-                int Phase = int(std::fmod(((WeaponMinigun*) m_Weapons[WEAPON_MINIGUN])->Rotation(), 50.0) / 25.0);
+                int Phase = int(std::fmod(((WeaponMinigun*) m_Weapons[WEAPON_MINIGUN])->Rotation(), 100.0) / 25.0);
                 WeaponTexture = ms_TexturesMinigun[Phase];
             }
                 break;
@@ -1003,7 +1005,7 @@ void Character::Event(const SDL_Event& currentEvent) {
 void Character::Tick() {
     TickHealth();
     TickControls(); // Parse the inputs of each device keyboard/controller/AI
-    ProcessControls(); // Do stuff depending on the current held buttons
+    ProcessInputs(); // Do stuff depending on the current held buttons
     TickHook();  // Move hook and or player etc.
     TickCurrentWeapon(); // Shoot accelerate reload etc.
     m_Hands.Tick();

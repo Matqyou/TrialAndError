@@ -96,7 +96,7 @@ protected:
     void TickGameControllerControls();
     void TickHealth();
     virtual void TickControls();
-    void ProcessControls();
+    void ProcessInputs();
     void TickHook();
     void TickCollision();
     void TickCurrentWeapon();
@@ -115,7 +115,7 @@ public:
     static Texture* ms_TextureGlock;
     static Texture* ms_TextureShotgun;
     static Texture* ms_TextureBurst;
-    static Texture* ms_TexturesMinigun[2];
+    static Texture* ms_TexturesMinigun[4];
     static Texture* ms_TextureErrorDisorianted;
     static Texture* ms_TextureErrorSpiky;
     static Texture* ms_TextureErrorConfusingHP;

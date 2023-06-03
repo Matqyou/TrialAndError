@@ -15,12 +15,13 @@ WeaponMinigun::WeaponMinigun(Character* owner)
     m_BaseRecoilForce = 3.2;
     m_RecoilForce = m_BaseRecoilForce;
 
+    m_MinimumFireRate = 5.0;
     m_FullRate = 10.0;
     m_RateAcceleration = 0.07;
     m_RateDeacceleration = 0.05;
 
     // Will get rewritten by other code
-    m_ShootRate = 0.0;
+    m_FireRate = 0.0;
     m_RandomSpreadDivisor = 0.0;
     m_HalfRandomSpread = 0.0;
     m_FullRandomSpread = 0;
@@ -34,19 +35,17 @@ void WeaponMinigun::Tick() {
     else if (m_RecoilForce != m_BaseRecoilForce * 3)m_RecoilForce = m_BaseRecoilForce * 3;
     TickTrigger();
 
-    if (m_Shooter) {
-        GameWorld* World = m_Shooter->World();
-        auto ShooterCore = (LookingEntityCore*) m_Shooter->GetCore();
-        SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
-        auto CurrentTick = World->GetTick();
-        if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere
-            m_ShootRate += m_RateAcceleration;
-            if (m_ShootRate > m_FullRate) m_ShootRate = m_FullRate;
-            if (CurrentTick - m_LastShotAt <= int(m_TickCooldown - m_ShootRate)) {
-                m_Rotation += m_ShootRate;
-                return;
-            }
-
+    if (!m_Shooter) return;
+    GameWorld* World = m_Shooter->World();
+    auto ShooterCore = (LookingEntityCore*) m_Shooter->GetCore();
+    SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
+    auto CurrentTick = World->GetTick();
+    if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere
+        m_FireRate += m_RateAcceleration;
+        if (m_FireRate > m_FullRate) m_FireRate = m_FullRate;
+        if (m_FireRate < m_MinimumFireRate ||
+            CurrentTick - m_LastShotAt <= int(m_TickCooldown - m_FireRate)) {}
+        else {
             m_LastShot = m_Ammo == 1;
             if (m_Ammo) {
                 m_Ammo--;
@@ -72,10 +71,10 @@ void WeaponMinigun::Tick() {
             } else {
                 SoundHandler->PlaySound(ms_ClickSound);
             }
-        } else {
-            m_ShootRate -= m_RateDeacceleration;
-            if (m_ShootRate < 0.0) m_ShootRate = 0.0;
         }
-        m_Rotation += m_ShootRate;
+    } else {
+        m_FireRate -= m_RateDeacceleration;
+        if (m_FireRate < 0.0) m_FireRate = 0.0;
     }
+    m_Rotation += m_FireRate;
 }
