@@ -26,13 +26,17 @@ private:
 
 public:
     explicit Clock(double framerate);
-    double GetFramerate() const { return Framerate; }
-    double GetTimeElapsed() const { return (double)(NanoElapsed) / 1.0e9; }
-    double GetTotalTimeElapsed() const { return (double)(TotalNanoElapsed) / 1.0e9; }
-    unsigned long long CurrentTick() const { return Ticks; }
 
+    // Getting
+    [[nodiscard]] double GetFramerate() const { return Framerate; }
+    [[nodiscard]] double GetTimeElapsed() const { return (double)(NanoElapsed) / 1.0e9; }
+    [[nodiscard]] double GetTotalTimeElapsed() const { return (double)(TotalNanoElapsed) / 1.0e9; }
+    [[nodiscard]] unsigned long long CurrentTick() const { return Ticks; }
+
+    // Setting
     void SetFramerate(double framerate);
 
+    // Ticking
     void Tick();
 };
 

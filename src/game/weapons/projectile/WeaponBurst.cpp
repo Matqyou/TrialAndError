@@ -4,7 +4,7 @@
 
 #include "WeaponBurst.h"
 #include "../../entities/character/Character.h"
-#include "../../entities/Bullets.h"
+#include "../../entities/Projectile.h"
 #include <cmath>
 
 Sound* WeaponBurst::ms_ShootSound = nullptr;
@@ -44,7 +44,7 @@ WeaponBurst::WeaponBurst(Character* owner)
 //
 //}
 void WeaponBurst::Tick() {
-    if(!m_Shooter->GetIfDangerousRecoil())m_RecoilForce = m_BaseRecoilForce;
+    if(!m_Shooter->HasDangerousRecoil())m_RecoilForce = m_BaseRecoilForce;
     else if (m_RecoilForce != m_BaseRecoilForce*3)m_RecoilForce = m_BaseRecoilForce*3;
     TickTrigger();
 
@@ -62,7 +62,7 @@ void WeaponBurst::Tick() {
 
                 double VelocityX = ShooterCore->m_xlook * m_ProjectileSpeed;
                 double VelocityY = ShooterCore->m_ylook * m_ProjectileSpeed;
-                new Bullets(World, m_Shooter, WEAPON_BURST, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
+                new Projectile(World, m_Shooter, WEAPON_BURST, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
 
                 double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
                 double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
@@ -86,7 +86,7 @@ void WeaponBurst::Tick() {
 
                 double VelocityX = ShooterCore->m_xlook * m_ProjectileSpeed;
                 double VelocityY = ShooterCore->m_ylook * m_ProjectileSpeed;
-                new Bullets(World, m_Shooter, WEAPON_BURST, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
+                new Projectile(World, m_Shooter, WEAPON_BURST, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
 
                 double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
                 double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;

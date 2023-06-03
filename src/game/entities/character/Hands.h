@@ -29,8 +29,13 @@ public:
     Hands(Character* parent, double hand_spacing, double fist_animation_duration, double fisting_radius);
     ~Hands();
 
+    // Getting
+    [[nodiscard]] Character* Parent() const { return m_Parent; }
+
+    // Setting
     void SetColor(SDL_Color& color);
 
+    // Ticking
     void Tick();
     void Draw();
 };

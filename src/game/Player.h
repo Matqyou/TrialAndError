@@ -28,11 +28,13 @@ public:
     Player(GameWorld* game_world, const std::string& username);
     ~Player();
 
-    Character* GetCharacter() const { return m_Character; }
-    std::string GetUsername() const { return m_Username; }
-    unsigned int GetIndex() const { return m_Index; }
-    TextSurface* GetNamePlate() const { return m_NamePlate; }
+    // Getting
+    [[nodiscard]] Character* GetCharacter() const { return m_Character; }
+    [[nodiscard]] std::string GetUsername() const { return m_Username; }
+    [[nodiscard]] unsigned int GetIndex() const { return m_Index; }
+    [[nodiscard]] TextSurface* GetNamePlate() const { return m_NamePlate; }
 
+    // Setting
     void SetCharacter(Character* character);
     void SetUsername(const std::string& username);
 };

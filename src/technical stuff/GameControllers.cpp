@@ -30,20 +30,8 @@ void GameController::GetJoystick2(double& get_x, double& get_y) {
     get_y = m_Axis[SDL_CONTROLLER_AXIS_RIGHTY];
 }
 
-bool GameController::GetButton(int button) {
-    return m_Buttons[button];
-}
-
-bool GameController::GetLastButton(int button) {
-    return m_LastButtons[button];
-}
-
 bool GameController::Vibrate(int low_frequency_rumble, int high_frequency_rumble, int duration_ms) {
     return SDL_GameControllerRumble(m_Device, low_frequency_rumble, high_frequency_rumble, duration_ms);
-}
-
-bool GameController::VibrateTriggers(int left_rumble, int right_rumble, int duration_ms) {
-    return SDL_GameControllerRumbleTriggers(m_Device, left_rumble, right_rumble, duration_ms);
 }
 
 void GameController::Event(const SDL_Event& event) {
@@ -60,7 +48,7 @@ void GameController::Event(const SDL_Event& event) {
     }
 }
 
-void GameController::TickLast() {
+void GameController::TickReset() {
     memcpy(&m_LastButtons, &m_Buttons, sizeof(m_LastButtons));
 }
 
@@ -103,7 +91,7 @@ void GameControllers::Event(const SDL_Event& event) {
     }
 }
 
-void GameControllers::TickLast() {
+void GameControllers::TickReset() {
     for (GameController* Controller : m_Controllers)
-        Controller->TickLast();
+        Controller->TickReset();
 }

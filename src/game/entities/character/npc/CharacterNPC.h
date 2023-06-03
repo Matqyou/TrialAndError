@@ -13,10 +13,12 @@ enum NPCType {
 };
 
 class CharacterNPC : public Character {
-private:
+protected:
     unsigned long long m_NPCLastShot;
     bool m_IsBoss;
     NPCType m_AIType;
+
+    void TickControls() override;
 
 public:
     CharacterNPC(GameWorld* world, double max_health,
@@ -25,8 +27,8 @@ public:
                  NPCType ai_type, bool is_boss);
     ~CharacterNPC();
 
-    void TickControls() override;
-    void Tick();
+    // Ticking
+    void Tick(); // TODO this is not good
 };
 
 #endif //TRIALANDERROR_CHARACTERNPC_H

@@ -7,7 +7,7 @@
 
 #include "Entity.h"
 #include "SDL.h"
-#include "Ammo.h"
+#include "AmmoBox.h"
 #include "Error.h"
 
 enum DropType {

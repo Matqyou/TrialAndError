@@ -60,7 +60,7 @@ void Crates::Tick() {
         if (m_Type != ERROR){
             srand (time(NULL));
             int Ammo_type = rand()%4;
-            new Ammo(m_World, static_cast<AmmoType>(Ammo_type), m_Core->m_x, m_Core->m_y, 20);
+            new AmmoBox(m_World, static_cast<AmmoType>(Ammo_type), m_Core->m_x, m_Core->m_y, 20);
         } else {
             new Error(m_World, m_Core->m_x, m_Core->m_y, typeID); // To change the drop just change typeID the enum value of whatever ERROR is needed
         }

@@ -17,8 +17,9 @@ public:
     static Sound* ms_ShootSound;
     static Sound* ms_ClickSound;
 
-    WeaponShotgun(Character* owner);
+    explicit WeaponShotgun(Character* owner);
 
+    // Ticking
     void Tick() override;
 };
 

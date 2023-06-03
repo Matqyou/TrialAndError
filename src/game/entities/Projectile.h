@@ -9,13 +9,14 @@
 #include "Entity.h"
 #include "SDL.h"
 
-class Bullets : public Entity {
+class Projectile : public Entity {
 private:
     Texture* m_Texture;
     Entity* m_Shooter;
     double m_Damage;
     bool m_StillCollidesShooter;
 
+    // Ticking
     void TickImpact();
     bool TickVelocity();
     bool TickHitPoint(double x, double y);
@@ -26,7 +27,14 @@ public:
     static Texture* ms_TextureShotgun;
     static Texture* ms_TextureMinigun;
 
-    Bullets(GameWorld* world, Entity* shooter, WeaponType weapon_type, double damage, double start_x, double start_y, double start_xvel, double start_yvel);
+    Projectile(GameWorld* world,
+               Entity* shooter,
+               WeaponType weapon_type,
+               double damage,
+               double start_x, double start_y,
+               double start_xvel, double start_yvel);
+
+    // Ticking
     void Tick() override;
     void Draw() override;
 };

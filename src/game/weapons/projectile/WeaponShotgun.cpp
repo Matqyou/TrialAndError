@@ -4,7 +4,7 @@
 
 #include "WeaponShotgun.h"
 #include "../../entities/character/Character.h"
-#include "../../entities/Bullets.h"
+#include "../../entities/Projectile.h"
 #include <cmath>
 
 Sound* WeaponShotgun::ms_ShootSound = nullptr;
@@ -22,7 +22,7 @@ WeaponShotgun::WeaponShotgun(Character* owner)
 }
 
 void WeaponShotgun::Tick() {
-    if(!m_Shooter->GetIfDangerousRecoil())m_RecoilForce = m_BaseRecoilForce ;
+    if(!m_Shooter->HasDangerousRecoil())m_RecoilForce = m_BaseRecoilForce ;
     else if (m_RecoilForce != m_BaseRecoilForce*3)m_RecoilForce = m_BaseRecoilForce*3;
     TickTrigger();
 
@@ -48,7 +48,7 @@ void WeaponShotgun::Tick() {
                 double VelocityX = cos(ProjectileAngle) * ProjectileSpeed;
                 double VelocityY = sin(ProjectileAngle) * ProjectileSpeed;
 
-                new Bullets(World, m_Shooter, WEAPON_SHOTGUN, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
+                new Projectile(World, m_Shooter, WEAPON_SHOTGUN, m_Damage, ShooterCore->m_x, ShooterCore->m_y, VelocityX, VelocityY);
             }
 
             double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;

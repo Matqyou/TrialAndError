@@ -20,8 +20,10 @@ public:
     Sound(SoundManager* sound_handler, Mix_Chunk* mix_chunk, bool auto_cleanup);
     ~Sound();
 
-    Mix_Chunk* MixChunk() const { return m_MixChunk; }
+    // Getting
+    [[nodiscard]] Mix_Chunk* MixChunk() const { return m_MixChunk; }
 
+    // Setting
     void SetVolume(int volume);
     void SetAutoCleanup(bool auto_cleanup);
 };
@@ -32,13 +34,17 @@ private:
     bool m_Enabled;
 
 public:
-    SoundManager(bool enabled);
+    explicit SoundManager(bool enabled);
     ~SoundManager();
 
-    void AddSoundAutoCleanup(Sound* sound);
-    void RemoveSoundAutoCleanup(Sound* sound);
+    // Generating
     Sound* LoadSound(const char* filepath, bool auto_cleanup);
 
+    // Managing
+    void AddSoundAutoCleanup(Sound* sound);
+    void RemoveSoundAutoCleanup(Sound* sound);
+
+    // Manipulating
     void PlaySound(Sound* sound) const;
 };
 

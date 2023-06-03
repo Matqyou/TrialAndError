@@ -16,25 +16,31 @@ enum AmmoType {
     NUM_AMMO
 };
 
-class Ammo : public Entity {
+class AmmoBox : public Entity {
 protected:
     unsigned int m_AmmoCount;
     AmmoType m_Type;
     Texture** m_Texture;
 
+    // Ticking
     void TickPickup();
+
 public:
     static Texture* ms_TextureGlock;
     static Texture* ms_TextureShotgun;
     static Texture* ms_TextureBurst;
     static Texture* ms_TextureMinigun;
-    //static Sound* ms_PickupSounds[7];
+    // static Sound* ms_PickupSounds[7];
 
-    Ammo(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount);
-    AmmoType Type() const{ return m_Type; }
+    AmmoBox(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount);
 
+    // Getting
+    [[nodiscard]] AmmoType Type() const{ return m_Type; }
+
+    // Manipulating
     unsigned int TakeAmmo(unsigned int request);
 
+    // Ticking
     void Tick() override;
     void Draw() override;
 };

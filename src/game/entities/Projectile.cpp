@@ -2,18 +2,18 @@
 // Created by janis on 3/22/2023.
 //
 
-#include "Bullets.h"
+#include "Projectile.h"
 #include <cmath>
 #include <iostream>
 #include "Crates.h"
 #include "character/Character.h"
 
-Texture* Bullets::ms_TextureGlock = nullptr;
-Texture* Bullets::ms_TextureBurst = nullptr;
-Texture* Bullets::ms_TextureShotgun = nullptr;
-Texture* Bullets::ms_TextureMinigun = nullptr;
+Texture* Projectile::ms_TextureGlock = nullptr;
+Texture* Projectile::ms_TextureBurst = nullptr;
+Texture* Projectile::ms_TextureShotgun = nullptr;
+Texture* Projectile::ms_TextureMinigun = nullptr;
 
-Bullets::Bullets(GameWorld* world, Entity* shooter, WeaponType weapon_type, double damage, double start_x, double start_y, double start_xvel, double start_yvel)
+Projectile::Projectile(GameWorld* world, Entity* shooter, WeaponType weapon_type, double damage, double start_x, double start_y, double start_xvel, double start_yvel)
  : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_BULLET, start_x, start_y, 6, 10, start_xvel, start_yvel, 1.0){
     switch (weapon_type) {
         case WEAPON_GLOCK: {
@@ -34,7 +34,7 @@ Bullets::Bullets(GameWorld* world, Entity* shooter, WeaponType weapon_type, doub
     m_StillCollidesShooter = true;
 }
 
-bool Bullets::TickVelocity() {
+bool Projectile::TickVelocity() {
     m_Core->m_xvel *= m_Core->m_BaseDamping;
     m_Core->m_yvel *= m_Core->m_BaseDamping;
 
@@ -44,7 +44,7 @@ bool Bullets::TickVelocity() {
     return TickHitPoint(m_Core->m_x, m_Core->m_y); // TODO: interpolate
 }
 
-bool Bullets::TickHitPoint(double x, double y) {
+bool Projectile::TickHitPoint(double x, double y) {
     // Check if position collides any of the players
     auto Char = m_World->FirstCharacter();
     for (; Char; Char = (Character*)(Char->NextType())) {
@@ -84,19 +84,19 @@ bool Bullets::TickHitPoint(double x, double y) {
     return false;
 }
 
-void Bullets::TickImpact() {
+void Projectile::TickImpact() {
     // Deletes the bullet if it hits the border
     if (m_Core->m_x < 0 || m_Core->m_x > m_World->GetWidth() ||
         m_Core->m_y < 0 || m_Core->m_y > m_World->GetHeight())
         m_Alive = false;
 }
 
-void Bullets::Tick() {
+void Projectile::Tick() {
     if (!TickVelocity())
         TickImpact();
 }
 
-void Bullets::Draw() {
+void Projectile::Draw() {
     Drawing* Render = m_World->GameWindow()->Render();
     double Angle = std::atan2(m_Core->m_yvel, m_Core->m_xvel) / M_PI * 180.0 + 90.0;
     SDL_Rect BulletRect = { int(m_Core->m_x - m_Core->m_w / 2.0), int(m_Core->m_y - m_Core->m_h / 2.0), int(m_Core->m_w), int(m_Core->m_h) };

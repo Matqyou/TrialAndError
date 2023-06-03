@@ -9,6 +9,8 @@ Drawing::Drawing(GameReference* game_window) {
     m_GameWindow = game_window;
     m_World = nullptr;
     m_Renderer = m_GameWindow->Renderer();
+    m_CameraX = 0.0;
+    m_CameraY = 0.0;
     m_Zoom = 0.5;
 }
 

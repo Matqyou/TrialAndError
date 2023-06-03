@@ -28,12 +28,16 @@ struct Hook {
     int m_Grabbed;
     Entity* m_GrabbedEntity;
 
-    Hook(Character* parent);
+    explicit Hook(Character* parent);
 
+    // Setting
     void SetInfluenceRatio(double ratio);
+
+    // Manipulating
     void Unhook();
     void HookWall();
 
+    // Ticking
     void Tick();
 };
 

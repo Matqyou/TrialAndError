@@ -13,7 +13,7 @@
 #include "../../../technical stuff/Colors.h"
 #include "../../indicators/HealthBar.h"
 #include "../../indicators/TextSurface.h"
-#include "../Ammo.h"
+#include "../AmmoBox.h"
 #include "../Crates.h"
 #include "Hook.h"
 #include "Hands.h"
@@ -58,8 +58,7 @@ protected:
     bool m_Movement[NUM_CONTROLS]{};
     bool m_NPC;
     CharacterInput m_Input, m_LastInput;
-    // bool m_Using, m_LastUsing;
-    bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise, Ranged, IsSlow, DangerousRecoil;
+    bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise, Ranged, IsSlow, m_DangerousRecoil;
     bool ReverseMSG, ConfusingHPMSG, InvincibleMSG, SpikyMSG, HealersMSG, RangedMSG, IsSlowMSG, RecoilMSG;
     Hands m_Hands;
     ProjectileWeapon* m_Weapons[NUM_WEAPONS];
@@ -92,23 +91,24 @@ protected:
     // This is how i did le spawning of icons to be displaced, big brain me yes yes
     // TODO: Texture instance class with SDL_FRect or SDL_Rect
 
+    // Ticking
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickHealth();
     virtual void TickControls();
-    void ProcessInputs();
+    void TickProcessInputs();
     void TickHook();
     void TickCollision();
     void TickCurrentWeapon();
-    void DrawAmmo();
-
+    void TickErrorTimers();
+    void DrawAmmoCounter();
     void DrawErrorIcons();
     void DrawCharacter();
     void DrawHook();
     void DrawHealthbar();
     void DrawHands();
     void DrawNameplate();
-    void TickErrorTimers();
+    void DrawErrorName();
 
 public:
     static Texture* ms_Texture;
@@ -141,19 +141,23 @@ public:
               double start_yvel);
     ~Character();
 
-    Hook* GetHook() { return &m_Hook; }
-    Player* GetPlayer() const { return m_Player; }
-    GameController* GetGameController() const { return m_GameController; }
-    bool IsNPC() const { return m_NPC; }
-    ProjectileWeapon* GetCurrentWeapon() const { return m_CurrentWeapon; }
-    CharacterInput& GetInput() { return m_Input; }
-    CharacterInput& GetLastInput() { return m_LastInput; }
-    bool GetIfDangerousRecoil() { return DangerousRecoil; }
+    // Getting
+    [[nodiscard]] Hook* GetHook() { return &m_Hook; }
+    [[nodiscard]] Player* GetPlayer() const { return m_Player; }
+    [[nodiscard]] GameController* GetGameController() const { return m_GameController; }
+    [[nodiscard]] ProjectileWeapon* GetCurrentWeapon() const { return m_CurrentWeapon; }
+    [[nodiscard]] CharacterInput& GetInput() { return m_Input; }
+    [[nodiscard]] CharacterInput& GetLastInput() { return m_LastInput; }
+    [[nodiscard]] bool IsNPC() const { return m_NPC; }
+    [[nodiscard]] bool HasDangerousRecoil() { return m_DangerousRecoil; }
 
+    // Setting
+    void SetGameController(GameController* game_controller) { m_GameController = game_controller; }
+
+    // Manipulating
     void RemoveCombat();
     void GiveWeapon(WeaponType weapon_type);
-    void AmmoPickup(Ammo* ammo_box);
-    void SetGameController(GameController* game_controller) { m_GameController = game_controller; }
+    void AmmoPickup(AmmoBox* ammo_box);
     void Damage(double damage, bool make_sound);
     void SwitchWeapon(WeaponType type);
     void ReverseMovement();
@@ -164,8 +168,8 @@ public:
     void MakeRanged();
     void SlowDown();
     void ActivateDangerousRecoil();
-    void DrawErrorName();
 
+    // Listening & Ticking
     void Event(const SDL_Event& currentEvent);
     void Tick() override;
     void Draw() override;

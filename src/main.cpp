@@ -4,9 +4,9 @@
 #include "technical stuff/GameControllers.h"
 #include "game/entities/character/npc/CharacterNPC.h"
 #include "game/entities/character/Character.h"
-#include "game/entities/Bullets.h"
+#include "game/entities/Projectile.h"
 #include "game/indicators/TextSurface.h"
-#include "game/entities/Ammo.h"
+#include "game/entities/AmmoBox.h"
 #include "game/entities/Crates.h"
 #include "game/entities/Error.h"
 #include <vector>
@@ -73,14 +73,14 @@ int main() {
 
     Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     Hands::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
-    Bullets::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/Bullets/GlockBullet.png", true);
-    Bullets::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/Bullets/BurstBullet.png", true);
-    Bullets::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/Bullets/ShotgunBullet.png", true);
-    Bullets::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/Bullets/MinigunBullet.png", true);
-    Ammo::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/GlockAmmo.png", true);
-    Ammo::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/ShotgunAmmo.png", true);
-    Ammo::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/BurstAmmo.png", true);
-    Ammo::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/entities/MinigunAmmo.png", true);
+    Projectile::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/Projectile/GlockBullet.png", true);
+    Projectile::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/Projectile/BurstBullet.png", true);
+    Projectile::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/Projectile/ShotgunBullet.png", true);
+    Projectile::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/Projectile/MinigunBullet.png", true);
+    AmmoBox::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/GlockAmmo.png", true);
+    AmmoBox::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/ShotgunAmmo.png", true);
+    AmmoBox::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/BurstAmmo.png", true);
+    AmmoBox::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/entities/MinigunAmmo.png", true);
     Crates::ms_TextureBox = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate.png", true);
     Crates::ms_TextureBreakingBox1 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_1.png", true);
     Crates::ms_TextureBreakingBox2 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_2.png", true);
@@ -147,13 +147,13 @@ int main() {
     Character::ms_HitSounds[2] = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt3.wav", true);
     Character::ms_AmmoPickupSound = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick6.wav", true);
     Character::ms_ItemSwitchSound = SoundHandler->LoadSound("assets/sounds/WeaponSwitch.wav", true);
-    // Ammo::ms_PickupSounds[0] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick1.wav", true);
-    // Ammo::ms_PickupSounds[1] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick2.wav", true);
-    // Ammo::ms_PickupSounds[2] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick3.wav", true);
-    // Ammo::ms_PickupSounds[3] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick4.wav", true);
-    // Ammo::ms_PickupSounds[4] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick5.wav", true);
-    // Ammo::ms_PickupSounds[5] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick6.wav", true);
-    // Ammo::ms_PickupSounds[6] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick7.wav", true);
+    // AmmoBox::ms_PickupSounds[0] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick1.wav", true);
+    // AmmoBox::ms_PickupSounds[1] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick2.wav", true);
+    // AmmoBox::ms_PickupSounds[2] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick3.wav", true);
+    // AmmoBox::ms_PickupSounds[3] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick4.wav", true);
+    // AmmoBox::ms_PickupSounds[4] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick5.wav", true);
+    // AmmoBox::ms_PickupSounds[5] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick6.wav", true);
+    // AmmoBox::ms_PickupSounds[6] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick7.wav", true);
     Crates::ms_BoxSound = SoundHandler->LoadSound("assets/sounds/BoxHit.wav", true);
     Crates::ms_HitSound = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
 
@@ -235,7 +235,7 @@ int main() {
 
         // Ticking
         World->Tick();
-        Controllers->TickLast();
+        Controllers->TickReset();
 
         // Drawing
         //Draw->SetColor(120, 120, 0, 255);

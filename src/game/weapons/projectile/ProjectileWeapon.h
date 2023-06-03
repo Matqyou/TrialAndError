@@ -38,29 +38,45 @@ protected:
     Character* m_Shooter;
     WeaponType m_Type;
 
+    // Ticking
     virtual void TickTrigger();
-    void GetOwnerShooting(bool& out_shoot, bool& out_last_shoot) const;
-    double GenerateSpreadAngle() const;
-    double GenerateRandomProjectileSpeed() const;
+
+    // Generating
+    [[nodiscard]] double GenerateSpreadAngle() const;
+    [[nodiscard]] double GenerateRandomProjectileSpeed() const;
+
 public:
     static Sound* ms_ReloadSound;
     static Sound* ms_NoAmmo;
 
-    ProjectileWeapon(Character* owner, WeaponType type, int tick_cooldown, int ammo_capacity, int total_ammo_capacity, double projectile_speed, bool automatic);
+    ProjectileWeapon(Character* owner,
+                     WeaponType type,
+                     int tick_cooldown,
+                     int ammo_capacity,
+                     int total_ammo_capacity,
+                     double projectile_speed,
+                     bool automatic);
 
-    WeaponType Type() const { return m_Type; }
-    unsigned int Ammo() const { return m_Ammo; }
-    unsigned int TrueAmmo() const {return m_TrueAmmo;}
-    unsigned int AmmoCap() const {return m_AmmoCapacity;}
-    unsigned int NeededAmmo() const;
-    unsigned long long TickCooldown() const { return m_TickCooldown; }
-    bool IsAutomatic() const { return m_Automatic; }
+    // Getting
+    [[nodiscard]] WeaponType Type() const { return m_Type; }
+    [[nodiscard]] unsigned int Ammo() const { return m_Ammo; }
+    [[nodiscard]] unsigned int TrueAmmo() const { return m_TrueAmmo; }
+    [[nodiscard]] unsigned int AmmoCap() const { return m_AmmoCapacity; }
+    [[nodiscard]] unsigned long long TickCooldown() const { return m_TickCooldown; }
+    [[nodiscard]] bool IsAutomatic() const { return m_Automatic; }
 
-    void AddTrueAmmo(unsigned int count);
+    // Generating
+    [[nodiscard]] unsigned int NeededAmmo() const;
+
+    // Setting
     void SetSpread(double degrees, int decimal_places);
     void SetRandomProjectileSpeed(double delta_speed, double delta_percentage_negative, int delta_decimal_places);
+
+    // Manipulating
+    void AddTrueAmmo(unsigned int count);
     void Reload();
 
+    // Ticking
     virtual void Tick();
 };
 

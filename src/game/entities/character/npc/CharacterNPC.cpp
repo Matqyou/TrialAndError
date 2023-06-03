@@ -17,9 +17,7 @@ CharacterNPC::CharacterNPC(GameWorld* world, double max_health,
     m_ColorHue = is_boss ? 250.0 + (rand() % 90) - 45 : 120.0 + (rand() % 90) - 45;
 }
 
-CharacterNPC::~CharacterNPC() {
-
-}
+CharacterNPC::~CharacterNPC() = default;
 
 void CharacterNPC::TickControls() {
     if (m_AIType == NPC_DUMMY)
@@ -96,7 +94,7 @@ void CharacterNPC::TickControls() {
 void CharacterNPC::Tick() {
     TickHealth();
     TickControls(); // Parse the inputs of each device keyboard/controller/AI
-    ProcessInputs(); // Do stuff depending on the current held buttons
+    TickProcessInputs(); // Do stuff depending on the current held buttons
     TickHook();  // Move hook and or player etc.
     TickCurrentWeapon(); // Shoot accelerate reload etc.
     m_Hands.Tick();

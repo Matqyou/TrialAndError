@@ -24,16 +24,19 @@ public:
     TileMap(Drawing* render, int tilesize, int width, int height);
     ~TileMap();
 
-    unsigned int Width() const { return m_Width; }
-    unsigned int Height() const { return m_Height; }
-    unsigned int Tilesize() const { return m_Tilesize; }
-    unsigned int TotalWidth() const { return m_Width * m_Tilesize; }
-    unsigned int TotalHeight() const { return m_Height * m_Tilesize; }
+    // Getting
+    [[nodiscard]] unsigned int Width() const { return m_Width; }
+    [[nodiscard]] unsigned int Height() const { return m_Height; }
+    [[nodiscard]] unsigned int Tilesize() const { return m_Tilesize; }
+    [[nodiscard]] unsigned int TotalWidth() const { return m_Width * m_Tilesize; }
+    [[nodiscard]] unsigned int TotalHeight() const { return m_Height * m_Tilesize; }
 
+    // Manipulating
     void ClearTilemap();
     void SaveTilemap(const char* filepath);
     void LoadTilemap(const char* filepath);
 
+    // Ticking
     void Draw();
 };
 

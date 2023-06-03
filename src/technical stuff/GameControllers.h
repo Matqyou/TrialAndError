@@ -18,22 +18,26 @@ private:
     bool m_LastButtons[SDL_CONTROLLER_BUTTON_MAX];
 
 public:
-    GameController(int device_id);
+    explicit GameController(int device_id);
     ~GameController();
 
-    int InstanceID() const { return m_InstanceID; }
-    double GetLeftTrigger() const { return m_Axis[SDL_CONTROLLER_AXIS_TRIGGERLEFT]; }
-    double GetRightTrigger() const { return m_Axis[SDL_CONTROLLER_AXIS_TRIGGERRIGHT]; }
+    // Getting
+    [[nodiscard]] int InstanceID() const { return m_InstanceID; }
+    [[nodiscard]] double GetLeftTrigger() const { return m_Axis[SDL_CONTROLLER_AXIS_TRIGGERLEFT]; }
+    [[nodiscard]] double GetRightTrigger() const { return m_Axis[SDL_CONTROLLER_AXIS_TRIGGERRIGHT]; }
+    [[nodiscard]] bool GetButton(int button) const { return m_Buttons[button]; }
+    [[nodiscard]] bool GetLastButton(int button) const { return m_LastButtons[button]; }
+
+    // Generating
     void GetJoystick1(double& get_x, double& get_y);
     void GetJoystick2(double& get_x, double& get_y);
-    bool GetButton(int button);
-    bool GetLastButton(int button);
 
+    // Manipulate
     bool Vibrate(int low_frequency_rumble, int high_frequency_rumble, int duration_ms);
-    bool VibrateTriggers(int left_rumble, int right_rumble, int duration_ms); // TODO not work
 
+    // Listening & Ticking
     void Event(const SDL_Event& event);
-    void TickLast();
+    void TickReset();
 };
 
 class GameControllers {
@@ -44,11 +48,13 @@ public:
     GameControllers();
     ~GameControllers();
 
-    GameController* OpenController(int device_id);
+    // Manipulating & Generating
+    [[nodiscard]] GameController* OpenController(int device_id);
     GameController* CloseController(int instance_id);
 
+    // Listening & Ticking
     void Event(const SDL_Event& event);
-    void TickLast();
+    void TickReset();
 };
 
 #endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMECONTROLLERS_H_

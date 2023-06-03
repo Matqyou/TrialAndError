@@ -4,7 +4,7 @@
 #include "Character.h"
 #include <cmath>
 #include <iostream>
-#include "../Bullets.h"
+#include "../Projectile.h"
 #include <vector>
 
 #ifndef M_SQRT1_2
@@ -94,7 +94,7 @@ Character::Character(GameWorld* world, Player* player, double max_health,
     HealersParadise = false;
     Ranged = false;
     IsSlow = false;
-    DangerousRecoil = false;
+    m_DangerousRecoil = false;
 
     // Initialises all MSG drawing of ERRORS to false
     ReverseMSG = false;
@@ -229,7 +229,7 @@ void Character::SlowDown() {
 }
 
 void Character::ActivateDangerousRecoil() {
-    DangerousRecoil = true;
+    m_DangerousRecoil = true;
     RecoilMSG = true;
     m_DangerousRecoilTimer = 3000;
 }
@@ -242,8 +242,8 @@ void Character::TickErrorTimers() {
     if (IsReversed) m_IsReverseTimer -= 1;
     if (Ranged) m_RangedTimer -= 1;
     if (IsSlow) m_IsSlowTimer -= 1;
-    if (DangerousRecoil) m_DangerousRecoilTimer -= 1;
-    if (HealersParadise || Spiky || Invincible || ConfusingHP || IsReversed || Ranged || IsSlow || DangerousRecoil) {
+    if (m_DangerousRecoil) m_DangerousRecoilTimer -= 1;
+    if (HealersParadise || Spiky || Invincible || ConfusingHP || IsReversed || Ranged || IsSlow || m_DangerousRecoil) {
         // Changes the MSG drawing to false if its above 2 seconds of active time
         if (m_IsReverseTimer <= 1380) ReverseMSG = false;
         if (m_IsReverseTimer <= 0 && IsReversed) {
@@ -293,8 +293,8 @@ void Character::TickErrorTimers() {
 
         }
         if (m_DangerousRecoilTimer <= 2880) RecoilMSG = false;
-        if (m_DangerousRecoilTimer <= 0 && DangerousRecoil) {
-            DangerousRecoil = false;
+        if (m_DangerousRecoilTimer <= 0 && m_DangerousRecoil) {
+            m_DangerousRecoil = false;
             Displacement = DrawErrorDangerousRecoil.y;
             DrawErrorDangerousRecoil = { -1000 };
         }
@@ -336,13 +336,13 @@ void Character::GiveWeapon(WeaponType weapon_type) {
     }
 }
 
-void Character::AmmoPickup(Ammo* ammo_box) {
+void Character::AmmoPickup(AmmoBox* ammo_box) {
     WeaponType ReloadWeapon;
     if (ammo_box->Type() == AMMO_GLOCK) ReloadWeapon = WEAPON_GLOCK;
     else if (ammo_box->Type() == AMMO_SHOTGUN) ReloadWeapon = WEAPON_SHOTGUN;
     else if (ammo_box->Type() == AMMO_BURST) ReloadWeapon = WEAPON_BURST;
     else if (ammo_box->Type() == AMMO_MINIGUN) ReloadWeapon = WEAPON_MINIGUN;
-    else return; // Ammo type has no matching gun type
+    else return; // AmmoBox type has no matching gun type
 
     if (!m_Weapons[ReloadWeapon]) return;
 
@@ -464,7 +464,7 @@ void Character::TickControls() {
     }
 }
 
-void Character::ProcessInputs() {
+void Character::TickProcessInputs() {
     if (m_Input.m_GoingLength >= 0.2) {  // Fix controller drifting
         // Checks if player is shifting (holding left stick)
         // TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
@@ -725,7 +725,7 @@ void Character::DrawErrorIcons() {
             DrawRectError.y -= DrawErrorRanged.y;
         }
     }
-    if (DangerousRecoil) {
+    if (m_DangerousRecoil) {
         if (DrawErrorDangerousRecoil.x == -1000) {
             DrawErrorDangerousRecoil = DrawRectError;
             DrawErrorDangerousRecoil.y = Displacement;
@@ -928,7 +928,7 @@ void Character::DrawNameplate() {
 }
 
 // TODO when switching guns ammo text renders again, to prevent this save each ammo count texture on the gun
-void Character::DrawAmmo() {
+void Character::DrawAmmoCounter() {
     Drawing* Render = m_World->GameWindow()->Render();
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%u/%u", m_CurrentWeapon->Ammo(), m_CurrentWeapon->TrueAmmo());
@@ -1005,7 +1005,7 @@ void Character::Event(const SDL_Event& currentEvent) {
 void Character::Tick() {
     TickHealth();
     TickControls(); // Parse the inputs of each device keyboard/controller/AI
-    ProcessInputs(); // Do stuff depending on the current held buttons
+    TickProcessInputs(); // Do stuff depending on the current held buttons
     TickHook();  // Move hook and or player etc.
     TickCurrentWeapon(); // Shoot accelerate reload etc.
     m_Hands.Tick();
@@ -1060,7 +1060,7 @@ void Character::Draw() {
     DrawHealthbar();
     DrawNameplate();
     DrawErrorIcons();
-    if (m_CurrentWeapon) DrawAmmo();
+    if (m_CurrentWeapon) DrawAmmoCounter();
     // Only draws the Error names, if the timers havent been going down for any more than 2 seconds
     // 1000(Most Error activity time)-120(2 seconds)
     if (m_IsReverseTimer > 1380 || m_ConfusingHPTimer > 1380 || m_InvincibleTimer > 1380 || m_SpikyTimer > 2880 ||

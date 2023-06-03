@@ -4,7 +4,7 @@
 
 #include "ProjectileWeapon.h"
 #include "../../entities/character/Character.h"
-#include "../../entities/Bullets.h"
+#include "../../entities/Projectile.h"
 #include <cmath>
 
 Sound* ProjectileWeapon::ms_ReloadSound = nullptr;
@@ -43,8 +43,8 @@ ProjectileWeapon::ProjectileWeapon(Character* owner, WeaponType type, int tick_c
 
 void ProjectileWeapon::TickTrigger() {
     if (m_Shooter) {
-        bool Shoot, LastShoot;
-        GetOwnerShooting(Shoot, LastShoot);
+        bool Shoot = (Character*)(m_Shooter)->m_Input.m_Shooting;
+        bool LastShoot = (Character*)(m_Shooter)->m_LastInput.m_Shooting;
 
         m_Triggered = Shoot && !LastShoot;  // Always trigger on semi
         if (!m_Triggered) {
@@ -54,14 +54,8 @@ void ProjectileWeapon::TickTrigger() {
     }
 }
 
-void ProjectileWeapon::GetOwnerShooting(bool& out_shoot, bool& out_last_shoot) const {
-    out_shoot = m_Shooter->m_Input.m_Shooting;
-    out_last_shoot = m_Shooter->m_LastInput.m_Shooting;
-}
-
 unsigned int ProjectileWeapon::NeededAmmo() const {
     return m_TrueAmmoCapacity - m_TrueAmmo;
-
 }
 
 void ProjectileWeapon::AddTrueAmmo(unsigned int count) {

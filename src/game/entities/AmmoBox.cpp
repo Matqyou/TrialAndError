@@ -1,17 +1,17 @@
 //
 // Created by Mim on 4/19/2023.
 //
-#include "Ammo.h"
+#include "AmmoBox.h"
 #include "character/Character.h"
 #include <cmath>
 #include <iostream>
-Texture* Ammo::ms_TextureGlock = nullptr;
-Texture* Ammo::ms_TextureShotgun = nullptr;
-Texture* Ammo::ms_TextureBurst = nullptr;
-Texture* Ammo::ms_TextureMinigun = nullptr;
-// Sound* Ammo::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+Texture* AmmoBox::ms_TextureGlock = nullptr;
+Texture* AmmoBox::ms_TextureShotgun = nullptr;
+Texture* AmmoBox::ms_TextureBurst = nullptr;
+Texture* AmmoBox::ms_TextureMinigun = nullptr;
+// Sound* AmmoBox::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-Ammo::Ammo(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount)
+AmmoBox::AmmoBox(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount)
  : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_AMMO, start_x, start_y, 40, 28, 0.0, 0.0, 0.95){
     m_AmmoCount = AmmoCount;
     m_Type = type;
@@ -21,7 +21,7 @@ Ammo::Ammo(GameWorld* world, AmmoType type, double start_x, double start_y, doub
     else if (type == AMMO_BURST) m_Texture = &ms_TextureBurst;
     else if (type == AMMO_MINIGUN) m_Texture = &ms_TextureMinigun;
 }
-void Ammo::TickPickup() {
+void AmmoBox::TickPickup() {
     // Check if position collides any of the players
     auto Char = m_World->FirstCharacter();
     for (; Char; Char = (Character*)(Char->NextType())) {
@@ -42,7 +42,7 @@ void Ammo::TickPickup() {
     }
 }
 
-unsigned int Ammo::TakeAmmo(unsigned int request) {
+unsigned int AmmoBox::TakeAmmo(unsigned int request) {
     if (request > m_AmmoCount)
         request = m_AmmoCount;
 
@@ -56,7 +56,7 @@ unsigned int Ammo::TakeAmmo(unsigned int request) {
     return request;
 }
 
-void Ammo::Tick() {
+void AmmoBox::Tick() {
     TickPickup();
 
     TickVelocity();
@@ -65,7 +65,7 @@ void Ammo::Tick() {
     if (m_AmmoCount <= 0) m_Alive = false;
 }
 
-void Ammo::Draw() {
+void AmmoBox::Draw() {
     Drawing* Render = m_World->GameWindow()->Render();
 
     SDL_FRect DrawRect = {float(m_Core->m_x) - float(m_Core->m_w / 2.0),

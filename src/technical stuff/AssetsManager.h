@@ -22,10 +22,12 @@ public:
     AssetsManager(SDL_Renderer* renderer, bool audio_initialized);
     ~AssetsManager();
 
-    ImageManager* ImageHandler() const { return m_ImageHandler; }
-    SoundManager* SoundHandler() const { return m_SoundHandler; }
-    TextManager* TextHandler() const { return m_TextHandler; }
+    // Getting
+    [[nodiscard]] ImageManager* ImageHandler() const { return m_ImageHandler; }
+    [[nodiscard]] SoundManager* SoundHandler() const { return m_SoundHandler; }
+    [[nodiscard]] TextManager* TextHandler() const { return m_TextHandler; }
 
+    // Manipulating
     void DeinitializeImages();
     void DeinitializeSounds();
 };
