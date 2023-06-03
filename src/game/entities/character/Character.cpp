@@ -44,6 +44,7 @@ Texture* Character::ms_Texture = nullptr;
 Sound* Character::ms_HitSounds[3] = { nullptr, nullptr, nullptr };
 Sound* Character::ms_DeathSound = nullptr;
 Sound* Character::ms_AmmoPickupSound = nullptr;
+Sound* Character::ms_ItemSwitchSound = nullptr;
 TextSurface* Character::ms_BotNamePlate = nullptr;
 // TODO: see if we can make a little system that tells us if the textures/sounds are unitialized
 
@@ -300,6 +301,8 @@ void Character::TickErrorTimers() {
     } else Displacement = 0;
 }
 void Character::SwitchWeapon(WeaponType type) {
+    // m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ItemSwitchSound);
+    // npcs are constantly swapping -_-
     if (!m_Weapons[type] ||
         m_CurrentWeapon == m_Weapons[type]) {
         m_CurrentWeapon = nullptr;
@@ -395,6 +398,12 @@ void Character::TickKeyboardControls() { // TODO: move to characterInput class
     m_Input.m_Shooting = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);  // If clicked, shoot = true
     m_Input.m_Hooking = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
     m_Input.m_Sneaking = m_Movement[CONTROL_SHIFT];
+
+    // Switch weapons
+    m_Input.m_NextItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
+        && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+    m_Input.m_PrevItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)
+        && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
 }
 
 void Character::TickGameControllerControls() {
