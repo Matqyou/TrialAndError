@@ -1,3 +1,11 @@
+/*
+ *  Trial And Error
+ *  This is a game.
+ *
+ *  Made by two and a half guys.
+ *  Project started 16.03.23
+ */
+
 #define SDL_MAIN_HANDLED
 #include "GameReference.h"
 #include "GameWorld.h"
@@ -66,17 +74,17 @@ int main() {
     ImageManager* ImageHandler = AssetsHandler->ImageHandler();
 
     // Load the PNG images
-    Texture* TextureStart = ImageHandler->LoadTexture("assets/images/UI/Start.png", true);
-    Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/UI/Settings.png", true);
+    Texture* TextureStart = ImageHandler->LoadTexture("assets/images/interface/Start.png", true);
+    Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/interface/Settings.png", true);
     Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
     Vignette->SetAlphaMod(200);
 
     Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     Hands::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
-    Projectile::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/Projectile/GlockBullet.png", true);
-    Projectile::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/Projectile/BurstBullet.png", true);
-    Projectile::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/Projectile/ShotgunBullet.png", true);
-    Projectile::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/Projectile/MinigunBullet.png", true);
+    Projectile::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/projectiles/GlockBullet.png", true);
+    Projectile::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/projectiles/BurstBullet.png", true);
+    Projectile::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/projectiles/ShotgunBullet.png", true);
+    Projectile::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/entities/projectiles/MinigunBullet.png", true);
     AmmoBox::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/GlockAmmo.png", true);
     AmmoBox::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/ShotgunAmmo.png", true);
     AmmoBox::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/BurstAmmo.png", true);
@@ -102,13 +110,13 @@ int main() {
     Character::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/icons/Ranged.png", true);
     Character::ms_TextureError = ImageHandler->LoadTexture("assets/images/entities/golden_apple.png", true);
 
-    Character::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/gun/Glock.png", true);
-    Character::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/gun/Burst.png", true);
-    Character::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/gun/Shotgun.png", true);
-    Character::ms_TexturesMinigun[0] = ImageHandler->LoadTexture("assets/images/gun/Minigun1.png", true);
-    Character::ms_TexturesMinigun[1] = ImageHandler->LoadTexture("assets/images/gun/Minigun2.png", true);
-    Character::ms_TexturesMinigun[2] = ImageHandler->LoadTexture("assets/images/gun/Minigun3.png", true);
-    Character::ms_TexturesMinigun[3] = ImageHandler->LoadTexture("assets/images/gun/Minigun4.png", true);
+    Character::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/weapons/Glock.png", true);
+    Character::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/weapons/Burst.png", true);
+    Character::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/weapons/Shotgun.png", true);
+    Character::ms_TexturesMinigun[0] = ImageHandler->LoadTexture("assets/images/weapons/Minigun1.png", true);
+    Character::ms_TexturesMinigun[1] = ImageHandler->LoadTexture("assets/images/weapons/Minigun2.png", true);
+    Character::ms_TexturesMinigun[2] = ImageHandler->LoadTexture("assets/images/weapons/Minigun3.png", true);
+    Character::ms_TexturesMinigun[3] = ImageHandler->LoadTexture("assets/images/weapons/Minigun4.png", true);
     // Load sounds
     Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
     Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);

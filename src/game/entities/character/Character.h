@@ -46,7 +46,7 @@ protected:
     friend class Player;
     friend class GameWorld;
     friend class ProjectileWeapon;
-    friend class Bullets; //
+    friend class Projectile; //
     friend class Hands;
     Player* m_Player;
     TextSurface* m_CoordinatePlate;
