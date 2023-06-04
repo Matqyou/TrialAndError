@@ -28,7 +28,7 @@ std::string FString(const char* format, ...) {
 
 TextManager::TextManager(ImageManager* image_handler) {
     m_ImageHandler = image_handler;
-    m_MainFont = LoadFont("Minecraft.ttf", 16);
+    m_MainFont = LoadFont("assets/fonts/Minecraft.ttf", 16);
 }
 
 TextManager::~TextManager() {
