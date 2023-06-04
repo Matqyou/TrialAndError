@@ -11,8 +11,17 @@ Texture* AmmoBox::ms_TextureBurst = nullptr;
 Texture* AmmoBox::ms_TextureMinigun = nullptr;
 // Sound* AmmoBox::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-AmmoBox::AmmoBox(GameWorld* world, AmmoType type, double start_x, double start_y, unsigned int AmmoCount)
-    : Entity(world, ENTFORM_NORMAL, ENTTYPE_AMMO, start_x, start_y, 40, 28, 0.0, 0.0, 0.95) {
+AmmoBox::AmmoBox(GameWorld* world,
+                 AmmoType type,
+                 const Vec2d& start_pos,
+                 unsigned int AmmoCount)
+    : Entity(world,
+             ENTFORM_NORMAL,
+             ENTTYPE_AMMO,
+             start_pos,
+             Vec2d(40, 28),
+             Vec2d(0.0, 0.0),
+             0.95) {
     m_AmmoCount = AmmoCount;
     m_Type = type;
 

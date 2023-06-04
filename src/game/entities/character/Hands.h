@@ -31,6 +31,7 @@ public:
 
     // Getting
     [[nodiscard]] Character* Parent() const { return m_Parent; }
+    [[nodiscard]] unsigned long long LastFisted() const { return m_LastFisted; }
 
     // Setting
     void SetColor(SDL_Color& color);

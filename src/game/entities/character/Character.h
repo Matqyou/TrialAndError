@@ -135,10 +135,8 @@ public:
     Character(GameWorld* world,
               Player* player,
               double max_health,
-              double start_x,
-              double start_y,
-              double start_xvel,
-              double start_yvel);
+              const Vec2d& start_pos,
+              const Vec2d& start_vel);
     ~Character();
 
     // Getting

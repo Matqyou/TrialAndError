@@ -36,20 +36,16 @@ void WeaponGlock::Tick() {
             m_LastShotAt = CurrentTick;
             SoundHandler->PlaySound(ms_ShootSound);
 
-            double VelocityX = ShooterCore.Direction.x * m_ProjectileSpeed;
-            double VelocityY = ShooterCore.Direction.y * m_ProjectileSpeed;
+            Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
             new Projectile(World,
                            m_Shooter,
                            WEAPON_GLOCK,
                            m_Damage,
-                           ShooterCore.Pos.x,
-                           ShooterCore.Pos.y,
-                           VelocityX,
-                           VelocityY);
+                           ShooterCore.Pos,
+                           ProjectileVelocity);
 
-            double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
-            double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
-            m_Shooter->Accelerate(Vec2d(RecoilX, RecoilY));
+            Vec2d Recoil = ShooterCore.Direction * -m_RecoilForce;
+            m_Shooter->Accelerate(Recoil);
         } else {
             SoundHandler->PlaySound(ms_ClickSound);
         }

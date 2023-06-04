@@ -31,8 +31,8 @@ public:
                Entity* shooter,
                WeaponType weapon_type,
                double damage,
-               double start_x, double start_y,
-               double start_xvel, double start_yvel);
+               const Vec2d& start_pos,
+               const Vec2d& start_vel);
 
     // Ticking
     void Tick() override;

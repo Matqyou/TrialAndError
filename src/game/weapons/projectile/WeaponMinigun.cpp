@@ -14,6 +14,7 @@ WeaponMinigun::WeaponMinigun(Character* owner)
     : ProjectileWeapon(owner, WEAPON_MINIGUN, 14, 64, 64 * 3, 35.0, true) {
     m_BaseRecoilForce = 3.2;
     m_RecoilForce = m_BaseRecoilForce;
+    m_Damage = 4.0;
 
     m_MinimumFireRate = 7.5;
     m_FullRate = 10.0;
@@ -43,9 +44,8 @@ void WeaponMinigun::Tick() {
     if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere
         m_FireRate += m_RateAcceleration;
         if (m_FireRate > m_FullRate) m_FireRate = m_FullRate;
-        if (m_FireRate < m_MinimumFireRate ||
-            CurrentTick - m_LastShotAt <= int(m_TickCooldown - m_FireRate)) {}
-        else {
+        if (m_FireRate >= m_MinimumFireRate &
+            CurrentTick - m_LastShotAt > int(double(m_TickCooldown) - m_FireRate)) {
             m_LastShot = m_Ammo == 1;
             if (m_Ammo) {
                 m_Ammo--;
@@ -53,20 +53,16 @@ void WeaponMinigun::Tick() {
                 SoundHandler->PlaySound(ms_ShootSound);
 
                 double Angle = ShooterCore.Direction.Atan2() + GenerateSpreadAngle();
-                double VelocityX = cos(Angle) * m_ProjectileSpeed;
-                double VelocityY = sin(Angle) * m_ProjectileSpeed;
+                Vec2d ProjectileVelocity = AngleVec2d(Angle) * m_ProjectileSpeed;
                 new Projectile(World,
                                m_Shooter,
                                WEAPON_MINIGUN,
-                               4,
-                               ShooterCore.Pos.x,
-                               ShooterCore.Pos.y,
-                               VelocityX,
-                               VelocityY);
+                               m_Damage,
+                               ShooterCore.Pos,
+                               ProjectileVelocity);
 
-                double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
-                double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
-                m_Shooter->Accelerate(Vec2d(RecoilX, RecoilY));
+                Vec2d Recoil = ShooterCore.Direction * -m_RecoilForce;
+                m_Shooter->Accelerate(Recoil);
             } else {
                 SoundHandler->PlaySound(ms_ClickSound);
             }

@@ -34,14 +34,14 @@ void ItemEntity::SetTexture(ItemType item_type) {
 ItemEntity::ItemEntity(GameWorld* world,
                        ItemType item_type,
                        Entity* dropper,
-                       double start_x, double start_y,
-                       double start_w, double start_h)
+                       const Vec2d& start_pos,
+                       const Vec2d& start_size)
     : Entity(world,
              ENTFORM_NORMAL,
              ENTTYPE_ITEM,
-             start_x, start_y,
-             start_w, start_h,
-             0.0, 0.0,
+             start_pos,
+             start_size,
+             Vec2d(0.0, 0.0),
              0.95) {
     m_Dropper = dropper;
     m_DroppedSince = m_World->GetTick();

@@ -127,25 +127,28 @@ bool Initialize() {
     // it only works cuz this is main and i prefer to use the same typa fix on both ERRORS and crates, since
     // for ERRORS that fix wouldnt have worked, also it lowers the line count cuz i dont gotta set the ERROR/AMMO types
     // to each random number, can just send the number straight up
-    new Crate(World, 200, 200, 20, rand() % 2);
-    new Crate(World, 400, 200, 20, rand() % 2);
-    new Crate(World, 600, 200, 20, rand() % 2);
-    new Crate(World, 200, 400, 20, rand() % 2);
-    new Crate(World, 400, 400, 20, rand() % 2);
-    new Crate(World, 600, 400, 20, rand() % 2);
-    new Crate(World, 200, 600, 20, rand() % 2);
-    new Crate(World, 400, 600, 20, rand() % 2);
-    new Crate(World, 600, 600, 20, rand() % 2);
+    new Crate(World, Vec2d(200, 200), 20, rand() % 2);
+    new Crate(World, Vec2d(400, 200), 20, rand() % 2);
+    new Crate(World, Vec2d(600, 200), 20, rand() % 2);
+    new Crate(World, Vec2d(200, 400), 20, rand() % 2);
+    new Crate(World, Vec2d(400, 400), 20, rand() % 2);
+    new Crate(World, Vec2d(600, 400), 20, rand() % 2);
+    new Crate(World, Vec2d(200, 600), 20, rand() % 2);
+    new Crate(World, Vec2d(400, 600), 20, rand() % 2);
+    new Crate(World, Vec2d(600, 600), 20, rand() % 2);
 
-    new EntityGlock(World, nullptr, 800, 200);
-    new EntityShotgun(World, nullptr, 900, 200);
-    new EntityBurst(World, nullptr, 1000, 200);
-    new EntityMinigun(World, nullptr, 1100, 200);
+    new EntityGlock(World, nullptr, Vec2d(800, 200));
+    new EntityShotgun(World, nullptr, Vec2d(900, 200));
+    new EntityBurst(World, nullptr, Vec2d(1000, 200));
+    new EntityMinigun(World, nullptr, Vec2d(1100, 200));
 
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Keyboard");
-    auto Char1 = new Character(World, Player1, 100.0,
-                               32 * 17.5, 32 * 17.5, 10, 10);
+    auto Char1 = new Character(World,
+                               Player1,
+                               100.0,
+                               Vec2d(32 * 17.5, 32 * 17.5),
+                               Vec2d(10, 10));
     Char1->GiveWeapon(WEAPON_GLOCK);
     Char1->GiveWeapon(WEAPON_BURST);
     Char1->GiveWeapon(WEAPON_SHOTGUN);
@@ -208,7 +211,12 @@ int main() {
                         if (Pause) SoundHandler->PlaySound(MidUISound);
                         else SoundHandler->PlaySound(LowUISound);
                     } else if (ScancodeKey == SDL_SCANCODE_Z) {
-                        new CharacterNPC(World, 20.0, 32 * 30, 30, 10, 10, NPC_TURRET, true);
+                        new CharacterNPC(World,
+                                         20.0,
+                                         Vec2d(32 * 30, 32),
+                                         Vec2d(0, 10),
+                                         NPC_TURRET,
+                                         true);
                     }
                 }
                     break;
@@ -216,8 +224,11 @@ int main() {
                     int DeviceID = CurrentEvent.cdevice.which;
                     GameController* CurrentController = Controllers->OpenController(DeviceID);
                     auto NewPlayer = new Player(World, "Controller");
-                    auto NewChar = new Character(World, NewPlayer, 100.0,
-                                                 32 * 17.5, 32 * 17.5, 10, 10);
+                    auto NewChar = new Character(World,
+                                                 NewPlayer,
+                                                 100.0,
+                                                 Vec2d(32 * 17.5, 32 * 17.5),
+                                                 Vec2d(10, 10));
                     NewChar->GiveWeapon(WEAPON_GLOCK);
                     NewChar->GiveWeapon(WEAPON_BURST);
                     NewChar->GiveWeapon(WEAPON_SHOTGUN);

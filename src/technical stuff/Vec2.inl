@@ -166,3 +166,7 @@ double DistanceVec2(const Vec2<T>& v1, const Vec2<T>& v2)  {
     double dy = static_cast<double>(v1.y) - static_cast<double>(v2.y);
     return std::sqrt(dx * dx + dy * dy);
 }
+
+inline Vec2<double> AngleVec2d(double radians) {
+    return { std::cos(radians), std::sin(radians) };
+}

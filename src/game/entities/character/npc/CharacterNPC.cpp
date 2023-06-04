@@ -5,13 +5,18 @@
 #include "CharacterNPC.h"
 #include <cmath>
 
-CharacterNPC::CharacterNPC(GameWorld* world, double max_health,
-                           double start_x, double start_y,
-                           double start_xvel, double start_yvel,
-                           NPCType ai_type, bool is_boss)
-    : Character(world, nullptr, max_health, start_x, start_y, start_xvel, start_yvel) {
+CharacterNPC::CharacterNPC(GameWorld* world,
+                           double max_health,
+                           const Vec2d& start_pos,
+                           const Vec2d& start_vel,
+                           NPCType ai_type,
+                           bool is_boss)
+    : Character(world,
+                nullptr,
+                max_health,
+                start_pos,
+                start_vel) {
     m_NPC = true;
-    m_NPCLastShot = 0;
     m_AIType = ai_type;
     m_IsBoss = is_boss;
     m_ColorHue = is_boss ? 250.0 + (rand() % 90) - 45 : 120.0 + (rand() % 90) - 45;
@@ -25,7 +30,7 @@ void CharacterNPC::EventDeath() {
     m_World->AddScore(m_IsBoss ? 20 * 5 : 20);
 
     if (rand() % 100 <= 20)
-        new Crate(m_World, m_Core.Pos.x, m_Core.Pos.y, 20.0, rand() % 2);
+        new Crate(m_World, m_Core.Pos, 20.0, rand() % 2);
 
     int NumNPCS = 0;
     for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType()) {
@@ -86,10 +91,8 @@ void CharacterNPC::TickControls() {
 
         if (!m_CurrentWeapon) {
             m_Input.m_NextItem = true;
-            if (CurrentTick - m_NPCLastShot > 20) {
-                m_NPCLastShot = CurrentTick;
+            if (CurrentTick - m_Hands.LastFisted() > 20)
                 m_Input.m_Shooting = true;
-            }
         } else {
             if (Closest <= 300.0)
                 m_Input.m_GoingLength = 0.0;
@@ -101,9 +104,8 @@ void CharacterNPC::TickControls() {
                     m_Input.m_NextItem = true;
                 }
             } else {
-                if (m_CurrentWeapon->IsAutomatic() || CurrentTick - m_NPCLastShot
-                    > (unsigned long long) (m_CurrentWeapon->TickCooldown() * 10 - 150.0 / Closest)) {
-                    m_NPCLastShot = CurrentTick;
+                if (m_CurrentWeapon->IsAutomatic() || CurrentTick - m_CurrentWeapon->LastShot()
+                    > (unsigned long long) ((double(m_CurrentWeapon->TickCooldown()) - 1500.0 / Closest) * 10)) {
                     m_Input.m_Shooting = true;
                 }
             }

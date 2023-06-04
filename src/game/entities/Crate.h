@@ -30,8 +30,12 @@ public:
     static Texture* ms_TextureBreakingBox1;
     static Texture* ms_TextureBreakingBox2;
 
+    Crate(GameWorld* world,
+          const Vec2d& start_pos,
+          double Health,
+          int RandomDrop);
     ~Crate();
-    Crate(GameWorld* world, double start_x, double start_y, double Health, int RandomDrop);
+
     DropType Type() const { return m_Type; }
     void DamageCrate(double Damage);
     void Tick() override;

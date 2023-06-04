@@ -32,7 +32,10 @@ public:
     static Texture* ms_TextureMinigun;
     // static Sound* ms_PickupSounds[7];
 
-    AmmoBox(GameWorld* world, AmmoType type, double start_x, double start_y, unsigned int AmmoCount);
+    AmmoBox(GameWorld* world,
+            AmmoType type,
+            const Vec2d& start_pos,
+            unsigned int AmmoCount);
 
     // Getting
     [[nodiscard]] AmmoType Type() const { return m_Type; }

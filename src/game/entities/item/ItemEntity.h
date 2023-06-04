@@ -41,8 +41,8 @@ public:
     ItemEntity(GameWorld* world,
                ItemType item_type,
                Entity* dropper,
-               double start_x, double start_y,
-               double start_w, double start_h);
+               const Vec2d& start_pos,
+               const Vec2d& start_size);
 
     // Ticking
     void Tick() override;

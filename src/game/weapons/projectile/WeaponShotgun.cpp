@@ -45,17 +45,13 @@ void WeaponShotgun::Tick() {
             for (int i = 0; i < m_PelletCount; i++) {
                 double ProjectileAngle = LookAngle + GenerateSpreadAngle();
                 double ProjectileSpeed = GenerateRandomProjectileSpeed();
-                double VelocityX = cos(ProjectileAngle) * ProjectileSpeed;
-                double VelocityY = sin(ProjectileAngle) * ProjectileSpeed;
-
+                Vec2d ProjectileVelocity = AngleVec2d(ProjectileAngle) * ProjectileSpeed;
                 new Projectile(World,
                                m_Shooter,
                                WEAPON_SHOTGUN,
                                m_Damage,
-                               ShooterCore.Pos.x,
-                               ShooterCore.Pos.y,
-                               VelocityX,
-                               VelocityY);
+                               ShooterCore.Pos,
+                               ProjectileVelocity);
             }
 
             double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;

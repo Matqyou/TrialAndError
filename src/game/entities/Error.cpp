@@ -16,8 +16,14 @@ Texture* Error::ms_TextureErrorSlowDown = nullptr;
 Texture* Error::ms_TextureErrorDangerousRecoil = nullptr;
 Texture* Error::ms_TextureError = nullptr;
 
-Error::Error(GameWorld* world, double start_x, double start_y, int typeID)
-    : Entity(world, ENTFORM_NORMAL, ENTTYPE_ERROR, start_x, start_y, 45, 45, 0.0, 0.0, 0.95) {
+Error::Error(GameWorld* world, const Vec2d& start_pos, int typeID)
+    : Entity(world,
+             ENTFORM_NORMAL,
+             ENTTYPE_ERROR,
+             start_pos,
+             Vec2d(45, 45),
+             Vec2d(0.0, 0.0),
+             0.95) {
 
     m_Type = static_cast<ErrorTypes>(typeID);
     if (m_Type == SPIKY) m_Texture = ms_TextureErrorSpiky;

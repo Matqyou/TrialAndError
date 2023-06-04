@@ -17,11 +17,9 @@ Projectile::Projectile(GameWorld* world,
                        Entity* shooter,
                        WeaponType weapon_type,
                        double damage,
-                       double start_x,
-                       double start_y,
-                       double start_xvel,
-                       double start_yvel)
-    : Entity(world, ENTFORM_NORMAL, ENTTYPE_BULLET, start_x, start_y, 6, 10, start_xvel, start_yvel, 1.0) {
+                       const Vec2d& start_pos,
+                       const Vec2d& start_vel)
+    : Entity(world, ENTFORM_NORMAL, ENTTYPE_BULLET, start_pos, Vec2d(6, 10), start_vel, 1.0) {
     switch (weapon_type) {
         case WEAPON_GLOCK: {
             m_Texture = ms_TextureGlock;

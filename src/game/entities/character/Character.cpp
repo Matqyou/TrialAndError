@@ -56,14 +56,17 @@ const int Character::ms_DefaultControls[NUM_CONTROLS] = { SDL_SCANCODE_W,
                                                           SDL_SCANCODE_A,
                                                           SDL_SCANCODE_LSHIFT };
 
-Character::Character(GameWorld* world, Player* player, double max_health,
-                     double start_x, double start_y, double start_xvel, double start_yvel)
+Character::Character(GameWorld* world,
+                     Player* player,
+                     double max_health,
+                     const Vec2d& start_pos,
+                     const Vec2d& start_vel)
     : DirectionalEntity(world,
                         ENTTYPE_CHARACTER,
-                        start_x, start_y,
-                        50, 50,
-                        start_xvel, start_yvel,
-                        1.0, 0.0,
+                        start_pos,
+                        Vec2d(50, 50),
+                        start_vel,
+                        Vec2d(1.0, 0.0),
                         0.93),
       m_BaseAcceleration(0.45),
       m_Hands(this, 40.0, 10.0, 10.0),
@@ -141,7 +144,7 @@ Character::Character(GameWorld* world, Player* player, double max_health,
                                   MainFont,
                                   "0", { 255, 255, 255 });
 
-    auto CoordinateText = FString("Spawned [%ix, %iy]", int(start_x), int(start_y));
+    auto CoordinateText = FString("Spawned [%ix, %iy]", int(start_pos.x), int(start_pos.y));
     m_CoordinatePlate = new TextSurface(m_World->GameWindow()->Assets(),
                                         MainFont, CoordinateText, { 255, 255, 255 });
 
@@ -310,13 +313,13 @@ void Character::DropWeapon() {
     WeaponType WepType = m_CurrentWeapon->Type();
     Entity* NewWeapon;
     switch (WepType) {
-        case WEAPON_GLOCK: { NewWeapon = new EntityGlock(m_World, this, m_Core.Pos.x, m_Core.Pos.y); }
+        case WEAPON_GLOCK: { NewWeapon = new EntityGlock(m_World, this, m_Core.Pos); }
             break;
-        case WEAPON_BURST: { NewWeapon = new EntityBurst(m_World, this, m_Core.Pos.x, m_Core.Pos.y); }
+        case WEAPON_BURST: { NewWeapon = new EntityBurst(m_World, this, m_Core.Pos); }
             break;
-        case WEAPON_SHOTGUN: { NewWeapon = new EntityShotgun(m_World, this, m_Core.Pos.x, m_Core.Pos.y); }
+        case WEAPON_SHOTGUN: { NewWeapon = new EntityShotgun(m_World, this, m_Core.Pos); }
             break;
-        case WEAPON_MINIGUN: { NewWeapon = new EntityMinigun(m_World, this, m_Core.Pos.x, m_Core.Pos.y); }
+        case WEAPON_MINIGUN: { NewWeapon = new EntityMinigun(m_World, this, m_Core.Pos); }
             break;
     }
 
@@ -393,10 +396,10 @@ void Character::EventDeath() {
 
         // In this case the dropper is already dead... so there is no real point to get his address?
         // or maybe there is? No idea man I'm just a bored programmear -_-
-        if (i == WEAPON_GLOCK) new EntityGlock(m_World, this, m_Core.Pos.x, m_Core.Pos.y);
-        else if (i == WEAPON_SHOTGUN) new EntityShotgun(m_World, this, m_Core.Pos.x, m_Core.Pos.y);
-        else if (i == WEAPON_BURST) new EntityBurst(m_World, this, m_Core.Pos.x, m_Core.Pos.y);
-        else if (i == WEAPON_MINIGUN) new EntityMinigun(m_World, this, m_Core.Pos.x, m_Core.Pos.y);
+        if (i == WEAPON_GLOCK) new EntityGlock(m_World, this, m_Core.Pos);
+        else if (i == WEAPON_SHOTGUN) new EntityShotgun(m_World, this, m_Core.Pos);
+        else if (i == WEAPON_BURST) new EntityBurst(m_World, this, m_Core.Pos);
+        else if (i == WEAPON_MINIGUN) new EntityMinigun(m_World, this, m_Core.Pos);
     }
 
     if (!m_NPC) { // prob better place for this code

@@ -42,7 +42,9 @@ public:
     static Texture* ms_TextureErrorSlowDown;
     static Texture* ms_TextureErrorDangerousRecoil;
     static Sound* ms_PickupSounds[7];
-    Error(GameWorld* world, double start_x, double start_y, int typeID);
+
+    Error(GameWorld* world, const Vec2d& start_pos, int typeID);
+
     void DrawName();
     void Tick() override;
     void Draw() override;

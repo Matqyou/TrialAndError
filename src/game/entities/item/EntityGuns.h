@@ -12,7 +12,7 @@ private:
     void EventPickup(Character* picker_char) override;
 
 public:
-    EntityGlock(GameWorld* world, Entity* dropper, double start_x, double start_y);
+    EntityGlock(GameWorld* world, Entity* dropper, const Vec2d& start_pos);
 };
 
 class EntityShotgun : public ItemEntity {
@@ -20,7 +20,7 @@ private:
     void EventPickup(Character* picker_char) override;
 
 public:
-    EntityShotgun(GameWorld* world, Entity* dropper, double start_x, double start_y);
+    EntityShotgun(GameWorld* world, Entity* dropper, const Vec2d& start_pos);
 };
 
 class EntityBurst : public ItemEntity {
@@ -30,7 +30,7 @@ private:
     void EventPickup(Character* picker_char) override;
 
 public:
-    EntityBurst(GameWorld* world, Entity* dropper, double start_x, double start_y);
+    EntityBurst(GameWorld* world, Entity* dropper, const Vec2d& start_pos);
 };
 
 class EntityMinigun : public ItemEntity {
@@ -40,7 +40,7 @@ private:
     void EventPickup(Character* picker_char) override;
 
 public:
-    EntityMinigun(GameWorld* world, Entity* dropper, double start_x, double start_y);
+    EntityMinigun(GameWorld* world, Entity* dropper, const Vec2d& start_pos);
 };
 
 #endif //TRIALANDERROR_SRC_GAME_ENTITIES_ITEM_ENTITYGUNS_H_

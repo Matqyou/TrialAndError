@@ -14,10 +14,10 @@ WeaponBurst::WeaponBurst(Character* owner)
     : ProjectileWeapon(owner, WEAPON_BURST, 30, 24, 24 * 3, 35.0, false) {
     m_BaseRecoilForce = 3.0;
     m_RecoilForce = m_BaseRecoilForce;
-    m_Damage = 7.5;
+    m_Damage = 8.5;
     m_BurstCooldown = 6;
     m_BurstShots = 3;
-    m_owner;
+
     // Will get rewritten by other code
     m_BurstTick = 0;
     m_BurstShotsLeft = 0;
@@ -43,6 +43,7 @@ WeaponBurst::WeaponBurst(Character* owner)
 //    if(m_owner->GetCurrentWeapon())Render->RenderTextureExFCamera(Character::ms_TextureError->SDLTexture(),nullptr, GunRect, Angle-90,&GunPoint, flip);
 //
 //}
+
 void WeaponBurst::Tick() {
     if (!m_Shooter->HasDangerousRecoil())m_RecoilForce = m_BaseRecoilForce;
     else if (m_RecoilForce != m_BaseRecoilForce * 3)m_RecoilForce = m_BaseRecoilForce * 3;
@@ -60,16 +61,13 @@ void WeaponBurst::Tick() {
                 m_Ammo--;
                 SoundHandler->PlaySound(ms_ShootSound);
 
-                double VelocityX = ShooterCore.Direction.x * m_ProjectileSpeed;
-                double VelocityY = ShooterCore.Direction.y * m_ProjectileSpeed;
+                Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
                 new Projectile(World,
                                m_Shooter,
                                WEAPON_BURST,
                                m_Damage,
-                               ShooterCore.Pos.x,
-                               ShooterCore.Pos.y,
-                               VelocityX,
-                               VelocityY);
+                               ShooterCore.Pos,
+                               ProjectileVelocity);
 
                 double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
                 double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
@@ -91,16 +89,13 @@ void WeaponBurst::Tick() {
                 m_LastShotAt = CurrentTick;
                 SoundHandler->PlaySound(ms_ShootSound);
 
-                double VelocityX = ShooterCore.Direction.x * m_ProjectileSpeed;
-                double VelocityY = ShooterCore.Direction.y * m_ProjectileSpeed;
+                Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
                 new Projectile(World,
                                m_Shooter,
                                WEAPON_BURST,
                                m_Damage,
-                               ShooterCore.Pos.x,
-                               ShooterCore.Pos.y,
-                               VelocityX,
-                               VelocityY);
+                               ShooterCore.Pos,
+                               ProjectileVelocity);
 
                 double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
                 double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;

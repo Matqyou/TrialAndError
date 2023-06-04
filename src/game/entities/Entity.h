@@ -42,9 +42,9 @@ public:
     Entity(GameWorld* world,
            EntityFormFactor form_factor,
            EntityType entity_type,
-           double start_x, double start_y,
-           double start_w, double start_h,
-           double start_xvel, double start_yvel,
+           const Vec2d& start_pos,
+           const Vec2d& start_size,
+           const Vec2d& start_vel,
            double base_damping);
     virtual ~Entity();
 
@@ -80,10 +80,10 @@ protected:
 public:
     DirectionalEntity(GameWorld* world,
                       EntityType entity_type,
-                      double start_x, double start_y,
-                      double start_w, double start_h,
-                      double start_xvel, double start_yvel,
-                      double start_xlook, double start_ylook,
+                      const Vec2d& start_pos,
+                      const Vec2d& start_size,
+                      const Vec2d& start_vel,
+                      const Vec2d& start_direction,
                       double base_damping);
     virtual ~DirectionalEntity();
 

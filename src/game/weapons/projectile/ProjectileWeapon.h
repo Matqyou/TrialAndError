@@ -59,11 +59,12 @@ public:
 
     // Getting
     [[nodiscard]] WeaponType Type() const { return m_Type; }
+    [[nodiscard]] bool IsAutomatic() const { return m_Automatic; }
     [[nodiscard]] unsigned int Ammo() const { return m_Ammo; }
     [[nodiscard]] unsigned int TrueAmmo() const { return m_TrueAmmo; }
     [[nodiscard]] unsigned int AmmoCap() const { return m_AmmoCapacity; }
     [[nodiscard]] unsigned long long TickCooldown() const { return m_TickCooldown; }
-    [[nodiscard]] bool IsAutomatic() const { return m_Automatic; }
+    [[nodiscard]] unsigned long long LastShot() const { return m_LastShotAt; }
 
     // Generating
     [[nodiscard]] unsigned int NeededAmmo() const;

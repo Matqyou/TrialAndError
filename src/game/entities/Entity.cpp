@@ -11,10 +11,10 @@ void EntityCore::Accelerate(double x, double y) {
 
 Entity::Entity(GameWorld* world,
                EntityFormFactor form_factor,
-               EntityType entityType,
-               double start_x, double start_y,
-               double start_w, double start_h,
-               double start_xvel, double start_yvel,
+               EntityType entity_type,
+               const Vec2d& start_pos,
+               const Vec2d& start_size,
+               const Vec2d& start_vel,
                double base_damping = 0.90)
     : m_pUnknownCore(form_factor == ENTFORM_DIRECTIONAL ? new DirectionalEntityCore() : new EntityCore()),
       m_pLastUnknownCore(form_factor == ENTFORM_DIRECTIONAL ? new DirectionalEntityCore() : new EntityCore()),
@@ -25,16 +25,13 @@ Entity::Entity(GameWorld* world,
     m_NextType = nullptr;
     m_Prev = nullptr;
     m_Next = nullptr;
-    m_EntityType = entityType;
+    m_EntityType = entity_type;
     m_Alive = true;
     m_Core = *m_pUnknownCore;
     m_LastCore = *m_pLastUnknownCore;
-    m_Core.Pos.x = start_x;
-    m_Core.Pos.y = start_y;
-    m_Core.Size.x = start_w;
-    m_Core.Size.y = start_h;
-    m_Core.Vel.x = start_xvel;
-    m_Core.Vel.y = start_yvel;
+    m_Core.Pos = start_pos;
+    m_Core.Size = start_size;
+    m_Core.Vel = start_vel;
     m_Core.BaseDamping = base_damping;
     m_SpawnedTick = m_World->GetTick();
 
@@ -118,22 +115,21 @@ void DirectionalEntity::TickLastCore() {
 }
 
 DirectionalEntity::DirectionalEntity(GameWorld* world, EntityType entity_type,
-                                     double start_x, double start_y,
-                                     double start_w, double start_h,
-                                     double start_xvel, double start_yvel,
-                                     double start_xlook, double start_ylook,
+                                     const Vec2d& start_pos,
+                                     const Vec2d& start_size,
+                                     const Vec2d& start_vel,
+                                     const Vec2d& start_direction,
                                      double base_damping)
     : Entity(world,
              ENTFORM_DIRECTIONAL,
              entity_type,
-             start_x, start_y,
-             start_w, start_h,
-             start_xvel, start_yvel,
+             start_pos,
+             start_size,
+             start_vel,
              base_damping),
       m_DirectionalCore(*(DirectionalEntityCore*) (m_pUnknownCore)),
       m_LastDirectionalCore(*(DirectionalEntityCore*) (m_pLastUnknownCore)) {
-    m_DirectionalCore.Direction.x = start_xlook;
-    m_DirectionalCore.Direction.y = start_ylook;
+    m_DirectionalCore.Direction = start_direction;
 }
 
 DirectionalEntity::~DirectionalEntity() = default;
