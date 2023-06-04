@@ -8,6 +8,7 @@ GameReference::GameReference() {
     m_Window = nullptr;
     m_Renderer = nullptr;
     m_Timer = nullptr;
+    m_Random = nullptr;
     m_Draw = nullptr;
     m_AssetsHandler = nullptr;
     m_Width = 0;
@@ -129,6 +130,7 @@ bool GameReference::Initialize() {
     }
 
     if (!m_Timer) m_Timer = new Clock(60);
+    if (!m_Random) m_Random = new Randomizer();
     if (!m_Draw) m_Draw = new Drawing(this);
     if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager(m_Renderer, m_InitializedAudio);
     return true;
@@ -138,6 +140,8 @@ void GameReference::Deinitialize(bool keep_sound) {
     m_AssetsHandler->DeinitializeImages();
     delete m_Draw;
     m_Draw = nullptr;
+    delete m_Random;
+    m_Random = nullptr;
     delete m_Timer;
     m_Timer = nullptr;
     if (m_Renderer) SDL_DestroyRenderer(m_Renderer);

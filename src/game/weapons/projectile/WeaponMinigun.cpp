@@ -15,10 +15,10 @@ WeaponMinigun::WeaponMinigun(Character* owner)
     m_BaseRecoilForce = 3.2;
     m_RecoilForce = m_BaseRecoilForce;
 
-    m_MinimumFireRate = 5.0;
+    m_MinimumFireRate = 7.5;
     m_FullRate = 10.0;
     m_RateAcceleration = 0.07;
-    m_RateDeacceleration = 0.05;
+    m_RateDeacceleration = 0.03;
 
     // Will get rewritten by other code
     m_FireRate = 0.0;
@@ -66,7 +66,7 @@ void WeaponMinigun::Tick() {
 
                 double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
                 double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
-                m_Shooter->Accelerate(RecoilX, RecoilY);
+                m_Shooter->Accelerate(Vec2d(RecoilX, RecoilY));
             } else {
                 SoundHandler->PlaySound(ms_ClickSound);
             }

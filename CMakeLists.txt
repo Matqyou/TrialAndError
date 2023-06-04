@@ -9,10 +9,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     set(BUILD_OPTIONS WIN32)
-endif()
+endif ()
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(BUILD_OPTIONS)
-endif()
+endif ()
 
 set(PROJECT_FILES
         "src/main.cpp"
@@ -54,9 +54,43 @@ set(PROJECT_FILES
         "src/game/indicators/HealthBar.cpp"
         "src/game/indicators/HealthBar.h"
         "src/game/entities/character/Hook.cpp"
-        "src/game/entities/character/Hook.h" "src/technical stuff/AssetsManager.cpp" "src/technical stuff/AssetsManager.h" src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.cpp src/game/indicators/TextSurface.h src/game/collision/TileMap.cpp src/game/collision/TileMap.h src/game/entities/AmmoBox.cpp src/game/Player.cpp src/game/Player.h src/game/entities/Crate.cpp src/game/entities/Crate.h src/game/entities/Error.cpp src/game/entities/Error.h src/game/entities/character/Hands.cpp src/game/entities/character/Hands.h src/game/entities/character/npc/CharacterNPC.cpp src/game/entities/character/npc/CharacterNPC.h src/game/weapons/laser/LaserWeapon.cpp src/game/weapons/laser/LaserWeapon.h src/game/entities/item/ItemEntity.cpp src/game/entities/item/ItemEntity.h src/Protocol.h "src/technical stuff/Vec2.h" "src/technical stuff/Vec2.inl" src/game/entities/item/EntityGlock.cpp src/game/entities/item/EntityGlock.h src/game/entities/item/EntityShotgun.cpp src/game/entities/item/EntityShotgun.h)
+        "src/game/entities/character/Hook.h"
+        "src/technical stuff/AssetsManager.cpp"
+        "src/technical stuff/AssetsManager.h"
+        "src/game/indicators/TextSurface.cpp"
+        "src/game/indicators/TextSurface.cpp"
+        "src/game/indicators/TextSurface.h"
+        "src/game/collision/TileMap.cpp"
+        "src/game/collision/TileMap.h"
+        "src/game/entities/AmmoBox.cpp"
+        "src/game/Player.cpp"
+        "src/game/Player.h"
+        "src/game/entities/Crate.cpp"
+        "src/game/entities/Crate.h"
+        "src/game/entities/Error.cpp"
+        "src/game/entities/Error.h"
+        "src/game/entities/character/Hands.cpp"
+        "src/game/entities/character/Hands.h"
+        "src/game/entities/character/npc/CharacterNPC.cpp"
+        "src/game/entities/character/npc/CharacterNPC.h"
+        "src/game/weapons/laser/LaserWeapon.cpp"
+        "src/game/weapons/laser/LaserWeapon.h"
+        "src/game/entities/item/ItemEntity.cpp"
+        "src/game/entities/item/ItemEntity.h"
+        "src/Protocol.h"
+        "src/technical stuff/Vec2.h"
+        "src/technical stuff/Vec2.inl"
+        "src/technical stuff/Randomizer.cpp"
+        "src/technical stuff/Randomizer.h"
+        "src/game/entities/item/EntityGuns.cpp"
+        "src/game/entities/item/EntityGuns.h"
+        "src/game/entities/AmmoBox.h"
+        "src/game/entities/Crate.cpp"
+        "src/game/entities/Crate.h"
+        "src/game/entities/Error.cpp"
+        "src/game/entities/Error.h")
 
-add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES} src/game/entities/AmmoBox.h src/game/entities/Crate.cpp src/game/entities/Crate.h src/game/entities/Error.cpp src/game/entities/Error.h)
+add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
 target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)
 target_link_options(${PROJECT_NAME} PRIVATE "-static")
 
@@ -64,16 +98,16 @@ file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 function(copy_files SOURCE_DIR DEST_DIR)
     file(GLOB items "${SOURCE_DIR}/*")
-    foreach(item ${items})
-        if(IS_DIRECTORY ${item})
+    foreach (item ${items})
+        if (IS_DIRECTORY ${item})
             get_filename_component(dirname ${item} NAME)
             file(MAKE_DIRECTORY ${DEST_DIR}/${dirname})
             copy_files(${item} ${DEST_DIR}/${dirname})
-        else()
+        else ()
             get_filename_component(filename ${item} NAME)
             configure_file(${item} ${DEST_DIR}/${filename} COPYONLY)
-        endif()
-    endforeach()
+        endif ()
+    endforeach ()
 endfunction()
 
 copy_files(${CMAKE_CURRENT_SOURCE_DIR}/bin ${CMAKE_BINARY_DIR}/${PROJECT_NAME})

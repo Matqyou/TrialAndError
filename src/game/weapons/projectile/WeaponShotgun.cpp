@@ -60,7 +60,7 @@ void WeaponShotgun::Tick() {
 
             double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
             double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
-            m_Shooter->Accelerate(RecoilX, RecoilY);
+            m_Shooter->Accelerate(Vec2d(RecoilX, RecoilY));
         } else {
             SoundHandler->PlaySound(ms_ClickSound);
         }

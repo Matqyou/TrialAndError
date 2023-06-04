@@ -94,9 +94,8 @@ bool Entity::PointCollides(double x, double y) const {
 }
 
 // Add some velocity to this character
-void Entity::Accelerate(double accelerate_x, double accelerate_y) {
-    m_Core.Vel.x += accelerate_x;
-    m_Core.Vel.y += accelerate_y;
+void Entity::Accelerate(const Vec2d& direction) {
+    m_Core.Vel += direction;
 }
 
 void Entity::Tick() {

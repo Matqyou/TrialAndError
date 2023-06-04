@@ -134,8 +134,8 @@ void Hook::Tick() {
             auto Player = (Character*) (m_GrabbedEntity);
             double Acceleration = m_HookStrength * Length / m_MaxLength * (1 - m_HookerInfluenceRatio);
             double Influence = m_HookStrength * Length / m_MaxLength * m_HookerInfluenceRatio;
-            Player->Accelerate(-TravelX * Acceleration, -TravelY * Acceleration);
-            m_Parent->Accelerate(TravelX * Influence, TravelY * Influence);
+            Player->Accelerate(Vec2d(TravelX, TravelY) * -Acceleration);
+            m_Parent->Accelerate(Vec2d(TravelX, TravelY) * Influence);
         }
     } else if (m_Grabbed == GRABBED_WALL) {
         if (Length > m_MaxLength) {

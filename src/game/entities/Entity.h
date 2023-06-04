@@ -63,7 +63,7 @@ public:
     [[nodiscard]] bool PointCollides(double x, double y) const;
 
     // Manipulating
-    void Accelerate(double accelerate_x, double accelerate_y);
+    void Accelerate(const Vec2d& direction);
 
     // Ticking
     virtual void Tick();

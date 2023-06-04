@@ -14,7 +14,7 @@
 #include "game/entities/character/npc/CharacterNPC.h"
 #include "game/entities/character/Character.h"
 #include "game/entities/Projectile.h"
-#include "game/entities/item/EntityGlock.h"
+#include "game/entities/item/EntityGuns.h"
 #include "game/entities/AmmoBox.h"
 #include "game/entities/Crate.h"
 #include "game/entities/Error.h"
@@ -43,6 +43,11 @@ bool Initialize() {
     Hands::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     ItemEntity::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/items/Glock.png", true);
     ItemEntity::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/items/Shotgun.png", true);
+    ItemEntity::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/items/Burst.png", true);
+    ItemEntity::ms_TexturesMinigun[0] = ImageHandler->LoadTexture("assets/images/entities/items/Minigun1.png", true);
+    ItemEntity::ms_TexturesMinigun[1] = ImageHandler->LoadTexture("assets/images/entities/items/Minigun2.png", true);
+    ItemEntity::ms_TexturesMinigun[2] = ImageHandler->LoadTexture("assets/images/entities/items/Minigun3.png", true);
+    ItemEntity::ms_TexturesMinigun[3] = ImageHandler->LoadTexture("assets/images/entities/items/Minigun4.png", true);
     Projectile::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/projectiles/GlockBullet.png", true);
     Projectile::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/projectiles/BurstBullet.png", true);
     Projectile::ms_TextureShotgun =
@@ -132,7 +137,10 @@ bool Initialize() {
     new Crate(World, 400, 600, 20, rand() % 2);
     new Crate(World, 600, 600, 20, rand() % 2);
 
-    new EntityGlock(World, 700, 200);
+    new EntityGlock(World, nullptr, 800, 200);
+    new EntityShotgun(World, nullptr, 900, 200);
+    new EntityBurst(World, nullptr, 1000, 200);
+    new EntityMinigun(World, nullptr, 1100, 200);
 
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Keyboard");

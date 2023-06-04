@@ -4,8 +4,7 @@
 #include "Character.h"
 #include <cmath>
 #include <iostream>
-#include "../item/EntityGlock.h"
-#include "../item/EntityShotgun.h"
+#include "../item/EntityGuns.h"
 #include "../Projectile.h"
 #include <vector>
 
@@ -303,6 +302,30 @@ void Character::TickErrorTimers() {
         }
     } else Displacement = 0;
 }
+
+void Character::DropWeapon() {
+    if (!m_CurrentWeapon)
+        return;
+
+    WeaponType WepType = m_CurrentWeapon->Type();
+    Entity* NewWeapon;
+    switch (WepType) {
+        case WEAPON_GLOCK: { NewWeapon = new EntityGlock(m_World, this, m_Core.Pos.x, m_Core.Pos.y); }
+            break;
+        case WEAPON_BURST: { NewWeapon = new EntityBurst(m_World, this, m_Core.Pos.x, m_Core.Pos.y); }
+            break;
+        case WEAPON_SHOTGUN: { NewWeapon = new EntityShotgun(m_World, this, m_Core.Pos.x, m_Core.Pos.y); }
+            break;
+        case WEAPON_MINIGUN: { NewWeapon = new EntityMinigun(m_World, this, m_Core.Pos.x, m_Core.Pos.y); }
+            break;
+    }
+
+    NewWeapon->Accelerate(m_DirectionalCore.Direction * 10);
+    delete m_Weapons[WepType];
+    m_Weapons[WepType] = nullptr;
+    m_CurrentWeapon = nullptr;
+}
+
 void Character::SwitchWeapon(WeaponType type) {
     // m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ItemSwitchSound);
     // npcs are constantly swapping -_-
@@ -322,6 +345,7 @@ void Character::RemoveCombat() {
 }
 
 void Character::GiveWeapon(WeaponType weapon_type) {
+    bool SpawnInHand = m_CurrentWeapon == m_Weapons[weapon_type] || !m_CurrentWeapon;
     if (m_Weapons[weapon_type]) {
         delete m_Weapons[weapon_type];
         m_Weapons[weapon_type] = nullptr;
@@ -336,6 +360,11 @@ void Character::GiveWeapon(WeaponType weapon_type) {
             break;
         case WEAPON_MINIGUN: { m_Weapons[WEAPON_MINIGUN] = new WeaponMinigun(this); }
             break;
+    }
+
+    if (SpawnInHand) {
+        m_CurrentWeapon = m_Weapons[weapon_type];
+        m_AmmoCount->FlagForUpdate();
     }
 }
 
@@ -362,8 +391,12 @@ void Character::EventDeath() {
     for (int i = 0; i < NUM_WEAPONS; i++) {
         if (!m_Weapons[i]) continue;
 
-        if (i == WEAPON_GLOCK) new EntityGlock(m_World, m_Core.Pos.x, m_Core.Pos.y);
-        else if (i == WEAPON_SHOTGUN) new EntityShotgun(m_World, m_Core.Pos.x, m_Core.Pos.y);
+        // In this case the dropper is already dead... so there is no real point to get his address?
+        // or maybe there is? No idea man I'm just a bored programmear -_-
+        if (i == WEAPON_GLOCK) new EntityGlock(m_World, this, m_Core.Pos.x, m_Core.Pos.y);
+        else if (i == WEAPON_SHOTGUN) new EntityShotgun(m_World, this, m_Core.Pos.x, m_Core.Pos.y);
+        else if (i == WEAPON_BURST) new EntityBurst(m_World, this, m_Core.Pos.x, m_Core.Pos.y);
+        else if (i == WEAPON_MINIGUN) new EntityMinigun(m_World, this, m_Core.Pos.x, m_Core.Pos.y);
     }
 
     if (!m_NPC) { // prob better place for this code
@@ -571,7 +604,7 @@ void Character::TickCollision() {
         }
         double XPush = XDistance / Distance * 2;
         double YPush = YDistance / Distance * 2;
-        Accelerate(XPush, YPush);
+        Accelerate(Vec2d(XPush, YPush));
     }
 }
 
@@ -865,8 +898,8 @@ void Character::DrawHealthbar() {
 void Character::DrawHands() {
     Drawing* Render = m_World->GameWindow()->Render();
 
-    double XLook = m_Input.m_LookingX * 15.0;
-    double YLook = m_Input.m_LookingY * 15.0;
+    double XLook = m_Input.m_LookingX * 5.0;
+    double YLook = m_Input.m_LookingY * 5.0;
 
     if (m_CurrentWeapon) {
         Texture* WeaponTexture;
@@ -895,9 +928,9 @@ void Character::DrawHands() {
                                 WeaponTexture->GetHeight() };
         WeaponRect.w *= 4;
         WeaponRect.h *= 4;
-        WeaponRect.x = int(XLook + m_Core.Pos.x - float(WeaponRect.w) / 2.0);
-        WeaponRect.y = int(YLook + m_Core.Pos.y);
-        SDL_Point WeaponPivot = { int(float(WeaponRect.w) / 2.0 * Render->GetZoom()), 0 };
+        WeaponRect.x = int(XLook + m_Core.Pos.x);
+        WeaponRect.y = int(YLook + m_Core.Pos.y - float(WeaponRect.h) / 2.0);
+        SDL_Point WeaponPivot = { 0, int(double(WeaponRect.h) / 2.0 * Render->GetZoom()) };
 
         double Angle = m_DirectionalCore.Direction.Atan2() / M_PI * 180.0;
         // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
@@ -905,7 +938,7 @@ void Character::DrawHands() {
         Render->RenderTextureExCamera(WeaponTexture->SDLTexture(),
                                       nullptr,
                                       WeaponRect,
-                                      Angle - 90,
+                                      Angle,
                                       &WeaponPivot,
                                       SDL_FLIP_VERTICAL);
     }
@@ -1010,6 +1043,7 @@ void Character::Event(const SDL_Event& currentEvent) {
             else if (KeyCode == SDL_SCANCODE_2) { SwitchWeapon(WEAPON_SHOTGUN); }
             else if (KeyCode == SDL_SCANCODE_3) { SwitchWeapon(WEAPON_BURST); }
             else if (KeyCode == SDL_SCANCODE_4) { SwitchWeapon(WEAPON_MINIGUN); }
+            else if (KeyCode == SDL_SCANCODE_Q) { DropWeapon(); }
         }
 
         // Reloads weapon on keyboard player with R button press
@@ -1043,16 +1077,18 @@ void Character::Tick() {
     if ((int) (m_Health) != (int) (m_LastHealth)) m_HealthInt->FlagForUpdate();
     if (m_World->GetNamesShown() > 0.05 &&
         ((int) (m_Core.Pos.x) != (int) (m_LastCore.Pos.x) ||
-            (int) (m_Core.Pos.y) != (int) (m_LastCore.Pos.y)))
+            (int) (m_Core.Pos.y) != (int) (m_LastCore.Pos.y))) {
         m_CoordinatePlate->FlagForUpdate();
+    }
 
     m_LastHealth = m_Health;
     TickLastCore();
     memcpy(&m_LastInput, &m_Input, sizeof(CharacterInput));
 
     m_HitTicks -= 1;
-    if (m_HitTicks < 0)
+    if (m_HitTicks < 0) {
         m_HitTicks = 0;
+    }
 
     if (m_Health <= 0.0)
         EventDeath();

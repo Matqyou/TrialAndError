@@ -159,6 +159,7 @@ public:
     void GiveWeapon(WeaponType weapon_type);
     void AmmoPickup(AmmoBox* ammo_box);
     void Damage(double damage, bool make_sound);
+    void DropWeapon();
     void SwitchWeapon(WeaponType type);
     void ReverseMovement();
     void ConfuseHP();

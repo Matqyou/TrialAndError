@@ -11,6 +11,7 @@
 #include "technical stuff/Vec2.h"
 #include "technical stuff/Clock.h"
 #include "technical stuff/Drawing.h"
+#include "technical stuff/Randomizer.h"
 #include "technical stuff/AssetsManager.h"
 
 class GameReference {
@@ -19,6 +20,7 @@ private:
     SDL_Renderer* m_Renderer;
     Clock* m_Timer;
     Drawing* m_Draw;
+    Randomizer* m_Random;
     AssetsManager* m_AssetsHandler;
 
     int m_Width, m_Height;
@@ -45,6 +47,7 @@ public:
     [[nodiscard]] SDL_Window* Window() const { return m_Window; }
     [[nodiscard]] SDL_Renderer* Renderer() const { return m_Renderer; }
     [[nodiscard]] Clock* Timer() const { return m_Timer; }
+    [[nodiscard]] Randomizer* Random() const { return m_Random; }
     [[nodiscard]] Drawing* Render() const { return m_Draw; }
     [[nodiscard]] AssetsManager* Assets() const { return m_AssetsHandler; }
     [[nodiscard]] int GetWidth() const { return m_Width; }

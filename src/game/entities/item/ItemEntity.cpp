@@ -7,20 +7,33 @@
 
 Texture* ItemEntity::ms_TextureGlock = nullptr;
 Texture* ItemEntity::ms_TextureShotgun = nullptr;
+Texture* ItemEntity::ms_TextureBurst = nullptr;
+Texture* ItemEntity::ms_TexturesMinigun[4] = { nullptr, nullptr, nullptr, nullptr };
 
 void ItemEntity::SetTexture(ItemType item_type) {
     switch (item_type) {
         case ITEMTYPE_GLOCK: {
             m_Texture = ms_TextureGlock;
-        } break;
+        }
+            break;
         case ITEMTYPE_SHOTGUN: {
             m_Texture = ms_TextureShotgun;
-        } break;
+        }
+            break;
+        case ITEMTYPE_BURST: {
+            m_Texture = ms_TextureBurst;
+        }
+            break;
+        case ITEMTYPE_MINIGUN: {
+            m_Texture = ms_TexturesMinigun[0]; // TODO depend on rotation
+        }
+            break;
     }
 }
 
 ItemEntity::ItemEntity(GameWorld* world,
                        ItemType item_type,
+                       Entity* dropper,
                        double start_x, double start_y,
                        double start_w, double start_h)
     : Entity(world,
@@ -30,6 +43,9 @@ ItemEntity::ItemEntity(GameWorld* world,
              start_w, start_h,
              0.0, 0.0,
              0.95) {
+    m_Dropper = dropper;
+    m_DroppedSince = m_World->GetTick();
+    m_PickupCooldown = (unsigned long long)(m_World->GameWindow()->Timer()->GetFramerate());
     m_ItemType = item_type;
     m_Texture = nullptr;
     m_PickupRadius = 25.0;
@@ -46,8 +62,15 @@ void ItemEntity::TickPickup() {
         return;
 
     auto Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character*)Char->NextType()) {
-        if (!Char->IsAlive()) continue;
+    for (; Char; Char = (Character*) Char->NextType()) {
+        // The code below makes me think what if the m_Dropper entity was dead a long time ago and now
+        // a new entity has been summoned with the exact same address... HMMMMMMMM
+        // In a world where the pickup cooldown is infinite this entity is doomed to suffer
+        // HE will never be able to pick up the item he always wanted........
+        // Eh theres probably a way for that entity to reincarnate, but if there isn't there's nothing
+        // really he can do about this situation
+        // Todo: think of some connected/smart pointers cuz that is the next big thing i need to learn
+        if (!Char->IsAlive() || (Char == m_Dropper && m_World->GetTick() - m_DroppedSince < m_PickupCooldown)) continue;
         double Distance = DistanceVec2(m_Core.Pos, Char->GetCore().Pos);
         if (Distance > m_PickupRadius) continue;
 
@@ -58,6 +81,7 @@ void ItemEntity::TickPickup() {
 
 void ItemEntity::Tick() {
     TickPickup();
+    TickVelocity();
 }
 
 void ItemEntity::Draw() {

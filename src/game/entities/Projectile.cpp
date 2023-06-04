@@ -74,7 +74,7 @@ bool Projectile::TickHitPoint(double x, double y) {
         if (Shooter && !CollidesPlayer) { m_StillCollidesShooter = false; }
         else if (CollidesPlayer && !Shooter || (Shooter && !m_StillCollidesShooter)) {
             Char->Damage(m_Damage, true);
-            Char->Accelerate(m_Core.Vel.x * 0.05, m_Core.Vel.y * 0.05);
+            Char->Accelerate(m_Core.Vel * 0.05);
             m_Alive = false;
             return true;
         }
