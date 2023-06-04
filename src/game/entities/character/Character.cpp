@@ -26,6 +26,7 @@ CharacterInput::CharacterInput() {
     m_LookingY = 0.0;
     m_LookingLength = 0.0;
 }
+
 Texture* Character::ms_TextureErrorDisorianted = nullptr;
 Texture* Character::ms_TextureErrorSpiky = nullptr;
 Texture* Character::ms_TextureErrorConfusingHP = nullptr;
@@ -56,13 +57,13 @@ const int Character::ms_DefaultControls[NUM_CONTROLS] = { SDL_SCANCODE_W,
 
 Character::Character(GameWorld* world, Player* player, double max_health,
                      double start_x, double start_y, double start_xvel, double start_yvel)
-    : LookingEntity(world,
-                    GameWorld::ENTTYPE_CHARACTER,
-                    start_x, start_y,
-                    50, 50,
-                    start_xvel, start_yvel,
-                    1.0, 0.0,
-                    0.93),
+    : DirectionalEntity(world,
+                        ENTTYPE_CHARACTER,
+                        start_x, start_y,
+                        50, 50,
+                        start_xvel, start_yvel,
+                        1.0, 0.0,
+                        0.93),
       m_BaseAcceleration(0.45),
       m_Hands(this, 40.0, 10.0, 10.0),
       m_Hook(this),
@@ -534,9 +535,9 @@ void Character::TickCollision() {
         EntCore->Accelerate(-XPush, -YPush);
         if (Spiky && m_NPC != Char->IsNPC()) Char->Damage(3, true);
     }
-    auto Crate = m_World->FirstCrate();
-    for (; Crate; Crate = (Crates*) (Crate->NextType())) {
-        EntityCore* CrateCore = Crate->GetCore();
+    auto Crte = m_World->FirstCrate();
+    for (; Crte; Crte = (Crate*) (Crte->NextType())) {
+        EntityCore* CrateCore = Crte->GetCore();
         double XDistance = m_Core->m_x - CrateCore->m_x;
         double YDistance = m_Core->m_y - CrateCore->m_y;
         double Distance = std::sqrt(std::pow(XDistance, 2) + std::pow(YDistance, 2));
@@ -598,7 +599,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureWorld(ms_TextureErrorDisorianted->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(ms_TextureErrorDisorianted->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorIsReversed.y; // Changes it back
             //Then i do that for EVERY SINGLE ERROR!!
         }
@@ -623,7 +624,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureWorld(ms_TextureErrorConfusingHP->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(ms_TextureErrorConfusingHP->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorConfusingHP.y;
         }
     }
@@ -647,7 +648,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureWorld(ms_TextureErrorInvincible->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(ms_TextureErrorInvincible->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorInvincible.y;
         }
     }
@@ -672,7 +673,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureWorld(ms_TextureErrorSpiky->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(ms_TextureErrorSpiky->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorSpiky.y;
         }
     }
@@ -697,7 +698,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureWorld(ms_TextureErrorHealersParadise->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(ms_TextureErrorHealersParadise->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorHealersParadise.y;
         }
     }
@@ -721,7 +722,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureWorld(ms_TextureErrorRanged->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(ms_TextureErrorRanged->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorRanged.y;
         }
     }
@@ -745,7 +746,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureWorld(ms_TextureError->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(ms_TextureError->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorDangerousRecoil.y;
         }
     }
@@ -769,7 +770,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureWorld(ms_TextureErrorSlowDown->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(ms_TextureErrorSlowDown->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorIsSlow.y;
         }
     }
@@ -785,13 +786,13 @@ void Character::DrawCharacter() {
 
     // if(m_HitTicks > 0) Render->SetColor(255, 0, 0, 255);
     // else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
-    // Render->FillRectFWorld(DrawRect);
-    // Render->RenderTextureFWorld(ms_Texture->SDLTexture(), nullptr,DrawRect);
+    // Render->FillRectFCamera(DrawRect);
+    // Render->RenderTextureFCamera(ms_Texture->SDLTexture(), nullptr,DrawRect);
     ms_Texture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
 
     double Angle = std::atan2(m_Core->m_yvel, m_Core->m_xvel) / M_PI * 180.0;
     SDL_RendererFlip flip = Angle > 90 || Angle < -90 ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
-    Render->RenderTextureExFWorld(ms_Texture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, flip);
+    Render->RenderTextureExFCamera(ms_Texture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, flip);
 }
 
 void Character::DrawHook() {
@@ -800,7 +801,7 @@ void Character::DrawHook() {
     // Draw hook
     if (m_Hook.m_Deployed) {
         Render->SetColor(m_HookColor.r, m_HookColor.g, m_HookColor.b, 255);
-        Render->LineWorld(m_Core->m_x, m_Core->m_y, m_Hook.m_x, m_Hook.m_y);
+        Render->LineCamera(m_Core->m_x, m_Core->m_y, m_Hook.m_x, m_Hook.m_y);
     }
 }
 
@@ -836,8 +837,8 @@ void Character::DrawHealthbar() {
                                    int(HealthTextureW / 2.0),
                                    int(HealthTextureH / 2.0) };
 
-        Render->RenderTextureWorld(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
-        Render->RenderTextureWorld(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
+        Render->RenderTextureCamera(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
+        Render->RenderTextureCamera(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
     }
 }
 
@@ -881,12 +882,12 @@ void Character::DrawHands() {
         double Angle = std::atan2(m_LookingCore->m_ylook * 50.0, m_LookingCore->m_xlook * 50.0) / M_PI * 180.0;
         // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
         // and not the center of the player
-        Render->RenderTextureExWorld(WeaponTexture->SDLTexture(),
-                                     nullptr,
-                                     WeaponRect,
-                                     Angle - 90,
-                                     &WeaponPivot,
-                                     SDL_FLIP_VERTICAL);
+        Render->RenderTextureExCamera(WeaponTexture->SDLTexture(),
+                                      nullptr,
+                                      WeaponRect,
+                                      Angle - 90,
+                                      &WeaponPivot,
+                                      SDL_FLIP_VERTICAL);
     }
 
     m_Hands.SetColor(m_HandColor);
@@ -911,7 +912,7 @@ void Character::DrawNameplate() {
                                NamePlateW, NamePlateH };
 
     SDL_SetTextureAlphaMod(NamePlateTexture->SDLTexture(), Opacity);
-    Render->RenderTextureWorld(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect);
+    Render->RenderTextureCamera(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect);
 
     auto CoordinateText = FString("%ix, %iy", int(m_Core->m_x), int(m_Core->m_y));
     m_CoordinatePlate->SetText(CoordinateText);
@@ -924,7 +925,7 @@ void Character::DrawNameplate() {
                                 int(NamePlateRect.y - CoordinatePlateH),
                                 CoordinatePlateW, CoordinatePlateH };
     SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
-    Render->RenderTextureWorld(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
+    Render->RenderTextureCamera(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
 }
 
 // TODO when switching guns ammo text renders again, to prevent this save each ammo count texture on the gun
@@ -942,7 +943,7 @@ void Character::DrawAmmoCounter() {
     SDL_Rect AmmoRect = { int(m_Core->m_x - AmmoTextureW / 2.0),
                           int(m_Core->m_y + m_Core->m_h / 2 + 20),
                           AmmoTextureW, AmmoTextureH };
-    Render->RenderTextureWorld(AmmoTexture->SDLTexture(), nullptr, AmmoRect);
+    Render->RenderTextureCamera(AmmoTexture->SDLTexture(), nullptr, AmmoRect);
 }
 
 void Character::DrawErrorName() {
@@ -972,7 +973,7 @@ void Character::DrawErrorName() {
                            int(m_Core->m_y - 50),
                            int(Text_h / Zoom),
                            int(Text_w / Zoom) };
-    Render->RenderTextureWorld(ErrorTexture->SDLTexture(), nullptr, ErrorRect);
+    Render->RenderTextureCamera(ErrorTexture->SDLTexture(), nullptr, ErrorRect);
 }
 
 void Character::Event(const SDL_Event& currentEvent) {

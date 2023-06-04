@@ -14,7 +14,7 @@
 #include "../../indicators/HealthBar.h"
 #include "../../indicators/TextSurface.h"
 #include "../AmmoBox.h"
-#include "../Crates.h"
+#include "../Crate.h"
 #include "Hook.h"
 #include "Hands.h"
 
@@ -30,7 +30,7 @@ struct CharacterInput {
     CharacterInput();
 };
 
-class Character : public LookingEntity {
+class Character : public DirectionalEntity {
 public:
     enum {
         CONTROL_UP,

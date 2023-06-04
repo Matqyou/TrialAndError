@@ -45,35 +45,37 @@ public:
     void SetRenderTarget(Texture* target);
 
     // Drawing
-    void LineWorld(double x1, double y1, double x2, double y2);
-    void DrawRectWorld(const SDL_Rect& rect);
     void FillRect(const SDL_Rect& rect);
-    void FillRectWorld(const SDL_Rect& rect);
-    void FillRectFWorld(const SDL_FRect& rect);
     void RenderTexture(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_Rect& dstrect);
-    void RenderTextureWorld(SDL_Texture* texture,
-                            SDL_Rect* srcrect,
-                            const SDL_Rect& dstrect);
-    void RenderTextureExWorld(SDL_Texture* texture,
-                              SDL_Rect* srcrect,
-                              const SDL_Rect& dstrect,
-                              double angle,
-                              SDL_Point* center,
-                              SDL_RendererFlip flip);
     void RenderTextureF(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect);
-    void RenderTextureFWorld(SDL_Texture* texture,
-                             SDL_Rect* srcrect,
-                             const SDL_FRect& dstrect);
-    void RenderTextureExFWorld(SDL_Texture* texture,
-                               SDL_Rect* srcrect,
-                               const SDL_FRect& dstrect,
-                               double angle,
-                               SDL_FPoint* center,
-                               SDL_RendererFlip flip);
     void RenderTextureFullscreen(SDL_Texture*, SDL_Rect* srcrect);
     void Clear();  // Resets all pixels to a color value
     void FillAll();  // If color blending is enabled, fill the window with a semi-transparent tone
     void UpdateWindow();  // Pushes the latest state of the pixels to window
+
+    // Drawing in camera coordinates
+    void LineCamera(double x1, double y1, double x2, double y2);
+    void DrawRectCamera(const SDL_Rect& rect);
+    void FillRectCamera(const SDL_Rect& rect);
+    void FillRectFCamera(const SDL_FRect& rect);
+    void RenderTextureCamera(SDL_Texture* texture,
+                             SDL_Rect* srcrect,
+                             const SDL_Rect& dstrect);
+    void RenderTextureExCamera(SDL_Texture* texture,
+                               SDL_Rect* srcrect,
+                               const SDL_Rect& dstrect,
+                               double angle,
+                               SDL_Point* center,
+                               SDL_RendererFlip flip);
+    void RenderTextureFCamera(SDL_Texture* texture,
+                              SDL_Rect* srcrect,
+                              const SDL_FRect& dstrect);
+    void RenderTextureExFCamera(SDL_Texture* texture,
+                                SDL_Rect* srcrect,
+                                const SDL_FRect& dstrect,
+                                double angle,
+                                SDL_FPoint* center,
+                                SDL_RendererFlip flip);
 };
 
 #endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_DRAWING_H_

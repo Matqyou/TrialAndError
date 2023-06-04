@@ -17,7 +17,7 @@ Texture* Error::ms_TextureErrorDangerousRecoil = nullptr;
 Texture* Error::ms_TextureError = nullptr;
 
 Error::Error(GameWorld* world, double start_x, double start_y, int typeID)
-    : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_ERROR, start_x, start_y, 45, 45, 0.0, 0.0, 0.95) {
+    : Entity(world, ENTFORM_NORMAL, ENTTYPE_ERROR, start_x, start_y, 45, 45, 0.0, 0.0, 0.95) {
 
     m_Type = static_cast<ErrorTypes>(typeID);
     if (m_Type == SPIKY) m_Texture = ms_TextureErrorSpiky;
@@ -94,6 +94,6 @@ void Error::Draw() {
                            float(m_Core->m_w),
                            float(m_Core->m_h) };
 
-    Render->RenderTextureFWorld(m_Texture->SDLTexture(), nullptr, DrawRect);
+    Render->RenderTextureFCamera(m_Texture->SDLTexture(), nullptr, DrawRect);
 
 }

@@ -5,7 +5,7 @@
 #include "Projectile.h"
 #include <cmath>
 #include <iostream>
-#include "Crates.h"
+#include "Crate.h"
 #include "character/Character.h"
 
 Texture* Projectile::ms_TextureGlock = nullptr;
@@ -21,7 +21,7 @@ Projectile::Projectile(GameWorld* world,
                        double start_y,
                        double start_xvel,
                        double start_yvel)
-    : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_BULLET, start_x, start_y, 6, 10, start_xvel, start_yvel, 1.0) {
+    : Entity(world, ENTFORM_NORMAL, ENTTYPE_BULLET, start_x, start_y, 6, 10, start_xvel, start_yvel, 1.0) {
     switch (weapon_type) {
         case WEAPON_GLOCK: {
             m_Texture = ms_TextureGlock;
@@ -61,7 +61,7 @@ bool Projectile::TickHitPoint(double x, double y) {
     for (; Char; Char = (Character*) (Char->NextType())) {
         bool Shooter = m_Shooter == Char;
         if (!Char->IsAlive() || Char->m_Health <= 0.0) continue;
-        if (m_Shooter->EntityType() == GameWorld::ENTTYPE_CHARACTER) {
+        if (m_Shooter->GetEntityType() == ENTTYPE_CHARACTER) {
             if (!Shooter && ((Character*) m_Shooter)->IsNPC() == Char->IsNPC()) continue;
         }
 
@@ -79,15 +79,15 @@ bool Projectile::TickHitPoint(double x, double y) {
             return true;
         }
     }
-    auto Crate = m_World->FirstCrate();
-    for (; Crate; Crate = (Crates*) (Crate->NextType())) {
-        EntityCore* CrateCore = Crate->GetCore();
+    auto Crte = m_World->FirstCrate();
+    for (; Crte; Crte = (Crate*) (Crte->NextType())) {
+        EntityCore* CrateCore = Crte->GetCore();
         bool CollidesCrate = (CrateCore->m_x - CrateCore->m_w / 2 < x) &&
             (CrateCore->m_x + CrateCore->m_w / 2 > x) &&
             (CrateCore->m_y - CrateCore->m_h / 2 < y) &&
             (CrateCore->m_y + CrateCore->m_h / 2 > y);
         if (CollidesCrate) {
-            Crate->DamageCrate(m_Damage);
+            Crte->DamageCrate(m_Damage);
             m_Alive = false;
             return true;
         }
@@ -113,5 +113,5 @@ void Projectile::Draw() {
     SDL_Rect BulletRect =
         { int(m_Core->m_x - m_Core->m_w / 2.0), int(m_Core->m_y - m_Core->m_h / 2.0), int(m_Core->m_w),
           int(m_Core->m_h) };
-    Render->RenderTextureExWorld(m_Texture->SDLTexture(), nullptr, BulletRect, Angle, nullptr, SDL_FLIP_NONE);
+    Render->RenderTextureExCamera(m_Texture->SDLTexture(), nullptr, BulletRect, Angle, nullptr, SDL_FLIP_NONE);
 }

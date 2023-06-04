@@ -130,7 +130,7 @@ void Hook::Tick() {
         }
         m_x = GrabbedCore->m_x;
         m_y = GrabbedCore->m_y;
-        if (m_GrabbedEntity->EntityType() == GameWorld::ENTTYPE_CHARACTER) {
+        if (m_GrabbedEntity->GetEntityType() == ENTTYPE_CHARACTER) {
             auto Player = (Character*) (m_GrabbedEntity);
             double Acceleration = m_HookStrength * Length / m_MaxLength * (1 - m_HookerInfluenceRatio);
             double Influence = m_HookStrength * Length / m_MaxLength * m_HookerInfluenceRatio;

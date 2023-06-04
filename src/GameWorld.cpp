@@ -68,11 +68,6 @@ unsigned int GameWorld::GetNextPlayerIndex() const {
     }
 }
 
-// void GameWorld::GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const {
-//     out_x = m_x + (relative_x - m_GameWindow->Width() / 2.0);
-//     out_y = m_y + (relative_y - m_GameWindow->Height() / 2.0);
-// }
-
 void GameWorld::AddScore(unsigned int score) {
     m_Score += score;
     char msg[64];
@@ -119,7 +114,7 @@ void GameWorld::RemovePlayer(Player* player) {
 }
 
 Entity* GameWorld::AddEntity(Entity* entity) {
-    EntityType Enttype = entity->EntityType();
+    EntityType Enttype = entity->GetEntityType();
     Entity*& FirstType = m_FirstType[Enttype];
     Entity*& LastType = m_LastType[Enttype];
 
@@ -150,7 +145,7 @@ Entity* GameWorld::AddEntity(Entity* entity) {
 
 // ::RemoveEntity() doesn't reset entities Previous and Next entity pointers
 void GameWorld::RemoveEntity(Entity* entity) {
-    EntityType Type = entity->EntityType();
+    EntityType Type = entity->GetEntityType();
     Entity*& FirstType = m_FirstType[Type];
     Entity*& LastType = m_LastType[Type];
 
@@ -192,10 +187,6 @@ void GameWorld::ToggleShowNames() {
     m_ShowNames = !m_ShowNames;
     if (m_ShowNames)
         m_ShowNamesVisibility = 1.0;
-}
-
-void GameWorld::SetPaused(bool state) {
-    m_Paused = state;
 }
 
 void GameWorld::Event(const SDL_Event& currentEvent) {
@@ -350,11 +341,11 @@ void GameWorld::Draw() {
     // Stop drawing when the game has been triggered as over
     if (!m_GameOver) {
         SDL_Rect DestinationRect = { 0, 0, int(m_Width), int(m_Height) };
-        Render->RenderTextureWorld(m_Background->SDLTexture(), nullptr, DestinationRect);
+        Render->RenderTextureCamera(m_Background->SDLTexture(), nullptr, DestinationRect);
 
         SDL_Rect DrawRect = { 0, 0, int(m_Width), int(m_Height) };
         Render->SetColor(255, 0, 0, 255);
-        Render->DrawRectWorld(DrawRect);
+        Render->DrawRectCamera(DrawRect);
 
         for (auto Current : m_FirstType)
             for (; Current; Current = Current->NextType())

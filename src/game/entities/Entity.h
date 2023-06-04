@@ -12,16 +12,12 @@ struct EntityCore {
     double m_xvel, m_yvel;
     double m_BaseDamping;
 
+    // Manipulating
     void Accelerate(double x, double y);
 };
 
 struct LookingEntityCore : public EntityCore {
     double m_xlook, m_ylook;
-};
-
-enum EntityFormFactor {
-    ENTITY_NORMAL,
-    ENTITY_LOOKING
 };
 
 class Entity {
@@ -33,7 +29,7 @@ protected:
     Entity* m_Prev, * m_Next;
     unsigned long long m_SpawnedTick;
     EntityCore* m_Core, * m_LastCore;
-    GameWorld::EntityType m_EntityType;
+    EntityType m_EntityType;
     bool m_Alive;
 
     virtual void TickLastCore();
@@ -43,47 +39,55 @@ protected:
 public:
     Entity(GameWorld* world,
            EntityFormFactor form_factor,
-           GameWorld::EntityType entity_type,
+           EntityType entity_type,
            double start_x, double start_y,
            double start_w, double start_h,
            double start_xvel, double start_yvel,
            double base_damping);
     virtual ~Entity();
 
-    GameWorld* World() const { return m_World; }
-    GameWorld::EntityType EntityType() const { return m_EntityType; }
-    Entity* Next() const { return m_Next; }
-    Entity* Prev() const { return m_Prev; }
-    Entity* NextType() const { return m_NextType; }
-    Entity* PrevType() const { return m_PrevType; }
-    bool PointCollides(double x, double y) const;
-    EntityCore* GetCore() const { return m_Core; }
-    EntityCore* GetLastCore() const { return m_LastCore; }
-    bool IsAlive() const { return m_Alive; }
+    // Getting
+    [[nodiscard]] GameWorld* World() const { return m_World; }
+    [[nodiscard]] EntityType GetEntityType() const { return m_EntityType; }
+    [[nodiscard]] Entity* Next() const { return m_Next; }
+    [[nodiscard]] Entity* Prev() const { return m_Prev; }
+    [[nodiscard]] Entity* NextType() const { return m_NextType; }
+    [[nodiscard]] Entity* PrevType() const { return m_PrevType; }
+    [[nodiscard]] EntityCore* GetCore() const { return m_Core; }
+    [[nodiscard]] EntityCore* GetLastCore() const { return m_LastCore; }
+    [[nodiscard]] bool IsAlive() const { return m_Alive; }
 
+    // Generating
+    [[nodiscard]] bool PointCollides(double x, double y) const;
+
+    // Manipulating
     void Accelerate(double accelerate_x, double accelerate_y);
 
+    // Ticking
     virtual void Tick();
     virtual void Draw();
 };
 
-class LookingEntity : public Entity {
+class DirectionalEntity : public Entity {
 protected:
     LookingEntityCore* m_LookingCore, * m_LastLookingCore;
+
+    // Ticking
     void TickLastCore() override;
 
 public:
-    LookingEntity(GameWorld* world,
-                  GameWorld::EntityType entity_type,
-                  double start_x, double start_y,
-                  double start_w, double start_h,
-                  double start_xvel, double start_yvel,
-                  double start_xlook, double start_ylook,
-                  double base_damping);
-    virtual ~LookingEntity();
+    DirectionalEntity(GameWorld* world,
+                      EntityType entity_type,
+                      double start_x, double start_y,
+                      double start_w, double start_h,
+                      double start_xvel, double start_yvel,
+                      double start_xlook, double start_ylook,
+                      double base_damping);
+    virtual ~DirectionalEntity();
 
-    LookingEntityCore* GetLookingCore() const { return m_LookingCore; }
-    LookingEntityCore* GetLastLookingCore() const { return m_LastLookingCore; }
+    // Getting
+    [[nodiscard]] LookingEntityCore* GetLookingCore() const { return m_LookingCore; }
+    [[nodiscard]] LookingEntityCore* GetLastLookingCore() const { return m_LastLookingCore; }
 };
 
 #endif //TRIALANDERROR_ENTITY_H

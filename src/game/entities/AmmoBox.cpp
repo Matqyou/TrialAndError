@@ -11,8 +11,8 @@ Texture* AmmoBox::ms_TextureBurst = nullptr;
 Texture* AmmoBox::ms_TextureMinigun = nullptr;
 // Sound* AmmoBox::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-AmmoBox::AmmoBox(GameWorld* world, AmmoType type, double start_x, double start_y, double AmmoCount)
-    : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_AMMO, start_x, start_y, 40, 28, 0.0, 0.0, 0.95) {
+AmmoBox::AmmoBox(GameWorld* world, AmmoType type, double start_x, double start_y, unsigned int AmmoCount)
+    : Entity(world, ENTFORM_NORMAL, ENTTYPE_AMMO, start_x, start_y, 40, 28, 0.0, 0.0, 0.95) {
     m_AmmoCount = AmmoCount;
     m_Type = type;
 
@@ -72,5 +72,5 @@ void AmmoBox::Draw() {
                            float(m_Core->m_w),
                            float(m_Core->m_h) };
 
-    Render->RenderTextureFWorld((*m_Texture)->SDLTexture(), nullptr, DrawRect);
+    Render->RenderTextureFCamera((*m_Texture)->SDLTexture(), nullptr, DrawRect);
 }

@@ -16,7 +16,7 @@ enum DropType {
     NUM_DROPS
 };
 
-class Crates : public Entity {
+class Crate : public Entity {
 protected:
     DropType m_Type;
     int typeID;
@@ -30,8 +30,8 @@ public:
     static Texture* ms_TextureBreakingBox1;
     static Texture* ms_TextureBreakingBox2;
 
-    ~Crates();
-    Crates(GameWorld* world, double start_x, double start_y, double Health, int RandomDrop);
+    ~Crate();
+    Crate(GameWorld* world, double start_x, double start_y, double Health, int RandomDrop);
     DropType Type() const { return m_Type; }
     void DamageCrate(double Damage);
     void Tick() override;

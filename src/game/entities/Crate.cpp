@@ -2,17 +2,17 @@
 // Created by Mim on 5/8/2023.
 //
 #include "character/Character.h"
-#include "Crates.h"
+#include "Crate.h"
 #include <iostream>
 #include <random>
-Texture* Crates::ms_TextureBox = nullptr;
-Texture* Crates::ms_TextureBreakingBox1 = nullptr;
-Texture* Crates::ms_TextureBreakingBox2 = nullptr;
-Sound* Crates::ms_HitSound = nullptr;
-Sound* Crates::ms_BoxSound = nullptr;
+Texture* Crate::ms_TextureBox = nullptr;
+Texture* Crate::ms_TextureBreakingBox1 = nullptr;
+Texture* Crate::ms_TextureBreakingBox2 = nullptr;
+Sound* Crate::ms_HitSound = nullptr;
+Sound* Crate::ms_BoxSound = nullptr;
 
-Crates::Crates(GameWorld* world, double start_x, double start_y, double Health, int RandomDrop)
-    : Entity(world, ENTITY_NORMAL, GameWorld::ENTTYPE_BOX, start_x, start_y, 50, 50, 0.0, 0.0, 0.95) {
+Crate::Crate(GameWorld* world, double start_x, double start_y, double Health, int RandomDrop)
+    : Entity(world, ENTFORM_NORMAL, ENTTYPE_CRATE, start_x, start_y, 50, 50, 0.0, 0.0, 0.95) {
     m_World = world;
     m_Health = Health;
     m_Alive = true;
@@ -38,11 +38,11 @@ Crates::Crates(GameWorld* world, double start_x, double start_y, double Health, 
     else if (RandomNumber < 100) { typeID = DANGEROUS_RECOIL; }
 }
 
-Crates::~Crates() {
+Crate::~Crate() {
 
 }
 
-void Crates::DamageCrate(double Damage) {
+void Crate::DamageCrate(double Damage) {
     srand(time(NULL));
     Sound* BoxHitSound = ms_BoxSound;
     m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(BoxHitSound);
@@ -51,7 +51,7 @@ void Crates::DamageCrate(double Damage) {
     else if (m_Health < 20)m_Texture = &ms_TextureBreakingBox1;
 }
 
-void Crates::Tick() {
+void Crate::Tick() {
     TickWalls();
 
     if (m_Health <= 0) {
@@ -70,7 +70,7 @@ void Crates::Tick() {
     }
 }
 
-void Crates::Draw() {
+void Crate::Draw() {
     Drawing* Render = m_World->GameWindow()->Render();
 
     SDL_FRect DrawRect = { float(m_Core->m_x) - float(m_Core->m_w / 2.0),
@@ -78,5 +78,5 @@ void Crates::Draw() {
                            float(m_Core->m_w),
                            float(m_Core->m_h) };
 
-    Render->RenderTextureFWorld((*m_Texture)->SDLTexture(), nullptr, DrawRect);
+    Render->RenderTextureFCamera((*m_Texture)->SDLTexture(), nullptr, DrawRect);
 }

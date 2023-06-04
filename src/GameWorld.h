@@ -9,22 +9,13 @@
 #include "technical stuff/GameControllers.h"
 #include "game/indicators/TextSurface.h"
 #include "game/collision/TileMap.h"
+#include "Protocol.h"
 
 class Player;
 class Entity;
 class Character;
-class Crates;
+class Crate;
 class GameWorld {
-public:
-    enum EntityType {
-        ENTTYPE_ERROR,
-        ENTTYPE_BOX,
-        ENTTYPE_AMMO,
-        ENTTYPE_BULLET,
-        ENTTYPE_CHARACTER,
-        NUM_ENTTYPES
-    };
-
 private:
     GameReference* m_GameWindow;
     TileMap* m_Tiles;
@@ -71,11 +62,11 @@ public:
     [[nodiscard]] Entity* FirstEntityType(EntityType entity_type) const { return m_FirstType[entity_type]; }
     [[nodiscard]] Entity* LastEntityType(EntityType entity_type) const { return m_LastType[entity_type]; }
     [[nodiscard]] Character* FirstCharacter() const { return (Character*) (FirstEntityType(ENTTYPE_CHARACTER)); }
-    [[nodiscard]] Crates* FirstCrate() const { return (Crates*) (FirstEntityType(ENTTYPE_BOX)); }
+    [[nodiscard]] Crate* FirstCrate() const { return (Crate*) (FirstEntityType(ENTTYPE_CRATE)); }
     // void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
     // Setting
-    void SetPaused(bool state);
+    void SetPaused(bool state) { m_Paused = state; }
 
     // Events
     void EnemiesKilled();

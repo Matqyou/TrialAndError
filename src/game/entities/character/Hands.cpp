@@ -74,7 +74,7 @@ void Hands::Tick() {
         auto Ent = World->FirstEntity();
         for (; Ent; Ent = Ent->Next()) {
             if (Ent == m_Parent) continue;
-            if (Ent->EntityType() == GameWorld::ENTTYPE_CHARACTER
+            if (Ent->GetEntityType() == ENTTYPE_CHARACTER
                 && m_Parent->IsNPC() == ((Character*) Ent)->IsNPC())
                 continue;
 
@@ -87,12 +87,12 @@ void Hands::Tick() {
             if (Distance > m_FistingRadius)
                 continue;
 
-            if (!m_Parent->IsNPC() && Ent->EntityType() == GameWorld::ENTTYPE_BOX) {
-                ((Crates*) Ent)->DamageCrate(5);
+            if (!m_Parent->IsNPC() && Ent->GetEntityType() == ENTTYPE_CRATE) {
+                ((Crate*) Ent)->DamageCrate(5);
                 continue;
             }
 
-            if (Ent->EntityType() != GameWorld::ENTTYPE_CHARACTER)
+            if (Ent->GetEntityType() != ENTTYPE_CHARACTER)
                 continue;
             Ent->Accelerate(m_Parent->GetInput().m_LookingX * 5.0, m_Parent->GetInput().m_LookingY * 5.0);
             ((Character*) Ent)->Damage(7, true);
@@ -137,6 +137,6 @@ void Hands::Draw() {
                                 float(m_Size), float(m_Size) };
 
     ms_FistTexture->SetColorMod(m_Color.r, m_Color.g, m_Color.b);
-    Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE);
-    Render->RenderTextureExFWorld(ms_FistTexture->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE);
+    Render->RenderTextureExFCamera(ms_FistTexture->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE);
+    Render->RenderTextureExFCamera(ms_FistTexture->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE);
 }

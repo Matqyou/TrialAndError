@@ -125,7 +125,7 @@ void CharacterNPC::Tick() {
     if (m_Health <= 0.0) {
         m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
         m_Alive = false;
-        if (rand() % 100 <= 20) new Crates(m_World, m_Core->m_x, m_Core->m_y, 20.0, rand() % 2);
+        if (rand() % 100 <= 20) new Crate(m_World, m_Core->m_x, m_Core->m_y, 20.0, rand() % 2);
 
         int NumNPCS = 0;
         for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType()) {

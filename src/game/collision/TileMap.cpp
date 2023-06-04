@@ -149,7 +149,7 @@ void TileMap::Draw() {
             SDL_Rect DrawRect = { int(x * m_Tilesize), int(y * m_Tilesize),
                                   int(m_Tilesize), int(m_Tilesize) };
             m_Render->SetColor(DrawTile->m_Color);
-            m_Render->FillRectWorld(DrawRect);
+            m_Render->FillRectCamera(DrawRect);
         }
     }
 }

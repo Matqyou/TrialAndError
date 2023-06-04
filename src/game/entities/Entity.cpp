@@ -11,7 +11,7 @@ void EntityCore::Accelerate(double x, double y) {
 
 Entity::Entity(GameWorld* world,
                EntityFormFactor form_factor,
-               GameWorld::EntityType entityType,
+               EntityType entityType,
                double start_x, double start_y,
                double start_w, double start_h,
                double start_xvel, double start_yvel,
@@ -25,7 +25,7 @@ Entity::Entity(GameWorld* world,
     m_Core = nullptr;
     m_LastCore = nullptr;
     m_Alive = true;
-    if (form_factor == ENTITY_LOOKING) {
+    if (form_factor == ENTFORM_DIRECTIONAL) {
         m_Core = new LookingEntityCore();
         m_LastCore = new LookingEntityCore();
         memset(m_Core, 0, sizeof(LookingEntityCore));
@@ -115,21 +115,21 @@ void Entity::Draw() {
                            float(m_Core->m_y) - float(m_Core->m_h / 2),
                            float(m_Core->m_w),
                            float(m_Core->m_h) };
-    Render->FillRectFWorld(DrawRect);
+    Render->FillRectFCamera(DrawRect);
 }
 
-void LookingEntity::TickLastCore() {
+void DirectionalEntity::TickLastCore() {
     memcpy(m_LastLookingCore, m_LookingCore, sizeof(LookingEntityCore));
 }
 
-LookingEntity::LookingEntity(GameWorld* world, GameWorld::EntityType entity_type,
-                             double start_x, double start_y,
-                             double start_w, double start_h,
-                             double start_xvel, double start_yvel,
-                             double start_xlook, double start_ylook,
-                             double base_damping)
+DirectionalEntity::DirectionalEntity(GameWorld* world, EntityType entity_type,
+                                     double start_x, double start_y,
+                                     double start_w, double start_h,
+                                     double start_xvel, double start_yvel,
+                                     double start_xlook, double start_ylook,
+                                     double base_damping)
     : Entity(world,
-             ENTITY_LOOKING,
+             ENTFORM_DIRECTIONAL,
              entity_type,
              start_x,
              start_y,
@@ -144,4 +144,4 @@ LookingEntity::LookingEntity(GameWorld* world, GameWorld::EntityType entity_type
     m_LookingCore->m_ylook = start_ylook;
 }
 
-LookingEntity::~LookingEntity() = default;
+DirectionalEntity::~DirectionalEntity() = default;

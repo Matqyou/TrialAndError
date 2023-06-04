@@ -10,12 +10,13 @@
 #include "GameReference.h"
 #include "GameWorld.h"
 #include "technical stuff/GameControllers.h"
+#include "game/indicators/TextSurface.h"
 #include "game/entities/character/npc/CharacterNPC.h"
 #include "game/entities/character/Character.h"
 #include "game/entities/Projectile.h"
-#include "game/indicators/TextSurface.h"
+#include "game/entities/ItemEntity.h"
 #include "game/entities/AmmoBox.h"
-#include "game/entities/Crates.h"
+#include "game/entities/Crate.h"
 #include "game/entities/Error.h"
 #include <vector>
 #include <iostream>
@@ -34,53 +35,13 @@ bool Initialize() {
     World = new GameWorld(GameWindow, 50, 40);
     GameWindow->Render()->SetWorld(World);
 
-    //Temp ammo spawn, had to generate random and set the value for each one, also changed it to also sending an int
-    // to the Crates constructor, so its easier to work with and i dont need to have acess to DropTypes, which i do, but no,
-    // it only works cuz this is main and i prefer to use the same typa fix on both ERRORS and crates, since
-    // for ERRORS that fix wouldnt have worked, also it lowers the line count cuz i dont gotta set the ERROR/AMMO types
-    // to each random number, can just send the number straight up
-    new Crates(World, 200, 200, 20, rand() % 2);
-    new Crates(World, 400, 200, 20, rand() % 2);
-    new Crates(World, 600, 200, 20, rand() % 2);
-    new Crates(World, 200, 400, 20, rand() % 2);
-    new Crates(World, 400, 400, 20, rand() % 2);
-    new Crates(World, 600, 400, 20, rand() % 2);
-    new Crates(World, 200, 600, 20, rand() % 2);
-    new Crates(World, 400, 600, 20, rand() % 2);
-    new Crates(World, 600, 600, 20, rand() % 2);
-
-    Controllers = new GameControllers();
-    auto Player1 = new Player(World, "Keyboard");
-    auto Char1 = new Character(World, Player1, 100.0,
-                               32 * 17.5, 32 * 17.5, 10, 10);
-    Char1->GiveWeapon(WEAPON_GLOCK);
-    Char1->GiveWeapon(WEAPON_BURST);
-    Char1->GiveWeapon(WEAPON_SHOTGUN);
-    Char1->GiveWeapon(WEAPON_MINIGUN);
-
-    return true;
-}
-
-int main() {
-    if (!Initialize()) {
-        std::printf("Terminating..");
-        exit(1);
-    }
-
-    Clock* Timer = GameWindow->Timer();
-    Drawing* Draw = GameWindow->Render();
     AssetsManager* AssetsHandler = GameWindow->Assets();
     SoundManager* SoundHandler = AssetsHandler->SoundHandler();
     ImageManager* ImageHandler = AssetsHandler->ImageHandler();
 
-    // Load the PNG images
-    Texture* TextureStart = ImageHandler->LoadTexture("assets/images/interface/Start.png", true);
-    Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/interface/Settings.png", true);
-    Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
-    Vignette->SetAlphaMod(200);
-
     Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     Hands::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
+    ItemEntity::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/Glock.png", true);
     Projectile::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/projectiles/GlockBullet.png", true);
     Projectile::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/projectiles/BurstBullet.png", true);
     Projectile::ms_TextureShotgun =
@@ -91,9 +52,9 @@ int main() {
     AmmoBox::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/ShotgunAmmo.png", true);
     AmmoBox::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/BurstAmmo.png", true);
     AmmoBox::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/entities/MinigunAmmo.png", true);
-    Crates::ms_TextureBox = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate.png", true);
-    Crates::ms_TextureBreakingBox1 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_1.png", true);
-    Crates::ms_TextureBreakingBox2 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_2.png", true);
+    Crate::ms_TextureBox = ImageHandler->LoadTexture("assets/images/entities/AmmoCrate.png", true);
+    Crate::ms_TextureBreakingBox1 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_1.png", true);
+    Crate::ms_TextureBreakingBox2 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_2.png", true);
     Error::ms_TextureErrorInvincible = ImageHandler->LoadTexture("assets/images/entities/Invincible.png", true);
     Error::ms_TextureErrorSpiky = ImageHandler->LoadTexture("assets/images/entities/Cactus.png", true);
     Error::ms_TextureErrorSlowDown = ImageHandler->LoadTexture("assets/images/entities/Clock.png", true);
@@ -120,15 +81,7 @@ int main() {
     Character::ms_TexturesMinigun[2] = ImageHandler->LoadTexture("assets/images/weapons/Minigun3.png", true);
     Character::ms_TexturesMinigun[3] = ImageHandler->LoadTexture("assets/images/weapons/Minigun4.png", true);
     // Load sounds
-    Sound* Background = SoundHandler->LoadSound("assets/sounds/background_theme.mp3", true);
     Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);
-    Sound* Epic_Death = SoundHandler->LoadSound("assets/sounds/epic_death.wav", true);
-    Sound* LowSound = SoundHandler->LoadSound("assets/sounds/Low.wav", true);
-    Sound* HighSound = SoundHandler->LoadSound("assets/sounds/High.wav", true);
-    Sound* QuitSound = SoundHandler->LoadSound("assets/sounds/Quit.wav", true);
-    Sound* LowUISound = SoundHandler->LoadSound("assets/sounds/LowUI.wav", true);
-    Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
-    Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
     Sound* FailReloadSound = SoundHandler->LoadSound("assets/sounds/FailReload.wav", true);
     Sound* GlockShootSound = SoundHandler->LoadSound("assets/sounds/GlockShoot.wav", true);
     GlockShootSound->SetVolume(64); // max 128
@@ -157,19 +110,64 @@ int main() {
     Character::ms_HitSounds[2] = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt3.wav", true);
     Character::ms_AmmoPickupSound = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick6.wav", true);
     Character::ms_ItemSwitchSound = SoundHandler->LoadSound("assets/sounds/WeaponSwitch.wav", true);
-    // AmmoBox::ms_PickupSounds[0] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick1.wav", true);
-    // AmmoBox::ms_PickupSounds[1] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick2.wav", true);
-    // AmmoBox::ms_PickupSounds[2] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick3.wav", true);
-    // AmmoBox::ms_PickupSounds[3] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick4.wav", true);
-    // AmmoBox::ms_PickupSounds[4] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick5.wav", true);
-    // AmmoBox::ms_PickupSounds[5] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick6.wav", true);
-    // AmmoBox::ms_PickupSounds[6] = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick7.wav", true);
-    Crates::ms_BoxSound = SoundHandler->LoadSound("assets/sounds/BoxHit.wav", true);
-    Crates::ms_HitSound = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
-
+    Crate::ms_BoxSound = SoundHandler->LoadSound("assets/sounds/BoxHit.wav", true);
+    Crate::ms_HitSound = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
     Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),
                                                  World->GameWindow()->Assets()->TextHandler()->GetMainFont(),
                                                  "Bot User", { 255, 150, 150, 255 });
+
+    //Temp ammo spawn, had to generate random and set the value for each one, also changed it to also sending an int
+    // to the Crate constructor, so its easier to work with and i dont need to have acess to DropTypes, which i do, but no,
+    // it only works cuz this is main and i prefer to use the same typa fix on both ERRORS and crates, since
+    // for ERRORS that fix wouldnt have worked, also it lowers the line count cuz i dont gotta set the ERROR/AMMO types
+    // to each random number, can just send the number straight up
+    new Crate(World, 200, 200, 20, rand() % 2);
+    new Crate(World, 400, 200, 20, rand() % 2);
+    new Crate(World, 600, 200, 20, rand() % 2);
+    new Crate(World, 200, 400, 20, rand() % 2);
+    new Crate(World, 400, 400, 20, rand() % 2);
+    new Crate(World, 600, 400, 20, rand() % 2);
+    new Crate(World, 200, 600, 20, rand() % 2);
+    new Crate(World, 400, 600, 20, rand() % 2);
+    new Crate(World, 600, 600, 20, rand() % 2);
+
+    new ItemEntity(World, ITEM_GLOCK, 700, 200, 12*5, 8*5);
+
+    Controllers = new GameControllers();
+    auto Player1 = new Player(World, "Keyboard");
+    auto Char1 = new Character(World, Player1, 100.0,
+                               32 * 17.5, 32 * 17.5, 10, 10);
+    Char1->GiveWeapon(WEAPON_GLOCK);
+    Char1->GiveWeapon(WEAPON_BURST);
+    Char1->GiveWeapon(WEAPON_SHOTGUN);
+    Char1->GiveWeapon(WEAPON_MINIGUN);
+
+    return true;
+}
+
+int main() {
+    if (!Initialize()) {
+        std::printf("Terminating..");
+        exit(1);
+    }
+
+    Clock* Timer = GameWindow->Timer();
+    Drawing* Render = GameWindow->Render();
+    AssetsManager* AssetsHandler = GameWindow->Assets();
+    SoundManager* SoundHandler = AssetsHandler->SoundHandler();
+    ImageManager* ImageHandler = AssetsHandler->ImageHandler();
+
+    Texture* TextureStart = ImageHandler->LoadTexture("assets/images/interface/Start.png", true);
+    Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/interface/Settings.png", true);
+    Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
+    Vignette->SetAlphaMod(200);
+
+    Sound* LowSound = SoundHandler->LoadSound("assets/sounds/Low.wav", true);
+    Sound* HighSound = SoundHandler->LoadSound("assets/sounds/High.wav", true);
+    Sound* QuitSound = SoundHandler->LoadSound("assets/sounds/Quit.wav", true);
+    Sound* LowUISound = SoundHandler->LoadSound("assets/sounds/LowUI.wav", true);
+    Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
+    Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
 
     SDL_Rect StartButtonRect = { int(GameWindow->GetWidth2()) - 150,
                                  int(GameWindow->GetHeight2()) - 200,
@@ -252,23 +250,23 @@ int main() {
         Controllers->TickReset();
 
         // Drawing
-        //Draw->SetColor(120, 120, 0, 255);
-        //Draw->Clear();
+        //Render->SetColor(120, 120, 0, 255);
+        //Render->Clear();
 
         World->Draw();
-        Draw->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
+        Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
         if (World->GetPaused()) {
-            Draw->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
-            Draw->SetColor(0, 0, 0, 100);
-            Draw->FillAll();
-            Draw->SetDrawBlendMode(SDL_BLENDMODE_NONE);
+            Render->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+            Render->SetColor(0, 0, 0, 100);
+            Render->FillAll();
+            Render->SetDrawBlendMode(SDL_BLENDMODE_NONE);
 
-            Draw->RenderTexture(TextureStart->SDLTexture(), nullptr, StartButtonRect);
-            Draw->RenderTexture(TextureSettings->SDLTexture(), nullptr, SettingsButtonRect);
+            Render->RenderTexture(TextureStart->SDLTexture(), nullptr, StartButtonRect);
+            Render->RenderTexture(TextureSettings->SDLTexture(), nullptr, SettingsButtonRect);
         }
 
-        Draw->UpdateWindow();
+        Render->UpdateWindow();
         Timer->Tick();
     }
 

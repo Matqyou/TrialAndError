@@ -40,7 +40,7 @@ WeaponBurst::WeaponBurst(Character* owner)
 //    // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
 //    // and not the center of the player
 //    SDL_FPoint GunPoint = {float(0), float(0)};
-//    if(m_owner->GetCurrentWeapon())Render->RenderTextureExFWorld(Character::ms_TextureError->SDLTexture(),nullptr, GunRect, Angle-90,&GunPoint, flip);
+//    if(m_owner->GetCurrentWeapon())Render->RenderTextureExFCamera(Character::ms_TextureError->SDLTexture(),nullptr, GunRect, Angle-90,&GunPoint, flip);
 //
 //}
 void WeaponBurst::Tick() {

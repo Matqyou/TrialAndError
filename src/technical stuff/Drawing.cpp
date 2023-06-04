@@ -48,12 +48,12 @@ void Drawing::SetCameraPos(double camera_x, double camera_y) {
     m_CameraY = camera_y;
 }
 
-void Drawing::LineWorld(double x1, double y1, double x2, double y2) {
+void Drawing::LineCamera(double x1, double y1, double x2, double y2) {
     SDL_RenderDrawLine(m_Renderer, int(TranslateX(x1)), int(TranslateY(y1)),
                        int(TranslateX(x2)), int(TranslateY(y2)));
 }
 
-void Drawing::DrawRectWorld(const SDL_Rect& rect) {
+void Drawing::DrawRectCamera(const SDL_Rect& rect) {
     SDL_Rect MovedRect = TranslateRect(rect);
     SDL_RenderDrawRect(m_Renderer, &MovedRect);
 }
@@ -62,12 +62,12 @@ void Drawing::FillRect(const SDL_Rect& rect) {
     SDL_RenderFillRect(m_Renderer, &rect);
 }
 
-void Drawing::FillRectWorld(const SDL_Rect& rect) {
+void Drawing::FillRectCamera(const SDL_Rect& rect) {
     SDL_Rect MovedRect = TranslateRect(rect);
     SDL_RenderFillRect(m_Renderer, &MovedRect);
 }
 
-void Drawing::FillRectFWorld(const SDL_FRect& rect) {
+void Drawing::FillRectFCamera(const SDL_FRect& rect) {
     SDL_FRect MovedRect = TranslateFRect(rect);
     SDL_RenderFillRectF(m_Renderer, &MovedRect);
 }
@@ -76,17 +76,17 @@ void Drawing::RenderTexture(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_R
     SDL_RenderCopy(m_Renderer, texture, srcrect, &dstrect);
 }
 
-void Drawing::RenderTextureWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_Rect& dstrect) {
+void Drawing::RenderTextureCamera(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_Rect& dstrect) {
     SDL_Rect MovedRect = TranslateRect(dstrect);
     SDL_RenderCopy(m_Renderer, texture, srcrect, &MovedRect);
 }
 
-void Drawing::RenderTextureExWorld(SDL_Texture* texture,
-                                   SDL_Rect* srcrect,
-                                   const SDL_Rect& dstrect,
-                                   double angle,
-                                   SDL_Point* center,
-                                   SDL_RendererFlip flip) {
+void Drawing::RenderTextureExCamera(SDL_Texture* texture,
+                                    SDL_Rect* srcrect,
+                                    const SDL_Rect& dstrect,
+                                    double angle,
+                                    SDL_Point* center,
+                                    SDL_RendererFlip flip) {
     SDL_Rect MovedRect = TranslateRect(dstrect);
     SDL_RenderCopyEx(m_Renderer, texture, srcrect, &MovedRect, angle, center, flip);
 }
@@ -95,17 +95,17 @@ void Drawing::RenderTextureF(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_
     SDL_RenderCopyF(m_Renderer, texture, srcrect, &dstrect);
 }
 
-void Drawing::RenderTextureFWorld(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect) {
+void Drawing::RenderTextureFCamera(SDL_Texture* texture, SDL_Rect* srcrect, const SDL_FRect& dstrect) {
     SDL_FRect MovedRect = TranslateFRect(dstrect);
     SDL_RenderCopyF(m_Renderer, texture, srcrect, &MovedRect);
 }
 
-void Drawing::RenderTextureExFWorld(SDL_Texture* texture,
-                                    SDL_Rect* srcrect,
-                                    const SDL_FRect& dstrect,
-                                    double angle,
-                                    SDL_FPoint* center,
-                                    SDL_RendererFlip flip) {
+void Drawing::RenderTextureExFCamera(SDL_Texture* texture,
+                                     SDL_Rect* srcrect,
+                                     const SDL_FRect& dstrect,
+                                     double angle,
+                                     SDL_FPoint* center,
+                                     SDL_RendererFlip flip) {
     SDL_FRect MovedRect = TranslateFRect(dstrect);
     SDL_RenderCopyExF(m_Renderer, texture, srcrect, &MovedRect, angle, center, flip);
 }
