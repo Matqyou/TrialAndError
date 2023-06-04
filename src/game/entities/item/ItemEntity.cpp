@@ -3,13 +3,18 @@
 //
 
 #include "ItemEntity.h"
+#include "../character/Character.h"
 
 Texture* ItemEntity::ms_TextureGlock = nullptr;
+Texture* ItemEntity::ms_TextureShotgun = nullptr;
 
 void ItemEntity::SetTexture(ItemType item_type) {
     switch (item_type) {
-        case ITEM_GLOCK: {
+        case ITEMTYPE_GLOCK: {
             m_Texture = ms_TextureGlock;
+        } break;
+        case ITEMTYPE_SHOTGUN: {
+            m_Texture = ms_TextureShotgun;
         } break;
     }
 }
@@ -27,12 +32,32 @@ ItemEntity::ItemEntity(GameWorld* world,
              0.95) {
     m_ItemType = item_type;
     m_Texture = nullptr;
+    m_PickupRadius = 25.0;
 
     SetTexture(item_type);
 }
 
-void ItemEntity::Tick() {
+void ItemEntity::EventPickup(Character* picker_char) {
+    m_Alive = false;
+}
 
+void ItemEntity::TickPickup() {
+    if (!m_Alive)
+        return;
+
+    auto Char = m_World->FirstCharacter();
+    for (; Char; Char = (Character*)Char->NextType()) {
+        if (!Char->IsAlive()) continue;
+        double Distance = DistanceVec2(m_Core.Pos, Char->GetCore().Pos);
+        if (Distance > m_PickupRadius) continue;
+
+        EventPickup(Char);
+        break;
+    }
+}
+
+void ItemEntity::Tick() {
+    TickPickup();
 }
 
 void ItemEntity::Draw() {

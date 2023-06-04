@@ -19,6 +19,27 @@ CharacterNPC::CharacterNPC(GameWorld* world, double max_health,
 
 CharacterNPC::~CharacterNPC() = default;
 
+void CharacterNPC::EventDeath() {
+    Character::EventDeath();
+
+    m_World->AddScore(m_IsBoss ? 20 * 5 : 20);
+
+    if (rand() % 100 <= 20)
+        new Crate(m_World, m_Core.Pos.x, m_Core.Pos.y, 20.0, rand() % 2);
+
+    int NumNPCS = 0;
+    for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType()) {
+        if (Char->IsNPC() && Char->IsAlive()) {
+            NumNPCS++;
+        }
+    }
+    if (NumNPCS == 0) {
+        m_World->EnemiesKilled();
+        for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType())
+            Char->RemoveCombat();
+    }
+}
+
 void CharacterNPC::TickControls() {
     if (m_AIType == NPC_DUMMY)
         return;
@@ -86,56 +107,6 @@ void CharacterNPC::TickControls() {
                     m_Input.m_Shooting = true;
                 }
             }
-        }
-    }
-}
-
-void CharacterNPC::Tick() {
-    TickHealth();
-    TickControls(); // Parse the inputs of each device keyboard/controller/AI
-    TickProcessInputs(); // Do stuff depending on the current held buttons
-    TickHook();  // Move hook and or player etc.
-    TickCurrentWeapon(); // Shoot accelerate reload etc.
-    m_Hands.Tick();
-    TickErrorTimers(); // Ticks timer for errors
-    // Need every character to get here..
-    // then we apply the accelerations of all
-    // hooks and continue with the code below v v v
-    // like collisions and velocity tick
-
-    TickCollision();
-    TickVelocity();  // Move the character entity
-    TickWalls();  // Check if colliding with walls
-
-    if ((int) (m_Health) != (int) (m_LastHealth)) m_HealthInt->FlagForUpdate();
-    if (m_World->GetNamesShown() > 0.05 &&
-        ((int) (m_Core.Pos.x) != (int) (m_LastCore.Pos.x) ||
-         (int) (m_Core.Pos.y) != (int) (m_LastCore.Pos.y)))
-        m_CoordinatePlate->FlagForUpdate();
-
-    m_LastHealth = m_Health;
-    TickLastCore();
-    memcpy(&m_LastInput, &m_Input, sizeof(CharacterInput));
-
-    m_HitTicks -= 1;
-    if (m_HitTicks < 0)
-        m_HitTicks = 0;
-
-    if (m_Health <= 0.0) {
-        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
-        m_Alive = false;
-        if (rand() % 100 <= 20) new Crate(m_World, m_Core.Pos.x, m_Core.Pos.y, 20.0, rand() % 2);
-
-        int NumNPCS = 0;
-        for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType()) {
-            if (Char->IsNPC() && Char->IsAlive())
-                NumNPCS++;
-        }
-        m_World->AddScore(m_IsBoss ? 20 * 5 : 20);
-        if (NumNPCS == 0) {
-            m_World->EnemiesKilled();
-            for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType())
-                Char->RemoveCombat();
         }
     }
 }

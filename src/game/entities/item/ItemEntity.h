@@ -5,22 +5,31 @@
 #ifndef TRIALANDERROR_SRC_GAME_ENTITIES_ITEMENTITY_H_
 #define TRIALANDERROR_SRC_GAME_ENTITIES_ITEMENTITY_H_
 
-#include "Entity.h"
+#include "../Entity.h"
 
 enum ItemType {
-    ITEM_GLOCK
+    ITEMTYPE_GLOCK,
+    ITEMTYPE_SHOTGUN,
+    NUM_ITEMTYPES
 };
 
 class ItemEntity : public Entity {
-private:
+protected:
     ItemType m_ItemType;
     Texture* m_Texture;
+    double m_PickupRadius;
 
     // Setting & Initializing
     void SetTexture(ItemType item_type);
 
+
+    // Listening & Ticking
+    virtual void EventPickup(Character* picker_char);
+    void TickPickup();
+
 public:
     static Texture* ms_TextureGlock;
+    static Texture* ms_TextureShotgun;
 
     ItemEntity(GameWorld* world,
                ItemType item_type,

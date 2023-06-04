@@ -4,6 +4,8 @@
 #include "Character.h"
 #include <cmath>
 #include <iostream>
+#include "../item/EntityGlock.h"
+#include "../item/EntityShotgun.h"
 #include "../Projectile.h"
 #include <vector>
 
@@ -356,6 +358,27 @@ void Character::AmmoPickup(AmmoBox* ammo_box) {
     if (m_CurrentWeapon == m_Weapons[ReloadWeapon]) m_AmmoCount->FlagForUpdate();
 }
 
+void Character::EventDeath() {
+    for (int i = 0; i < NUM_WEAPONS; i++) {
+        if (!m_Weapons[i]) continue;
+
+        if (i == WEAPON_GLOCK) new EntityGlock(m_World, m_Core.Pos.x, m_Core.Pos.y);
+        else if (i == WEAPON_SHOTGUN) new EntityShotgun(m_World, m_Core.Pos.x, m_Core.Pos.y);
+    }
+
+    if (!m_NPC) { // prob better place for this code
+        int NumRealCharacters = 0;
+        for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType()) {
+            if (!Char->IsNPC())NumRealCharacters++;
+        }
+        if (NumRealCharacters == 1)
+            m_World->AlliesGone();
+    }
+
+    m_Alive = false;
+    m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
+}
+
 void Character::TickKeyboardControls() { // TODO: move to characterInput class
     bool Horizontal = m_Movement[CONTROL_LEFT] ^ m_Movement[CONTROL_RIGHT];
     bool Vertical = m_Movement[CONTROL_UP] != m_Movement[CONTROL_DOWN];
@@ -471,9 +494,9 @@ void Character::TickProcessInputs() {
         // TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
 
         double Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration / 3 : m_BaseAcceleration) *
-                              (IsReversed ? -1 : 1) *
-                              (IsSlow ? 0.5 : 1) *
-                              (m_CurrentWeapon ? 0.9 : 1.0);
+            (IsReversed ? -1 : 1) *
+            (IsSlow ? 0.5 : 1) *
+            (m_CurrentWeapon ? 0.9 : 1.0);
 
         // Accelerate in that direction
         m_Core.Vel += Vec2d(m_Input.m_GoingX, m_Input.m_GoingY) * Acceleration;
@@ -1020,7 +1043,7 @@ void Character::Tick() {
     if ((int) (m_Health) != (int) (m_LastHealth)) m_HealthInt->FlagForUpdate();
     if (m_World->GetNamesShown() > 0.05 &&
         ((int) (m_Core.Pos.x) != (int) (m_LastCore.Pos.x) ||
-         (int) (m_Core.Pos.y) != (int) (m_LastCore.Pos.y)))
+            (int) (m_Core.Pos.y) != (int) (m_LastCore.Pos.y)))
         m_CoordinatePlate->FlagForUpdate();
 
     m_LastHealth = m_Health;
@@ -1031,17 +1054,8 @@ void Character::Tick() {
     if (m_HitTicks < 0)
         m_HitTicks = 0;
 
-    if (m_Health <= 0.0) {
-        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
-        m_Alive = false;
-        int NumRealCharacters = 0;
-        for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType()) {
-            if (!Char->IsNPC())NumRealCharacters++;
-        }
-        if (NumRealCharacters == 1)
-            m_World->AlliesGone();
-    }
-
+    if (m_Health <= 0.0)
+        EventDeath();
 }
 
 void Character::Draw() {

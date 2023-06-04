@@ -14,7 +14,7 @@
 #include "game/entities/character/npc/CharacterNPC.h"
 #include "game/entities/character/Character.h"
 #include "game/entities/Projectile.h"
-#include "game/entities/ItemEntity.h"
+#include "game/entities/item/EntityGlock.h"
 #include "game/entities/AmmoBox.h"
 #include "game/entities/Crate.h"
 #include "game/entities/Error.h"
@@ -41,7 +41,8 @@ bool Initialize() {
 
     Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     Hands::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
-    ItemEntity::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/Glock.png", true);
+    ItemEntity::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/items/Glock.png", true);
+    ItemEntity::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/items/Shotgun.png", true);
     Projectile::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/projectiles/GlockBullet.png", true);
     Projectile::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/projectiles/BurstBullet.png", true);
     Projectile::ms_TextureShotgun =
@@ -131,7 +132,7 @@ bool Initialize() {
     new Crate(World, 400, 600, 20, rand() % 2);
     new Crate(World, 600, 600, 20, rand() % 2);
 
-    new ItemEntity(World, ITEM_GLOCK, 700, 200, 12*4, 8*4);
+    new EntityGlock(World, 700, 200);
 
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Keyboard");

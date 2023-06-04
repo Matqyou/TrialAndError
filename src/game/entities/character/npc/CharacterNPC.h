@@ -18,6 +18,8 @@ protected:
     bool m_IsBoss;
     NPCType m_AIType;
 
+    // Listening & Ticking
+    void EventDeath() override;
     void TickControls() override;
 
 public:
@@ -27,8 +29,6 @@ public:
                  NPCType ai_type, bool is_boss);
     ~CharacterNPC();
 
-    // Ticking
-    void Tick(); // TODO this is not good
 };
 
 #endif //TRIALANDERROR_CHARACTERNPC_H

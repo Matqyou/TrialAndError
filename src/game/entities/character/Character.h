@@ -90,7 +90,8 @@ protected:
     // This is how i did le spawning of icons to be displaced, big brain me yes yes
     // TODO: Texture instance class with SDL_FRect or SDL_Rect
 
-    // Ticking
+    // Listening & Ticking
+    virtual void EventDeath();
     void TickKeyboardControls();
     void TickGameControllerControls();
     void TickHealth();
