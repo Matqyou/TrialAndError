@@ -6,16 +6,21 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v1
-    - name: Configure and Build
-      run: |
-        mkdir build && cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release
-        cmake --build .
-    - name: Run Unit Tests
-      run: |
-        cd build
-        ctest
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup MinGW-w64 9.0
+        uses: ilammy/msys2-mingw@v1
+        with:
+          mingw: x86_64-9.0.0
+      - name: Setup CMake
+        run: |
+          pacman -Sy --noconfirm mingw-w64-x86_64-cmake
+      - name: Configure and Build
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles"
+          cmake --build .
+      - name: Run Unit Tests
+        run: |
+          cd build
+          ctest
