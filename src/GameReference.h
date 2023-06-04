@@ -8,6 +8,7 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
+#include "technical stuff/Vec2.h"
 #include "technical stuff/Clock.h"
 #include "technical stuff/Drawing.h"
 #include "technical stuff/AssetsManager.h"

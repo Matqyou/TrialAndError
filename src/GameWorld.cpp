@@ -225,19 +225,19 @@ void GameWorld::TickCamera() {
             if (!NPC->GetCurrentWeapon()) continue;
         }
 
-        EntityCore* CharCore = Char->GetCore();
+        EntityCore& Core = Char->GetCore();
 
         if (FirstIteration) {
             FirstIteration = false;
-            minX = CharCore->m_x;
-            maxX = CharCore->m_x;
-            minY = CharCore->m_y;
-            maxY = CharCore->m_y;
+            minX = Core.Pos.x;
+            maxX = Core.Pos.x;
+            minY = Core.Pos.y;
+            maxY = Core.Pos.y;
         } else {
-            if (CharCore->m_x < minX) minX = CharCore->m_x;
-            if (CharCore->m_x > maxX) maxX = CharCore->m_x;
-            if (CharCore->m_y < minY) minY = CharCore->m_y;
-            if (CharCore->m_y > maxY) maxY = CharCore->m_y;
+            if (Core.Pos.x < minX) minX = Core.Pos.x;
+            if (Core.Pos.x > maxX) maxX = Core.Pos.x;
+            if (Core.Pos.y < minY) minY = Core.Pos.y;
+            if (Core.Pos.y > maxY) maxY = Core.Pos.y;
         }
     }
 

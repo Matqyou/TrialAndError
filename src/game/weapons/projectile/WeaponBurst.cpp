@@ -50,7 +50,7 @@ void WeaponBurst::Tick() {
 
     if (m_Shooter) {
         GameWorld* World = m_Shooter->World();
-        auto ShooterCore = (LookingEntityCore*) m_Shooter->GetCore();
+        auto& ShooterCore = m_Shooter->GetDirectionalCore();
         SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
         auto CurrentTick = World->GetTick();
         if (m_BurstShotsLeft && CurrentTick - m_BurstTick > m_BurstCooldown) {
@@ -60,19 +60,19 @@ void WeaponBurst::Tick() {
                 m_Ammo--;
                 SoundHandler->PlaySound(ms_ShootSound);
 
-                double VelocityX = ShooterCore->m_xlook * m_ProjectileSpeed;
-                double VelocityY = ShooterCore->m_ylook * m_ProjectileSpeed;
+                double VelocityX = ShooterCore.Direction.x * m_ProjectileSpeed;
+                double VelocityY = ShooterCore.Direction.y * m_ProjectileSpeed;
                 new Projectile(World,
                                m_Shooter,
                                WEAPON_BURST,
                                m_Damage,
-                               ShooterCore->m_x,
-                               ShooterCore->m_y,
+                               ShooterCore.Pos.x,
+                               ShooterCore.Pos.y,
                                VelocityX,
                                VelocityY);
 
-                double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
-                double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
+                double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
+                double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
                 m_Shooter->Accelerate(RecoilX, RecoilY);
             } else {
                 SoundHandler->PlaySound(ms_ClickSound);
@@ -91,19 +91,19 @@ void WeaponBurst::Tick() {
                 m_LastShotAt = CurrentTick;
                 SoundHandler->PlaySound(ms_ShootSound);
 
-                double VelocityX = ShooterCore->m_xlook * m_ProjectileSpeed;
-                double VelocityY = ShooterCore->m_ylook * m_ProjectileSpeed;
+                double VelocityX = ShooterCore.Direction.x * m_ProjectileSpeed;
+                double VelocityY = ShooterCore.Direction.y * m_ProjectileSpeed;
                 new Projectile(World,
                                m_Shooter,
                                WEAPON_BURST,
                                m_Damage,
-                               ShooterCore->m_x,
-                               ShooterCore->m_y,
+                               ShooterCore.Pos.x,
+                               ShooterCore.Pos.y,
                                VelocityX,
                                VelocityY);
 
-                double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
-                double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
+                double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
+                double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
                 m_Shooter->Accelerate(RecoilX, RecoilY);
             } else {
                 SoundHandler->PlaySound(ms_ClickSound);

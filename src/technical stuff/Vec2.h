@@ -1,0 +1,57 @@
+//
+// Created by Matq on 04/06/2023.
+//
+
+#ifndef TRIALANDERROR_SRC_TECHNICAL_STUFF_VEC2_H_
+#define TRIALANDERROR_SRC_TECHNICAL_STUFF_VEC2_H_
+
+#include <cmath>
+
+template<class T>
+class Vec2 {
+public:
+    T x, y;
+
+    Vec2();
+    Vec2(T x, T y);
+    Vec2(const Vec2& v);
+
+    // Returned math operations
+    [[nodiscard]] Vec2 operator+(const Vec2& v) const;
+    [[nodiscard]] Vec2 operator-(const Vec2& v) const;
+    [[nodiscard]] Vec2 operator+(T scalar) const;
+    [[nodiscard]] Vec2 operator-(T scalar) const;
+    [[nodiscard]] Vec2 operator*(T scalar) const;
+    [[nodiscard]] Vec2 operator/(T scalar) const;
+
+    // Manipulative math operations
+    Vec2& operator=(const Vec2& v);
+    Vec2& operator+=(const Vec2& v);
+    Vec2& operator-=(const Vec2& v);
+    Vec2& operator+=(T scalar);
+    Vec2& operator-=(T scalar);
+    Vec2& operator*=(T scalar);
+    Vec2& operator/=(T scalar);
+
+    // Generating
+    [[nodiscard]] double Length() const;
+    [[nodiscard]] double Atan2() const;
+    [[nodiscard]] Vec2 Ortho() const;
+    [[nodiscard]] static double DotProduct(const Vec2& v1, const Vec2& v2);
+    [[nodiscard]] static double CrossProduct(const Vec2& v1, const Vec2& v2);
+
+    // Manipulating
+    void Rotate(double radians);
+    Vec2& Normalize();
+};
+
+template<class T>
+[[nodiscard]] double DistanceVec2(const Vec2<T>& v);
+
+typedef Vec2<int> Vec2i;
+typedef Vec2<float> Vec2f;
+typedef Vec2<double> Vec2d;
+
+#include "Vec2.inl"
+
+#endif // TRIALANDERROR_SRC_TECHNICAL_STUFF_VEC2_H_

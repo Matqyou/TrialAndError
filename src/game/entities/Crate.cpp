@@ -60,11 +60,11 @@ void Crate::Tick() {
         if (m_Type != ERROR) {
             srand(time(NULL));
             int Ammo_type = rand() % 4;
-            new AmmoBox(m_World, static_cast<AmmoType>(Ammo_type), m_Core->m_x, m_Core->m_y, 20);
+            new AmmoBox(m_World, static_cast<AmmoType>(Ammo_type), m_Core.Pos.x, m_Core.Pos.y, 20);
         } else {
             new Error(m_World,
-                      m_Core->m_x,
-                      m_Core->m_y,
+                      m_Core.Pos.x,
+                      m_Core.Pos.y,
                       typeID); // To change the drop just change typeID the enum value of whatever ERROR is needed
         }
     }
@@ -73,10 +73,10 @@ void Crate::Tick() {
 void Crate::Draw() {
     Drawing* Render = m_World->GameWindow()->Render();
 
-    SDL_FRect DrawRect = { float(m_Core->m_x) - float(m_Core->m_w / 2.0),
-                           float(m_Core->m_y) - float(m_Core->m_h / 2.0),
-                           float(m_Core->m_w),
-                           float(m_Core->m_h) };
+    SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
+                           float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
+                           float(m_Core.Size.x),
+                           float(m_Core.Size.y) };
 
     Render->RenderTextureFCamera((*m_Texture)->SDLTexture(), nullptr, DrawRect);
 }

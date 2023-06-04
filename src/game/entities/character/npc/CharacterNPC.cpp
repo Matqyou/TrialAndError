@@ -31,9 +31,8 @@ void CharacterNPC::TickControls() {
     for (; Char != nullptr; Char = (Character*) (Char->NextType())) {
         if (Char == this || Char->IsNPC()) continue;
 
-        EntityCore* CharCore = Char->GetCore();
-        double
-            Distance = std::sqrt(std::pow(CharCore->m_x - m_Core->m_x, 2) + std::pow(CharCore->m_y - m_Core->m_y, 2));
+        auto& EntCore = Char->GetDirectionalCore();
+        double Distance = DistanceVec2(m_Core.Pos, EntCore.Pos);
         if (Distance < 1000.0 && (!ClosestChar || Distance < Closest)) {
             Closest = Distance;
             ClosestChar = Char;
@@ -52,9 +51,9 @@ void CharacterNPC::TickControls() {
         m_Input.m_LookingY = sin(Angle);
         m_Input.m_Shooting = false;
     } else {
-        EntityCore* ClosestCore = ClosestChar->GetCore();
-        double TravelX = ClosestCore->m_x - m_Core->m_x;
-        double TravelY = ClosestCore->m_y - m_Core->m_y;
+        EntityCore& ClosestCore = ClosestChar->GetCore();
+        double TravelX = ClosestCore.Pos.x - m_Core.Pos.x;
+        double TravelY = ClosestCore.Pos.y - m_Core.Pos.y;
         m_Input.m_GoingLength = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
         m_Input.m_GoingX = TravelX / m_Input.m_GoingLength * (m_CurrentWeapon ? 1 : 0.5);
         m_Input.m_GoingY = TravelY / m_Input.m_GoingLength * (m_CurrentWeapon ? 1 : 0.5);
@@ -110,8 +109,8 @@ void CharacterNPC::Tick() {
 
     if ((int) (m_Health) != (int) (m_LastHealth)) m_HealthInt->FlagForUpdate();
     if (m_World->GetNamesShown() > 0.05 &&
-        ((int) (m_Core->m_x) != (int) (m_LastCore->m_x) ||
-            (int) (m_Core->m_y) != (int) (m_LastCore->m_y)))
+        ((int) (m_Core.Pos.x) != (int) (m_LastCore.Pos.x) ||
+         (int) (m_Core.Pos.y) != (int) (m_LastCore.Pos.y)))
         m_CoordinatePlate->FlagForUpdate();
 
     m_LastHealth = m_Health;
@@ -125,7 +124,7 @@ void CharacterNPC::Tick() {
     if (m_Health <= 0.0) {
         m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
         m_Alive = false;
-        if (rand() % 100 <= 20) new Crate(m_World, m_Core->m_x, m_Core->m_y, 20.0, rand() % 2);
+        if (rand() % 100 <= 20) new Crate(m_World, m_Core.Pos.x, m_Core.Pos.y, 20.0, rand() % 2);
 
         int NumNPCS = 0;
         for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType()) {

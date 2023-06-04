@@ -25,10 +25,8 @@ void AmmoBox::TickPickup() {
     // Check if position collides any of the players
     auto Char = m_World->FirstCharacter();
     for (; Char; Char = (Character*) (Char->NextType())) {
-        EntityCore* CharCore = Char->GetCore();
-        double XDistance = m_Core->m_x - CharCore->m_x;
-        double YDistance = m_Core->m_y - CharCore->m_y;
-        double Distance = std::sqrt(std::pow(XDistance, 2) + std::pow(YDistance, 2));
+        EntityCore& CharCore = Char->GetCore();
+        double Distance = DistanceVec2(m_Core.Pos, CharCore.Pos);
 
         if (Distance > 45) continue;
 
@@ -67,10 +65,10 @@ void AmmoBox::Tick() {
 void AmmoBox::Draw() {
     Drawing* Render = m_World->GameWindow()->Render();
 
-    SDL_FRect DrawRect = { float(m_Core->m_x) - float(m_Core->m_w / 2.0),
-                           float(m_Core->m_y) - float(m_Core->m_h / 2.0),
-                           float(m_Core->m_w),
-                           float(m_Core->m_h) };
+    SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
+                           float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
+                           float(m_Core.Size.x),
+                           float(m_Core.Size.y) };
 
     Render->RenderTextureFCamera((*m_Texture)->SDLTexture(), nullptr, DrawRect);
 }

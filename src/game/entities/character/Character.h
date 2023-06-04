@@ -70,7 +70,6 @@ protected:
     static const int ms_DefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration;
-    double m_Acceleration;
     Hook m_Hook;
     int m_HitTicks;
     int m_IsReverseTimer, m_ConfusingHPTimer, m_InvincibleTimer, m_SpikyTimer, m_HealersParadiseTimer, m_RangedTimer;

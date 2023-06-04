@@ -38,10 +38,10 @@ void ItemEntity::Tick() {
 void ItemEntity::Draw() {
     Drawing* Render = m_World->GameWindow()->Render();
 
-    SDL_Rect DrawRect = { int(m_Core->m_x - m_Core->m_w / 2.0),
-                          int(m_Core->m_y - m_Core->m_h / 2.0),
-                          int(m_Core->m_w),
-                          int(m_Core->m_h) };
+    SDL_Rect DrawRect = { int(m_Core.Pos.x - m_Core.Size.x / 2.0),
+                          int(m_Core.Pos.y - m_Core.Size.y / 2.0),
+                          int(m_Core.Size.x),
+                          int(m_Core.Size.y) };
 
     Render->RenderTextureCamera(m_Texture->SDLTexture(), nullptr, DrawRect);
 }

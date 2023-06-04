@@ -8,16 +8,17 @@
 #include "../../GameWorld.h"
 
 struct EntityCore {
-    double m_x, m_y, m_w, m_h;
-    double m_xvel, m_yvel;
-    double m_BaseDamping;
+    Vec2d Pos, Size, Vel;
+    double BaseDamping{};
 
     // Manipulating
     void Accelerate(double x, double y);
 };
 
-struct LookingEntityCore : public EntityCore {
-    double m_xlook, m_ylook;
+struct DirectionalEntityCore : public EntityCore {
+    Vec2d Direction;
+
+    DirectionalEntityCore() : EntityCore() {}
 };
 
 class Entity {
@@ -28,7 +29,8 @@ protected:
     Entity* m_PrevType, * m_NextType;
     Entity* m_Prev, * m_Next;
     unsigned long long m_SpawnedTick;
-    EntityCore* m_Core, * m_LastCore;
+    EntityCore* m_pUnknownCore, * m_pLastUnknownCore;
+    EntityCore& m_Core, & m_LastCore;
     EntityType m_EntityType;
     bool m_Alive;
 
@@ -53,8 +55,8 @@ public:
     [[nodiscard]] Entity* Prev() const { return m_Prev; }
     [[nodiscard]] Entity* NextType() const { return m_NextType; }
     [[nodiscard]] Entity* PrevType() const { return m_PrevType; }
-    [[nodiscard]] EntityCore* GetCore() const { return m_Core; }
-    [[nodiscard]] EntityCore* GetLastCore() const { return m_LastCore; }
+    [[nodiscard]] EntityCore& GetCore() { return m_Core; }
+    [[nodiscard]] EntityCore& GetLastCore() { return m_LastCore; }
     [[nodiscard]] bool IsAlive() const { return m_Alive; }
 
     // Generating
@@ -70,7 +72,7 @@ public:
 
 class DirectionalEntity : public Entity {
 protected:
-    LookingEntityCore* m_LookingCore, * m_LastLookingCore;
+    DirectionalEntityCore& m_DirectionalCore, & m_LastDirectionalCore;
 
     // Ticking
     void TickLastCore() override;
@@ -86,8 +88,8 @@ public:
     virtual ~DirectionalEntity();
 
     // Getting
-    [[nodiscard]] LookingEntityCore* GetLookingCore() const { return m_LookingCore; }
-    [[nodiscard]] LookingEntityCore* GetLastLookingCore() const { return m_LastLookingCore; }
+    [[nodiscard]] DirectionalEntityCore& GetDirectionalCore() const { return m_DirectionalCore; }
+    [[nodiscard]] DirectionalEntityCore& GetLastDirectionalCore() const { return m_LastDirectionalCore; }
 };
 
 #endif //TRIALANDERROR_ENTITY_H

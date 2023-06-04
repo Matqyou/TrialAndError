@@ -28,7 +28,7 @@ void WeaponShotgun::Tick() {
 
     if (m_Shooter && m_Triggered) {  // If want to trigger without an owner, need to save world somewhere
         GameWorld* World = m_Shooter->World();
-        auto ShooterCore = (LookingEntityCore*) m_Shooter->GetCore();
+        auto& ShooterCore = m_Shooter->GetDirectionalCore();
         auto CurrentTick = World->GetTick();
         if (CurrentTick - m_LastShotAt <= m_TickCooldown)
             return;
@@ -41,7 +41,7 @@ void WeaponShotgun::Tick() {
             m_LastShotAt = CurrentTick;
             SoundHandler->PlaySound(ms_ShootSound);
 
-            double LookAngle = atan2(ShooterCore->m_ylook, ShooterCore->m_xlook);
+            double LookAngle = ShooterCore.Direction.Atan2();
             for (int i = 0; i < m_PelletCount; i++) {
                 double ProjectileAngle = LookAngle + GenerateSpreadAngle();
                 double ProjectileSpeed = GenerateRandomProjectileSpeed();
@@ -52,14 +52,14 @@ void WeaponShotgun::Tick() {
                                m_Shooter,
                                WEAPON_SHOTGUN,
                                m_Damage,
-                               ShooterCore->m_x,
-                               ShooterCore->m_y,
+                               ShooterCore.Pos.x,
+                               ShooterCore.Pos.y,
                                VelocityX,
                                VelocityY);
             }
 
-            double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
-            double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
+            double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
+            double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
             m_Shooter->Accelerate(RecoilX, RecoilY);
         } else {
             SoundHandler->PlaySound(ms_ClickSound);

@@ -383,9 +383,9 @@ void Character::TickKeyboardControls() { // TODO: move to characterInput class
     SDL_GetMouseState(&XMouse, &YMouse);
     Drawing* Render = m_World->GameWindow()->Render();
     double Zoom = Render->GetZoom();
-    m_Input.m_LookingX = Render->GetCameraX() - m_Core->m_x + (XMouse - m_World->GameWindow()->GetWidth2()) / Zoom;
-    m_Input.m_LookingY = Render->GetCameraY() - m_Core->m_y + (YMouse - m_World->GameWindow()->GetHeight2()) / Zoom;
-    m_Input.m_LookingLength = std::sqrt(std::pow(m_Input.m_LookingX, 2) + std::pow(m_Input.m_LookingY, 2));
+    m_Input.m_LookingX = Render->GetCameraX() - m_Core.Pos.x + (XMouse - m_World->GameWindow()->GetWidth2()) / Zoom;
+    m_Input.m_LookingY = Render->GetCameraY() - m_Core.Pos.y + (YMouse - m_World->GameWindow()->GetHeight2()) / Zoom;
+    m_Input.m_LookingLength = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY).Length();
 
     if (m_Input.m_LookingLength != 0.0) {
         m_Input.m_LookingX /= m_Input.m_LookingLength;
@@ -415,7 +415,7 @@ void Character::TickGameControllerControls() {
     m_GameController->GetJoystick1(m_Input.m_GoingX, m_Input.m_GoingY);
 
     // AxisX**2 + AxisY**2 <= 1 (keep direction length of 1)
-    m_Input.m_GoingLength = std::sqrt(std::pow(m_Input.m_GoingX, 2) + std::pow(m_Input.m_GoingY, 2));
+    m_Input.m_GoingLength = Vec2d(m_Input.m_GoingX, m_Input.m_GoingY).Length();
     m_Input.m_GoingX /= m_Input.m_GoingLength;
     m_Input.m_GoingY /= m_Input.m_GoingLength;
 
@@ -423,7 +423,7 @@ void Character::TickGameControllerControls() {
     double LookingX, LookingY;
     m_GameController->GetJoystick2(LookingX, LookingY);
 
-    m_Input.m_LookingLength = std::sqrt(std::pow(LookingX, 2) + std::pow(LookingY, 2));
+    m_Input.m_LookingLength = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY).Length();
     if (m_Input.m_LookingLength >= 0.6) {
         m_Input.m_LookingX = LookingX / m_Input.m_LookingLength;
         m_Input.m_LookingY = LookingY / m_Input.m_LookingLength;
@@ -470,22 +470,19 @@ void Character::TickProcessInputs() {
         // Checks if player is shifting (holding left stick)
         // TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
 
-        m_Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration / 3 : m_BaseAcceleration) *
-            (IsReversed ? -1 : 1) *
-            (IsSlow ? 0.5 : 1) *
-            (m_CurrentWeapon ? 0.9 : 1.0);
+        double Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration / 3 : m_BaseAcceleration) *
+                              (IsReversed ? -1 : 1) *
+                              (IsSlow ? 0.5 : 1) *
+                              (m_CurrentWeapon ? 0.9 : 1.0);
 
         // Accelerate in that direction
-        m_Core->m_xvel += m_Input.m_GoingX * m_Acceleration;
-        m_Core->m_yvel += m_Input.m_GoingY * m_Acceleration;
+        m_Core.Vel += Vec2d(m_Input.m_GoingX, m_Input.m_GoingY) * Acceleration;
     }
 
     if (m_Input.m_LookingLength >= 0.6) {
-        m_LookingCore->m_xlook = m_Input.m_LookingX * (IsReversed ? -1 : 1);
-        m_LookingCore->m_ylook = m_Input.m_LookingY * (IsReversed ? -1 : 1);
+        m_DirectionalCore.Direction = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY) * (IsReversed ? -1 : 1);
     } else if (m_Input.m_GoingLength >= 0.2) {
-        m_LookingCore->m_xlook = m_Input.m_GoingX * (IsReversed ? -1 : 1);
-        m_LookingCore->m_ylook = m_Input.m_GoingY * (IsReversed ? -1 : 1);
+        m_DirectionalCore.Direction = Vec2d(m_Input.m_GoingX, m_Input.m_GoingY) * (IsReversed ? -1 : 1);
     }
 
     if (m_Input.m_NextItem ^ m_Input.m_PrevItem
@@ -515,10 +512,10 @@ void Character::TickCollision() {
     for (; Char; Char = (Character*) (Char->NextType())) {
         if (Char == this) continue;
 
-        EntityCore* EntCore = Char->GetCore();
-        double XDistance = m_Core->m_x - EntCore->m_x;
-        double YDistance = m_Core->m_y - EntCore->m_y;
-        double Distance = std::sqrt(std::pow(XDistance, 2) + std::pow(YDistance, 2));
+        EntityCore& EntCore = Char->GetCore();
+        double XDistance = m_Core.Pos.x - EntCore.Pos.x;
+        double YDistance = m_Core.Pos.y - EntCore.Pos.y;
+        double Distance = DistanceVec2(m_Core.Pos, EntCore.Pos);
 
         if (Distance > 40) continue;
         else if (Distance == 0.0) {
@@ -531,15 +528,15 @@ void Character::TickCollision() {
         // TODO make push stronger when closer to character not when further....
         double XPush = XDistance / Distance * 0.5;
         double YPush = YDistance / Distance * 0.5;
-        m_Core->Accelerate(XPush, YPush);
-        EntCore->Accelerate(-XPush, -YPush);
+        m_Core.Accelerate(XPush, YPush);
+        EntCore.Accelerate(-XPush, -YPush);
         if (Spiky && m_NPC != Char->IsNPC()) Char->Damage(3, true);
     }
     auto Crte = m_World->FirstCrate();
     for (; Crte; Crte = (Crate*) (Crte->NextType())) {
-        EntityCore* CrateCore = Crte->GetCore();
-        double XDistance = m_Core->m_x - CrateCore->m_x;
-        double YDistance = m_Core->m_y - CrateCore->m_y;
+        EntityCore& CrateCore = Crte->GetCore();
+        double XDistance = m_Core.Pos.x - CrateCore.Pos.x;
+        double YDistance = m_Core.Pos.y - CrateCore.Pos.y;
         double Distance = std::sqrt(std::pow(XDistance, 2) + std::pow(YDistance, 2));
 
         if (Distance > 40) continue;
@@ -572,8 +569,8 @@ void Character::TickCurrentWeapon() {
 }
 // Function to draw icons for error pickup
 void Character::DrawErrorIcons() {
-    SDL_FRect DrawRectError = { float(m_Core->m_x) - float(m_Core->m_w / 2.0) + 50,
-                                float(m_Core->m_y) - float(m_Core->m_h / 2.0) + 50,
+    SDL_FRect DrawRectError = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0) + 50,
+                                float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0) + 50,
                                 float(20),
                                 float(20) };
 
@@ -779,10 +776,10 @@ void Character::DrawErrorIcons() {
 void Character::DrawCharacter() {
     Drawing* Render = m_World->GameWindow()->Render();
 
-    SDL_FRect DrawRect = { float(m_Core->m_x) - float(m_Core->m_w / 2.0),
-                           float(m_Core->m_y) - float(m_Core->m_h / 2.0),
-                           float(m_Core->m_w),
-                           float(m_Core->m_h) };
+    SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
+                           float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
+                           float(m_Core.Size.x),
+                           float(m_Core.Size.y) };
 
     // if(m_HitTicks > 0) Render->SetColor(255, 0, 0, 255);
     // else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
@@ -790,7 +787,7 @@ void Character::DrawCharacter() {
     // Render->RenderTextureFCamera(ms_Texture->SDLTexture(), nullptr,DrawRect);
     ms_Texture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
 
-    double Angle = std::atan2(m_Core->m_yvel, m_Core->m_xvel) / M_PI * 180.0;
+    double Angle = m_Core.Vel.Atan2() / M_PI * 180.0;
     SDL_RendererFlip flip = Angle > 90 || Angle < -90 ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
     Render->RenderTextureExFCamera(ms_Texture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, flip);
 }
@@ -801,7 +798,7 @@ void Character::DrawHook() {
     // Draw hook
     if (m_Hook.m_Deployed) {
         Render->SetColor(m_HookColor.r, m_HookColor.g, m_HookColor.b, 255);
-        Render->LineCamera(m_Core->m_x, m_Core->m_y, m_Hook.m_x, m_Hook.m_y);
+        Render->LineCamera(m_Core.Pos.x, m_Core.Pos.y, m_Hook.m_x, m_Hook.m_y);
     }
 }
 
@@ -817,8 +814,8 @@ void Character::DrawHealthbar() {
 
         int HealthBarW = HealthPlate->GetWidth();
         int HealthBarH = HealthPlate->GetHeight();
-        SDL_Rect HealthplateRect = { int(m_Core->m_x - HealthBarW / 2.0),
-                                     int(m_Core->m_y + m_Core->m_h / 2.0),
+        SDL_Rect HealthplateRect = { int(m_Core.Pos.x - HealthBarW / 2.0),
+                                     int(m_Core.Pos.y + m_Core.Size.y / 2.0),
                                      HealthBarW, HealthBarH };
 
         if (m_HealthInt->GetFlaggedForUpdate()) {
@@ -832,8 +829,8 @@ void Character::DrawHealthbar() {
         Texture* HealthTexture = m_HealthInt->RequestUpdate();
         double HealthTextureW = HealthTexture->GetWidth();
         double HealthTextureH = HealthTexture->GetHeight();
-        SDL_Rect HealthIntRect = { int(m_Core->m_x - HealthTextureW / 4.0),
-                                   int(m_Core->m_y + m_Core->m_h / 2.0 + HealthTextureH / 4.0),
+        SDL_Rect HealthIntRect = { int(m_Core.Pos.x - HealthTextureW / 4.0),
+                                   int(m_Core.Pos.y + m_Core.Size.y / 2.0 + HealthTextureH / 4.0),
                                    int(HealthTextureW / 2.0),
                                    int(HealthTextureH / 2.0) };
 
@@ -875,11 +872,11 @@ void Character::DrawHands() {
                                 WeaponTexture->GetHeight() };
         WeaponRect.w *= 4;
         WeaponRect.h *= 4;
-        WeaponRect.x = int(XLook + m_Core->m_x - float(WeaponRect.w) / 2.0);
-        WeaponRect.y = int(YLook + m_Core->m_y);
+        WeaponRect.x = int(XLook + m_Core.Pos.x - float(WeaponRect.w) / 2.0);
+        WeaponRect.y = int(YLook + m_Core.Pos.y);
         SDL_Point WeaponPivot = { int(float(WeaponRect.w) / 2.0 * Render->GetZoom()), 0 };
 
-        double Angle = std::atan2(m_LookingCore->m_ylook * 50.0, m_LookingCore->m_xlook * 50.0) / M_PI * 180.0;
+        double Angle = m_DirectionalCore.Direction.Atan2() / M_PI * 180.0;
         // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
         // and not the center of the player
         Render->RenderTextureExCamera(WeaponTexture->SDLTexture(),
@@ -907,21 +904,21 @@ void Character::DrawNameplate() {
 
     int NamePlateW = NamePlateTexture->GetWidth();
     int NamePlateH = NamePlateTexture->GetHeight();
-    SDL_Rect NamePlateRect = { int(m_Core->m_x - NamePlateW / 2.0),
-                               int(m_Core->m_y - m_Core->m_h / 2.0 - NamePlateH),
+    SDL_Rect NamePlateRect = { int(m_Core.Pos.x - NamePlateW / 2.0),
+                               int(m_Core.Pos.y - m_Core.Size.y / 2.0 - NamePlateH),
                                NamePlateW, NamePlateH };
 
     SDL_SetTextureAlphaMod(NamePlateTexture->SDLTexture(), Opacity);
     Render->RenderTextureCamera(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect);
 
-    auto CoordinateText = FString("%ix, %iy", int(m_Core->m_x), int(m_Core->m_y));
+    auto CoordinateText = FString("%ix, %iy", int(m_Core.Pos.x), int(m_Core.Pos.y));
     m_CoordinatePlate->SetText(CoordinateText);
     m_CoordinatePlate->SetColor(m_NameplateColor);
     Texture* CoordinateTexture = m_CoordinatePlate->RequestUpdate();
 
     int CoordinatePlateW = NamePlateTexture->GetWidth();
     int CoordinatePlateH = NamePlateTexture->GetHeight();
-    SDL_Rect CoordinateRect = { int(m_Core->m_x - CoordinatePlateW / 2.0),
+    SDL_Rect CoordinateRect = { int(m_Core.Pos.x - CoordinatePlateW / 2.0),
                                 int(NamePlateRect.y - CoordinatePlateH),
                                 CoordinatePlateW, CoordinatePlateH };
     SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
@@ -940,8 +937,8 @@ void Character::DrawAmmoCounter() {
 
     int AmmoTextureW = AmmoTexture->GetWidth();
     int AmmoTextureH = AmmoTexture->GetHeight();
-    SDL_Rect AmmoRect = { int(m_Core->m_x - AmmoTextureW / 2.0),
-                          int(m_Core->m_y + m_Core->m_h / 2 + 20),
+    SDL_Rect AmmoRect = { int(m_Core.Pos.x - AmmoTextureW / 2.0),
+                          int(m_Core.Pos.y + m_Core.Size.y / 2 + 20),
                           AmmoTextureW, AmmoTextureH };
     Render->RenderTextureCamera(AmmoTexture->SDLTexture(), nullptr, AmmoRect);
 }
@@ -969,8 +966,8 @@ void Character::DrawErrorName() {
     int Text_h = ErrorTexture->GetWidth();
     int Text_w = ErrorTexture->GetHeight();
     double Zoom = Render->GetZoom();
-    SDL_Rect ErrorRect = { int(m_Core->m_x - 100 - (Text_w / Zoom)),
-                           int(m_Core->m_y - 50),
+    SDL_Rect ErrorRect = { int(m_Core.Pos.x - 100 - (Text_w / Zoom)),
+                           int(m_Core.Pos.y - 50),
                            int(Text_h / Zoom),
                            int(Text_w / Zoom) };
     Render->RenderTextureCamera(ErrorTexture->SDLTexture(), nullptr, ErrorRect);
@@ -1022,8 +1019,8 @@ void Character::Tick() {
 
     if ((int) (m_Health) != (int) (m_LastHealth)) m_HealthInt->FlagForUpdate();
     if (m_World->GetNamesShown() > 0.05 &&
-        ((int) (m_Core->m_x) != (int) (m_LastCore->m_x) ||
-            (int) (m_Core->m_y) != (int) (m_LastCore->m_y)))
+        ((int) (m_Core.Pos.x) != (int) (m_LastCore.Pos.x) ||
+         (int) (m_Core.Pos.y) != (int) (m_LastCore.Pos.y)))
         m_CoordinatePlate->FlagForUpdate();
 
     m_LastHealth = m_Health;

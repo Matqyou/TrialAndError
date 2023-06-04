@@ -53,12 +53,12 @@ void Hook::Tick() {
     bool LastHooking = m_Parent->GetLastInput().m_Hooking;
     double LookX = m_Parent->GetInput().m_LookingX;
     double LookY = m_Parent->GetInput().m_LookingY;
-    EntityCore* CharCore = m_Parent->GetCore();
+    EntityCore& CharCore = m_Parent->GetCore();
 
     if (!m_Deployed && Hooking && !LastHooking) {
         m_Deployed = true;
-        m_x = CharCore->m_x;
-        m_y = CharCore->m_y;
+        m_x = CharCore.Pos.x;
+        m_y = CharCore.Pos.y;
         m_xvel = LookX * m_HookTravelSpeed;
         m_yvel = LookY * m_HookTravelSpeed;
     } else if (m_Deployed && !Hooking && LastHooking) {  // Instant retraction for now
@@ -73,8 +73,8 @@ void Hook::Tick() {
         m_y += m_yvel;
     }
 
-    double TravelX = m_x - CharCore->m_x;
-    double TravelY = m_y - CharCore->m_y;
+    double TravelX = m_x - CharCore.Pos.x;
+    double TravelY = m_y - CharCore.Pos.y;
     double Length = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
     if (Length != 0.0) {
         TravelX /= Length;
@@ -84,8 +84,8 @@ void Hook::Tick() {
     if (m_Grabbed == GRABBED_NONE) {
         // Make sure hook isn't longer than it is allowed to be
         if (Length > m_MaxLength) {
-            m_x = CharCore->m_x + TravelX * m_MaxLength;
-            m_y = CharCore->m_y + TravelY * m_MaxLength;
+            m_x = CharCore.Pos.x + TravelX * m_MaxLength;
+            m_y = CharCore.Pos.y + TravelY * m_MaxLength;
             m_xvel -= TravelX * 2.0;
             m_yvel -= TravelY * 2.0;
         }
@@ -120,16 +120,16 @@ void Hook::Tick() {
             }
         }
     } else if (m_Grabbed == GRABBED_ENTITY) {
-        EntityCore* GrabbedCore = m_GrabbedEntity->GetCore();
+        EntityCore& GrabbedCore = m_GrabbedEntity->GetCore();
         if (Length > m_MaxLength) {
             double Slice = (Length - m_MaxLength) / 2;
-            GrabbedCore->m_x -= TravelX * Slice;
-            GrabbedCore->m_y -= TravelY * Slice;
-            CharCore->m_x += TravelX * Slice;
-            CharCore->m_y += TravelY * Slice;
+            GrabbedCore.Pos.x -= TravelX * Slice;
+            GrabbedCore.Pos.y -= TravelY * Slice;
+            CharCore.Pos.x += TravelX * Slice;
+            CharCore.Pos.y += TravelY * Slice;
         }
-        m_x = GrabbedCore->m_x;
-        m_y = GrabbedCore->m_y;
+        m_x = GrabbedCore.Pos.x;
+        m_y = GrabbedCore.Pos.y;
         if (m_GrabbedEntity->GetEntityType() == ENTTYPE_CHARACTER) {
             auto Player = (Character*) (m_GrabbedEntity);
             double Acceleration = m_HookStrength * Length / m_MaxLength * (1 - m_HookerInfluenceRatio);
@@ -139,10 +139,10 @@ void Hook::Tick() {
         }
     } else if (m_Grabbed == GRABBED_WALL) {
         if (Length > m_MaxLength) {
-            CharCore->m_x = m_x + -TravelX * m_MaxLength;
-            CharCore->m_y = m_y + -TravelY * m_MaxLength;
+            CharCore.Pos.x = m_x + -TravelX * m_MaxLength;
+            CharCore.Pos.y = m_y + -TravelY * m_MaxLength;
         }
-        CharCore->m_xvel += TravelX * m_WallDragForce;
-        CharCore->m_yvel += TravelY * m_WallDragForce;
+        CharCore.Vel.x += TravelX * m_WallDragForce;
+        CharCore.Vel.y += TravelY * m_WallDragForce;
     }
 }

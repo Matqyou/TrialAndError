@@ -33,11 +33,11 @@ Error::Error(GameWorld* world, double start_x, double start_y, int typeID)
 void Error::TickPickup(double x, double y) {
     auto Char = m_World->FirstCharacter();
     for (; Char; Char = (Character*) (Char->NextType())) {
-        EntityCore* CharCore = Char->GetCore();
-        bool Collides = (CharCore->m_x - 50 < x) &&
-            (CharCore->m_x + 50 > x) &&
-            (CharCore->m_y - 50 < y) &&
-            (CharCore->m_y + 50 > y);
+        auto& CharCore = Char->GetDirectionalCore();
+        bool Collides = (CharCore.Pos.x - 50 < x) &&
+                        (CharCore.Pos.x + 50 > x) &&
+                        (CharCore.Pos.y - 50 < y) &&
+                        (CharCore.Pos.y + 50 > y);
 
         if (!Collides)
             continue;
@@ -82,17 +82,17 @@ void Error::TickPickup(double x, double y) {
 }
 
 void Error::Tick() {
-    TickPickup(m_Core->m_x, m_Core->m_y);
+    TickPickup(m_Core.Pos.x, m_Core.Pos.y);
     TickWalls(); // todo: don't have any functions after a function that self-destructs the object..... (crash)
 }
 
 void Error::Draw() {
     Drawing* Render = m_World->GameWindow()->Render();
 
-    SDL_FRect DrawRect = { float(m_Core->m_x) - float(m_Core->m_w / 2.0),
-                           float(m_Core->m_y) - float(m_Core->m_h / 2.0),
-                           float(m_Core->m_w),
-                           float(m_Core->m_h) };
+    SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
+                           float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
+                           float(m_Core.Size.x),
+                           float(m_Core.Size.y) };
 
     Render->RenderTextureFCamera(m_Texture->SDLTexture(), nullptr, DrawRect);
 

@@ -37,7 +37,7 @@ void WeaponMinigun::Tick() {
 
     if (!m_Shooter) return;
     GameWorld* World = m_Shooter->World();
-    auto ShooterCore = (LookingEntityCore*) m_Shooter->GetCore();
+    auto& ShooterCore = m_Shooter->GetDirectionalCore();
     SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
     auto CurrentTick = World->GetTick();
     if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere
@@ -52,21 +52,20 @@ void WeaponMinigun::Tick() {
                 m_LastShotAt = CurrentTick;
                 SoundHandler->PlaySound(ms_ShootSound);
 
-                double Angle = atan2(ShooterCore->m_ylook, ShooterCore->m_xlook) + GenerateSpreadAngle();
-
+                double Angle = ShooterCore.Direction.Atan2() + GenerateSpreadAngle();
                 double VelocityX = cos(Angle) * m_ProjectileSpeed;
                 double VelocityY = sin(Angle) * m_ProjectileSpeed;
                 new Projectile(World,
                                m_Shooter,
                                WEAPON_MINIGUN,
                                4,
-                               ShooterCore->m_x,
-                               ShooterCore->m_y,
+                               ShooterCore.Pos.x,
+                               ShooterCore.Pos.y,
                                VelocityX,
                                VelocityY);
 
-                double RecoilX = ShooterCore->m_xlook * -m_RecoilForce;
-                double RecoilY = ShooterCore->m_ylook * -m_RecoilForce;
+                double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
+                double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
                 m_Shooter->Accelerate(RecoilX, RecoilY);
             } else {
                 SoundHandler->PlaySound(ms_ClickSound);
