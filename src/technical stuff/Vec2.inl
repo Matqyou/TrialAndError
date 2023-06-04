@@ -123,6 +123,16 @@ Vec2<T>& Vec2<T>::Normalize() {
 }
 
 template<class T>
+bool Vec2<T>::operator==(const Vec2<T>& v) {
+    return x == v.x && y == v.y;
+}
+
+template<class T>
+bool Vec2<T>::operator!=(const Vec2<T>& v) {
+    return x != v.x || y != v.y;
+}
+
+template<class T>
 double Vec2<T>::Length() const {
     return std::sqrt(static_cast<double>(x) * static_cast<double>(x) +
         static_cast<double>(y) * static_cast<double>(y));

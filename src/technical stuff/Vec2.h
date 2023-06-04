@@ -24,7 +24,7 @@ public:
     [[nodiscard]] Vec2 operator*(T scalar) const;
     [[nodiscard]] Vec2 operator/(T scalar) const;
 
-    // Manipulative math operations
+    // Manipulative operations
     Vec2& operator=(const Vec2& v);
     Vec2& operator+=(const Vec2& v);
     Vec2& operator-=(const Vec2& v);
@@ -34,6 +34,8 @@ public:
     Vec2& operator/=(T scalar);
 
     // Generating
+    [[nodiscard]] bool operator==(const Vec2& v);
+    [[nodiscard]] bool operator!=(const Vec2& v);
     [[nodiscard]] double Length() const;
     [[nodiscard]] double Atan2() const;
     [[nodiscard]] Vec2 Ortho() const;

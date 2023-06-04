@@ -50,7 +50,7 @@ void Hands::Tick() {
     if (CurrentTick - m_LastFisted < 5)
         return;
 
-    if (m_Parent->GetInput().m_Shooting && !m_Parent->GetLastInput().m_Shooting) { // TODO: Fix inputs
+    if (m_Parent->GetInput().m_Shooting && !m_Parent->GetLastInput().m_Shooting) {
         m_LastFisted = CurrentTick;
 
         auto& ParentCore = m_Parent->GetDirectionalCore();
@@ -82,7 +82,7 @@ void Hands::Tick() {
             double XClosest =
                 std::max(EntCore.Pos.x - EntCore.Size.x / 2.0, std::min(EntCore.Pos.x + EntCore.Size.x / 2.0, XHands));
             double YClosest =
-                std::max(EntCore.Pos.y - EntCore.Size.y / 2.0, std::min(EntCore.Pos.x + EntCore.Size.x / 2.0, YHands));
+                std::max(EntCore.Pos.y - EntCore.Size.y / 2.0, std::min(EntCore.Pos.y + EntCore.Size.y / 2.0, YHands));
             double Distance = std::sqrt(std::pow(XClosest - XHands, 2) + std::pow(YClosest - YHands, 2));
             if (Distance > m_FistingRadius)
                 continue;

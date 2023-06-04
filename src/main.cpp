@@ -131,7 +131,7 @@ bool Initialize() {
     new Crate(World, 400, 600, 20, rand() % 2);
     new Crate(World, 600, 600, 20, rand() % 2);
 
-    new ItemEntity(World, ITEM_GLOCK, 700, 200, 12*5, 8*5);
+    new ItemEntity(World, ITEM_GLOCK, 700, 200, 12*4, 8*4);
 
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Keyboard");
