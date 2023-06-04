@@ -8,10 +8,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Setup MinGW-w64 9.0
-        uses: ilammy/msys2-mingw@v1
-        with:
-          mingw: x86_64-9.0.0
+      - name: Install MinGW-w64
+        run: |
+          curl -L -o mingw-w64.zip https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/9.0.0/MinGW-W64-v9.0.0.zip/download
+          mkdir mingw-w64
+          tar -xf mingw-w64.zip -C mingw-w64 --strip-components=1
+          echo "::add-path::$(pwd)/mingw-w64/bin"
       - name: Setup CMake
         run: |
           pacman -Sy --noconfirm mingw-w64-x86_64-cmake
