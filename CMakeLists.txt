@@ -88,7 +88,7 @@ set(PROJECT_FILES
         "src/game/entities/Crate.cpp"
         "src/game/entities/Crate.h"
         "src/game/entities/Error.cpp"
-        "src/game/entities/Error.h")
+        "src/game/entities/Error.h" src/Menu.cpp src/Menu.h)
 
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
 target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)

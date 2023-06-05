@@ -9,6 +9,7 @@
 #define SDL_MAIN_HANDLED
 #include "GameReference.h"
 #include "GameWorld.h"
+#include "Menu.h"
 #include "technical stuff/GameControllers.h"
 #include "game/indicators/TextSurface.h"
 #include "game/entities/character/npc/CharacterNPC.h"
@@ -27,16 +28,10 @@ GameWorld* World;
 GameControllers* Controllers;
 
 bool Initialize() {
-    srand(time(nullptr));
     GameWindow = new GameReference();
     if (!GameWindow->Initialize())
         return false;
-
     SDL_ShowCursor(0);
-
-    World = new GameWorld(GameWindow, 50, 40);
-    GameWindow->Render()->SetWorld(World);
-
     AssetsManager* AssetsHandler = GameWindow->Assets();
     SoundManager* SoundHandler = AssetsHandler->SoundHandler();
     ImageManager* ImageHandler = AssetsHandler->ImageHandler();
@@ -120,15 +115,23 @@ bool Initialize() {
     Character::ms_ItemSwitchSound = SoundHandler->LoadSound("assets/sounds/WeaponSwitch.wav", true);
     Crate::ms_BoxSound = SoundHandler->LoadSound("assets/sounds/BoxHit.wav", true);
     Crate::ms_HitSound = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
-    Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),
-                                                 World->GameWindow()->Assets()->TextHandler()->GetMainFont(),
-                                                 "Bot User", { 255, 150, 150, 255 });
+
 
     //Temp ammo spawn, had to generate random and set the value for each one, also changed it to also sending an int
     // to the Crate constructor, so its easier to work with and i dont need to have acess to DropTypes, which i do, but no,
     // it only works cuz this is main and i prefer to use the same typa fix on both ERRORS and crates, since
     // for ERRORS that fix wouldnt have worked, also it lowers the line count cuz i dont gotta set the ERROR/AMMO types
     // to each random number, can just send the number straight up
+    return true;
+}
+
+bool StartUp(){
+    srand(time(nullptr));
+    World = new GameWorld(GameWindow, 50, 40);
+    GameWindow->Render()->SetWorld(World);
+    Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),
+                                                 World->GameWindow()->Assets()->TextHandler()->GetMainFont(),
+                                                 "Bot User", { 255, 150, 150, 255 });
     new Crate(World, Vec2d(200, 200), 20, rand() % 2);
     new Crate(World, Vec2d(400, 200), 20, rand() % 2);
     new Crate(World, Vec2d(600, 200), 20, rand() % 2);
@@ -155,12 +158,12 @@ bool Initialize() {
 
     return true;
 }
-
 int main() {
     if (!Initialize()) {
         std::printf("Terminating..");
         exit(1);
     }
+
 
     Clock* Timer = GameWindow->Timer();
     Drawing* Render = GameWindow->Render();
@@ -172,9 +175,14 @@ int main() {
     TextureCrosshair->SetAlphaMod(128);
     SDL_Rect CrosshairRect = { 0, 0, TextureCrosshair->GetWidth() * 2, TextureCrosshair->GetHeight() * 2 };
 
-    Texture* TextureStart = ImageHandler->LoadTexture("assets/images/interface/Start.png", true);
+    Texture* TextureResume = ImageHandler->LoadTexture("assets/images/interface/Resume.png", true);
+    Texture* TexturePlay = ImageHandler->LoadTexture("assets/images/interface/PlayButton.png", true);
+    Texture* TextureBack = ImageHandler->LoadTexture("assets/images/interface/Back.png", true);
+    Texture* TextureExit = ImageHandler->LoadTexture("assets/images/interface/Exit.png", true);
     Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/interface/Settings.png", true);
+    Texture* MenuTexture = ImageHandler->LoadTexture("assets/images/interface/Menu.png", true);
     Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
+
     Vignette->SetAlphaMod(200);
 
     Sound* LowSound = SoundHandler->LoadSound("assets/sounds/Low.wav", true);
@@ -184,148 +192,203 @@ int main() {
     Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
     Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
 
-    SDL_Rect StartButtonRect = { int(GameWindow->GetWidth2()) - 150,
-                                 int(GameWindow->GetHeight2()) - 200,
-                                 300, 100 };
-    SDL_Rect SettingsButtonRect = { int(GameWindow->GetWidth2()) - 150,
-                                    int(GameWindow->GetHeight2()) - 50,
-                                    300, 100 };
+    SDL_Rect PlayButtonRect = {int(GameWindow->GetWidth2()) - 180,
+                                 int(GameWindow->GetHeight2()) - 40,
+                               360, 80 };
+    SDL_Rect ResumeButtonRect = {int(GameWindow->GetWidth2()) - 100,
+                                 int(GameWindow->GetHeight2()) - 150,
+                                 200, 70 };
+    SDL_Rect BackToMenuButtonRect = {int(GameWindow->GetWidth2()) - 100,
+                                    int(GameWindow->GetHeight2()) + 50,
+                                     200, 70 };
+    SDL_Rect ExitButtonRect = {int(GameWindow->GetWidth2()) - 180,
+                               int(GameWindow->GetHeight2()) + 121,
+                               360, 80 };
 
     Vec2i RealMouse;
+    bool MenuOpen = true;
     bool Running = true;
-    while (Running) {
-        // Input and events
+
+    while(MenuOpen) {
+        // useless MainMenu classs yay
+        Menu* MainMenu = new Menu(GameWindow,Render,TexturePlay, GameWindow->GetWidth(),GameWindow->GetHeight());
+        Render->RenderTextureFullscreen(MenuTexture->SDLTexture(), nullptr);
+        Render->RenderTexture(TexturePlay->SDLTexture(), nullptr, PlayButtonRect);
+        Render->RenderTexture(TextureExit->SDLTexture(), nullptr, ExitButtonRect);
+        SDL_ShowCursor(1);
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
             GameWindow->Event(CurrentEvent);
-            World->Event(CurrentEvent);
-            Controllers->Event(CurrentEvent);
-
             switch (CurrentEvent.type) {
-                case SDL_QUIT: {
+                case SDL_QUIT:
+                    MenuOpen = false;
+                    GameWindow->Deinitialize(true);
                     Running = false;
-                }
-                    break;
-                case SDL_KEYDOWN: {
-                    SDL_Scancode ScancodeKey = CurrentEvent.key.keysym.scancode;
-                    if (ScancodeKey == SDL_SCANCODE_ESCAPE) {
-                        bool Pause = !World->GetPaused();
-                        World->SetPaused(Pause);
 
-                        if (Pause) SoundHandler->PlaySound(MidUISound);
-                        else SoundHandler->PlaySound(LowUISound);
-                    } else if (ScancodeKey == SDL_SCANCODE_Z) {
-                        new CharacterNPC(World,
-                                         20.0,
-                                         Vec2d(32 * 30, 32),
-                                         Vec2d(0, 10),
-                                         NPC_TURRET,
-                                         true);
-                    }
-                }
-                    break;
-                case SDL_CONTROLLERDEVICEADDED: {
-                    int DeviceID = CurrentEvent.cdevice.which;
-                    GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto NewPlayer = new Player(World, "Controller");
-                    auto NewChar = new Character(World,
-                                                 NewPlayer,
-                                                 100.0,
-                                                 Vec2d(32 * 17.5, 32 * 17.5),
-                                                 Vec2d(10, 10));
-                    NewChar->GiveWeapon(new WeaponGlock(nullptr));
-                    NewChar->SetGameController(CurrentController);
-                    SoundHandler->PlaySound(HighSound);
-                }
-                    break;
-                case SDL_CONTROLLERDEVICEREMOVED: {
-                    int InstanceID = CurrentEvent.cdevice.which;
-                    GameController* DeletedController = Controllers->CloseController(InstanceID);
-                    World->DestroyPlayerByController(DeletedController);
-                    World->DestroyCharacterByController(DeletedController);
-                    SoundHandler->PlaySound(LowSound);
-                }
-                    break;
-                case SDL_MOUSEBUTTONDOWN: {
-                    if (World->GetPaused()) {
-                        if (CurrentEvent.button.button == SDL_BUTTON_LEFT) {
-                            int x = CurrentEvent.button.x;
-                            int y = CurrentEvent.button.y;
-                            if (x >= StartButtonRect.x && x < StartButtonRect.x + StartButtonRect.w &&
-                                y >= StartButtonRect.y && y < StartButtonRect.y + StartButtonRect.h) {
-                                SoundHandler->PlaySound(LowUISound);
-                                World->SetPaused(false);
-                            } else if (x >= SettingsButtonRect.x && x < SettingsButtonRect.x + SettingsButtonRect.w &&
-                                y >= SettingsButtonRect.y && y < SettingsButtonRect.y + SettingsButtonRect.h) {
-                                SoundHandler->PlaySound(MidUISound);
-                            }
+                case SDL_MOUSEBUTTONDOWN:
+                    if (CurrentEvent.button.button == SDL_BUTTON_LEFT) {
+                        int x = CurrentEvent.button.x;
+                        int y = CurrentEvent.button.y;
+                        if (x >= PlayButtonRect.x && x < PlayButtonRect.x + PlayButtonRect.w &&
+                            y >= PlayButtonRect.y && y < PlayButtonRect.y + PlayButtonRect.h) {
+                            MenuOpen = false;
+                            SoundHandler->PlaySound(LowUISound);
+                        }
+                        if (x >= ExitButtonRect.x && x < ExitButtonRect.x + ExitButtonRect.w &&
+                            y >= ExitButtonRect.y && y < ExitButtonRect.y + ExitButtonRect.h) {
+                            // Not sure if making it delete things not initialised yet is an issue but its not
+                            // yelling at me sooo, but if i dont make it do that it would be a memory leak, since
+                            // i would be just doing running = false which doesnt delete things just stops the main loop
+
+                            SoundHandler->PlaySound(QuitSound);
+                            GameWindow->Deinitialize(true); // close everything except sound
+
+                            delete Controllers;
+                            delete World;
+                            while (Mix_Playing(-1)) { } // wait until last sound is done playing
+                            delete GameWindow;
+                            return 0;
                         }
                     }
-                }
-                    break;
             }
-        }
-
-        // Ticking
-        if (!World->GetPaused()) {
-            Vec2i Mouse;
-            SDL_GetMouseState(&Mouse.x, &Mouse.y);
-
-            RealMouse += Vec2i(Mouse.x - int(GameWindow->GetWidth2()), Mouse.y - int(GameWindow->GetHeight2()));
-            if (RealMouse.Length() > 200.0)
-                RealMouse.SetLength(200.0);
-
-            auto Char = World->FirstCharacter();
-            for (; Char; Char = (Character*)Char->NextType()) {
-                if (Char->IsNPC() || Char->GetGameController())
-                    continue;
-
-                Vec2d Pos = Char->GetDirectionalCore().Pos;
-                CrosshairRect.x = int(Pos.x - double(CrosshairRect.w) / 2.0 + double(RealMouse.x));
-                CrosshairRect.y = int(Pos.y - double(CrosshairRect.h) / 2.0 + double(RealMouse.y));
-            }
-
-            SDL_WarpMouseInWindow(GameWindow->Window(),
-                                  Render->TranslateX(CrosshairRect.x + CrosshairRect.w / 2),
-                                  Render->TranslateY(CrosshairRect.y + CrosshairRect.h / 2));
-            World->Tick();
-            SDL_WarpMouseInWindow(GameWindow->Window(), int(GameWindow->GetWidth2()), int(GameWindow->GetHeight2()));
-            SDL_ShowCursor(0);
-        } else {
-            SDL_ShowCursor(1);
-        }
-
-        Controllers->TickReset();
-
-        // Drawing
-        //Render->SetColor(120, 120, 0, 255);
-        //Render->Clear();
-
-        World->Draw();
-        Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
-
-        Render->RenderTextureCamera(TextureCrosshair->SDLTexture(), nullptr, CrosshairRect);
-
-        if (World->GetPaused()) {
-            Render->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
-            Render->SetColor(0, 0, 0, 100);
-            Render->FillAll();
-            Render->SetDrawBlendMode(SDL_BLENDMODE_NONE);
-
-            Render->RenderTexture(TextureStart->SDLTexture(), nullptr, StartButtonRect);
-            Render->RenderTexture(TextureSettings->SDLTexture(), nullptr, SettingsButtonRect);
         }
 
         Render->UpdateWindow();
-        Timer->Tick();
+
+        StartUp();
+        while (!MenuOpen && Running) {
+            // Input and events
+            SDL_Event CurrentEvent;
+            while (SDL_PollEvent(&CurrentEvent)) {
+                GameWindow->Event(CurrentEvent);
+                World->Event(CurrentEvent);
+                Controllers->Event(CurrentEvent);
+
+                switch (CurrentEvent.type) {
+                    case SDL_QUIT:
+                        SoundHandler->PlaySound(QuitSound);
+                        GameWindow->Deinitialize(true); // close everything except sound
+
+                        delete Controllers;
+                        delete World;
+                        while (Mix_Playing(-1)) { } // wait until last sound is done playing
+                        delete GameWindow;
+                        return 0;
+
+                    case SDL_KEYDOWN: {
+                        SDL_Scancode ScancodeKey = CurrentEvent.key.keysym.scancode;
+                        if (ScancodeKey == SDL_SCANCODE_ESCAPE) {
+                            bool Pause = !World->GetPaused();
+                            World->SetPaused(Pause);
+
+                            if (Pause) SoundHandler->PlaySound(MidUISound);
+                            else SoundHandler->PlaySound(LowUISound);
+                        } else if (ScancodeKey == SDL_SCANCODE_Z) {
+                            new CharacterNPC(World,
+                                             20.0,
+                                             Vec2d(32 * 30, 32),
+                                             Vec2d(0, 10),
+                                             NPC_TURRET,
+                                             true);
+                        }
+                    }
+                        break;
+                    case SDL_CONTROLLERDEVICEADDED: {
+                        int DeviceID = CurrentEvent.cdevice.which;
+                        GameController* CurrentController = Controllers->OpenController(DeviceID);
+                        auto NewPlayer = new Player(World, "Controller");
+                        auto NewChar = new Character(World,
+                                                     NewPlayer,
+                                                     100.0,
+                                                     Vec2d(32 * 17.5, 32 * 17.5),
+                                                     Vec2d(10, 10));
+                        NewChar->GiveWeapon(new WeaponGlock(nullptr));
+                        NewChar->SetGameController(CurrentController);
+                        SoundHandler->PlaySound(HighSound);
+                    }
+                        break;
+                    case SDL_CONTROLLERDEVICEREMOVED: {
+                        int InstanceID = CurrentEvent.cdevice.which;
+                        GameController* DeletedController = Controllers->CloseController(InstanceID);
+                        World->DestroyPlayerByController(DeletedController);
+                        World->DestroyCharacterByController(DeletedController);
+                        SoundHandler->PlaySound(LowSound);
+                    }
+                        break;
+                    case SDL_MOUSEBUTTONDOWN: {
+                        if (World->GetPaused()) {
+                            if (CurrentEvent.button.button == SDL_BUTTON_LEFT) {
+                                int x = CurrentEvent.button.x;
+                                int y = CurrentEvent.button.y;
+                                if (x >= ResumeButtonRect.x && x < ResumeButtonRect.x + ResumeButtonRect.w &&
+                                    y >= ResumeButtonRect.y && y < ResumeButtonRect.y + ResumeButtonRect.h) {
+                                    SoundHandler->PlaySound(LowUISound);
+                                    World->SetPaused(false);
+                                } else if (x >= BackToMenuButtonRect.x && x < BackToMenuButtonRect.x + BackToMenuButtonRect.w &&
+                                           y >= BackToMenuButtonRect.y && y < BackToMenuButtonRect.y + BackToMenuButtonRect.h) {
+                                    MenuOpen = true;
+                                    SoundHandler->PlaySound(MidUISound);
+                                }
+                            }
+                        }
+                    }
+                        break;
+                }
+            }
+
+            // Ticking
+            if (!World->GetPaused()) {
+                Vec2i Mouse;
+                SDL_GetMouseState(&Mouse.x, &Mouse.y);
+
+                RealMouse += Vec2i(Mouse.x - int(GameWindow->GetWidth2()), Mouse.y - int(GameWindow->GetHeight2()));
+                if (RealMouse.Length() > 200.0)
+                    RealMouse.SetLength(200.0);
+
+                auto Char = World->FirstCharacter();
+                for (; Char; Char = (Character*)Char->NextType()) {
+                    if (Char->IsNPC() || Char->GetGameController())
+                        continue;
+
+                    Vec2d Pos = Char->GetDirectionalCore().Pos;
+                    CrosshairRect.x = int(Pos.x - double(CrosshairRect.w) / 2.0 + double(RealMouse.x));
+                    CrosshairRect.y = int(Pos.y - double(CrosshairRect.h) / 2.0 + double(RealMouse.y));
+                }
+
+                SDL_WarpMouseInWindow(GameWindow->Window(),
+                                      Render->TranslateX(CrosshairRect.x + CrosshairRect.w / 2),
+                                      Render->TranslateY(CrosshairRect.y + CrosshairRect.h / 2));
+                World->Tick();
+                SDL_WarpMouseInWindow(GameWindow->Window(), int(GameWindow->GetWidth2()), int(GameWindow->GetHeight2()));
+                SDL_ShowCursor(0);
+            } else {
+                SDL_ShowCursor(1);
+            }
+
+            Controllers->TickReset();
+
+            // Drawing
+            //Render->SetColor(120, 120, 0, 255);
+            //Render->Clear();
+
+            World->Draw();
+            Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
+
+            Render->RenderTextureCamera(TextureCrosshair->SDLTexture(), nullptr, CrosshairRect);
+
+            if (World->GetPaused()) {
+                Render->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+                Render->SetColor(0, 0, 0, 100);
+                Render->FillAll();
+                Render->SetDrawBlendMode(SDL_BLENDMODE_NONE);
+
+                Render->RenderTexture(TextureResume->SDLTexture(), nullptr, ResumeButtonRect);
+                Render->RenderTexture(TextureBack->SDLTexture(), nullptr, BackToMenuButtonRect);
+            }
+
+            Render->UpdateWindow();
+            Timer->Tick();
+        }
+
     }
-
-    SoundHandler->PlaySound(QuitSound);
-    GameWindow->Deinitialize(true); // close everything except sound
-
-    delete Controllers;
-    delete World;
-    while (Mix_Playing(-1)) { } // wait until last sound is done playing
-    delete GameWindow;
-    return 0;
 }
