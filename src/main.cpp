@@ -32,6 +32,8 @@ bool Initialize() {
     if (!GameWindow->Initialize())
         return false;
 
+    SDL_ShowCursor(0);
+
     World = new GameWorld(GameWindow, 50, 40);
     GameWindow->Render()->SetWorld(World);
 
@@ -137,7 +139,7 @@ bool Initialize() {
     new Crate(World, Vec2d(400, 600), 20, rand() % 2);
     new Crate(World, Vec2d(600, 600), 20, rand() % 2);
 
-    new EntityGlock(World, nullptr, Vec2d(800, 200));
+    new EntityGlock(World, nullptr, nullptr, Vec2d(800, 200));
     new EntityShotgun(World, nullptr, Vec2d(900, 200));
     new EntityBurst(World, nullptr, Vec2d(1000, 200));
     new EntityMinigun(World, nullptr, Vec2d(1100, 200));
@@ -149,10 +151,7 @@ bool Initialize() {
                                100.0,
                                Vec2d(32 * 17.5, 32 * 17.5),
                                Vec2d(10, 10));
-    Char1->GiveWeapon(WEAPON_GLOCK);
-    Char1->GiveWeapon(WEAPON_BURST);
-    Char1->GiveWeapon(WEAPON_SHOTGUN);
-    Char1->GiveWeapon(WEAPON_MINIGUN);
+    Char1->GiveWeapon(new WeaponGlock(nullptr));
 
     return true;
 }
@@ -168,6 +167,10 @@ int main() {
     AssetsManager* AssetsHandler = GameWindow->Assets();
     SoundManager* SoundHandler = AssetsHandler->SoundHandler();
     ImageManager* ImageHandler = AssetsHandler->ImageHandler();
+
+    Texture* TextureCrosshair = ImageHandler->LoadTexture("assets/images/crosshairs/Crosshair.png", true);
+    TextureCrosshair->SetAlphaMod(128);
+    SDL_Rect CrosshairRect = { 0, 0, TextureCrosshair->GetWidth() * 2, TextureCrosshair->GetHeight() * 2 };
 
     Texture* TextureStart = ImageHandler->LoadTexture("assets/images/interface/Start.png", true);
     Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/interface/Settings.png", true);
@@ -188,6 +191,7 @@ int main() {
                                     int(GameWindow->GetHeight2()) - 50,
                                     300, 100 };
 
+    Vec2i RealMouse;
     bool Running = true;
     while (Running) {
         // Input and events
@@ -229,10 +233,7 @@ int main() {
                                                  100.0,
                                                  Vec2d(32 * 17.5, 32 * 17.5),
                                                  Vec2d(10, 10));
-                    NewChar->GiveWeapon(WEAPON_GLOCK);
-                    NewChar->GiveWeapon(WEAPON_BURST);
-                    NewChar->GiveWeapon(WEAPON_SHOTGUN);
-                    NewChar->GiveWeapon(WEAPON_MINIGUN);
+                    NewChar->GiveWeapon(new WeaponGlock(nullptr));
                     NewChar->SetGameController(CurrentController);
                     SoundHandler->PlaySound(HighSound);
                 }
@@ -266,7 +267,34 @@ int main() {
         }
 
         // Ticking
-        World->Tick();
+        if (!World->GetPaused()) {
+            Vec2i Mouse;
+            SDL_GetMouseState(&Mouse.x, &Mouse.y);
+
+            RealMouse += Vec2i(Mouse.x - int(GameWindow->GetWidth2()), Mouse.y - int(GameWindow->GetHeight2()));
+            if (RealMouse.Length() > 200.0)
+                RealMouse.SetLength(200.0);
+
+            auto Char = World->FirstCharacter();
+            for (; Char; Char = (Character*)Char->NextType()) {
+                if (Char->IsNPC() || Char->GetGameController())
+                    continue;
+
+                Vec2d Pos = Char->GetDirectionalCore().Pos;
+                CrosshairRect.x = int(Pos.x - double(CrosshairRect.w) / 2.0 + double(RealMouse.x));
+                CrosshairRect.y = int(Pos.y - double(CrosshairRect.h) / 2.0 + double(RealMouse.y));
+            }
+
+            SDL_WarpMouseInWindow(GameWindow->Window(),
+                                  Render->TranslateX(CrosshairRect.x + CrosshairRect.w / 2),
+                                  Render->TranslateY(CrosshairRect.y + CrosshairRect.h / 2));
+            World->Tick();
+            SDL_WarpMouseInWindow(GameWindow->Window(), int(GameWindow->GetWidth2()), int(GameWindow->GetHeight2()));
+            SDL_ShowCursor(0);
+        } else {
+            SDL_ShowCursor(1);
+        }
+
         Controllers->TickReset();
 
         // Drawing
@@ -275,6 +303,8 @@ int main() {
 
         World->Draw();
         Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
+
+        Render->RenderTextureCamera(TextureCrosshair->SDLTexture(), nullptr, CrosshairRect);
 
         if (World->GetPaused()) {
             Render->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
@@ -295,7 +325,7 @@ int main() {
 
     delete Controllers;
     delete World;
-    while (Mix_Playing(-1)) {} // wait until last sound is done playing
+    while (Mix_Playing(-1)) { } // wait until last sound is done playing
     delete GameWindow;
     return 0;
 }

@@ -18,12 +18,6 @@ private:
     double m_CameraX, m_CameraY;
     double m_Zoom;
 
-    // Generating
-    double TranslateX(double x);
-    double TranslateY(double y);
-    SDL_Rect TranslateRect(const SDL_Rect& rect);
-    SDL_FRect TranslateFRect(const SDL_FRect& rect);
-
 public:
     explicit Drawing(GameReference* game_window);
     ~Drawing();
@@ -34,6 +28,14 @@ public:
     [[nodiscard]] double GetCameraX() const { return m_CameraX; }
     [[nodiscard]] double GetCameraY() const { return m_CameraY; }
     [[nodiscard]] double GetZoom() const { return m_Zoom; }
+
+    // Generating
+    double DetranslateX(double x);
+    double DetranslateY(double y);
+    double TranslateX(double x);
+    double TranslateY(double y);
+    SDL_Rect TranslateRect(const SDL_Rect& rect);
+    SDL_FRect TranslateFRect(const SDL_FRect& rect);
 
     // Setting
     void SetCameraPos(double camera_x, double camera_y);

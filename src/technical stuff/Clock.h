@@ -29,8 +29,8 @@ public:
 
     // Getting
     [[nodiscard]] double GetFramerate() const { return Framerate; }
-    [[nodiscard]] double GetTimeElapsed() const { return (double) (NanoElapsed) / 1.0e9; }
-    [[nodiscard]] double GetTotalTimeElapsed() const { return (double) (TotalNanoElapsed) / 1.0e9; }
+    [[nodiscard]] double GetTimeElapsed() const { return (double)(NanoElapsed) / 1.0e9; }
+    [[nodiscard]] double GetTotalTimeElapsed() const { return (double)(TotalNanoElapsed) / 1.0e9; }
     [[nodiscard]] unsigned long long CurrentTick() const { return Ticks; }
 
     // Setting

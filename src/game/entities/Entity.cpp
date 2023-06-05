@@ -127,8 +127,8 @@ DirectionalEntity::DirectionalEntity(GameWorld* world, EntityType entity_type,
              start_size,
              start_vel,
              base_damping),
-      m_DirectionalCore(*(DirectionalEntityCore*) (m_pUnknownCore)),
-      m_LastDirectionalCore(*(DirectionalEntityCore*) (m_pLastUnknownCore)) {
+      m_DirectionalCore(*(DirectionalEntityCore*)(m_pUnknownCore)),
+      m_LastDirectionalCore(*(DirectionalEntityCore*)(m_pLastUnknownCore)) {
     m_DirectionalCore.Direction = start_direction;
 }
 

@@ -75,7 +75,7 @@ void Hands::Tick() {
         for (; Ent; Ent = Ent->Next()) {
             if (Ent == m_Parent) continue;
             if (Ent->GetEntityType() == ENTTYPE_CHARACTER
-                && m_Parent->IsNPC() == ((Character*) Ent)->IsNPC())
+                && m_Parent->IsNPC() == ((Character*)Ent)->IsNPC())
                 continue;
 
             EntityCore& EntCore = Ent->GetCore();
@@ -88,14 +88,14 @@ void Hands::Tick() {
                 continue;
 
             if (!m_Parent->IsNPC() && Ent->GetEntityType() == ENTTYPE_CRATE) {
-                ((Crate*) Ent)->DamageCrate(5);
+                ((Crate*)Ent)->DamageCrate(5);
                 continue;
             }
 
             if (Ent->GetEntityType() != ENTTYPE_CHARACTER)
                 continue;
             Ent->Accelerate(Vec2d(m_Parent->GetInput().m_LookingX, m_Parent->GetInput().m_LookingY) * 5.0);
-            ((Character*) Ent)->Damage(7, true);
+            ((Character*)Ent)->Damage(7, true);
 
         }
     }

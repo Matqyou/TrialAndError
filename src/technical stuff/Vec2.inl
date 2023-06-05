@@ -5,13 +5,13 @@
 #include "Vec2.h"
 
 template<class T>
-Vec2<T>::Vec2() : x(T()), y(T()) {}
+Vec2<T>::Vec2() : x(T()), y(T()) { }
 
 template<class T>
-Vec2<T>::Vec2(T x, T y) : x(x), y(y) {}
+Vec2<T>::Vec2(T x, T y) : x(x), y(y) { }
 
 template<class T>
-Vec2<T>::Vec2(const Vec2& v) : x(v.x), y(v.y) {}
+Vec2<T>::Vec2(const Vec2& v) : x(v.x), y(v.y) { }
 
 template<class T>
 Vec2<T>& Vec2<T>::operator=(const Vec2& v) {
@@ -116,8 +116,17 @@ template<class T>
 Vec2<T>& Vec2<T>::Normalize() {
     double len = Length();
     if (len != 0) {
-        x /= len;
-        y /= len;
+        x = T(double(x) / len);
+        y = T(double(y) / len);
+    }
+    return *this;
+}
+template<class T>
+Vec2<T>& Vec2<T>::SetLength(double length) {
+    double len = Length();
+    if (len != 0) {
+        x = T(double(x) / len * length);
+        y = T(double(y) / len * length);
     }
     return *this;
 }
@@ -161,7 +170,7 @@ double Vec2<T>::CrossProduct(const Vec2& v1, const Vec2& v2) {
 }
 
 template<class T>
-double DistanceVec2(const Vec2<T>& v1, const Vec2<T>& v2)  {
+double DistanceVec2(const Vec2<T>& v1, const Vec2<T>& v2) {
     double dx = static_cast<double>(v1.x) - static_cast<double>(v2.x);
     double dy = static_cast<double>(v1.y) - static_cast<double>(v2.y);
     return std::sqrt(dx * dx + dy * dy);

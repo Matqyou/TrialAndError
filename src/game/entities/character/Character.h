@@ -55,7 +55,7 @@ protected:
     double m_ColorHue;
     int m_SelectedWeaponIndex;
     GameController* m_GameController;
-    bool m_Movement[NUM_CONTROLS]{};
+    bool m_Movement[NUM_CONTROLS]{ };
     bool m_NPC;
     CharacterInput m_Input, m_LastInput;
     bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise, Ranged, IsSlow, m_DangerousRecoil;
@@ -154,7 +154,7 @@ public:
 
     // Manipulating
     void RemoveCombat();
-    void GiveWeapon(WeaponType weapon_type);
+    void GiveWeapon(ProjectileWeapon* proj_weapon);
     void AmmoPickup(AmmoBox* ammo_box);
     void Damage(double damage, bool make_sound);
     void DropWeapon();

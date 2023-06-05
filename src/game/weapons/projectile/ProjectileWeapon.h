@@ -15,7 +15,7 @@ enum WeaponType {
     NUM_WEAPONS
 };
 
-class Character;
+class DirectionalEntity;
 class ProjectileWeapon {
 protected:
     unsigned long long m_LastShotAt;
@@ -35,7 +35,7 @@ protected:
     double m_NegativeRandomProjectileSpeed;
     int m_FullRandomProjectileSpeed;
 
-    Character* m_Shooter;
+    DirectionalEntity* m_Parent;
     WeaponType m_Type;
 
     // Ticking
@@ -49,7 +49,7 @@ public:
     static Sound* ms_ReloadSound;
     static Sound* ms_NoAmmo;
 
-    ProjectileWeapon(Character* owner,
+    ProjectileWeapon(DirectionalEntity* parent,
                      WeaponType type,
                      int tick_cooldown,
                      int ammo_capacity,
@@ -58,23 +58,26 @@ public:
                      bool automatic);
 
     // Getting
-    [[nodiscard]] WeaponType Type() const { return m_Type; }
+    [[nodiscard]] WeaponType WepType() const { return m_Type; }
     [[nodiscard]] bool IsAutomatic() const { return m_Automatic; }
-    [[nodiscard]] unsigned int Ammo() const { return m_Ammo; }
-    [[nodiscard]] unsigned int TrueAmmo() const { return m_TrueAmmo; }
+    [[nodiscard]] unsigned int GetMagAmmo() const { return m_Ammo; }
+    [[nodiscard]] unsigned int GetTrueAmmo() const { return m_TrueAmmo; }
+    [[nodiscard]] unsigned int GetFullAmmo() const { return m_TrueAmmo + m_Ammo; }
     [[nodiscard]] unsigned int AmmoCap() const { return m_AmmoCapacity; }
     [[nodiscard]] unsigned long long TickCooldown() const { return m_TickCooldown; }
     [[nodiscard]] unsigned long long LastShot() const { return m_LastShotAt; }
 
     // Generating
-    [[nodiscard]] unsigned int NeededAmmo() const;
+    [[nodiscard]] unsigned int NeededTrueAmmo() const;
 
     // Setting
+    void SetParent(DirectionalEntity* parent);
     void SetSpread(double degrees, int decimal_places);
     void SetRandomProjectileSpeed(double delta_speed, double delta_percentage_negative, int delta_decimal_places);
 
     // Manipulating
-    void AddTrueAmmo(unsigned int count);
+    unsigned int AddMagAmmo(unsigned int count);
+    unsigned int AddTrueAmmo(unsigned int count);
     void Reload();
 
     // Ticking

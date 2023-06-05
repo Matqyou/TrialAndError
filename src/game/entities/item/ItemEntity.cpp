@@ -49,11 +49,14 @@ ItemEntity::ItemEntity(GameWorld* world,
     m_ItemType = item_type;
     m_Texture = nullptr;
     m_PickupRadius = 25.0;
+    m_Rotation = 0.0;
+    m_RotationalVelocity = 0;
+    m_RotationalDamping = 0.95;
 
     SetTexture(item_type);
 }
 
-void ItemEntity::EventPickup(Character* picker_char) {
+void ItemEntity::EventPickup(Character& picker_char) {
     m_Alive = false;
 }
 
@@ -62,7 +65,7 @@ void ItemEntity::TickPickup() {
         return;
 
     auto Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character*) Char->NextType()) {
+    for (; Char; Char = (Character*)Char->NextType()) {
         // The code below makes me think what if the m_Dropper entity was dead a long time ago and now
         // a new entity has been summoned with the exact same address... HMMMMMMMM
         // In a world where the pickup cooldown is infinite this entity is doomed to suffer
@@ -74,14 +77,24 @@ void ItemEntity::TickPickup() {
         double Distance = DistanceVec2(m_Core.Pos, Char->GetCore().Pos);
         if (Distance > m_PickupRadius) continue;
 
-        EventPickup(Char);
+        EventPickup(*Char);
         break;
     }
+}
+
+void ItemEntity::SetRotation(double rotation) {
+    m_Rotation = rotation;
+}
+
+void ItemEntity::AccelerateRotation(double acceleration) {
+    m_RotationalVelocity += acceleration;
 }
 
 void ItemEntity::Tick() {
     TickPickup();
     TickVelocity();
+    m_Rotation += m_RotationalVelocity;
+    m_RotationalVelocity *= m_RotationalDamping;
 }
 
 void ItemEntity::Draw() {
@@ -92,5 +105,10 @@ void ItemEntity::Draw() {
                           int(m_Core.Size.x),
                           int(m_Core.Size.y) };
 
-    Render->RenderTextureCamera(m_Texture->SDLTexture(), nullptr, DrawRect);
+    Render->RenderTextureExCamera(m_Texture->SDLTexture(),
+                                  nullptr,
+                                  DrawRect,
+                                  m_Rotation / M_PI * 180.0,
+                                  nullptr,
+                                  SDL_FLIP_NONE);
 }

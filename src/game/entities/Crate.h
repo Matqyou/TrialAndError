@@ -36,8 +36,13 @@ public:
           int RandomDrop);
     ~Crate();
 
-    DropType Type() const { return m_Type; }
+    // Getting
+    [[nodiscard]] DropType Type() const { return m_Type; }
+
+    // Manipulating
     void DamageCrate(double Damage);
+
+    // Ticking
     void Tick() override;
     void Draw() override;
 };

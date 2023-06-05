@@ -9,7 +9,7 @@
 
 struct EntityCore {
     Vec2d Pos, Size, Vel;
-    double BaseDamping{};
+    double BaseDamping{ };
 
     // Manipulating
     void Accelerate(double x, double y);
@@ -18,7 +18,7 @@ struct EntityCore {
 struct DirectionalEntityCore : public EntityCore {
     Vec2d Direction;
 
-    DirectionalEntityCore() : EntityCore() {}
+    DirectionalEntityCore() : EntityCore() { }
 };
 
 class Entity {
@@ -28,10 +28,10 @@ protected:
     GameWorld* m_World;
     Entity* m_PrevType, * m_NextType;
     Entity* m_Prev, * m_Next;
-    unsigned long long m_SpawnedTick;
     EntityCore* m_pUnknownCore, * m_pLastUnknownCore;
     EntityCore& m_Core, & m_LastCore;
     EntityType m_EntityType;
+    unsigned long long m_SpawnedTick;
     bool m_Alive;
 
     virtual void TickLastCore();
@@ -85,7 +85,7 @@ public:
                       const Vec2d& start_vel,
                       const Vec2d& start_direction,
                       double base_damping);
-    virtual ~DirectionalEntity();
+    ~DirectionalEntity();
 
     // Getting
     [[nodiscard]] DirectionalEntityCore& GetDirectionalCore() const { return m_DirectionalCore; }

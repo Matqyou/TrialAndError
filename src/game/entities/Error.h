@@ -45,7 +45,7 @@ public:
 
     Error(GameWorld* world, const Vec2d& start_pos, int typeID);
 
-    void DrawName();
+    // Ticking
     void Tick() override;
     void Draw() override;
 };

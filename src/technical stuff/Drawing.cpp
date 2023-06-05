@@ -16,6 +16,14 @@ Drawing::Drawing(GameReference* game_window) {
 
 Drawing::~Drawing() = default;
 
+double Drawing::DetranslateX(double x) {
+    return (x - m_World->GameWindow()->GetWidth2()) / m_Zoom + m_CameraX;
+}
+
+double Drawing::DetranslateY(double y) {
+    return (y - m_World->GameWindow()->GetHeight2()) / m_Zoom + m_CameraY;
+}
+
 double Drawing::TranslateX(double x) {
     return (x - m_CameraX) * m_Zoom + m_World->GameWindow()->GetWidth2();
 }

@@ -33,7 +33,7 @@ AmmoBox::AmmoBox(GameWorld* world,
 void AmmoBox::TickPickup() {
     // Check if position collides any of the players
     auto Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character*) (Char->NextType())) {
+    for (; Char; Char = (Character*)(Char->NextType())) {
         EntityCore& CharCore = Char->GetCore();
         double Distance = DistanceVec2(m_Core.Pos, CharCore.Pos);
 

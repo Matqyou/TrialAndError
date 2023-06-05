@@ -33,14 +33,14 @@ void CharacterNPC::EventDeath() {
         new Crate(m_World, m_Core.Pos, 20.0, rand() % 2);
 
     int NumNPCS = 0;
-    for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType()) {
+    for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*)Char->NextType()) {
         if (Char->IsNPC() && Char->IsAlive()) {
             NumNPCS++;
         }
     }
     if (NumNPCS == 0) {
         m_World->EnemiesKilled();
-        for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType())
+        for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*)Char->NextType())
             Char->RemoveCombat();
     }
 }
@@ -54,7 +54,7 @@ void CharacterNPC::TickControls() {
     auto Char = m_World->FirstCharacter();
     Character* ClosestChar = nullptr;
     double Closest = -1;
-    for (; Char != nullptr; Char = (Character*) (Char->NextType())) {
+    for (; Char != nullptr; Char = (Character*)(Char->NextType())) {
         if (Char == this || Char->IsNPC()) continue;
 
         auto& EntCore = Char->GetDirectionalCore();
@@ -97,15 +97,15 @@ void CharacterNPC::TickControls() {
             if (Closest <= 300.0)
                 m_Input.m_GoingLength = 0.0;
 
-            if (!m_CurrentWeapon->Ammo()) {
-                if (m_CurrentWeapon->TrueAmmo()) {
+            if (!m_CurrentWeapon->GetMagAmmo()) {
+                if (m_CurrentWeapon->GetTrueAmmo()) {
                     m_Input.m_Reloading = true;
                 } else {
                     m_Input.m_NextItem = true;
                 }
             } else {
                 if (m_CurrentWeapon->IsAutomatic() || CurrentTick - m_CurrentWeapon->LastShot()
-                    > (unsigned long long) ((double(m_CurrentWeapon->TickCooldown()) - 1500.0 / Closest) * 10)) {
+                    > (unsigned long long)((double(m_CurrentWeapon->TickCooldown()) - 1500.0 / Closest) * 10)) {
                     m_Input.m_Shooting = true;
                 }
             }

@@ -38,12 +38,12 @@ Error::Error(GameWorld* world, const Vec2d& start_pos, int typeID)
 
 void Error::TickPickup(double x, double y) {
     auto Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character*) (Char->NextType())) {
+    for (; Char; Char = (Character*)(Char->NextType())) {
         auto& CharCore = Char->GetDirectionalCore();
         bool Collides = (CharCore.Pos.x - 50 < x) &&
-                        (CharCore.Pos.x + 50 > x) &&
-                        (CharCore.Pos.y - 50 < y) &&
-                        (CharCore.Pos.y + 50 > y);
+            (CharCore.Pos.x + 50 > x) &&
+            (CharCore.Pos.y - 50 < y) &&
+            (CharCore.Pos.y + 50 > y);
 
         if (!Collides)
             continue;
@@ -52,14 +52,14 @@ void Error::TickPickup(double x, double y) {
             if (Char->IsNPC()) { Char->ReverseMovement(); }
             else {
                 auto Plr = m_World->FirstCharacter();
-                for (; Plr; Plr = (Character*) (Plr->NextType())) {
+                for (; Plr; Plr = (Character*)(Plr->NextType())) {
                     if (!Plr->IsNPC()) continue;
                     Plr->ReverseMovement();
                 }
             }
         } else if (m_Type == CONFUSING_HP) {
             auto Plr = m_World->FirstCharacter();
-            for (; Plr; Plr = (Character*) (Plr->NextType()))
+            for (; Plr; Plr = (Character*)(Plr->NextType()))
                 Plr->ConfuseHP();
         } else if (m_Type == INVINCIBLE) { Char->MakeInvincible(); }
         else if (m_Type == SPIKY) { Char->MakeSpiky(); }
@@ -67,7 +67,7 @@ void Error::TickPickup(double x, double y) {
             if (Char->IsNPC()) { Char->MakeHealer(); }
             else {
                 auto Plr = m_World->FirstCharacter();
-                for (; Plr; Plr = (Character*) (Plr->NextType())) {
+                for (; Plr; Plr = (Character*)(Plr->NextType())) {
                     if (Plr->IsNPC()) continue;
                     Plr->MakeHealer();
                 }
@@ -77,7 +77,7 @@ void Error::TickPickup(double x, double y) {
             if (Char->IsNPC()) { Char->SlowDown(); }
             else {
                 auto Plr = m_World->FirstCharacter();
-                for (; Plr; Plr = (Character*) (Plr->NextType())) {
+                for (; Plr; Plr = (Character*)(Plr->NextType())) {
                     if (!Plr->IsNPC()) continue;
                     Plr->SlowDown();
                 }
@@ -89,7 +89,7 @@ void Error::TickPickup(double x, double y) {
 
 void Error::Tick() {
     TickPickup(m_Core.Pos.x, m_Core.Pos.y);
-    TickWalls(); // todo: don't have any functions after a function that self-destructs the object..... (crash)
+    TickWalls();
 }
 
 void Error::Draw() {

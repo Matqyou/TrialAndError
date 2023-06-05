@@ -21,15 +21,17 @@ protected:
     ItemType m_ItemType;
     Texture* m_Texture;
     double m_PickupRadius;
+    double m_Rotation;
+    double m_RotationalVelocity;
+    double m_RotationalDamping;
     unsigned long long m_DroppedSince;
     unsigned long long m_PickupCooldown;
 
     // Setting & Initializing
     void SetTexture(ItemType item_type);
 
-
     // Listening & Ticking
-    virtual void EventPickup(Character* picker_char);
+    virtual void EventPickup(Character& picker_char);
     void TickPickup();
 
 public:
@@ -43,6 +45,12 @@ public:
                Entity* dropper,
                const Vec2d& start_pos,
                const Vec2d& start_size);
+
+    // Setting
+    void SetRotation(double rotation);
+
+    // Manipulating
+    void AccelerateRotation(double acceleration);
 
     // Ticking
     void Tick() override;

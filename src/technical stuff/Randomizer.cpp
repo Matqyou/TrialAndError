@@ -5,8 +5,8 @@
 #include "Randomizer.h"
 
 Randomizer::Randomizer()
-    : m_32Generator(std::random_device{}()),
-      m_64Generator(std::random_device{}()),
+    : m_32Generator(std::random_device{ }()),
+      m_64Generator(std::random_device{ }()),
       m_FloatPercentageDist(0.0f, 1.0f),
       m_DoublePercentageDist(0.0, 1.0) {
 

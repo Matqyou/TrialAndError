@@ -175,7 +175,7 @@ void GameWorld::DestroyPlayerByController(GameController* DeletedController) con
 
 void GameWorld::DestroyCharacterByController(GameController* DeletedController) const {
     Character* Char = FirstCharacter();
-    for (; Char; Char = (Character*) (Char->NextType())) {
+    for (; Char; Char = (Character*)(Char->NextType())) {
         if (Char->GetGameController() == DeletedController) {
             delete Char;
             return;
@@ -206,7 +206,7 @@ void GameWorld::Event(const SDL_Event& currentEvent) {
     // Loop allows self-destruction in the ::Event() method
     Character* Next, * Current = FirstCharacter();
     for (; Current; Current = Next) {
-        Next = (Character*) (Current->NextType());
+        Next = (Character*)(Current->NextType());
         Current->Event(currentEvent);
     }
 }
@@ -219,11 +219,11 @@ void GameWorld::TickCamera() {
     double minX, maxX, minY, maxY;
 
     auto Char = FirstCharacter();
-    for (; Char; Char = (Character*) Char->NextType()) {
-        if (Char->IsNPC()) {
-            auto NPC = (CharacterNPC*) Char;
-            if (!NPC->GetCurrentWeapon()) continue;
-        }
+    for (; Char; Char = (Character*)Char->NextType()) {
+        //if (Char->IsNPC()) {
+        //    auto NPC = (CharacterNPC*) Char;
+        //    if (!NPC->GetCurrentWeapon()) continue;
+        //}
 
         EntityCore& Core = Char->GetCore();
 
@@ -266,8 +266,8 @@ void GameWorld::TickSpawner() {
 
     m_LastWave = m_CurrentTick;
     m_Round += 1;
-    m_NumEnemiesPerWave = (unsigned int) (1.0 + std::pow(m_Round, 0.5) * 2);
-    m_TimeBetweenWaves = (unsigned long long) ((m_Round * m_NumEnemiesPerWave) * m_GameWindow->Timer()->GetFramerate());
+    m_NumEnemiesPerWave = (unsigned int)(1.0 + std::pow(m_Round, 0.5) * 2);
+    m_TimeBetweenWaves = (unsigned long long)((m_Round * m_NumEnemiesPerWave) * m_GameWindow->Timer()->GetFramerate());
     m_Score += m_Round * 50;
     char msg[64];
     std::snprintf(msg, sizeof(msg), "Score: %i", m_Score);
@@ -285,7 +285,7 @@ void GameWorld::TickSpawner() {
                                        Vec2d(0.0, 0.0),
                                        NPC_TURRET,
                                        true);
-        NewNPC->GiveWeapon(WEAPON_MINIGUN);
+        NewNPC->GiveWeapon(new WeaponMinigun(nullptr));
     }
     for (int i = 0; i < m_NumEnemiesPerWave; i++) {
         double Angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
@@ -300,14 +300,14 @@ void GameWorld::TickSpawner() {
 
         int Weaponizer = rand() % 100;
         if (m_Round >= 15) {
-            if (Weaponizer < 10) NewNPC->GiveWeapon(WEAPON_GLOCK);
-            else if (Weaponizer < 20) NewNPC->GiveWeapon(WEAPON_SHOTGUN);
-            else if (Weaponizer < 30) NewNPC->GiveWeapon(WEAPON_BURST);
+            if (Weaponizer < 10) NewNPC->GiveWeapon(new WeaponGlock(nullptr));
+            else if (Weaponizer < 20) NewNPC->GiveWeapon(new WeaponShotgun(nullptr));
+            else if (Weaponizer < 30) NewNPC->GiveWeapon(new WeaponBurst(nullptr));
         } else if (m_Round >= 10) {
-            if (Weaponizer < 10) NewNPC->GiveWeapon(WEAPON_GLOCK);
-            else if (Weaponizer < 20) NewNPC->GiveWeapon(WEAPON_SHOTGUN);
+            if (Weaponizer < 10) NewNPC->GiveWeapon(new WeaponGlock(nullptr));
+            else if (Weaponizer < 20) NewNPC->GiveWeapon(new WeaponShotgun(nullptr));
         } else if (m_Round >= 5) {
-            if (Weaponizer < 10) NewNPC->GiveWeapon(WEAPON_GLOCK);
+            if (Weaponizer < 10) NewNPC->GiveWeapon(new WeaponGlock(nullptr));
         }
     }
 }

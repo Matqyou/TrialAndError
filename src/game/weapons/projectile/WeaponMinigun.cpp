@@ -32,13 +32,20 @@ WeaponMinigun::WeaponMinigun(Character* owner)
 }
 
 void WeaponMinigun::Tick() {
-    if (!m_Shooter->HasDangerousRecoil())m_RecoilForce = m_BaseRecoilForce;
-    else if (m_RecoilForce != m_BaseRecoilForce * 3)m_RecoilForce = m_BaseRecoilForce * 3;
+    if (m_Parent->GetEntityType() != ENTTYPE_CHARACTER) {
+        std::printf("Warning: Weapon holder is not a character (no support for error powerups)");
+        return;
+    }
+
+    // TODO: recoil force shouldn't change every tick (make like an event function, call when timer starts and ends to update recoil force)
+    // Do this for the remaining weapons aswell
+    if (!((Character*)m_Parent)->HasDangerousRecoil()) m_RecoilForce = m_BaseRecoilForce;
+    else if (m_RecoilForce != m_BaseRecoilForce * 3) m_RecoilForce = m_BaseRecoilForce * 3;
     TickTrigger();
 
-    if (!m_Shooter) return;
-    GameWorld* World = m_Shooter->World();
-    auto& ShooterCore = m_Shooter->GetDirectionalCore();
+    if (!m_Parent) return;
+    GameWorld* World = m_Parent->World();
+    auto& ShooterCore = m_Parent->GetDirectionalCore();
     SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
     auto CurrentTick = World->GetTick();
     if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere
@@ -55,14 +62,14 @@ void WeaponMinigun::Tick() {
                 double Angle = ShooterCore.Direction.Atan2() + GenerateSpreadAngle();
                 Vec2d ProjectileVelocity = AngleVec2d(Angle) * m_ProjectileSpeed;
                 new Projectile(World,
-                               m_Shooter,
+                               m_Parent,
                                WEAPON_MINIGUN,
                                m_Damage,
                                ShooterCore.Pos,
                                ProjectileVelocity);
 
                 Vec2d Recoil = ShooterCore.Direction * -m_RecoilForce;
-                m_Shooter->Accelerate(Recoil);
+                m_Parent->Accelerate(Recoil);
             } else {
                 SoundHandler->PlaySound(ms_ClickSound);
             }

@@ -9,21 +9,28 @@
 Sound* WeaponGlock::ms_ShootSound = nullptr;
 Sound* WeaponGlock::ms_ClickSound = nullptr;
 
-WeaponGlock::WeaponGlock(Character* owner)
-    : ProjectileWeapon(owner, WEAPON_GLOCK, 10, 15, 15 * 3, 35.0, false) {
+WeaponGlock::WeaponGlock(DirectionalEntity* parent)
+    : ProjectileWeapon(parent, WEAPON_GLOCK, 10, 15, 15 * 3, 35.0, false) {
     m_BaseRecoilForce = 3.0;
     m_RecoilForce = m_BaseRecoilForce;
     m_Damage = 7.5;
 }
 
 void WeaponGlock::Tick() {
-    if (!m_Shooter->HasDangerousRecoil())m_RecoilForce = m_BaseRecoilForce;
-    else if (m_RecoilForce != m_BaseRecoilForce * 3)m_RecoilForce = m_BaseRecoilForce * 3;
+    if (m_Parent->GetEntityType() != ENTTYPE_CHARACTER) {
+        std::printf("Warning: Weapon holder is not a character (no support for error powerups)");
+        return;
+    }
+
+    // TODO: recoil force shouldn't change every tick (make like an event function, call when timer starts and ends to update recoil force)
+    // Do this for the remaining weapons aswell
+    if (!((Character*)m_Parent)->HasDangerousRecoil()) m_RecoilForce = m_BaseRecoilForce;
+    else if (m_RecoilForce != m_BaseRecoilForce * 3) m_RecoilForce = m_BaseRecoilForce * 3;
     TickTrigger();
 
-    if (m_Shooter && m_Triggered) { // If want to trigger without an owner, need to save world somewhere
-        GameWorld* World = m_Shooter->World();
-        auto& ShooterCore = m_Shooter->GetDirectionalCore();
+    if (m_Parent && m_Triggered) { // If want to trigger without an owner, need to save world somewhere
+        GameWorld* World = m_Parent->World();
+        auto& ShooterCore = m_Parent->GetDirectionalCore();
         auto CurrentTick = World->GetTick();
         if (CurrentTick - m_LastShotAt <= m_TickCooldown)
             return;
@@ -38,14 +45,14 @@ void WeaponGlock::Tick() {
 
             Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
             new Projectile(World,
-                           m_Shooter,
+                           m_Parent,
                            WEAPON_GLOCK,
                            m_Damage,
                            ShooterCore.Pos,
                            ProjectileVelocity);
 
             Vec2d Recoil = ShooterCore.Direction * -m_RecoilForce;
-            m_Shooter->Accelerate(Recoil);
+            m_Parent->Accelerate(Recoil);
         } else {
             SoundHandler->PlaySound(ms_ClickSound);
         }

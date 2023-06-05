@@ -56,18 +56,18 @@ bool Projectile::TickVelocity() {
 bool Projectile::TickHitPoint(double x, double y) {
     // Check if position collides any of the players
     auto Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character*) (Char->NextType())) {
+    for (; Char; Char = (Character*)(Char->NextType())) {
         bool Shooter = m_Shooter == Char;
         if (!Char->IsAlive() || Char->m_Health <= 0.0) continue;
         if (m_Shooter->GetEntityType() == ENTTYPE_CHARACTER) {
-            if (!Shooter && ((Character*) m_Shooter)->IsNPC() == Char->IsNPC()) continue;
+            if (!Shooter && ((Character*)m_Shooter)->IsNPC() == Char->IsNPC()) continue;
         }
 
         EntityCore& CharCore = Char->GetCore();
         bool CollidesPlayer = (CharCore.Pos.x - CharCore.Size.x < x) &&
-                              (CharCore.Pos.x + CharCore.Size.x > x) &&
-                              (CharCore.Pos.y - CharCore.Size.y < y) &&
-                              (CharCore.Pos.y + CharCore.Size.y > y);
+            (CharCore.Pos.x + CharCore.Size.x > x) &&
+            (CharCore.Pos.y - CharCore.Size.y < y) &&
+            (CharCore.Pos.y + CharCore.Size.y > y);
 
         if (Shooter && !CollidesPlayer) { m_StillCollidesShooter = false; }
         else if (CollidesPlayer && !Shooter || (Shooter && !m_StillCollidesShooter)) {
@@ -78,12 +78,12 @@ bool Projectile::TickHitPoint(double x, double y) {
         }
     }
     auto Crte = m_World->FirstCrate();
-    for (; Crte; Crte = (Crate*) (Crte->NextType())) {
+    for (; Crte; Crte = (Crate*)(Crte->NextType())) {
         EntityCore& CrateCore = Crte->GetCore();
         bool CollidesCrate = (CrateCore.Pos.x - CrateCore.Size.x / 2 < x) &&
-                             (CrateCore.Pos.x + CrateCore.Size.x / 2 > x) &&
-                             (CrateCore.Pos.y - CrateCore.Size.y / 2 < y) &&
-                             (CrateCore.Pos.y + CrateCore.Size.y / 2 > y);
+            (CrateCore.Pos.x + CrateCore.Size.x / 2 > x) &&
+            (CrateCore.Pos.y - CrateCore.Size.y / 2 < y) &&
+            (CrateCore.Pos.y + CrateCore.Size.y / 2 > y);
         if (CollidesCrate) {
             Crte->DamageCrate(m_Damage);
             m_Alive = false;

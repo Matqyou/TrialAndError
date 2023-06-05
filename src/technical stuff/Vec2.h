@@ -45,6 +45,7 @@ public:
     // Manipulating
     void Rotate(double radians);
     Vec2& Normalize();
+    Vec2& SetLength(double length);
 };
 
 template<class T>

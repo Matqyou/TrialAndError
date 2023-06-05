@@ -130,7 +130,7 @@ Character::Character(GameWorld* world,
     m_Health = m_MaxHealth;
     m_PassiveRegeneration = 0.03; // health per tick when in combat
     m_ActiveRegeneration = 0.1; // health per tick out of combat
-    m_TicksOfCombatUntilRegeneration = (unsigned long long) (10 * m_World->GameWindow()->Timer()->GetFramerate());
+    m_TicksOfCombatUntilRegeneration = (unsigned long long)(10 * m_World->GameWindow()->Timer()->GetFramerate());
     m_LastInCombat = 0;
 
     m_SelectedWeaponIndex = -1;
@@ -168,7 +168,7 @@ Character::~Character() {
     delete m_CoordinatePlate;
 
     Character* Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character*) Char->NextType()) {
+    for (; Char; Char = (Character*)Char->NextType()) {
         Hook* TargetHook = Char->GetHook();
         if (TargetHook->m_GrabbedEntity == this)
             TargetHook->Unhook();
@@ -310,22 +310,37 @@ void Character::DropWeapon() {
     if (!m_CurrentWeapon)
         return;
 
-    WeaponType WepType = m_CurrentWeapon->Type();
-    Entity* NewWeapon;
+    WeaponType WepType = m_CurrentWeapon->WepType();
+    ItemEntity* NewWeapon;
     switch (WepType) {
-        case WEAPON_GLOCK: { NewWeapon = new EntityGlock(m_World, this, m_Core.Pos); }
+        case WEAPON_GLOCK: {
+            NewWeapon = new EntityGlock(m_World, this, (WeaponGlock*)m_Weapons[WEAPON_GLOCK], m_Core.Pos);
+            m_Weapons[WEAPON_GLOCK] = nullptr;
+        }
             break;
-        case WEAPON_BURST: { NewWeapon = new EntityBurst(m_World, this, m_Core.Pos); }
+        case WEAPON_BURST: {
+            NewWeapon = new EntityBurst(m_World, this, m_Core.Pos);
+            delete m_Weapons[WEAPON_BURST];
+            m_Weapons[WepType] = nullptr;
+        }
             break;
-        case WEAPON_SHOTGUN: { NewWeapon = new EntityShotgun(m_World, this, m_Core.Pos); }
+        case WEAPON_SHOTGUN: {
+            NewWeapon = new EntityShotgun(m_World, this, m_Core.Pos);
+            delete m_Weapons[WEAPON_SHOTGUN];
+            m_Weapons[WepType] = nullptr;
+        }
             break;
-        case WEAPON_MINIGUN: { NewWeapon = new EntityMinigun(m_World, this, m_Core.Pos); }
+        case WEAPON_MINIGUN: {
+            NewWeapon = new EntityMinigun(m_World, this, m_Core.Pos);
+            delete m_Weapons[WEAPON_MINIGUN];
+            m_Weapons[WepType] = nullptr;
+        }
             break;
     }
 
-    NewWeapon->Accelerate(m_DirectionalCore.Direction * 10);
-    delete m_Weapons[WepType];
-    m_Weapons[WepType] = nullptr;
+    NewWeapon->Accelerate(m_DirectionalCore.Direction * 20);
+    NewWeapon->SetRotation(m_DirectionalCore.Direction.Atan2());
+    NewWeapon->AccelerateRotation(std::fmod(m_World->GameWindow()->Random()->Float(), 0.7f) - 0.35f);
     m_CurrentWeapon = nullptr;
 }
 
@@ -347,26 +362,20 @@ void Character::RemoveCombat() {
     else m_LastInCombat = CurrentTick - m_TicksOfCombatUntilRegeneration;
 }
 
-void Character::GiveWeapon(WeaponType weapon_type) {
-    bool SpawnInHand = m_CurrentWeapon == m_Weapons[weapon_type] || !m_CurrentWeapon;
-    if (m_Weapons[weapon_type]) {
-        delete m_Weapons[weapon_type];
-        m_Weapons[weapon_type] = nullptr;
-    }
+void Character::GiveWeapon(ProjectileWeapon* proj_weapon) {
+    WeaponType WepType = proj_weapon->WepType();
+    bool HoldingType = m_CurrentWeapon == m_Weapons[WepType];
 
-    switch (weapon_type) {
-        case WEAPON_GLOCK: { m_Weapons[WEAPON_GLOCK] = new WeaponGlock(this); }
-            break;
-        case WEAPON_BURST: { m_Weapons[WEAPON_BURST] = new WeaponBurst(this); }
-            break;
-        case WEAPON_SHOTGUN: { m_Weapons[WEAPON_SHOTGUN] = new WeaponShotgun(this); }
-            break;
-        case WEAPON_MINIGUN: { m_Weapons[WEAPON_MINIGUN] = new WeaponMinigun(this); }
-            break;
-    }
+    if (m_Weapons[WepType]) { // Already has this type
+        auto Remaining = m_Weapons[WepType]->AddMagAmmo(proj_weapon->GetFullAmmo());
+        m_Weapons[WepType]->AddTrueAmmo(Remaining); // The remaining ammo from here gets sent to shadow realm
+        delete proj_weapon;
 
-    if (SpawnInHand) {
-        m_CurrentWeapon = m_Weapons[weapon_type];
+        if (HoldingType) m_AmmoCount->FlagForUpdate();
+    } else {
+        m_Weapons[WepType] = proj_weapon;
+        proj_weapon->SetParent(this);
+        m_CurrentWeapon = proj_weapon;
         m_AmmoCount->FlagForUpdate();
     }
 }
@@ -381,7 +390,7 @@ void Character::AmmoPickup(AmmoBox* ammo_box) {
 
     if (!m_Weapons[ReloadWeapon]) return;
 
-    auto AmmoNeeded = m_Weapons[ReloadWeapon]->NeededAmmo();
+    auto AmmoNeeded = m_Weapons[ReloadWeapon]->NeededTrueAmmo();
     auto TakenAmmo = ammo_box->TakeAmmo(AmmoNeeded);
     m_Weapons[ReloadWeapon]->AddTrueAmmo(TakenAmmo);
     if (TakenAmmo > 0)
@@ -396,15 +405,22 @@ void Character::EventDeath() {
 
         // In this case the dropper is already dead... so there is no real point to get his address?
         // or maybe there is? No idea man I'm just a bored programmear -_-
-        if (i == WEAPON_GLOCK) new EntityGlock(m_World, this, m_Core.Pos);
-        else if (i == WEAPON_SHOTGUN) new EntityShotgun(m_World, this, m_Core.Pos);
-        else if (i == WEAPON_BURST) new EntityBurst(m_World, this, m_Core.Pos);
-        else if (i == WEAPON_MINIGUN) new EntityMinigun(m_World, this, m_Core.Pos);
+        ItemEntity* NewWeapon;
+        if (i == WEAPON_GLOCK) {
+            NewWeapon = new EntityGlock(m_World, this, (WeaponGlock*)m_Weapons[WEAPON_GLOCK], m_Core.Pos);
+            m_Weapons[WEAPON_GLOCK] = nullptr;
+        } else if (i == WEAPON_SHOTGUN) NewWeapon = new EntityShotgun(m_World, this, m_Core.Pos);
+        else if (i == WEAPON_BURST) NewWeapon = new EntityBurst(m_World, this, m_Core.Pos);
+        else if (i == WEAPON_MINIGUN) NewWeapon = new EntityMinigun(m_World, this, m_Core.Pos);
+
+        NewWeapon->Accelerate(m_DirectionalCore.Direction * 5);
+        NewWeapon->SetRotation(m_DirectionalCore.Direction.Atan2());
+        NewWeapon->AccelerateRotation(std::fmod(m_World->GameWindow()->Random()->Float(), 0.35f) - 0.175f);
     }
 
     if (!m_NPC) { // prob better place for this code
         int NumRealCharacters = 0;
-        for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*) Char->NextType()) {
+        for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*)Char->NextType()) {
             if (!Char->IsNPC())NumRealCharacters++;
         }
         if (NumRealCharacters == 1)
@@ -558,7 +574,7 @@ void Character::TickProcessInputs() {
         }
 
         if (m_SelectedWeaponIndex == -1) { m_CurrentWeapon = nullptr; }
-        else { SwitchWeapon((WeaponType) m_SelectedWeaponIndex); } // yeaaaaaaa
+        else { SwitchWeapon((WeaponType)m_SelectedWeaponIndex); } // yeaaaaaaa
     }
 }
 
@@ -568,7 +584,7 @@ void Character::TickHook() {
 
 void Character::TickCollision() {
     auto Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character*) (Char->NextType())) {
+    for (; Char; Char = (Character*)(Char->NextType())) {
         if (Char == this) continue;
 
         EntityCore& EntCore = Char->GetCore();
@@ -592,7 +608,7 @@ void Character::TickCollision() {
         if (Spiky && m_NPC != Char->IsNPC()) Char->Damage(3, true);
     }
     auto Crte = m_World->FirstCrate();
-    for (; Crte; Crte = (Crate*) (Crte->NextType())) {
+    for (; Crte; Crte = (Crate*)(Crte->NextType())) {
         EntityCore& CrateCore = Crte->GetCore();
         double XDistance = m_Core.Pos.x - CrateCore.Pos.x;
         double YDistance = m_Core.Pos.y - CrateCore.Pos.y;
@@ -613,12 +629,12 @@ void Character::TickCollision() {
 
 void Character::TickCurrentWeapon() {
     if (m_CurrentWeapon) {
-        auto TempAmmo = m_CurrentWeapon->Ammo();
+        auto TempAmmo = m_CurrentWeapon->GetMagAmmo();
         if (m_Input.m_Reloading && !m_LastInput.m_Reloading)
             m_CurrentWeapon->Reload();
 
         m_CurrentWeapon->Tick();
-        auto CurrentAmmo = m_CurrentWeapon->Ammo();
+        auto CurrentAmmo = m_CurrentWeapon->GetMagAmmo();
         if (TempAmmo != CurrentAmmo) {
             m_AmmoCount->FlagForUpdate();
             if (!CurrentAmmo && TempAmmo) { m_AmmoCount->SetColor({ 255, 0, 0 }); }
@@ -906,7 +922,7 @@ void Character::DrawHands() {
 
     if (m_CurrentWeapon) {
         Texture* WeaponTexture;
-        switch (m_CurrentWeapon->Type()) {
+        switch (m_CurrentWeapon->WepType()) {
             case WEAPON_GLOCK: {
                 WeaponTexture = ms_TextureGlock;
             }
@@ -920,7 +936,7 @@ void Character::DrawHands() {
             }
                 break;
             case WEAPON_MINIGUN: {
-                int Phase = int(std::fmod(((WeaponMinigun*) m_Weapons[WEAPON_MINIGUN])->Rotation(), 100.0) / 25.0);
+                int Phase = int(std::fmod(((WeaponMinigun*)m_Weapons[WEAPON_MINIGUN])->Rotation(), 100.0) / 25.0);
                 WeaponTexture = ms_TexturesMinigun[Phase];
             }
                 break;
@@ -988,9 +1004,9 @@ void Character::DrawNameplate() {
 void Character::DrawAmmoCounter() {
     Drawing* Render = m_World->GameWindow()->Render();
     char msg[64];
-    std::snprintf(msg, sizeof(msg), "%u/%u", m_CurrentWeapon->Ammo(), m_CurrentWeapon->TrueAmmo());
+    std::snprintf(msg, sizeof(msg), "%u/%u", m_CurrentWeapon->GetMagAmmo(), m_CurrentWeapon->GetTrueAmmo());
     m_AmmoCount->SetText(msg);
-    if (m_CurrentWeapon->Ammo() == 0) m_AmmoCount->SetColor({ 255, 0, 0 });
+    if (m_CurrentWeapon->GetMagAmmo() == 0) m_AmmoCount->SetColor({ 255, 0, 0 });
     else { m_AmmoCount->SetColor({ 255, 255, 255 }); }
     Texture* AmmoTexture = m_AmmoCount->RequestUpdate();
 
@@ -1077,10 +1093,10 @@ void Character::Tick() {
     TickVelocity();  // Move the character entity
     TickWalls();  // Check if colliding with walls
 
-    if ((int) (m_Health) != (int) (m_LastHealth)) m_HealthInt->FlagForUpdate();
+    if ((int)(m_Health) != (int)(m_LastHealth)) m_HealthInt->FlagForUpdate();
     if (m_World->GetNamesShown() > 0.05 &&
-        ((int) (m_Core.Pos.x) != (int) (m_LastCore.Pos.x) ||
-            (int) (m_Core.Pos.y) != (int) (m_LastCore.Pos.y))) {
+        ((int)(m_Core.Pos.x) != (int)(m_LastCore.Pos.x) ||
+            (int)(m_Core.Pos.y) != (int)(m_LastCore.Pos.y))) {
         m_CoordinatePlate->FlagForUpdate();
     }
 

@@ -6,6 +6,7 @@
 #define TRIALANDERROR_WEAPONGLOCK_H
 
 #include "ProjectileWeapon.h"
+#include "../../entities/Entity.h"
 
 class WeaponGlock : public ProjectileWeapon {
 private:
@@ -16,7 +17,7 @@ public:
     static Sound* ms_ShootSound;
     static Sound* ms_ClickSound;
 
-    explicit WeaponGlock(Character* owner);
+    explicit WeaponGlock(DirectionalEntity* parent);
 
     // Ticking
     void Tick() override;

@@ -35,7 +35,7 @@ protected:
     double m_NegativeRandomProjectileSpeed;
     int m_FullRandomProjectileSpeed;
 
-    Character* m_Shooter;
+    Character* m_Parent;
     WeaponType m_Type;
 
     virtual void TickTrigger();
@@ -55,11 +55,11 @@ public:
                      double projectile_speed,
                      bool automatic);
 
-    WeaponType Type() const { return m_Type; }
-    unsigned int Ammo() const { return m_Ammo; }
-    unsigned int TrueAmmo() const { return m_TrueAmmo; }
+    WeaponType WepType() const { return m_Type; }
+    unsigned int GetMagAmmo() const { return m_Ammo; }
+    unsigned int GetTrueAmmo() const { return m_TrueAmmo; }
     unsigned int AmmoCap() const { return m_AmmoCapacity; }
-    unsigned int NeededAmmo() const;
+    unsigned int NeededTrueAmmo() const;
     unsigned long long TickCooldown() const { return m_TickCooldown; }
 
     void AddTrueAmmo(unsigned int count);
