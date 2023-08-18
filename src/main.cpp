@@ -164,16 +164,11 @@ int main() {
         exit(1);
     }
 
-
     Clock* Timer = GameWindow->Timer();
     Drawing* Render = GameWindow->Render();
     AssetsManager* AssetsHandler = GameWindow->Assets();
     SoundManager* SoundHandler = AssetsHandler->SoundHandler();
     ImageManager* ImageHandler = AssetsHandler->ImageHandler();
-
-    Texture* TextureCrosshair = ImageHandler->LoadTexture("assets/images/crosshairs/Crosshair.png", true);
-    TextureCrosshair->SetAlphaMod(128);
-    SDL_Rect CrosshairRect = { 0, 0, TextureCrosshair->GetWidth() * 2, TextureCrosshair->GetHeight() * 2 };
 
     Texture* TextureResume = ImageHandler->LoadTexture("assets/images/interface/Resume.png", true);
     Texture* TexturePlay = ImageHandler->LoadTexture("assets/images/interface/PlayButton.png", true);
@@ -182,7 +177,6 @@ int main() {
     Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/interface/Settings.png", true);
     Texture* MenuTexture = ImageHandler->LoadTexture("assets/images/interface/Menu.png", true);
     Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
-
     Vignette->SetAlphaMod(200);
 
     Sound* LowSound = SoundHandler->LoadSound("assets/sounds/Low.wav", true);
@@ -220,12 +214,12 @@ int main() {
         while (SDL_PollEvent(&CurrentEvent)) {
             GameWindow->Event(CurrentEvent);
             switch (CurrentEvent.type) {
-                case SDL_QUIT:
+                case SDL_QUIT: {
                     MenuOpen = false;
                     GameWindow->Deinitialize(true);
                     Running = false;
-
-                case SDL_MOUSEBUTTONDOWN:
+                } break;
+                case SDL_MOUSEBUTTONDOWN: {
                     if (CurrentEvent.button.button == SDL_BUTTON_LEFT) {
                         int x = CurrentEvent.button.x;
                         int y = CurrentEvent.button.y;
@@ -250,6 +244,7 @@ int main() {
                             return 0;
                         }
                     }
+                } break;
             }
         }
 
@@ -338,43 +333,14 @@ int main() {
 
             // Ticking
             if (!World->GetPaused()) {
-                Vec2i Mouse;
-                SDL_GetMouseState(&Mouse.x, &Mouse.y);
-
-                RealMouse += Vec2i(Mouse.x - int(GameWindow->GetWidth2()), Mouse.y - int(GameWindow->GetHeight2()));
-                if (RealMouse.Length() > 200.0)
-                    RealMouse.SetLength(200.0);
-
-                auto Char = World->FirstCharacter();
-                for (; Char; Char = (Character*)Char->NextType()) {
-                    if (Char->IsNPC() || Char->GetGameController())
-                        continue;
-
-                    Vec2d Pos = Char->GetDirectionalCore().Pos;
-                    CrosshairRect.x = int(Pos.x - double(CrosshairRect.w) / 2.0 + double(RealMouse.x));
-                    CrosshairRect.y = int(Pos.y - double(CrosshairRect.h) / 2.0 + double(RealMouse.y));
-                }
-
-                SDL_WarpMouseInWindow(GameWindow->Window(),
-                                      Render->TranslateX(CrosshairRect.x + CrosshairRect.w / 2),
-                                      Render->TranslateY(CrosshairRect.y + CrosshairRect.h / 2));
                 World->Tick();
-                SDL_WarpMouseInWindow(GameWindow->Window(), int(GameWindow->GetWidth2()), int(GameWindow->GetHeight2()));
-                SDL_ShowCursor(0);
-            } else {
-                SDL_ShowCursor(1);
             }
 
             Controllers->TickReset();
 
             // Drawing
-            //Render->SetColor(120, 120, 0, 255);
-            //Render->Clear();
-
             World->Draw();
             Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
-
-            Render->RenderTextureCamera(TextureCrosshair->SDLTexture(), nullptr, CrosshairRect);
 
             if (World->GetPaused()) {
                 Render->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
