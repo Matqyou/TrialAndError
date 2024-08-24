@@ -7,6 +7,13 @@
  */
 
 #define SDL_MAIN_HANDLED
+
+#ifdef _WIN32
+#include <windows.h>
+#undef PlaySound
+#undef ERROR
+#endif
+
 #include "GameReference.h"
 #include "GameWorld.h"
 #include "Menu.h"
@@ -159,6 +166,11 @@ bool StartUp(){
     return true;
 }
 int main() {
+#ifdef _WIN32
+#ifdef NDEBUG
+    FreeConsole();
+#endif
+#endif
     if (!Initialize()) {
         std::printf("Terminating..");
         exit(1);

@@ -7,12 +7,14 @@ link_directories(deps/SDL2/lib/x64 deps/SDL2_image/lib/x64 deps/SDL2_mixer/lib/x
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(BUILD_OPTIONS WIN32)
-endif ()
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(BUILD_OPTIONS)
-endif ()
+set(BUILD_OPTIONS)
+
+# if (CMAKE_BUILD_TYPE STREQUAL "Release")
+#     set(BUILD_OPTIONS WIN32)
+# endif ()
+# if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+#     set(BUILD_OPTIONS)
+# endif ()
 
 set(PROJECT_FILES
         "src/main.cpp"
