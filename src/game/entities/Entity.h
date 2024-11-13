@@ -9,7 +9,7 @@
 
 struct EntityCore {
     Vec2d Pos, Size, Vel;
-    double BaseDamping{ };
+    double BaseDamping{ }, sizeRatio;;
 
     // Manipulating
     void Accelerate(double x, double y);

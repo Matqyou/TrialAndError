@@ -80,3 +80,11 @@ void WeaponMinigun::Tick() {
     }
     m_Rotation += m_FireRate;
 }
+
+void WeaponMinigun::Reload() {
+    ProjectileWeapon::Reload();
+    m_FireRate = 0.0;
+}
+void WeaponMinigun::OnSelected() {
+    m_FireRate = 0.0;
+}

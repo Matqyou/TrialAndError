@@ -78,7 +78,8 @@ public:
     // Manipulating
     unsigned int AddMagAmmo(unsigned int count);
     unsigned int AddTrueAmmo(unsigned int count);
-    void Reload();
+    virtual void Reload();
+    virtual void OnSelected();
 
     // Ticking
     virtual void Tick();

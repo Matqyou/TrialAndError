@@ -30,6 +30,8 @@ public:
 
     // Ticking
     void Tick() override;
+    void Reload() override;
+    void OnSelected() override;
 };
 
 #endif //TRIALANDERROR_WEAPONMINIGUN_H

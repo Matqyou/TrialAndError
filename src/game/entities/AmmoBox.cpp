@@ -37,7 +37,7 @@ void AmmoBox::TickPickup() {
         EntityCore& CharCore = Char->GetCore();
         double Distance = DistanceVec2(m_Core.Pos, CharCore.Pos);
 
-        if (Distance > 45) continue;
+        if (Distance > m_Core.sizeRatio +Char->GetCore().sizeRatio) continue;
 
         Char->AmmoPickup(this);
 

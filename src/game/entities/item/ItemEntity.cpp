@@ -48,7 +48,7 @@ ItemEntity::ItemEntity(GameWorld* world,
     m_PickupCooldown = (unsigned long long)(m_World->GameWindow()->Timer()->GetFramerate());
     m_ItemType = item_type;
     m_Texture = nullptr;
-    m_PickupRadius = 25.0;
+    //m_PickupRadius = 25.0;
     m_Rotation = 0.0;
     m_RotationalVelocity = 0;
     m_RotationalDamping = 0.95;
@@ -75,7 +75,7 @@ void ItemEntity::TickPickup() {
         // Todo: think of some connected/smart pointers cuz that is the next big thing i need to learn
         if (!Char->IsAlive() || (Char == m_Dropper && m_World->GetTick() - m_DroppedSince < m_PickupCooldown)) continue;
         double Distance = DistanceVec2(m_Core.Pos, Char->GetCore().Pos);
-        if (Distance > m_PickupRadius) continue;
+        if (Distance > m_Core.sizeRatio+Char->GetCore().sizeRatio) continue;
 
         EventPickup(*Char);
         break;

@@ -36,6 +36,8 @@ Entity::Entity(GameWorld* world,
     m_SpawnedTick = m_World->GetTick();
 
     m_World->AddEntity(this);
+    m_Core.sizeRatio = (m_Core.Size.x + m_Core.Size.y) / 4.0;
+
 }
 
 Entity::~Entity() {

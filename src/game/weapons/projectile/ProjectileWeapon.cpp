@@ -131,3 +131,7 @@ void ProjectileWeapon::Reload() {
 void ProjectileWeapon::Tick() {
     TickTrigger();
 }
+
+
+void ProjectileWeapon::OnSelected() {
+}

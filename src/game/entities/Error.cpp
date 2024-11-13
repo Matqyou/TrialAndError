@@ -40,10 +40,10 @@ void Error::TickPickup(double x, double y) {
     auto Char = m_World->FirstCharacter();
     for (; Char; Char = (Character*)(Char->NextType())) {
         auto& CharCore = Char->GetDirectionalCore();
-        bool Collides = (CharCore.Pos.x - 50 < x) &&
-            (CharCore.Pos.x + 50 > x) &&
-            (CharCore.Pos.y - 50 < y) &&
-            (CharCore.Pos.y + 50 > y);
+        bool Collides = (CharCore.Pos.x - CharCore.Size.x/2-m_Core.sizeRatio < x) &&
+            (CharCore.Pos.x + CharCore.Size.x/2+m_Core.sizeRatio > x) &&
+            (CharCore.Pos.y - CharCore.Size.y/2-m_Core.sizeRatio < y) &&
+            (CharCore.Pos.y + CharCore.Size.y/2+m_Core.sizeRatio > y);
 
         if (!Collides)
             continue;

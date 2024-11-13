@@ -8,7 +8,7 @@
 
 Texture* Hands::ms_FistTexture = nullptr;
 
-Hands::Hands(Character* parent, double hand_spacing, double fist_animation_duration, double fisting_radius)
+Hands::Hands(Character* parent, double hand_spacing, double fist_animation_duration)
     : m_HandSpacing(hand_spacing / 180.0 * M_PI),
       m_FistingAnimationDuration(fist_animation_duration) {
     m_Parent = parent;
@@ -16,16 +16,17 @@ Hands::Hands(Character* parent, double hand_spacing, double fist_animation_durat
     m_LastFisted = 0;
     m_LastFistedL = 0;
     m_LastFistedR = 0;
-    m_BaseFistingRadius = fisting_radius;
-    m_FistingRadius = fisting_radius;
 
     auto& ParentCore = m_Parent->GetDirectionalCore();
-    m_xLeft = ParentCore.Size.x / 2.0;
-    m_yLeft = -ParentCore.Size.y / 2.0;
-    m_xRight = ParentCore.Size.x / 2.0;
-    m_yRight = ParentCore.Size.y / 2.0;
-    m_Size = 18.0;
+    m_BaseFistingRadius = ParentCore.sizeRatio / 2.5;
+    m_FistingRadius = ParentCore.sizeRatio / 2.5;
+    m_xLeft = ParentCore.Size.x /2.0;
+    m_yLeft = ParentCore.Size.y /2.0;
+    m_xRight = ParentCore.Size.x /2.0;
+    m_yRight = ParentCore.Size.y /2.0;
+    m_Size = ParentCore.sizeRatio * 0.36 *2;
     m_Size2 = m_Size / 2.0;
+        std::cout << ParentCore.Size.y << std::endl;
 }
 
 Hands::~Hands() {
@@ -59,15 +60,15 @@ void Hands::Tick() {
         double XHands, YHands;
         if (m_LastFistedR < m_LastFistedL) {
             m_LastFistedR = CurrentTick;
-            XHands = ParentCore.Pos.x + std::cos(m_HandSpacing + Radians) * 25.0
+            XHands = ParentCore.Pos.x + std::cos(m_HandSpacing + Radians) * m_xRight
                 + m_Parent->GetInput().m_LookingX * m_FistingRadius;
-            YHands = ParentCore.Pos.y + std::sin(m_HandSpacing + Radians) * 25.0
+            YHands = ParentCore.Pos.y + std::sin(m_HandSpacing + Radians) * m_yRight
                 + m_Parent->GetInput().m_LookingY * m_FistingRadius;
         } else {
             m_LastFistedL = CurrentTick;
-            XHands = ParentCore.Pos.x + std::cos(-m_HandSpacing + Radians) * 25.0
+            XHands = ParentCore.Pos.x + std::cos(-m_HandSpacing + Radians) * m_xLeft
                 + m_Parent->GetInput().m_LookingX * m_FistingRadius;
-            YHands = ParentCore.Pos.y + std::sin(-m_HandSpacing + Radians) * 25.0
+            YHands = ParentCore.Pos.y + std::sin(-m_HandSpacing + Radians) * m_yLeft
                 + m_Parent->GetInput().m_LookingY * m_FistingRadius;
         }
 
@@ -124,10 +125,10 @@ void Hands::Draw() {
     FistingKoefficientL = (1.0 - FistingKoefficientL) * m_FistingRadius;
     FistingKoefficientR = (1.0 - FistingKoefficientR) * m_FistingRadius;
 
-    double XOffLeft = std::cos(-m_HandSpacing + Radians) * 25.0 + XDirection * FistingKoefficientL;
-    double YOffLeft = std::sin(-m_HandSpacing + Radians) * 25.0 + YDirection * FistingKoefficientL;
-    double XOffRight = std::cos(m_HandSpacing + Radians) * 25.0 + XDirection * FistingKoefficientR;
-    double YOffRight = std::sin(m_HandSpacing + Radians) * 25.0 + YDirection * FistingKoefficientR;
+    double XOffLeft = std::cos(-m_HandSpacing + Radians) * m_xLeft + XDirection * FistingKoefficientL;
+    double YOffLeft = std::sin(-m_HandSpacing + Radians) * m_yLeft+ YDirection * FistingKoefficientL;
+    double XOffRight = std::cos(m_HandSpacing + Radians) * m_xRight + XDirection * FistingKoefficientR;
+    double YOffRight = std::sin(m_HandSpacing + Radians) * m_yRight + YDirection * FistingKoefficientR;
 
     SDL_FRect HandRectLeft = { float(ParentCore.Pos.x - m_Size2 + XOffLeft),
                                float(ParentCore.Pos.y - m_Size2 + YOffLeft),

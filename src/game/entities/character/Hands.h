@@ -26,7 +26,7 @@ private:
 public:
     static Texture* ms_FistTexture;
 
-    Hands(Character* parent, double hand_spacing, double fist_animation_duration, double fisting_radius);
+    Hands(Character* parent, double hand_spacing, double fist_animation_duration);
     ~Hands();
 
     // Getting
