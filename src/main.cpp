@@ -383,10 +383,8 @@ int main()
             break;
             case SDL_WINDOWEVENT:
             {
-                std::cout << "Window event: " << CurrentEvent.window.event << std::endl;
                 if (CurrentEvent.window.event == SDL_WINDOWEVENT_RESIZED)
                 {
-                    std::cout << "Window event: " << CurrentEvent.window.event << std::endl;
                     PlayButtonRect = {int(GameWindow->GetWidth2()) - 180,
                                       int(GameWindow->GetHeight2()) - 40,
                                       360, 80};

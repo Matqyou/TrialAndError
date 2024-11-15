@@ -26,7 +26,6 @@ Hands::Hands(Character* parent, double hand_spacing, double fist_animation_durat
     m_yRight = ParentCore.Size.y /2.0;
     m_Size = ParentCore.sizeRatio * 0.36 *2;
     m_Size2 = m_Size / 2.0;
-        std::cout << ParentCore.Size.y << std::endl;
 }
 
 Hands::~Hands() {
