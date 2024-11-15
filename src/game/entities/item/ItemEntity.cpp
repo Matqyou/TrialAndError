@@ -3,7 +3,7 @@
 //
 
 #include "ItemEntity.h"
-#include "../character/Character.h"
+#include "../characters/character/Character.h"
 
 Texture* ItemEntity::ms_TextureGlock = nullptr;
 Texture* ItemEntity::ms_TextureShotgun = nullptr;

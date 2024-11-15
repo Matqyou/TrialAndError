@@ -2,8 +2,7 @@
 // Created by Matq on 04/06/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_TECHNICAL_STUFF_VEC2_H_
-#define TRIALANDERROR_SRC_TECHNICAL_STUFF_VEC2_H_
+#pragma once
 
 #include <cmath>
 
@@ -57,5 +56,3 @@ typedef Vec2<double> Vec2d;
 [[nodiscard]] Vec2<double> AngleVec2d(double radians);
 
 #include "Vec2.inl"
-
-#endif // TRIALANDERROR_SRC_TECHNICAL_STUFF_VEC2_H_

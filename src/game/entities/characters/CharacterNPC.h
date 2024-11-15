@@ -2,10 +2,9 @@
 // Created by 11dpmbozko on 18.05.2023.
 //
 
-#ifndef TRIALANDERROR_CHARACTERNPC_H
-#define TRIALANDERROR_CHARACTERNPC_H
+#pragma once
 
-#include "../Character.h"
+#include "character/Character.h"
 
 enum NPCType {
     NPC_DUMMY,
@@ -31,5 +30,3 @@ public:
     ~CharacterNPC();
 
 };
-
-#endif //TRIALANDERROR_CHARACTERNPC_H

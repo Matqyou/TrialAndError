@@ -2,10 +2,9 @@
 // Created by 11dpmbozko on 16.03.2023.
 //
 
-#ifndef TRIALANDERROR_ENTITY_H
-#define TRIALANDERROR_ENTITY_H
+#pragma once
 
-#include "../../GameWorld.h"
+#include "../GameWorld.h"
 
 struct EntityCore {
     Vec2d Pos, Size, Vel;
@@ -35,8 +34,8 @@ protected:
     bool m_Alive;
 
     virtual void TickLastCore();
-    void TickVelocity();
-    void TickWalls();
+    virtual void TickVelocity();
+    virtual void TickWalls();
 
 public:
     Entity(GameWorld* world,
@@ -91,5 +90,3 @@ public:
     [[nodiscard]] DirectionalEntityCore& GetDirectionalCore() const { return m_DirectionalCore; }
     [[nodiscard]] DirectionalEntityCore& GetLastDirectionalCore() const { return m_LastDirectionalCore; }
 };
-
-#endif //TRIALANDERROR_ENTITY_H

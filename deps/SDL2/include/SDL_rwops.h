@@ -169,8 +169,8 @@ typedef struct SDL_RWops
  *   anywhere in the file for reading, but writing operations will move it
  *   back to the end of file. The file is created if it does not exist.
  *
- * **NOTE**: In order to open a file as a binary file, a "b" character has to
- * be included in the `mode` string. This additional "b" character can either
+ * **NOTE**: In order to open a file as a binary file, a "b" characters has to
+ * be included in the `mode` string. This additional "b" characters can either
  * be appended at the end of the string (thus making the following compound
  * modes: "rb", "wb", "ab", "r+b", "w+b", "a+b") or be inserted between the
  * letter and the "+" sign for the mixed modes ("rb+", "wb+", "ab+").

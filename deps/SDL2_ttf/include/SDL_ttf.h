@@ -149,7 +149,7 @@ extern DECLSPEC void SDLCALL TTF_GetHarfBuzzVersion(int *major, int *minor, int 
 /**
  * Tell SDL_ttf whether UNICODE text is generally byteswapped.
  *
- * A UNICODE BOM character in a string will override this setting for the
+ * A UNICODE BOM characters in a string will override this setting for the
  * remainder of that string.
  *
  * \param swapped boolean to indicate whether text is byteswapped
@@ -727,7 +727,7 @@ extern DECLSPEC const char * SDLCALL TTF_FontFaceStyleName(const TTF_Font *font)
 /**
  * Check whether a glyph is provided by the font for a 16-bit codepoint.
  *
- * Note that this version of the function takes a 16-bit character code, which
+ * Note that this version of the function takes a 16-bit characters code, which
  * covers the Basic Multilingual Plane, but is insufficient to cover the
  * entire set of possible Unicode values, including emoji glyphs. You should
  * use TTF_GlyphIsProvided32() instead, which offers the same functionality
@@ -737,8 +737,8 @@ extern DECLSPEC const char * SDLCALL TTF_FontFaceStyleName(const TTF_Font *font)
  * beginning of time, more or less.
  *
  * \param font the font to query.
- * \param ch the character code to check.
- * \returns non-zero if font provides a glyph for this character, zero if not.
+ * \param ch the characters code to check.
+ * \returns non-zero if font provides a glyph for this characters, zero if not.
  *
  * \since This function is available since SDL_ttf 2.0.12.
  *
@@ -749,14 +749,14 @@ extern DECLSPEC int SDLCALL TTF_GlyphIsProvided(TTF_Font *font, Uint16 ch);
 /**
  * Check whether a glyph is provided by the font for a 32-bit codepoint.
  *
- * This is the same as TTF_GlyphIsProvided(), but takes a 32-bit character
+ * This is the same as TTF_GlyphIsProvided(), but takes a 32-bit characters
  * instead of 16-bit, and thus can query a larger range. If you are sure
  * you'll have an SDL_ttf that's version 2.0.18 or newer, there's no reason
  * not to use this function exclusively.
  *
  * \param font the font to query.
- * \param ch the character code to check.
- * \returns non-zero if font provides a glyph for this character, zero if not.
+ * \param ch the characters code to check.
+ * \returns non-zero if font provides a glyph for this characters, zero if not.
  *
  * \since This function is available since SDL_ttf 2.0.18.
  */
@@ -769,7 +769,7 @@ extern DECLSPEC int SDLCALL TTF_GlyphIsProvided32(TTF_Font *font, Uint32 ch);
  *
  * https://freetype.sourceforge.net/freetype2/docs/tutorial/step2.html
  *
- * Note that this version of the function takes a 16-bit character code, which
+ * Note that this version of the function takes a 16-bit characters code, which
  * covers the Basic Multilingual Plane, but is insufficient to cover the
  * entire set of possible Unicode values, including emoji glyphs. You should
  * use TTF_GlyphMetrics32() instead, which offers the same functionality but
@@ -779,7 +779,7 @@ extern DECLSPEC int SDLCALL TTF_GlyphIsProvided32(TTF_Font *font, Uint32 ch);
  * beginning of time, more or less.
  *
  * \param font the font to query.
- * \param ch the character code to check.
+ * \param ch the characters code to check.
  *
  * \since This function is available since SDL_ttf 2.0.12.
  *
@@ -796,13 +796,13 @@ extern DECLSPEC int SDLCALL TTF_GlyphMetrics(TTF_Font *font, Uint16 ch,
  *
  * https://freetype.sourceforge.net/freetype2/docs/tutorial/step2.html
  *
- * This is the same as TTF_GlyphMetrics(), but takes a 32-bit character
+ * This is the same as TTF_GlyphMetrics(), but takes a 32-bit characters
  * instead of 16-bit, and thus can query a larger range. If you are sure
  * you'll have an SDL_ttf that's version 2.0.18 or newer, there's no reason
  * not to use this function exclusively.
  *
  * \param font the font to query.
- * \param ch the character code to check.
+ * \param ch the characters code to check.
  *
  * \since This function is available since SDL_ttf 2.0.18.
  */
@@ -1168,7 +1168,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_Solid_Wrapped(TTF_Font *
  * The glyph is rendered without any padding or centering in the X direction,
  * and aligned normally in the Y direction.
  *
- * Note that this version of the function takes a 16-bit character code, which
+ * Note that this version of the function takes a 16-bit characters code, which
  * covers the Basic Multilingual Plane, but is insufficient to cover the
  * entire set of possible Unicode values, including emoji glyphs. You should
  * use TTF_RenderGlyph32_Solid() instead, which offers the same functionality
@@ -1181,7 +1181,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_Solid_Wrapped(TTF_Font *
  * TTF_RenderGlyph_Blended, and TTF_RenderGlyph_LCD.
  *
  * \param font the font to render with.
- * \param ch the character to render.
+ * \param ch the characters to render.
  * \param fg the foreground color for the text.
  * \returns a new 8-bit, palettized surface, or NULL if there was an error.
  *
@@ -1202,7 +1202,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderGlyph_Solid(TTF_Font *font,
  * The glyph is rendered without any padding or centering in the X direction,
  * and aligned normally in the Y direction.
  *
- * This is the same as TTF_RenderGlyph_Solid(), but takes a 32-bit character
+ * This is the same as TTF_RenderGlyph_Solid(), but takes a 32-bit characters
  * instead of 16-bit, and thus can render a larger range. If you are sure
  * you'll have an SDL_ttf that's version 2.0.18 or newer, there's no reason
  * not to use this function exclusively.
@@ -1211,7 +1211,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderGlyph_Solid(TTF_Font *font,
  * TTF_RenderGlyph32_Blended, and TTF_RenderGlyph32_LCD.
  *
  * \param font the font to render with.
- * \param ch the character to render.
+ * \param ch the characters to render.
  * \param fg the foreground color for the text.
  * \returns a new 8-bit, palettized surface, or NULL if there was an error.
  *
@@ -1434,7 +1434,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_Shaded_Wrapped(TTF_Font 
  * The glyph is rendered without any padding or centering in the X direction,
  * and aligned normally in the Y direction.
  *
- * Note that this version of the function takes a 16-bit character code, which
+ * Note that this version of the function takes a 16-bit characters code, which
  * covers the Basic Multilingual Plane, but is insufficient to cover the
  * entire set of possible Unicode values, including emoji glyphs. You should
  * use TTF_RenderGlyph32_Shaded() instead, which offers the same functionality
@@ -1447,7 +1447,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_Shaded_Wrapped(TTF_Font 
  * TTF_RenderGlyph_Blended, and TTF_RenderGlyph_LCD.
  *
  * \param font the font to render with.
- * \param ch the character to render.
+ * \param ch the characters to render.
  * \param fg the foreground color for the text.
  * \returns a new 8-bit, palettized surface, or NULL if there was an error.
  *
@@ -1469,7 +1469,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderGlyph_Shaded(TTF_Font *font,
  * The glyph is rendered without any padding or centering in the X direction,
  * and aligned normally in the Y direction.
  *
- * This is the same as TTF_RenderGlyph_Shaded(), but takes a 32-bit character
+ * This is the same as TTF_RenderGlyph_Shaded(), but takes a 32-bit characters
  * instead of 16-bit, and thus can render a larger range. If you are sure
  * you'll have an SDL_ttf that's version 2.0.18 or newer, there's no reason
  * not to use this function exclusively.
@@ -1478,7 +1478,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderGlyph_Shaded(TTF_Font *font,
  * TTF_RenderGlyph32_Blended, and TTF_RenderGlyph32_LCD.
  *
  * \param font the font to render with.
- * \param ch the character to render.
+ * \param ch the characters to render.
  * \param fg the foreground color for the text.
  * \returns a new 8-bit, palettized surface, or NULL if there was an error.
  *
@@ -1694,7 +1694,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_Blended_Wrapped(TTF_Font
  * The glyph is rendered without any padding or centering in the X direction,
  * and aligned normally in the Y direction.
  *
- * Note that this version of the function takes a 16-bit character code, which
+ * Note that this version of the function takes a 16-bit characters code, which
  * covers the Basic Multilingual Plane, but is insufficient to cover the
  * entire set of possible Unicode values, including emoji glyphs. You should
  * use TTF_RenderGlyph32_Blended() instead, which offers the same
@@ -1707,7 +1707,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_Blended_Wrapped(TTF_Font
  * TTF_RenderGlyph_Shaded, and TTF_RenderGlyph_LCD.
  *
  * \param font the font to render with.
- * \param ch the character to render.
+ * \param ch the characters to render.
  * \param fg the foreground color for the text.
  * \returns a new 32-bit, ARGB surface, or NULL if there was an error.
  *
@@ -1728,7 +1728,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderGlyph_Blended(TTF_Font *font,
  * The glyph is rendered without any padding or centering in the X direction,
  * and aligned normally in the Y direction.
  *
- * This is the same as TTF_RenderGlyph_Blended(), but takes a 32-bit character
+ * This is the same as TTF_RenderGlyph_Blended(), but takes a 32-bit characters
  * instead of 16-bit, and thus can render a larger range. If you are sure
  * you'll have an SDL_ttf that's version 2.0.18 or newer, there's no reason
  * not to use this function exclusively.
@@ -1737,7 +1737,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderGlyph_Blended(TTF_Font *font,
  * TTF_RenderGlyph32_Shaded, and TTF_RenderGlyph32_LCD.
  *
  * \param font the font to render with.
- * \param ch the character to render.
+ * \param ch the characters to render.
  * \param fg the foreground color for the text.
  * \returns a new 32-bit, ARGB surface, or NULL if there was an error.
  *
@@ -1962,7 +1962,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_LCD_Wrapped(TTF_Font *fo
  * The glyph is rendered without any padding or centering in the X direction,
  * and aligned normally in the Y direction.
  *
- * Note that this version of the function takes a 16-bit character code, which
+ * Note that this version of the function takes a 16-bit characters code, which
  * covers the Basic Multilingual Plane, but is insufficient to cover the
  * entire set of possible Unicode values, including emoji glyphs. You should
  * use TTF_RenderGlyph32_LCD() instead, which offers the same functionality
@@ -1975,7 +1975,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_LCD_Wrapped(TTF_Font *fo
  * TTF_RenderGlyph_Shaded, and TTF_RenderGlyph_Blended.
  *
  * \param font the font to render with.
- * \param ch the character to render.
+ * \param ch the characters to render.
  * \param fg the foreground color for the text.
  * \param bg the background color for the text.
  * \returns a new 32-bit, ARGB surface, or NULL if there was an error.
@@ -1997,7 +1997,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderGlyph_LCD(TTF_Font *font,
  * The glyph is rendered without any padding or centering in the X direction,
  * and aligned normally in the Y direction.
  *
- * This is the same as TTF_RenderGlyph_LCD(), but takes a 32-bit character
+ * This is the same as TTF_RenderGlyph_LCD(), but takes a 32-bit characters
  * instead of 16-bit, and thus can render a larger range. Between the two, you
  * should always use this function.
  *
@@ -2005,7 +2005,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderGlyph_LCD(TTF_Font *font,
  * TTF_RenderGlyph32_Shaded, and TTF_RenderGlyph32_Blended.
  *
  * \param font the font to render with.
- * \param ch the character to render.
+ * \param ch the characters to render.
  * \param fg the foreground color for the text.
  * \param bg the background color for the text.
  * \returns a new 32-bit, ARGB surface, or NULL if there was an error.
@@ -2107,8 +2107,8 @@ extern DECLSPEC int SDLCALL TTF_WasInit(void);
  *             probably expected this function to do.
  *
  * \param font the font to query.
- * \param prev_index the font index, NOT codepoint, of the previous character.
- * \param index the font index, NOT codepoint, of the current character.
+ * \param prev_index the font index, NOT codepoint, of the previous characters.
+ * \param index the font index, NOT codepoint, of the current characters.
  * \returns The kerning size between the two specified characters, in pixels, or -1 on error.
  *
  * \since This function is available since SDL_ttf 2.0.12.
@@ -2120,7 +2120,7 @@ extern SDL_DEPRECATED DECLSPEC int TTF_GetFontKerningSize(TTF_Font *font, int pr
 /**
  * Query the kerning size of two 16-bit glyphs.
  *
- * Note that this version of the function takes 16-bit character
+ * Note that this version of the function takes 16-bit characters
  * codes, which covers the Basic Multilingual Plane, but is insufficient
  * to cover the entire set of possible Unicode values, including emoji
  * glyphs. You should use TTF_GetFontKerningSizeGlyphs32() instead, which
@@ -2130,8 +2130,8 @@ extern SDL_DEPRECATED DECLSPEC int TTF_GetFontKerningSize(TTF_Font *font, int pr
  * the beginning of time, more or less.
  *
  * \param font the font to query.
- * \param previous_ch the previous character's code, 16 bits.
- * \param ch the current character's code, 16 bits.
+ * \param previous_ch the previous characters's code, 16 bits.
+ * \param ch the current characters's code, 16 bits.
  * \returns The kerning size between the two specified characters, in pixels, or -1 on error.
  *
  * \since This function is available since SDL_ttf 2.0.14.
@@ -2149,8 +2149,8 @@ extern DECLSPEC int TTF_GetFontKerningSizeGlyphs(TTF_Font *font, Uint16 previous
  * there's no reason not to use this function exclusively.
  *
  * \param font the font to query.
- * \param previous_ch the previous character's code, 32 bits.
- * \param ch the current character's code, 32 bits.
+ * \param previous_ch the previous characters's code, 32 bits.
+ * \param ch the current characters's code, 32 bits.
  * \returns The kerning size between the two specified characters, in pixels, or -1 on error.
  *
  * \since This function is available since SDL_ttf 2.0.18.

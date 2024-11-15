@@ -2,8 +2,7 @@
 // Created by Matq on 13/04/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_GAME_INDICATORS_HEALTHBAR_H_
-#define TRIALANDERROR_SRC_GAME_INDICATORS_HEALTHBAR_H_
+#pragma once
 
 #include "../../GameReference.h"
 
@@ -37,5 +36,3 @@ public:
     // Generating
     Texture* UpdateTexture();
 };
-
-#endif //TRIALANDERROR_SRC_GAME_INDICATORS_HEALTHBAR_H_

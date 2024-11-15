@@ -2,8 +2,7 @@
 // Created by Mim on 4/19/2023.
 //
 
-#ifndef TRIALANDERROR_AMMO_H
-#define TRIALANDERROR_AMMO_H
+#pragma once
 
 #include "Entity.h"
 #include "SDL.h"
@@ -47,4 +46,3 @@ public:
     void Tick() override;
     void Draw() override;
 };
-#endif //TRIALANDERROR_AMMO_H

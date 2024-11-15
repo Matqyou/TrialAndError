@@ -2,8 +2,7 @@
 // Created by Matq on 15/04/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_GAME_INDICATORS_TEXTSURFACE_H_
-#define TRIALANDERROR_SRC_GAME_INDICATORS_TEXTSURFACE_H_
+#pragma once
 
 #include "../../technical stuff/AssetsManager.h"
 #include "../../technical stuff/Drawing.h"
@@ -42,5 +41,3 @@ public:
     // Generate
     Texture* RequestUpdate();
 };
-
-#endif //TRIALANDERROR_SRC_GAME_INDICATORS_TEXTSURFACE_H_

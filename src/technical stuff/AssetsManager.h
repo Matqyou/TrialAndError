@@ -2,8 +2,7 @@
 // Created by Matq on 14/04/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_TECHNICAL_STUFF_ASSETSMANAGER_H_
-#define TRIALANDERROR_SRC_TECHNICAL_STUFF_ASSETSMANAGER_H_
+#pragma once
 
 #include "ImageManager.h"
 #include "SoundManager.h"
@@ -31,5 +30,3 @@ public:
     void DeinitializeImages();
     void DeinitializeSounds();
 };
-
-#endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_ASSETSMANAGER_H_

@@ -2,8 +2,7 @@
 // Created by Matq on 04/06/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_PROTOCOL_H_
-#define TRIALANDERROR_SRC_PROTOCOL_H_
+#pragma once
 
 enum EntityFormFactor {
     ENTFORM_NORMAL,
@@ -19,5 +18,3 @@ enum EntityType {
     ENTTYPE_CHARACTER,
     NUM_ENTTYPES
 };
-
-#endif //TRIALANDERROR_SRC_PROTOCOL_H_

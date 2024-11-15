@@ -3,7 +3,7 @@
 //
 
 #include "WeaponShotgun.h"
-#include "../../entities/character/Character.h"
+#include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 #include <cmath>
 
@@ -23,7 +23,7 @@ WeaponShotgun::WeaponShotgun(Character* owner)
 
 void WeaponShotgun::Tick() {
     if (m_Parent->GetEntityType() != ENTTYPE_CHARACTER) {
-        std::printf("Warning: Weapon holder is not a character (no support for error powerups)");
+        std::printf("Warning: Weapon holder is not a characters (no support for error powerups)");
         return;
     }
 

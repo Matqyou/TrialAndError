@@ -2,8 +2,7 @@
 // Created by T450s on 24/03/2023.
 //
 
-#ifndef TRIALANDERROR_IMAGEMANAGER_H
-#define TRIALANDERROR_IMAGEMANAGER_H
+#pragma once
 
 #include <SDL_image.h>
 #include <vector>
@@ -68,5 +67,3 @@ public:
     void AddTextureAutoCleanup(Texture* texture);
     void RemoveTextureAutoCleanup(Texture* texture);
 };
-
-#endif //TRIALANDERROR_IMAGEMANAGER_H

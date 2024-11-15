@@ -4,8 +4,8 @@
 #include "Character.h"
 #include <cmath>
 #include <iostream>
-#include "../item/EntityGuns.h"
-#include "../Projectile.h"
+#include "../../item/weapons/EntityGuns.h"
+#include "../../Projectile.h"
 #include <vector>
 
 #ifndef M_SQRT1_2
@@ -726,7 +726,7 @@ void Character::TickCollision()
             Distance = 1.0;
         }
 
-        // TODO make push stronger when closer to character not when further....
+        // TODO make push stronger when closer to characters not when further....
         double XPush = XDistance / Distance * 0.5;
         double YPush = YDistance / Distance * 0.5;
         m_Core.Accelerate(XPush, YPush);
@@ -1310,13 +1310,13 @@ void Character::Tick()
     TickCurrentWeapon(); // Shoot accelerate reload etc.
     m_Hands.Tick();
     TickErrorTimers(); // Ticks timer for errors
-    // Need every character to get here..
+    // Need every characters to get here..
     // then we apply the accelerations of all
     // hooks and continue with the code below v v v
     // like collisions and velocity tick
 
     TickCollision();
-    TickVelocity(); // Move the character entity
+    TickVelocity(); // Move the characters entity
     TickWalls();    // Check if colliding with walls
 
     if ((int)(m_Health) != (int)(m_LastHealth))

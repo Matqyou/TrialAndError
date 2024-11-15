@@ -2,10 +2,9 @@
 // Created by T450s on 5/4/2023.
 //
 
-#ifndef TRIALANDERROR_PLAYER_H
-#define TRIALANDERROR_PLAYER_H
+#pragma once
 
-#include "../GameWorld.h"
+#include "GameWorld.h"
 #include <string>
 
 enum {
@@ -38,5 +37,3 @@ public:
     void SetCharacter(Character* character);
     void SetUsername(const std::string& username);
 };
-
-#endif //TRIALANDERROR_PLAYER_H

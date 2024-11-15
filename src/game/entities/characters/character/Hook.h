@@ -2,10 +2,9 @@
 // Created by Matq on 14/04/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_GAME_ENTITIES_CHARACTER_HOOK_H_
-#define TRIALANDERROR_SRC_GAME_ENTITIES_CHARACTER_HOOK_H_
+#pragma once
 
-#include "../Entity.h"
+#include "../../Entity.h"
 
 class Character;
 struct Hook {
@@ -40,5 +39,3 @@ struct Hook {
     // Ticking
     void Tick();
 };
-
-#endif //TRIALANDERROR_SRC_GAME_ENTITIES_CHARACTER_HOOK_H_

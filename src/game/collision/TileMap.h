@@ -2,8 +2,7 @@
 // Created by Matq on 16/04/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_GAME_COLLISION_TILEMAP_H_
-#define TRIALANDERROR_SRC_GAME_COLLISION_TILEMAP_H_
+#pragma once
 
 #include "../../technical stuff/Colors.h"
 #include "../../technical stuff/Drawing.h"
@@ -39,5 +38,3 @@ public:
     // Ticking
     void Draw();
 };
-
-#endif //TRIALANDERROR_SRC_GAME_COLLISION_TILEMAP_H_

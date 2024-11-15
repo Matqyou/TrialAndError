@@ -2,8 +2,7 @@
 // Created by T450s on 26/12/2022.
 //
 
-#ifndef AIFU_CLOCK_H
-#define AIFU_CLOCK_H
+#pragma once
 
 #include <chrono>
 
@@ -39,5 +38,3 @@ public:
     // Ticking
     void Tick();
 };
-
-#endif //AIFU_CLOCK_H

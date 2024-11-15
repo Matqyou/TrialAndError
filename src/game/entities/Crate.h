@@ -2,8 +2,7 @@
 // Created by Mim on 5/08/2023.
 //
 
-#ifndef TRIALANDERROR_CRATES_H
-#define TRIALANDERROR_CRATES_H
+#pragma once
 
 #include "Entity.h"
 #include "SDL.h"
@@ -46,4 +45,3 @@ public:
     void Tick() override;
     void Draw() override;
 };
-#endif //TRIALANDERROR_CRATES_H

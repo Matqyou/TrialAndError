@@ -2,8 +2,7 @@
 // Created by Matq on 29/03/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_TECHNICAL_STUFF_SOUNDMANAGER_H_
-#define TRIALANDERROR_SRC_TECHNICAL_STUFF_SOUNDMANAGER_H_
+#pragma once
 
 #include <SDL_mixer.h>
 
@@ -47,5 +46,3 @@ public:
     // Manipulating
     void PlaySound(Sound* sound) const;
 };
-
-#endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_SOUNDMANAGER_H_

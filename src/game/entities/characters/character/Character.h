@@ -1,20 +1,19 @@
-#ifndef TRIALANDERROR_CHARACTER_H
-#define TRIALANDERROR_CHARACTER_H
+#pragma once
 
 #include "SDL.h"
 #include <cstring>
-#include "../Entity.h"
-#include "../../Player.h"
-#include "../../weapons/projectile/WeaponGlock.h"
-#include "../../weapons/projectile/WeaponShotgun.h"
-#include "../../weapons/projectile/WeaponBurst.h"
-#include "../../weapons/projectile/WeaponMinigun.h"
-#include "../../../technical stuff/GameControllers.h"
-#include "../../../technical stuff/Colors.h"
-#include "../../indicators/HealthBar.h"
-#include "../../indicators/TextSurface.h"
-#include "../AmmoBox.h"
-#include "../Crate.h"
+#include "../../Entity.h"
+#include "../../../Player.h"
+#include "../../../weapons/projectile/WeaponGlock.h"
+#include "../../../weapons/projectile/WeaponShotgun.h"
+#include "../../../weapons/projectile/WeaponBurst.h"
+#include "../../../weapons/projectile/WeaponMinigun.h"
+#include "../../../../technical stuff/GameControllers.h"
+#include "../../../../technical stuff/Colors.h"
+#include "../../../indicators/HealthBar.h"
+#include "../../../indicators/TextSurface.h"
+#include "../../AmmoBox.h"
+#include "../../Crate.h"
 #include "Hook.h"
 #include "Hands.h"
 
@@ -173,5 +172,3 @@ public:
     void Tick() override;
     void Draw() override;
 };
-
-#endif //TRIALANDERROR_CHARACTER_H

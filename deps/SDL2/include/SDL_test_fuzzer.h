@@ -331,7 +331,7 @@ Sint32 SDLTest_RandomIntegerInRange(Sint32 min, Sint32 max);
 
 /**
  * Generates random null-terminated string. The minimum length for
- * the string is 1 character, maximum length for the string is 255
+ * the string is 1 characters, maximum length for the string is 255
  * characters and it can contain ASCII characters from 32 to 126.
  *
  * Note: Returned string needs to be deallocated.

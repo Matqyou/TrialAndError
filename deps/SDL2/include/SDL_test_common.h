@@ -156,7 +156,7 @@ int SDLTest_CommonArg(SDLTest_CommonState * state, int index);
  * This logs the appropriate command line options for the subsystems in use
  *  plus other common options, and then any application-specific options.
  *  This uses the SDL_Log() function and splits up output to be friendly to
- *  80-character-wide terminals.
+ *  80-characters-wide terminals.
  *
  * \param state The common state describing the test window for the app.
  * \param argv0 argv[0], as passed to main/SDL_main.

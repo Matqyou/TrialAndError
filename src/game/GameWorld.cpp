@@ -3,10 +3,10 @@
 //
 
 #include "GameWorld.h"
-#include "game/Player.h"
-#include "game/entities/Entity.h"
-#include "game/entities/character/Character.h"
-#include "game/entities/character/npc/CharacterNPC.h"
+#include "Player.h"
+#include "entities/Entity.h"
+#include "entities/characters/character/Character.h"
+#include "entities/characters/CharacterNPC.h"
 #include <cmath>
 
 GameWorld::GameWorld(GameReference *game_window, int width, int height)

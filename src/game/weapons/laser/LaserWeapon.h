@@ -2,10 +2,9 @@
 // Created by Matq on 24/05/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_GAME_WEAPONS_LASER_LASERWEAPON_H_
-#define TRIALANDERROR_SRC_GAME_WEAPONS_LASER_LASERWEAPON_H_
+#pragma once
 
-#include "../../../GameWorld.h"
+#include "../../GameWorld.h"
 
 enum WeaponType {
     WEAPON_GLOCK,
@@ -69,5 +68,3 @@ public:
 
     virtual void Tick();
 };
-
-#endif //TRIALANDERROR_SRC_GAME_WEAPONS_LASER_LASERWEAPON_H_

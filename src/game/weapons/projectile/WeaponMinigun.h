@@ -2,8 +2,7 @@
 // Created by T450s on 01/04/2023.
 //
 
-#ifndef TRIALANDERROR_WEAPONMINIGUN_H
-#define TRIALANDERROR_WEAPONMINIGUN_H
+#pragma once
 
 #include "ProjectileWeapon.h"
 
@@ -33,5 +32,3 @@ public:
     void Reload() override;
     void OnSelected() override;
 };
-
-#endif //TRIALANDERROR_WEAPONMINIGUN_H

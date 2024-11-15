@@ -2,11 +2,10 @@
 // Created by Matq on 15/05/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_GAME_ENTITIES_CHARACTER_HANDS_H_
-#define TRIALANDERROR_SRC_GAME_ENTITIES_CHARACTER_HANDS_H_
+#pragma once
 
-#include "../../../technical stuff/Colors.h"
-#include "../../../technical stuff/ImageManager.h"
+#include "../../../../technical stuff/Colors.h"
+#include "../../../../technical stuff/ImageManager.h"
 
 class Character;
 class Hands {
@@ -40,5 +39,3 @@ public:
     void Tick();
     void Draw();
 };
-
-#endif //TRIALANDERROR_SRC_GAME_ENTITIES_CHARACTER_HANDS_H_

@@ -2,7 +2,7 @@
 // Created by Mim on 4/19/2023.
 //
 #include "AmmoBox.h"
-#include "character/Character.h"
+#include "characters/character/Character.h"
 #include <cmath>
 #include <iostream>
 Texture* AmmoBox::ms_TextureGlock = nullptr;

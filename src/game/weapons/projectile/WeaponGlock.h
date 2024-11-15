@@ -2,8 +2,7 @@
 // Created by T450s on 01/04/2023.
 //
 
-#ifndef TRIALANDERROR_WEAPONGLOCK_H
-#define TRIALANDERROR_WEAPONGLOCK_H
+#pragma once
 
 #include "ProjectileWeapon.h"
 #include "../../entities/Entity.h"
@@ -22,5 +21,3 @@ public:
     // Ticking
     void Tick() override;
 };
-
-#endif //TRIALANDERROR_WEAPONGLOCK_H

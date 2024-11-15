@@ -2,8 +2,7 @@
 // Created by T450s on 01/04/2023.
 //
 
-#ifndef TRIALANDERROR_WEAPONBURST_H
-#define TRIALANDERROR_WEAPONBURST_H
+#pragma once
 
 #include "ProjectileWeapon.h"
 
@@ -26,5 +25,3 @@ public:
     // Ticking
     void Tick() override;
 };
-
-#endif //TRIALANDERROR_WEAPONBURST_H

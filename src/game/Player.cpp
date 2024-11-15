@@ -3,7 +3,7 @@
 //
 
 #include "Player.h"
-#include "entities/character/Character.h"
+#include "entities/characters/character/Character.h"
 
 Player::Player(GameWorld* game_world, const std::string& username)
     : m_GameWorld(game_world),
@@ -28,7 +28,7 @@ Player::~Player() {
 }
 
 void Player::SetCharacter(Character* character) {
-    if (m_Character) std::printf("Player `%s` already has a character..\n", m_Username.c_str());
+    if (m_Character) std::printf("Player `%s` already has a characters..\n", m_Username.c_str());
     else m_Character = character;
 }
 

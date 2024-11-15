@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../../../GameWorld.h"
+#include "../../GameWorld.h"
 
 enum WeaponType {
     WEAPON_GLOCK,

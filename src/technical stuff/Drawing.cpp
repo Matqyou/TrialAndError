@@ -3,7 +3,7 @@
 //
 
 #include "Drawing.h"
-#include "../GameWorld.h"
+#include "../game/GameWorld.h"
 
 Drawing::Drawing(GameReference* game_window) {
     m_GameWindow = game_window;

@@ -2,14 +2,13 @@
 // Created by Matq on 04/06/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_GAME_ENTITIES_ITEM_ENTITYGUNS_H_
-#define TRIALANDERROR_SRC_GAME_ENTITIES_ITEM_ENTITYGUNS_H_
+#pragma once
 
-#include "ItemEntity.h"
-#include "../../weapons/projectile/WeaponGlock.h"
-#include "../../weapons/projectile/WeaponShotgun.h"
-#include "../../weapons/projectile/WeaponBurst.h"
-#include "../../weapons/projectile/WeaponMinigun.h"
+#include "../ItemEntity.h"
+#include "../../../weapons/projectile/WeaponGlock.h"
+#include "../../../weapons/projectile/WeaponShotgun.h"
+#include "../../../weapons/projectile/WeaponBurst.h"
+#include "../../../weapons/projectile/WeaponMinigun.h"
 
 class EntityGlock : public ItemEntity {
 private:
@@ -54,5 +53,3 @@ public:
     EntityMinigun(GameWorld* world, Entity* dropper, WeaponMinigun* minigun, const Vec2d& start_pos);
     ~EntityMinigun();
 };
-
-#endif //TRIALANDERROR_SRC_GAME_ENTITIES_ITEM_ENTITYGUNS_H_

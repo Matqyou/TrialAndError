@@ -2,8 +2,7 @@
 // Created by Matq on 26/03/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_TECHNICAL_STUFF_DRAWING_H_
-#define TRIALANDERROR_SRC_TECHNICAL_STUFF_DRAWING_H_
+#pragma once
 
 #include "ImageManager.h"
 #include <SDL_image.h>
@@ -79,5 +78,3 @@ public:
                                 SDL_FPoint* center,
                                 SDL_RendererFlip flip);
 };
-
-#endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_DRAWING_H_

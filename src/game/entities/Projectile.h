@@ -2,8 +2,7 @@
 // Created by janis on 3/22/2023.
 //
 
-#ifndef TRIALANDERROR_BULLETS_H
-#define TRIALANDERROR_BULLETS_H
+#pragma once
 
 #include "../weapons/projectile/ProjectileWeapon.h"
 #include "Entity.h"
@@ -18,7 +17,6 @@ private:
 
     // Ticking
     void TickImpact();
-    bool TickVelocity();
     bool TickHitPoint(double x, double y);
 
 public:
@@ -38,5 +36,3 @@ public:
     void Tick() override;
     void Draw() override;
 };
-
-#endif //TRIALANDERROR_BULLETS_H

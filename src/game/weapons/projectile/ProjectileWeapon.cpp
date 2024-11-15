@@ -3,7 +3,7 @@
 //
 
 #include "ProjectileWeapon.h"
-#include "../../entities/character/Character.h"
+#include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 #include <cmath>
 

@@ -1,7 +1,7 @@
 //
 // Created by Mim on 5/8/2023.
 //
-#include "character/Character.h"
+#include "characters/character/Character.h"
 #include "Crate.h"
 #include <iostream>
 Texture* Crate::ms_TextureBox = nullptr;

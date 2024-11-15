@@ -3,7 +3,7 @@
 //
 
 #include "WeaponGlock.h"
-#include "../../entities/character/Character.h"
+#include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
 Sound* WeaponGlock::ms_ShootSound = nullptr;
@@ -18,7 +18,7 @@ WeaponGlock::WeaponGlock(DirectionalEntity* parent)
 
 void WeaponGlock::Tick() {
     if (m_Parent->GetEntityType() != ENTTYPE_CHARACTER) {
-        std::printf("Warning: Weapon holder is not a character (no support for error powerups)");
+        std::printf("Warning: Weapon holder is not a characters (no support for error powerups)");
         return;
     }
 

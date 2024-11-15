@@ -2,8 +2,7 @@
 // Created by Matq on 04/06/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_TECHNICAL_STUFF_RANDOMIZER_H_
-#define TRIALANDERROR_SRC_TECHNICAL_STUFF_RANDOMIZER_H_
+#pragma once
 
 #include <random>
 
@@ -41,5 +40,3 @@ public:
     [[nodiscard]] double PercentageDouble();
 
 };
-
-#endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_RANDOMIZER_H_

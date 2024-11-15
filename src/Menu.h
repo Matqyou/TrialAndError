@@ -2,8 +2,8 @@
 // Created by Mim on 6/5/2023.
 //
 
-#ifndef TRIALANDERROR_MENU_H
-#define TRIALANDERROR_MENU_H
+#pragma once
+
 #include "game/indicators/TextSurface.h"
 #include "GameReference.h"
 
@@ -19,6 +19,3 @@ public:
     void Tick();
     void Draw();
 };
-
-
-#endif //TRIALANDERROR_MENU_H

@@ -6,7 +6,7 @@
 #include <cmath>
 #include <iostream>
 #include "Crate.h"
-#include "character/Character.h"
+#include "characters/character/Character.h"
 
 Texture* Projectile::ms_TextureGlock = nullptr;
 Texture* Projectile::ms_TextureBurst = nullptr;
@@ -41,16 +41,6 @@ Projectile::Projectile(GameWorld* world,
     m_Shooter = shooter;
     m_Damage = damage;
     m_StillCollidesShooter = true;
-}
-
-bool Projectile::TickVelocity() {
-    m_Core.Vel.x *= m_Core.BaseDamping;
-    m_Core.Vel.y *= m_Core.BaseDamping;
-
-    m_Core.Pos.x += m_Core.Vel.x;
-    m_Core.Pos.y += m_Core.Vel.y;
-
-    return TickHitPoint(m_Core.Pos.x, m_Core.Pos.y); // TODO: interpolate
 }
 
 bool Projectile::TickHitPoint(double x, double y) {
@@ -94,6 +84,8 @@ bool Projectile::TickHitPoint(double x, double y) {
 }
 
 void Projectile::TickImpact() {
+    TickHitPoint(m_Core.Pos.x, m_Core.Pos.y); // TODO: interpolate
+
     // Deletes the bullet if it hits the border
     if (m_Core.Pos.x < 0 || m_Core.Pos.x > m_World->GetWidth() ||
         m_Core.Pos.y < 0 || m_Core.Pos.y > m_World->GetHeight())
@@ -101,8 +93,8 @@ void Projectile::TickImpact() {
 }
 
 void Projectile::Tick() {
-    if (!TickVelocity())
-        TickImpact();
+    TickVelocity();
+    TickImpact();
 }
 
 void Projectile::Draw() {

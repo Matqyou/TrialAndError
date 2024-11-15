@@ -2,14 +2,13 @@
 // Created by Matq on 22/03/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_GAMEWORLD_H_
-#define TRIALANDERROR_SRC_GAMEWORLD_H_
+#pragma once
 
-#include "GameReference.h"
-#include "technical stuff/GameControllers.h"
-#include "game/indicators/TextSurface.h"
-#include "game/collision/TileMap.h"
-#include "Protocol.h"
+#include "../GameReference.h"
+#include "../technical stuff/GameControllers.h"
+#include "indicators/TextSurface.h"
+#include "collision/TileMap.h"
+#include "../Protocol.h"
 
 class Player;
 class Entity;
@@ -90,5 +89,3 @@ public:
     void Tick();
     void Draw();
 };
-
-#endif //TRIALANDERROR_SRC_GAMEWORLD_H_

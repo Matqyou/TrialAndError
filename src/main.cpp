@@ -8,14 +8,14 @@
 
 #define SDL_MAIN_HANDLED
 #include "GameReference.h"
-#include "GameWorld.h"
+#include "game/GameWorld.h"
 #include "Menu.h"
 #include "technical stuff/GameControllers.h"
 #include "game/indicators/TextSurface.h"
-#include "game/entities/character/npc/CharacterNPC.h"
-#include "game/entities/character/Character.h"
+#include "game/entities/characters/CharacterNPC.h"
+#include "game/entities/characters/character/Character.h"
 #include "game/entities/Projectile.h"
-#include "game/entities/item/EntityGuns.h"
+#include "game/entities/item/weapons/EntityGuns.h"
 #include "game/entities/AmmoBox.h"
 #include "game/entities/Crate.h"
 #include "game/entities/Error.h"

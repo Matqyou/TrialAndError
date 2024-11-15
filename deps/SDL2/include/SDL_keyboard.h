@@ -42,7 +42,7 @@ extern "C" {
 /**
  *  \brief The SDL keysym structure, used in key events.
  *
- *  \note  If you are looking for translated character input, see the ::SDL_TEXTINPUT event.
+ *  \note  If you are looking for translated characters input, see the ::SDL_TEXTINPUT event.
  */
 typedef struct SDL_Keysym
 {

@@ -3,7 +3,7 @@
 //
 
 #include "EntityGuns.h"
-#include "../character/Character.h"
+#include "../../characters/character/Character.h"
 
 void EntityGlock::EventPickup(Character& picker_char) {
     picker_char.GiveWeapon(m_Glock);

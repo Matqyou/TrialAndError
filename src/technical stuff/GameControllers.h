@@ -2,8 +2,7 @@
 // Created by Matq on 20/03/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMECONTROLLERS_H_
-#define TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMECONTROLLERS_H_
+#pragma once
 
 #include <SDL.h>
 #include <vector>
@@ -56,5 +55,3 @@ public:
     void Event(const SDL_Event& event);
     void TickReset();
 };
-
-#endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMECONTROLLERS_H_

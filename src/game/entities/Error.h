@@ -2,11 +2,11 @@
 // Created by Mim on 5/13/2023.
 //
 
-#ifndef TRIALANDERROR_ERROR_H
-#define TRIALANDERROR_ERROR_H
+#pragma once
+
 #include "Entity.h"
 #include "../weapons/projectile/ProjectileWeapon.h"
-#include "character/Character.h"
+#include "characters/character/Character.h"
 
 enum ErrorTypes {
     HEALERS_PARADISE,
@@ -49,5 +49,3 @@ public:
     void Tick() override;
     void Draw() override;
 };
-
-#endif //TRIALANDERROR_ERROR_H

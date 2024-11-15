@@ -45,9 +45,9 @@ extern "C" {
  *  \brief Draw a string in the currently set font.
  *
  *  \param renderer The renderer to draw on.
- *  \param x The X coordinate of the upper left corner of the character.
- *  \param y The Y coordinate of the upper left corner of the character.
- *  \param c The character to draw.
+ *  \param x The X coordinate of the upper left corner of the characters.
+ *  \param y The Y coordinate of the upper left corner of the characters.
+ *  \param c The characters to draw.
  *
  *  \returns 0 on success, -1 on failure.
  */
@@ -107,8 +107,8 @@ void SDLTest_TextWindowDisplay(SDLTest_TextWindow *textwin, SDL_Renderer *render
 /**
  *  \brief Add text to a multi-line text output window
  *
- *  Adds UTF-8 text to the end of the current text. The newline character starts a
- *  new line of text. The backspace character deletes the last character or, if the
+ *  Adds UTF-8 text to the end of the current text. The newline characters starts a
+ *  new line of text. The backspace characters deletes the last characters or, if the
  *  line is empty, deletes the line and goes to the end of the previous line.
  *
  *  \param textwin The text output window
@@ -122,8 +122,8 @@ void SDLTest_TextWindowAddText(SDLTest_TextWindow *textwin, SDL_PRINTF_FORMAT_ST
 /**
  *  \brief Add text to a multi-line text output window
  *
- *  Adds UTF-8 text to the end of the current text. The newline character starts a
- *  new line of text. The backspace character deletes the last character or, if the
+ *  Adds UTF-8 text to the end of the current text. The newline characters starts a
+ *  new line of text. The backspace characters deletes the last characters or, if the
  *  line is empty, deletes the line and goes to the end of the previous line.
  *
  *  \param textwin The text output window

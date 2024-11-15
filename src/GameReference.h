@@ -2,8 +2,7 @@
 // Created by Matq on 22/03/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMEREFERENCE_H_
-#define TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMEREFERENCE_H_
+#pragma once
 
 #include "SDL.h"
 #include "SDL_image.h"
@@ -62,5 +61,3 @@ public:
     // Listening
     void Event(const SDL_Event& event);
 };
-
-#endif //TRIALANDERROR_SRC_TECHNICAL_STUFF_GAMEREFERENCE_H_
