@@ -2,8 +2,7 @@
 // Created by Matq on 30/03/2023.
 //
 
-#ifndef TRIALANDERROR_SRC_GAME_WEAPONS_WEAPON_H_
-#define TRIALANDERROR_SRC_GAME_WEAPONS_WEAPON_H_
+#pragma once
 
 #include "../../../GameWorld.h"
 
@@ -84,5 +83,3 @@ public:
     // Ticking
     virtual void Tick();
 };
-
-#endif //TRIALANDERROR_SRC_GAME_WEAPONS_WEAPON_H_

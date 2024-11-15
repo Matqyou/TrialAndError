@@ -33,7 +33,7 @@ public:
     Crate(GameWorld* world,
           const Vec2d& start_pos,
           double Health,
-          int RandomDrop);
+          DropType RandomDrop);
     ~Crate();
 
     // Getting

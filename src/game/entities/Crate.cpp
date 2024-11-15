@@ -13,7 +13,7 @@ Sound* Crate::ms_BoxSound = nullptr;
 Crate::Crate(GameWorld* world,
              const Vec2d& start_pos,
              double Health,
-             int RandomDrop)
+             DropType RandomDrop)
     : Entity(world,
              ENTFORM_NORMAL,
              ENTTYPE_CRATE,
@@ -24,7 +24,7 @@ Crate::Crate(GameWorld* world,
     m_World = world;
     m_Health = Health;
     m_Alive = true;
-    m_Type = static_cast<DropType>(RandomDrop);
+    m_Type = RandomDrop;
     m_Texture = &ms_TextureBox;
 
     auto Random = m_World->GameWindow()->Random();

@@ -45,23 +45,28 @@ ProjectileWeapon::ProjectileWeapon(DirectionalEntity* owner,
     m_RandomProjectileSpeedDivisor = 0.0;
     m_NegativeRandomProjectileSpeed = 0.0;
     m_FullRandomProjectileSpeed = 0;
+    m_Parent = nullptr;
 }
 
 void ProjectileWeapon::TickTrigger() {
-    if (m_Parent->GetEntityType() != ENTTYPE_CHARACTER) {
-        std::printf("Warning: parent of projectileweapon is not a character (incomplete)\n");
-        return;
+#ifndef NDEBUG
+    if (m_Parent == nullptr) {
+        throw std::runtime_error("ProjectileWeapon Parent is nullptr");
     }
 
-    if (m_Parent) {
-        bool Shoot = ((Character*)(m_Parent))->m_Input.m_Shooting;
-        bool LastShoot = ((Character*)(m_Parent))->m_LastInput.m_Shooting;
+    if (m_Parent->GetEntityType() != ENTTYPE_CHARACTER) {
+        std::printf("Warning: Parent of ProjectileWeapon is not a character (incomplete)\n");
+        return;
+    }
+#endif
 
-        m_Triggered = Shoot && !LastShoot;  // Always trigger on semi
-        if (!m_Triggered) {
-            bool Auto = Shoot && m_Automatic;
-            m_Triggered = Auto && (m_Ammo || m_LastShot);
-        }
+    bool Shoot = ((Character*)(m_Parent))->m_Input.m_Shooting;
+    bool LastShoot = ((Character*)(m_Parent))->m_LastInput.m_Shooting;
+
+    m_Triggered = Shoot && !LastShoot;  // Always trigger on semi
+    if (!m_Triggered) {
+        bool Auto = Shoot && m_Automatic;
+        m_Triggered = Auto && (m_Ammo || m_LastShot);
     }
 }
 

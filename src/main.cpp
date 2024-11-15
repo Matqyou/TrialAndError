@@ -133,15 +133,15 @@ bool StartUp()
     Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),
                                                  World->GameWindow()->Assets()->TextHandler()->GetMainFont(),
                                                  "Bot User", {255, 150, 150, 255});
-    new Crate(World, Vec2d(200, 200), 20, rand() % 2);
-    new Crate(World, Vec2d(400, 200), 20, rand() % 2);
-    new Crate(World, Vec2d(600, 200), 20, rand() % 2);
-    new Crate(World, Vec2d(200, 400), 20, rand() % 2);
-    new Crate(World, Vec2d(400, 400), 20, rand() % 2);
-    new Crate(World, Vec2d(600, 400), 20, rand() % 2);
-    new Crate(World, Vec2d(200, 600), 20, rand() % 2);
-    new Crate(World, Vec2d(400, 600), 20, rand() % 2);
-    new Crate(World, Vec2d(600, 600), 20, rand() % 2);
+    new Crate(World, Vec2d(200, 200), 20, DropType(rand() % 2));
+    new Crate(World, Vec2d(400, 200), 20, DropType(rand() % 2));
+    new Crate(World, Vec2d(600, 200), 20, DropType(rand() % 2));
+    new Crate(World, Vec2d(200, 400), 20, DropType(rand() % 2));
+    new Crate(World, Vec2d(400, 400), 20, DropType(rand() % 2));
+    new Crate(World, Vec2d(600, 400), 20, DropType(rand() % 2));
+    new Crate(World, Vec2d(200, 600), 20, DropType(rand() % 2));
+    new Crate(World, Vec2d(400, 600), 20, DropType(rand() % 2));
+    new Crate(World, Vec2d(600, 600), 20, DropType(rand() % 2));
 
     new EntityGlock(World, nullptr, nullptr, Vec2d(800, 200));
     new EntityShotgun(World, nullptr,nullptr, Vec2d(900, 200));
@@ -155,7 +155,7 @@ bool StartUp()
                                100.0,
                                Vec2d(32 * 17.5, 32 * 17.5),
                                Vec2d(10, 10));
-    Char1->GiveWeapon(new WeaponGlock(nullptr));
+    // Char1->GiveWeapon(new WeaponGlock(nullptr));
 
     return true;
 }
