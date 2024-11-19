@@ -74,7 +74,7 @@ void Hands::Tick() {
         auto Ent = World->FirstEntity();
         for (; Ent; Ent = Ent->Next()) {
             if (Ent == m_Parent) continue;
-            if (Ent->GetEntityType() == ENTTYPE_CHARACTER
+            if (Ent->GetType() == ENTTYPE_CHARACTER
                 && m_Parent->IsNPC() == ((Character*)Ent)->IsNPC())
                 continue;
 
@@ -87,12 +87,12 @@ void Hands::Tick() {
             if (Distance > m_FistingRadius)
                 continue;
 
-            if (!m_Parent->IsNPC() && Ent->GetEntityType() == ENTTYPE_CRATE) {
-                ((Crate*)Ent)->DamageCrate(5);
+            if (!m_Parent->IsNPC() && Ent->GetType() == ENTTYPE_CRATE) {
+                ((Crate*)Ent)->Damage(5);
                 continue;
             }
 
-            if (Ent->GetEntityType() != ENTTYPE_CHARACTER)
+            if (Ent->GetType() != ENTTYPE_CHARACTER)
                 continue;
             Ent->Accelerate(Vec2d(m_Parent->GetInput().m_LookingX, m_Parent->GetInput().m_LookingY) * 5.0);
             ((Character*)Ent)->Damage(7, true);

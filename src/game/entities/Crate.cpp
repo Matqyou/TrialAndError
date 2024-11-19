@@ -39,12 +39,21 @@ Crate::Crate(GameWorld* world,
     else if (RandomFloat <= 8 / 8.0f) { typeID = DANGEROUS_RECOIL; }
 }
 
-Crate::~Crate() = default;
+Crate::~Crate()
+{
+    Character *Char = m_World->FirstCharacter();
+    for (; Char; Char = (Character *)Char->NextType())
+    {
+        Hook *TargetHook = Char->GetHook();
+        if (TargetHook->m_GrabbedEntity == this)
+            TargetHook->Unhook();
+    }
+}
 
-void Crate::DamageCrate(double Damage) {
+void Crate::Damage(double value) {
     Sound* BoxHitSound = ms_BoxSound;
     m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(BoxHitSound);
-    m_Health -= Damage;
+    m_Health -= value;
     if (m_Health < 10) m_Texture = &ms_TextureBreakingBox2;
     else if (m_Health < 20) m_Texture = &ms_TextureBreakingBox1;
 }

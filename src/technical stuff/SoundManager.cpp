@@ -86,7 +86,7 @@ Sound* SoundManager::LoadSound(const char* filepath, bool auto_cleanup) {
 }
 
 void SoundManager::PlaySound(Sound* sound) const {
-    if (!m_Enabled)
+    if (!m_Enabled || sound == nullptr)
         return;
 
     Mix_PlayChannel(-1, sound->MixChunk(), 0);

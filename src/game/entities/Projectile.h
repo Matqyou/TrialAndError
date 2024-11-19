@@ -16,8 +16,9 @@ private:
     bool m_StillCollidesShooter;
 
     // Ticking
-    void TickImpact();
-    bool TickHitPoint(double x, double y);
+    void TickCollision();
+    void TickWallCollision();
+
 
 public:
     static Texture* ms_TextureGlock;

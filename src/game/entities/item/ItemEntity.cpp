@@ -8,6 +8,7 @@
 Texture* ItemEntity::ms_TextureGlock = nullptr;
 Texture* ItemEntity::ms_TextureShotgun = nullptr;
 Texture* ItemEntity::ms_TextureBurst = nullptr;
+Texture* ItemEntity::ms_TextureSniper = nullptr;
 Texture* ItemEntity::ms_TexturesMinigun[4] = { nullptr, nullptr, nullptr, nullptr };
 
 void ItemEntity::SetTexture(ItemType item_type) {
@@ -22,6 +23,10 @@ void ItemEntity::SetTexture(ItemType item_type) {
             break;
         case ITEMTYPE_BURST: {
             m_Texture = ms_TextureBurst;
+        }
+            break;
+        case ITEMTYPE_SNIPER: {
+            m_Texture = ms_TextureSniper;
         }
             break;
         case ITEMTYPE_MINIGUN: {

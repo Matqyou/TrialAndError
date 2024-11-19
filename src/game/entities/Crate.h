@@ -15,11 +15,10 @@ enum DropType {
     NUM_DROPS
 };
 
-class Crate : public Entity {
+class Crate : public Entity, public virtual HasHealth {
 protected:
     DropType m_Type;
     int typeID;
-    double m_Health;
     Texture** m_Texture;
 
 public:
@@ -39,7 +38,7 @@ public:
     [[nodiscard]] DropType Type() const { return m_Type; }
 
     // Manipulating
-    void DamageCrate(double Damage);
+    void Damage(double value) override;
 
     // Ticking
     void Tick() override;

@@ -8,7 +8,7 @@
 
 struct EntityCore {
     Vec2d Pos, Size, Vel;
-    double BaseDamping{ }, sizeRatio;;
+    double BaseDamping{}, sizeRatio{};
 
     // Manipulating
     void Accelerate(double x, double y);
@@ -20,6 +20,23 @@ struct DirectionalEntityCore : public EntityCore {
     DirectionalEntityCore() : EntityCore() { }
 };
 
+class HasHealth {
+protected:
+    double m_Health, m_MaxHealth, m_LastHealth;
+
+public:
+    HasHealth();
+
+    // Getting
+    [[nodiscard]] double Health() const { return m_Health; }
+    [[nodiscard]] double MaxHealth() const { return m_MaxHealth; }
+    [[nodiscard]] double LastHealth() const { return m_LastHealth; }
+
+    // Setting
+    virtual void Damage(double value);
+    virtual void Heal(double value);
+};
+
 class Entity {
 protected:
     friend class GameWorld;
@@ -27,6 +44,7 @@ protected:
     GameWorld* m_World;
     Entity* m_PrevType, * m_NextType;
     Entity* m_Prev, * m_Next;
+    Entity* m_PrevShootable, * m_NextShootable;
     EntityCore* m_pUnknownCore, * m_pLastUnknownCore;
     EntityCore& m_Core, & m_LastCore;
     EntityType m_EntityType;
@@ -49,7 +67,7 @@ public:
 
     // Getting
     [[nodiscard]] GameWorld* World() const { return m_World; }
-    [[nodiscard]] EntityType GetEntityType() const { return m_EntityType; }
+    [[nodiscard]] EntityType GetType() const { return m_EntityType; }
     [[nodiscard]] Entity* Next() const { return m_Next; }
     [[nodiscard]] Entity* Prev() const { return m_Prev; }
     [[nodiscard]] Entity* NextType() const { return m_NextType; }
@@ -59,7 +77,8 @@ public:
     [[nodiscard]] bool IsAlive() const { return m_Alive; }
 
     // Generating
-    [[nodiscard]] bool PointCollides(double x, double y) const;
+    [[nodiscard]] bool PointCollides(const Vec2d& point) const;
+    [[nodiscard]] virtual operator const char*() const;
 
     // Manipulating
     void Accelerate(const Vec2d& direction);

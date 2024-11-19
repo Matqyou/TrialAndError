@@ -2,21 +2,21 @@
 // Created by T450s on 01/04/2023.
 //
 
-#include "WeaponGlock.h"
+#include "WeaponSniper.h"
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
-Sound* WeaponGlock::ms_ShootSound = nullptr;
-Sound* WeaponGlock::ms_ClickSound = nullptr;
+Sound* WeaponSniper::ms_ShootSound = nullptr;
+Sound* WeaponSniper::ms_ClickSound = nullptr;
 
-WeaponGlock::WeaponGlock(DirectionalEntity* parent)
-    : ProjectileWeapon(parent, WEAPON_GLOCK, 10, 15, 15 * 3, 35.0, false) {
-    m_BaseRecoilForce = 3.0;
+WeaponSniper::WeaponSniper(DirectionalEntity* parent)
+    : ProjectileWeapon(parent, WEAPON_SNIPER, 50, 1, 16, 100.0, false) {
+    m_BaseRecoilForce = 12.0;
     m_RecoilForce = m_BaseRecoilForce;
-    m_Damage = 7.5;
+    m_Damage = 70;
 }
 
-void WeaponGlock::Tick() {
+void WeaponSniper::Tick() {
     if (m_Parent->GetType() != ENTTYPE_CHARACTER) {
         std::printf("Warning: Weapon holder is not a characters (no support for error powerups)");
         return;

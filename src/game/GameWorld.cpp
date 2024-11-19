@@ -134,7 +134,7 @@ void GameWorld::RemovePlayer(Player *player)
 
 Entity *GameWorld::AddEntity(Entity *entity)
 {
-    EntityType Enttype = entity->GetEntityType();
+    EntityType Enttype = entity->GetType();
     Entity *&FirstType = m_FirstType[Enttype];
     Entity *&LastType = m_LastType[Enttype];
 
@@ -166,13 +166,26 @@ Entity *GameWorld::AddEntity(Entity *entity)
         m_Last = entity;
     }
 
+    if (entity->GetType() == ENTTYPE_CHARACTER || entity->GetType() == ENTTYPE_CRATE) {
+        if (!m_FirstShootable) {
+            m_FirstShootable = entity;
+            m_LastShootable = entity;
+            entity->m_PrevShootable = nullptr;
+            entity->m_NextShootable = nullptr;
+        } else {
+            m_LastShootable->m_NextShootable = entity;
+            entity->m_PrevShootable = m_LastShootable;
+            m_LastShootable = entity;
+        }
+    }
+
     return entity;
 }
 
 // ::RemoveEntity() doesn't reset entities Previous and Next entity pointers
 void GameWorld::RemoveEntity(Entity *entity)
 {
-    EntityType Type = entity->GetEntityType();
+    EntityType Type = entity->GetType();
     Entity *&FirstType = m_FirstType[Type];
     Entity *&LastType = m_LastType[Type];
 
@@ -195,6 +208,16 @@ void GameWorld::RemoveEntity(Entity *entity)
         m_First = entity->m_Next;
     if (m_Last == entity)
         m_Last = entity->m_Prev;
+
+    // Remove entity from list of shootable
+    if (entity->m_PrevShootable)
+        entity->m_PrevShootable->m_NextShootable = entity->m_NextShootable;
+    if (entity->m_NextShootable)
+        entity->m_NextShootable->m_PrevShootable = entity->m_PrevShootable;
+    if (m_FirstShootable == entity)
+        m_FirstShootable = entity->m_NextShootable;
+    if (m_LastShootable == entity)
+        m_LastShootable = entity->m_PrevShootable;
 }
 
 void GameWorld::DestroyPlayerByController(GameController *DeletedController) const

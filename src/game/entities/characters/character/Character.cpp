@@ -41,6 +41,7 @@ Texture *Character::ms_TextureError = nullptr;
 Texture *Character::ms_TextureGlock = nullptr;
 Texture *Character::ms_TextureShotgun = nullptr;
 Texture *Character::ms_TextureBurst = nullptr;
+Texture *Character::ms_TextureSniper = nullptr;
 Texture *Character::ms_TexturesMinigun[4] = {nullptr, nullptr, nullptr, nullptr};
 
 Texture *Character::ms_Texture = nullptr;
@@ -190,7 +191,7 @@ void Character::Damage(double damage, bool combat_tag)
                 HealBack = 10;
             m_Health += HealBack;
         }
-        m_Health -= damage;
+        HasHealth::Damage(damage);
         m_HitTicks = 7;
 
         Sound *HurtSound = ms_HitSounds[rand() % 3];
@@ -704,7 +705,6 @@ void Character::TickHook()
 
 void Character::TickCollision()
 {
-
     auto Char = m_World->FirstCharacter();
     for (; Char; Char = (Character *)(Char->NextType()))
     {
@@ -734,26 +734,19 @@ void Character::TickCollision()
         if (Spiky && m_NPC != Char->IsNPC())
             Char->Damage(3, true);
     }
-    auto Crte = m_World->FirstCrate();
-    for (; Crte; Crte = (Crate *)(Crte->NextType()))
-    {
-        EntityCore &CrateCore = Crte->GetCore();
-        double XDistance = m_Core.Pos.x - CrateCore.Pos.x;
-        double YDistance = m_Core.Pos.y - CrateCore.Pos.y;
-        double Distance = std::sqrt(std::pow(XDistance, 2) + std::pow(YDistance, 2));
 
-        if (Distance > CrateCore.sizeRatio + m_Core.sizeRatio)
+    auto CrateEntity = m_World->FirstCrate();
+    for (; CrateEntity; CrateEntity = (Crate*)(CrateEntity->NextType()))
+    {
+        EntityCore &CrateCore = CrateEntity->GetCore();
+        Vec2d Difference = m_Core.Pos - CrateCore.Pos;
+        double Distance = Difference.Length();
+        double ClosestPossibleDistance = CrateCore.sizeRatio + m_Core.sizeRatio;
+
+        if (Distance > ClosestPossibleDistance)
             continue;
-        else if (Distance <= 0.0)
-        {
-            double Radians = (rand() % 360) / 180.0 * M_PI;
-            XDistance = cos(Radians);
-            YDistance = sin(Radians);
-            Distance = 1.0;
-        }
-        double XPush = XDistance / Distance * 2;
-        double YPush = YDistance / Distance * 2;
-        Accelerate(Vec2d(XPush, YPush));
+
+        m_Core.Pos = CrateCore.Pos + Difference / Distance * ClosestPossibleDistance;
     }
 }
 
@@ -1122,6 +1115,11 @@ void Character::DrawHands()
             WeaponTexture = ms_TextureShotgun;
         }
         break;
+        case WEAPON_SNIPER:
+        {
+            WeaponTexture = ms_TextureSniper;
+        }
+            break;
         case WEAPON_MINIGUN:
         {
             int Phase = int(std::fmod(((WeaponMinigun *)m_Weapons[WEAPON_MINIGUN])->Rotation(), 100.0) / 25.0);
@@ -1283,6 +1281,10 @@ void Character::Event(const SDL_Event &currentEvent)
             {
                 SwitchWeapon(WEAPON_MINIGUN);
             }
+            else if (KeyCode == SDL_SCANCODE_5)
+            {
+                SwitchWeapon(WEAPON_SNIPER);
+            }
             else if (KeyCode == SDL_SCANCODE_Q)
             {
                 DropWeapon();
@@ -1334,9 +1336,7 @@ void Character::Tick()
 
     m_HitTicks -= 1;
     if (m_HitTicks < 0)
-    {
         m_HitTicks = 0;
-    }
 
     if (m_Health <= 0.0)
         EventDeath();
