@@ -8,6 +8,7 @@
 #include "../../../weapons/projectile/WeaponGlock.h"
 #include "../../../weapons/projectile/WeaponShotgun.h"
 #include "../../../weapons/projectile/WeaponBurst.h"
+#include "../../../weapons/projectile/WeaponSniper.h"
 #include "../../../weapons/projectile/WeaponMinigun.h"
 
 class EntityGlock : public ItemEntity {
@@ -41,6 +42,17 @@ private:
 public:
     EntityBurst(GameWorld* world, Entity* dropper, WeaponBurst* burst, const Vec2d& start_pos);
     ~EntityBurst();
+};
+
+class EntitySniper : public ItemEntity {
+private:
+    WeaponSniper* m_Sniper;
+    // Listening
+    void EventPickup(Character& picker_char) override;
+
+public:
+    EntitySniper(GameWorld* world, Entity* dropper, WeaponSniper* sniper, const Vec2d& start_pos);
+    ~EntitySniper();
 };
 
 class EntityMinigun : public ItemEntity {

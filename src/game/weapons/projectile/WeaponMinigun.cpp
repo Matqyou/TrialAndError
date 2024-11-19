@@ -32,7 +32,7 @@ WeaponMinigun::WeaponMinigun(Character* owner)
 }
 
 void WeaponMinigun::Tick() {
-    if (m_Parent->GetEntityType() != ENTTYPE_CHARACTER) {
+    if (m_Parent->GetType() != ENTTYPE_CHARACTER) {
         std::printf("Warning: Weapon holder is not a characters (no support for error powerups)");
         return;
     }
@@ -85,6 +85,7 @@ void WeaponMinigun::Reload() {
     ProjectileWeapon::Reload();
     m_FireRate = 0.0;
 }
+
 void WeaponMinigun::OnSelected() {
     m_FireRate = 0.0;
 }

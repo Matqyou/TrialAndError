@@ -96,9 +96,17 @@ void Hook::Tick() {
             if (Player == m_Parent)
                 continue;
 
-            if (Player->PointCollides(m_x, m_y)) {
+            if (Player->PointCollides(Vec2d(m_x, m_y))) {
                 m_Grabbed = GRABBED_ENTITY;
                 m_GrabbedEntity = Player;
+                break;
+            }
+        }
+        Crate* CrateEntity = m_Parent->World()->FirstCrate();
+        for (; CrateEntity; CrateEntity = (Crate*)(CrateEntity->NextType())) {
+            if (CrateEntity->PointCollides(Vec2d(m_x, m_y))) {
+                m_Grabbed = GRABBED_ENTITY;
+                m_GrabbedEntity = CrateEntity;
                 break;
             }
         }
@@ -130,7 +138,7 @@ void Hook::Tick() {
         }
         m_x = GrabbedCore.Pos.x;
         m_y = GrabbedCore.Pos.y;
-        if (m_GrabbedEntity->GetEntityType() == ENTTYPE_CHARACTER) {
+        if (m_GrabbedEntity->GetType() == ENTTYPE_CHARACTER) {
             auto Player = (Character*)(m_GrabbedEntity);
             double Acceleration = m_HookStrength * Length / m_MaxLength * (1 - m_HookerInfluenceRatio);
             double Influence = m_HookStrength * Length / m_MaxLength * m_HookerInfluenceRatio;

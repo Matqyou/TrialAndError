@@ -9,7 +9,6 @@
 #define SDL_MAIN_HANDLED
 #include "GameReference.h"
 #include "game/GameWorld.h"
-#include "Menu.h"
 #include "technical stuff/GameControllers.h"
 #include "game/indicators/TextSurface.h"
 #include "game/entities/characters/CharacterNPC.h"
@@ -42,6 +41,7 @@ bool Initialize()
     ItemEntity::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/items/Glock.png", true);
     ItemEntity::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/items/Shotgun.png", true);
     ItemEntity::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/items/Burst.png", true);
+    ItemEntity::ms_TextureSniper = ImageHandler->LoadTexture("assets/images/entities/items/Sniper.png", true);
     ItemEntity::ms_TexturesMinigun[0] = ImageHandler->LoadTexture("assets/images/entities/items/Minigun1.png", true);
     ItemEntity::ms_TexturesMinigun[1] = ImageHandler->LoadTexture("assets/images/entities/items/Minigun2.png", true);
     ItemEntity::ms_TexturesMinigun[2] = ImageHandler->LoadTexture("assets/images/entities/items/Minigun3.png", true);
@@ -78,8 +78,9 @@ bool Initialize()
     Character::ms_TextureError = ImageHandler->LoadTexture("assets/images/entities/golden_apple.png", true);
 
     Character::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/weapons/Glock.png", true);
-    Character::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/weapons/Burst.png", true);
     Character::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/weapons/Shotgun.png", true);
+    Character::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/weapons/Burst.png", true);
+    Character::ms_TextureSniper = ImageHandler->LoadTexture("assets/images/weapons/Sniper.png", true);
     Character::ms_TexturesMinigun[0] = ImageHandler->LoadTexture("assets/images/weapons/Minigun1.png", true);
     Character::ms_TexturesMinigun[1] = ImageHandler->LoadTexture("assets/images/weapons/Minigun2.png", true);
     Character::ms_TexturesMinigun[2] = ImageHandler->LoadTexture("assets/images/weapons/Minigun3.png", true);
@@ -105,6 +106,9 @@ bool Initialize()
     WeaponBurst::ms_ShootSound = BurstShootSound;
     WeaponBurst::ms_ClickSound = FailReloadSound;
     WeaponBurst::ms_ReloadSound = ShotgunReloadSound;
+    WeaponSniper::ms_ShootSound = nullptr;
+    WeaponSniper::ms_ClickSound = nullptr;
+    WeaponSniper::ms_ReloadSound = nullptr;
     WeaponMinigun::ms_ShootSound = BurstShootSound;
     WeaponMinigun::ms_ClickSound = FailReloadSound;
     WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
@@ -128,7 +132,7 @@ bool Initialize()
 bool StartUp()
 {
     srand(time(nullptr));
-    World = new GameWorld(GameWindow, 200, 200);
+    World = new GameWorld(GameWindow, 50, 30);
     GameWindow->Render()->SetWorld(World);
     Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),
                                                  World->GameWindow()->Assets()->TextHandler()->GetMainFont(),
@@ -147,6 +151,7 @@ bool StartUp()
     new EntityShotgun(World, nullptr,nullptr, Vec2d(900, 200));
     new EntityBurst(World, nullptr,nullptr, Vec2d(1000, 200));
     new EntityMinigun(World, nullptr,nullptr, Vec2d(1100, 200));
+    new EntitySniper(World, nullptr,nullptr, Vec2d(1200, 200));
 
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Keyboard");
@@ -205,7 +210,6 @@ int main()
     Vec2i RealMouse;
     bool MenuOpen = true;
     bool Running = true;
-    Menu *MainMenu = new Menu(GameWindow, Render, TexturePlay, GameWindow->GetWidth(), GameWindow->GetHeight());
     while (MenuOpen)
     {
         // useless MainMenu classs yay

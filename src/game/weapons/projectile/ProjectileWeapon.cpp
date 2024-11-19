@@ -54,9 +54,8 @@ void ProjectileWeapon::TickTrigger() {
         throw std::runtime_error("ProjectileWeapon Parent is nullptr");
     }
 
-    if (m_Parent->GetEntityType() != ENTTYPE_CHARACTER) {
-        std::printf("Warning: Parent of ProjectileWeapon is not a character (incomplete)\n");
-        return;
+    if (m_Parent->GetType() != ENTTYPE_CHARACTER) {
+        throw std::runtime_error("ProjectileWeapon Parent is non character");
     }
 #endif
 

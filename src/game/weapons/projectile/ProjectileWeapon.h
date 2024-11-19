@@ -8,8 +8,9 @@
 
 enum WeaponType {
     WEAPON_GLOCK,
-    WEAPON_BURST,
     WEAPON_SHOTGUN,
+    WEAPON_BURST,
+    WEAPON_SNIPER,
     WEAPON_MINIGUN,
     NUM_WEAPONS
 };

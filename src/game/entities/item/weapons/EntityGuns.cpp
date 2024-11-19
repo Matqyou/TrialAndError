@@ -50,6 +50,21 @@ EntityBurst::~EntityBurst() {
     delete m_Burst;
 }
 
+void EntitySniper::EventPickup(Character& picker_char) {
+    picker_char.GiveWeapon(m_Sniper);
+    m_Sniper = nullptr;
+    m_Alive = false;
+}
+
+EntitySniper::EntitySniper(GameWorld* world, Entity* dropper, WeaponSniper* sniper, const Vec2d& start_pos)
+    : ItemEntity(world, ITEMTYPE_SNIPER, dropper, start_pos, Vec2d(33 * 4, 9 * 4)) {
+    m_Sniper = sniper ? sniper : new WeaponSniper(nullptr);
+}
+
+EntitySniper::~EntitySniper() {
+    delete m_Sniper;
+}
+
 void EntityMinigun::EventPickup(Character& picker_char) {
     picker_char.GiveWeapon(m_Minigun);
     m_Minigun->OnSelected();

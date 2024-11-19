@@ -29,7 +29,7 @@ struct CharacterInput {
     CharacterInput();
 };
 
-class Character : public DirectionalEntity {
+class Character : public DirectionalEntity, public virtual HasHealth {
 public:
     enum {
         CONTROL_UP,
@@ -62,7 +62,6 @@ protected:
     Hands m_Hands;
     ProjectileWeapon* m_Weapons[NUM_WEAPONS];
     ProjectileWeapon* m_CurrentWeapon;
-    double m_MaxHealth, m_Health, m_LastHealth;
     double m_ActiveRegeneration, m_PassiveRegeneration;
     unsigned long long m_TicksOfCombatUntilRegeneration;
     unsigned long long m_LastInCombat;
@@ -114,6 +113,7 @@ public:
     static Texture* ms_TextureGlock;
     static Texture* ms_TextureShotgun;
     static Texture* ms_TextureBurst;
+    static Texture* ms_TextureSniper;
     static Texture* ms_TexturesMinigun[4];
     static Texture* ms_TextureErrorDisorianted;
     static Texture* ms_TextureErrorSpiky;
@@ -155,7 +155,7 @@ public:
     void RemoveCombat();
     void GiveWeapon(ProjectileWeapon* proj_weapon);
     void AmmoPickup(AmmoBox* ammo_box);
-    void Damage(double damage, bool make_sound);
+    void Damage(double damage, bool combat_tag);
     void DropWeapon();
     void SwitchWeapon(WeaponType type);
     void ReverseMovement();

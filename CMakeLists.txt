@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(TrialAndError)
 
 # Set the C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Include directories
@@ -97,7 +97,9 @@ set(PROJECT_FILES
         "src/game/entities/Crate.cpp"
         "src/game/entities/Crate.h"
         "src/game/entities/Error.cpp"
-        "src/game/entities/Error.h" src/Menu.cpp src/Menu.h)
+        "src/game/entities/Error.h"
+        "src/game/weapons/projectile/WeaponSniper.cpp"
+        "src/game/weapons/projectile/WeaponSniper.h")
 
 # Add executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES})

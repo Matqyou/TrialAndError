@@ -3,10 +3,23 @@
 //
 
 #include "Entity.h"
+#include <format>
 
 void EntityCore::Accelerate(double x, double y) {
     Vel.x += x;
     Vel.y += y;
+}
+
+HasHealth::HasHealth() {
+
+}
+
+void HasHealth::Damage(double value) {
+    m_Health -= value;
+}
+
+void HasHealth::Heal(double value) {
+    m_Health += value;
 }
 
 Entity::Entity(GameWorld* world,
@@ -25,6 +38,8 @@ Entity::Entity(GameWorld* world,
     m_NextType = nullptr;
     m_Prev = nullptr;
     m_Next = nullptr;
+    m_PrevShootable = nullptr;
+    m_NextShootable = nullptr;
     m_EntityType = entity_type;
     m_Alive = true;
     m_Core = *m_pUnknownCore;
@@ -37,7 +52,6 @@ Entity::Entity(GameWorld* world,
 
     m_World->AddEntity(this);
     m_Core.sizeRatio = (m_Core.Size.x + m_Core.Size.y) / 4.0;
-
 }
 
 Entity::~Entity() {
@@ -83,13 +97,17 @@ void Entity::TickWalls() {
     }
 }
 
-bool Entity::PointCollides(double x, double y) const {
+bool Entity::PointCollides(const Vec2d& point) const {
     double w2 = m_Core.Size.x / 2.0;
     double h2 = m_Core.Size.y / 2.0;
-    return !(x < m_Core.Pos.x - w2 ||
-        x > m_Core.Pos.x + w2 ||
-        y < m_Core.Pos.y - h2 ||
-        y > m_Core.Pos.y + h2);
+    return !(point.x < m_Core.Pos.x - w2 ||
+        point.x > m_Core.Pos.x + w2 ||
+        point.y < m_Core.Pos.y - h2 ||
+        point.y > m_Core.Pos.y + h2);
+}
+
+Entity::operator const char*() const {
+    return std::format("Entity(%i)", (int)m_EntityType).c_str();
 }
 
 // Add some velocity to this characters
