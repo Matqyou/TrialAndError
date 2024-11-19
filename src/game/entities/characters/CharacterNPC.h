@@ -5,7 +5,7 @@
 #pragma once
 
 #include "character/Character.h"
-
+class Character;
 enum NPCType {
     NPC_DUMMY,
     NPC_TURRET
@@ -13,12 +13,16 @@ enum NPCType {
 
 class CharacterNPC : public Character {
 protected:
+    
     bool m_IsBoss;
+    Player* m_LastAttacker;
     NPCType m_AIType;
 
     // Listening & Ticking
     void EventDeath() override;
     void TickControls() override;
+    
+    
 
 public:
     CharacterNPC(GameWorld* world,
@@ -28,5 +32,5 @@ public:
                  NPCType ai_type,
                  bool is_boss);
     ~CharacterNPC();
-
+    void UpdateAttacker(Player* attacker);
 };

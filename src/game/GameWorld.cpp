@@ -55,6 +55,19 @@ GameWorld::~GameWorld()
         CurrentEntity = NextEntity;
     }
 }
+void GameWorld::EnemyKilled(Player* player, Character* enemy) {
+    // Add score for killing the enemy
+    AddScore(100); // Example score value
+
+    // Check if the enemy is a boss and add more score
+    // if (enemy->IsBoss()) {
+    //     AddScore(500); // Example boss score value
+    // }
+
+    // Grant XP to the player
+    player->GainXP(50); // Example XP reward
+
+}
 
 unsigned int GameWorld::GetNextPlayerIndex() const
 {

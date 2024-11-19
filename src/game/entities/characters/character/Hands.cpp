@@ -95,7 +95,7 @@ void Hands::Tick() {
             if (Ent->GetType() != ENTTYPE_CHARACTER)
                 continue;
             Ent->Accelerate(Vec2d(m_Parent->GetInput().m_LookingX, m_Parent->GetInput().m_LookingY) * 5.0);
-            ((Character*)Ent)->Damage(7, true);
+            ((Character*)Ent)->Damage(7, true, m_Parent);
 
         }
     }

@@ -44,41 +44,26 @@ Projectile::Projectile(GameWorld* world,
 }
 
 void Projectile::TickCollision() {
-    // Sense
     bool ShooterIsCharacter = m_Shooter->GetType() == ENTTYPE_CHARACTER;
-    auto ShooterCharacter = (Character*)m_Shooter; // ⚠ Check for ShooterIsCharacter ⚠
-    // Check if position collides any of the players
+    auto ShooterCharacter = (Character*)m_Shooter; // Check for ShooterIsCharacter
+
     auto ShootableEntity = m_World->FirstShootable();
     for (; ShootableEntity; ShootableEntity = ShootableEntity->NextType()) {
         bool IsShooter = m_Shooter == ShootableEntity;
         if (!ShootableEntity->IsAlive()) continue;
 
-        // Ignore npc friendly fire for now
-//        if (ShootableEntity->GetType() == ENTTYPE_CHARACTER) {
-//            auto ShootableCharacter = (Character*)ShootableEntity;
-//            if (ShooterIsCharacter && ShooterCharacter->IsNPC() == ShootableCharacter->IsNPC())
-//                continue;
-//        }
-
-        // Check for (Projectile <-> Entity) collision at the position
         bool Collides = ShootableEntity->PointCollides(m_Core.Pos);
-        std::cout << ShootableEntity << std::endl;
-        std::cout << ShootableEntity->GetType() << std::endl;
-        if (ShootableEntity->GetType() == ENTTYPE_CHARACTER && m_Shooter != ShootableEntity) {
-            std::cout << Collides << std::endl;
-        }
         if (IsShooter && !Collides) { m_StillCollidesShooter = false; }
         else if (Collides && (!IsShooter || !m_StillCollidesShooter)) {
             if (ShootableEntity->GetType() == ENTTYPE_CHARACTER) {
                 auto ShootableCharacter = (Character*)ShootableEntity;
-                ShootableCharacter->Damage(m_Damage, true);
+                ShootableCharacter->Damage(m_Damage, true, ShooterCharacter);
                 ShootableCharacter->Accelerate(m_Core.Vel * 0.05);
             } else {
                 auto ShootableHealth = dynamic_cast<HasHealth*>(ShootableEntity);
                 ShootableHealth->Damage(m_Damage);
             }
 
-            // The projectile has served its purpose (clear immediately on impact)
             m_Alive = false;
             break;
         }

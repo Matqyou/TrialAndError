@@ -74,6 +74,7 @@ public:
     // Events
     void EnemiesKilled();
     void AlliesGone();
+    void EnemyKilled(Player* player, Character* enemy);
 
     // Manipulating
     void AddScore(unsigned int score);

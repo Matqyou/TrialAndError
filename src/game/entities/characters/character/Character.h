@@ -155,7 +155,7 @@ public:
     void RemoveCombat();
     void GiveWeapon(ProjectileWeapon* proj_weapon);
     void AmmoPickup(AmmoBox* ammo_box);
-    void Damage(double damage, bool combat_tag);
+    void Damage(double damage, bool combat_tag, Character* attacker);
     void DropWeapon();
     void SwitchWeapon(WeaponType type);
     void ReverseMovement();
@@ -166,6 +166,8 @@ public:
     void MakeRanged();
     void SlowDown();
     void ActivateDangerousRecoil();
+    
+    void LevelupStats(unsigned int level);
 
     // Listening & Ticking
     void Event(const SDL_Event& currentEvent);

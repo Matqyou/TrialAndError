@@ -2,6 +2,7 @@
 // Created by 11dpjgailis on 16.03.2023.
 //
 #include "Character.h"
+#include "../CharacterNPC.h"
 #include <cmath>
 #include <iostream>
 #include "../../item/weapons/EntityGuns.h"
@@ -180,8 +181,21 @@ Character::~Character()
     }
 }
 
-void Character::Damage(double damage, bool combat_tag)
+
+void Character::LevelupStats(unsigned int level)
 {
+    m_MaxHealth += 10 + (1000 - m_MaxHealth) / 10;
+    m_Health = m_MaxHealth; // Optionally, heal the character to full health
+}
+
+void Character::Damage(double damage, bool combat_tag, Character* attacker)
+{
+    if(IsNPC()){
+        auto npc = (CharacterNPC *)(this);
+        if (npc) {
+            npc->UpdateAttacker(attacker->GetPlayer());
+        }
+    }
     if (!Invincible)
     {
         if (HealersParadise)
@@ -467,39 +481,39 @@ void Character::AmmoPickup(AmmoBox *ammo_box)
 
 void Character::EventDeath()
 {
-    for (int i = 0; i < NUM_WEAPONS; i++)
-    {
-        if (!m_Weapons[i])
-            continue;
+        for (int i = 0; i < NUM_WEAPONS; i++)
+        {
+            if (!m_Weapons[i])
+                continue;
 
-        // In this case the dropper is already dead... so there is no real point to get his address?
-        // or maybe there is? No idea man I'm just a bored programmear -_-
-        ItemEntity *NewWeapon;
-        if (i == WEAPON_GLOCK)
-        {
-            NewWeapon = new EntityGlock(m_World, this, (WeaponGlock *)m_Weapons[WEAPON_GLOCK], m_Core.Pos);
-            m_Weapons[WEAPON_GLOCK] = nullptr;
-        }
-        else if (i == WEAPON_SHOTGUN)
-        {
-            NewWeapon = new EntityShotgun(m_World, this, (WeaponShotgun *)m_Weapons[WEAPON_SHOTGUN], m_Core.Pos);
-            m_Weapons[WEAPON_SHOTGUN] = nullptr;
-        }
-        else if (i == WEAPON_BURST)
-        {
-            NewWeapon = new EntityBurst(m_World, this, (WeaponBurst *)m_Weapons[WEAPON_BURST], m_Core.Pos);
-            m_Weapons[WEAPON_BURST] = nullptr;
-        }
-        else if (i == WEAPON_MINIGUN)
-        {
-            NewWeapon = new EntityMinigun(m_World, this, (WeaponMinigun *)m_Weapons[WEAPON_MINIGUN], m_Core.Pos);
-            m_Weapons[WEAPON_MINIGUN] = nullptr;
-        }
+            // In this case the dropper is already dead... so there is no real point to get his address?
+            // or maybe there is? No idea man I'm just a bored programmear -_-
+            ItemEntity *NewWeapon;
+            if (i == WEAPON_GLOCK)
+            {
+                NewWeapon = new EntityGlock(m_World, this, (WeaponGlock *)m_Weapons[WEAPON_GLOCK], m_Core.Pos);
+                m_Weapons[WEAPON_GLOCK] = nullptr;
+            }
+            else if (i == WEAPON_SHOTGUN)
+            {
+                NewWeapon = new EntityShotgun(m_World, this, (WeaponShotgun *)m_Weapons[WEAPON_SHOTGUN], m_Core.Pos);
+                m_Weapons[WEAPON_SHOTGUN] = nullptr;
+            }
+            else if (i == WEAPON_BURST)
+            {
+                NewWeapon = new EntityBurst(m_World, this, (WeaponBurst *)m_Weapons[WEAPON_BURST], m_Core.Pos);
+                m_Weapons[WEAPON_BURST] = nullptr;
+            }
+            else if (i == WEAPON_MINIGUN)
+            {
+                NewWeapon = new EntityMinigun(m_World, this, (WeaponMinigun *)m_Weapons[WEAPON_MINIGUN], m_Core.Pos);
+                m_Weapons[WEAPON_MINIGUN] = nullptr;
+            }
 
-        NewWeapon->Accelerate(m_DirectionalCore.Direction * 5);
-        NewWeapon->SetRotation(m_DirectionalCore.Direction.Atan2());
-        NewWeapon->AccelerateRotation(std::fmod(m_World->GameWindow()->Random()->Float(), 0.35f) - 0.175f);
-    }
+            NewWeapon->Accelerate(m_DirectionalCore.Direction * 5);
+            NewWeapon->SetRotation(m_DirectionalCore.Direction.Atan2());
+            NewWeapon->AccelerateRotation(std::fmod(m_World->GameWindow()->Random()->Float(), 0.35f) - 0.175f);
+        }
 
     if (!m_NPC)
     { // prob better place for this code
@@ -512,6 +526,7 @@ void Character::EventDeath()
         if (NumRealCharacters == 1)
             m_World->AlliesGone();
     }
+    
 
     m_Alive = false;
     m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
@@ -703,11 +718,10 @@ void Character::TickHook()
     m_Hook.Tick();
 }
 
-void Character::TickCollision()
-{
+void Character::TickCollision() {
+    // Handle collision with other characters
     auto Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character *)(Char->NextType()))
-    {
+    for (; Char; Char = (Character *)(Char->NextType())) {
         if (Char == this)
             continue;
 
@@ -718,26 +732,24 @@ void Character::TickCollision()
 
         if (Distance > m_Core.sizeRatio + EntCore.sizeRatio)
             continue;
-        else if (Distance == 0.0)
-        {
+        else if (Distance == 0.0) {
             double Radians = (rand() % 360) / 180.0 * M_PI;
             XDistance = cos(Radians);
             YDistance = sin(Radians);
             Distance = 1.0;
         }
 
-        // TODO make push stronger when closer to characters not when further....
         double XPush = XDistance / Distance * 0.5;
         double YPush = YDistance / Distance * 0.5;
         m_Core.Accelerate(XPush, YPush);
         EntCore.Accelerate(-XPush, -YPush);
         if (Spiky && m_NPC != Char->IsNPC())
-            Char->Damage(3, true);
+            Char->Damage(3, true, this);
     }
 
+    // Handle collision with crates
     auto CrateEntity = m_World->FirstCrate();
-    for (; CrateEntity; CrateEntity = (Crate*)(CrateEntity->NextType()))
-    {
+    for (; CrateEntity; CrateEntity = (Crate*)(CrateEntity->NextType())) {
         EntityCore &CrateCore = CrateEntity->GetCore();
         Vec2d Difference = m_Core.Pos - CrateCore.Pos;
         double Distance = Difference.Length();
