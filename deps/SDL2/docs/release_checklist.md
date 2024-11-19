@@ -8,7 +8,7 @@ mechanical work.
 
 ## New feature release
 
-* RequestUpdate `WhatsNew.txt`
+* Update `WhatsNew.txt`
 
 * Bump version number to 2.EVEN.0:
 
@@ -16,7 +16,7 @@ mechanical work.
 
 * Do the release
 
-* RequestUpdate the website file include/header.inc.php to reflect the new version
+* Update the website file include/header.inc.php to reflect the new version
 
 ## New bugfix release
 
@@ -30,7 +30,7 @@ mechanical work.
 
 * Do the release
 
-* RequestUpdate the website file include/header.inc.php to reflect the new version
+* Update the website file include/header.inc.php to reflect the new version
 
 ## After a feature release
 

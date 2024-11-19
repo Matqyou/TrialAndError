@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -42,7 +42,7 @@
  *  of the many good 3D engines.
  *
  *  These functions must be called from the main thread.
- *  See this bug for details: http://bugzilla.libsdl.org/show_bug.cgi?id=1995
+ *  See this bug for details: https://github.com/libsdl-org/SDL/issues/986
  */
 
 #ifndef SDL_render_h_
@@ -566,7 +566,7 @@ extern DECLSPEC int SDLCALL SDL_SetTextureUserData(SDL_Texture * texture,
 extern DECLSPEC void * SDLCALL SDL_GetTextureUserData(SDL_Texture * texture);
 
 /**
- * RequestUpdate the given texture rectangle with new pixel data.
+ * Update the given texture rectangle with new pixel data.
  *
  * The pixel data must be in the pixel format of the texture. Use
  * SDL_QueryTexture() to query the pixel format of the texture.
@@ -599,7 +599,7 @@ extern DECLSPEC int SDLCALL SDL_UpdateTexture(SDL_Texture * texture,
                                               const void *pixels, int pitch);
 
 /**
- * RequestUpdate a rectangle within a planar YV12 or IYUV texture with new pixel
+ * Update a rectangle within a planar YV12 or IYUV texture with new pixel
  * data.
  *
  * You can use SDL_UpdateTexture() as long as your pixel data is a contiguous
@@ -632,7 +632,7 @@ extern DECLSPEC int SDLCALL SDL_UpdateYUVTexture(SDL_Texture * texture,
                                                  const Uint8 *Vplane, int Vpitch);
 
 /**
- * RequestUpdate a rectangle within a planar NV12 or NV21 texture with new pixels.
+ * Update a rectangle within a planar NV12 or NV21 texture with new pixels.
  *
  * You can use SDL_UpdateTexture() as long as your pixel data is a contiguous
  * block of NV12/21 planes in the proper order, but this function is available
@@ -1711,7 +1711,7 @@ extern DECLSPEC int SDLCALL SDL_RenderReadPixels(SDL_Renderer * renderer,
                                                  void *pixels, int pitch);
 
 /**
- * RequestUpdate the screen with any rendering performed since the previous call.
+ * Update the screen with any rendering performed since the previous call.
  *
  * SDL's rendering functions operate on a backbuffer; that is, calling a
  * rendering function such as SDL_RenderDrawLine() does not directly put a
@@ -1730,6 +1730,11 @@ extern DECLSPEC int SDLCALL SDL_RenderReadPixels(SDL_Renderer * renderer,
  * pixel.
  *
  * \param renderer the rendering context
+ *
+ * \threadsafety You may only call this function on the main thread. If this
+ *               happens to work on a background thread on any given platform
+ *               or backend, it's purely by luck and you should not rely on it
+ *               to work next time.
  *
  * \since This function is available since SDL 2.0.0.
  *
@@ -1885,7 +1890,7 @@ extern DECLSPEC void *SDLCALL SDL_RenderGetMetalLayer(SDL_Renderer * renderer);
  * Note that as of SDL 2.0.18, this will return NULL if Metal refuses to give
  * SDL a drawable to render to, which might happen if the window is
  * hidden/minimized/offscreen. This doesn't apply to command encoders for
- * render targets, just the window's backbacker. Check your return values!
+ * render targets, just the window's backbuffer. Check your return values!
  *
  * \param renderer The renderer to query
  * \returns an `id<MTLRenderCommandEncoder>` on success, or NULL if the
