@@ -99,7 +99,17 @@ set(PROJECT_FILES
         "src/game/entities/Error.cpp"
         "src/game/entities/Error.h"
         "src/game/weapons/projectile/WeaponSniper.cpp"
-        "src/game/weapons/projectile/WeaponSniper.h")
+        "src/game/weapons/projectile/WeaponSniper.h"
+        "src/game/interface/MainMenu.cpp"
+        "src/game/interface/MainMenu.h"
+        "src/game/interface/GameSelectMenu.cpp"
+        "src/game/interface/GameSelectMenu.h"
+        "src/game/interface/PauseMenu.cpp"
+        "src/game/interface/PauseMenu.h"
+        "src/game/interface/SettingsMenu.cpp"
+        "src/game/interface/SettingsMenu.h"
+        
+        )
 
 # Add executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES})

@@ -54,7 +54,6 @@ public:
     [[nodiscard]] double GetWidth() const { return m_Width; }
     [[nodiscard]] double GetHeight() const { return m_Height; }
     [[nodiscard]] double GetNamesShown() const { return m_ShowNamesVisibility < 0.1 ? 0.0 : m_ShowNamesVisibility; }
-    [[nodiscard]] bool GetPaused() const { return m_Paused; }
     [[nodiscard]] bool GameOver() const { return m_GameOver; }
     [[nodiscard]] unsigned long long GetTick() const { return m_CurrentTick; }
     [[nodiscard]] unsigned int GetNextPlayerIndex() const;

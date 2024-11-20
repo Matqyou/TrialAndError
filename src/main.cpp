@@ -18,6 +18,8 @@
 #include "game/entities/AmmoBox.h"
 #include "game/entities/Crate.h"
 #include "game/entities/Error.h"
+#include "game/interface/MainMenu.h"
+#include "game/interface/PauseMenu.h"
 #include <vector>
 #include <iostream>
 #include <random>
@@ -130,14 +132,19 @@ bool Initialize()
 }
 
 bool StartUp()
-{
+{   
+
     srand(time(nullptr));
     World = new GameWorld(GameWindow, 50, 30);
     GameWindow->Render()->SetWorld(World);
+    std::cout << "Textsurface" << std::endl;
     Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),
                                                  World->GameWindow()->Assets()->TextHandler()->GetMainFont(),
                                                  "Bot User", {255, 150, 150, 255});
+
+std::cout << "Crates" << std::endl;
     new Crate(World, Vec2d(200, 200), 20, DropType(rand() % 2));
+    std::cout << "Crates2" << std::endl;
     new Crate(World, Vec2d(400, 200), 20, DropType(rand() % 2));
     new Crate(World, Vec2d(600, 200), 20, DropType(rand() % 2));
     new Crate(World, Vec2d(200, 400), 20, DropType(rand() % 2));
@@ -147,12 +154,14 @@ bool StartUp()
     new Crate(World, Vec2d(400, 600), 20, DropType(rand() % 2));
     new Crate(World, Vec2d(600, 600), 20, DropType(rand() % 2));
 
+std::cout << "Entityweapons" << std::endl;
     new EntityGlock(World, nullptr, nullptr, Vec2d(800, 200));
-    new EntityShotgun(World, nullptr,nullptr, Vec2d(900, 200));
-    new EntityBurst(World, nullptr,nullptr, Vec2d(1000, 200));
-    new EntityMinigun(World, nullptr,nullptr, Vec2d(1100, 200));
-    new EntitySniper(World, nullptr,nullptr, Vec2d(1200, 200));
+    new EntityShotgun(World, nullptr, nullptr, Vec2d(900, 200));
+    new EntityBurst(World, nullptr, nullptr, Vec2d(1000, 200));
+    new EntityMinigun(World, nullptr, nullptr, Vec2d(1100, 200));
+    new EntitySniper(World, nullptr, nullptr, Vec2d(1200, 200));
 
+std::cout << "Character" << std::endl;
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Keyboard");
     auto Char1 = new Character(World,
@@ -194,101 +203,17 @@ int main()
     Sound *MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
     Sound *HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
 
-    SDL_Rect PlayButtonRect = {int(GameWindow->GetWidth2()) - 180,
-                               int(GameWindow->GetHeight2()) - 40,
-                               360, 80};
-    SDL_Rect ResumeButtonRect = {int(GameWindow->GetWidth2()) - 100,
-                                 int(GameWindow->GetHeight2()) - 150,
-                                 200, 70};
-    SDL_Rect BackToMenuButtonRect = {int(GameWindow->GetWidth2()) - 100,
-                                     int(GameWindow->GetHeight2()) + 50,
-                                     200, 70};
-    SDL_Rect ExitButtonRect = {int(GameWindow->GetWidth2()) - 180,
-                               int(GameWindow->GetHeight2()) + 121,
-                               360, 80};
-
+    MainMenu mainMenu(GameWindow);
+    mainMenu.Show();
     Vec2i RealMouse;
-    bool MenuOpen = true;
+
     bool Running = true;
-    while (MenuOpen)
-    {
-        // useless MainMenu classs yay
-        Render->RenderTextureFullscreen(MenuTexture->SDLTexture(), nullptr);
-        Render->RenderTexture(TexturePlay->SDLTexture(), nullptr, PlayButtonRect);
-        Render->RenderTexture(TextureExit->SDLTexture(), nullptr, ExitButtonRect);
-        SDL_ShowCursor(1);
-        SDL_Event CurrentEvent;
-        while (SDL_PollEvent(&CurrentEvent))
-        {
-            GameWindow->Event(CurrentEvent);
-            switch (CurrentEvent.type)
-            {
-            case SDL_QUIT:
-            {
-                MenuOpen = false;
-                GameWindow->Deinitialize(true);
-                Running = false;
-            }
-            break;
-            case SDL_MOUSEBUTTONDOWN:
-            {
-                if (CurrentEvent.button.button == SDL_BUTTON_LEFT)
-                {
-                    int x = CurrentEvent.button.x;
-                    int y = CurrentEvent.button.y;
-                    if (x >= PlayButtonRect.x && x < PlayButtonRect.x + PlayButtonRect.w &&
-                        y >= PlayButtonRect.y && y < PlayButtonRect.y + PlayButtonRect.h)
-                    {
-                        MenuOpen = false;
-                        SoundHandler->PlaySound(LowUISound);
-                    }
-                    if (x >= ExitButtonRect.x && x < ExitButtonRect.x + ExitButtonRect.w &&
-                        y >= ExitButtonRect.y && y < ExitButtonRect.y + ExitButtonRect.h)
-                    {
-                        // Not sure if making it delete things not initialised yet is an issue but its not
-                        // yelling at me sooo, but if i dont make it do that it would be a memory leak, since
-                        // i would be just doing running = false which doesnt delete things just stops the main loop
-
-                        SoundHandler->PlaySound(QuitSound);
-                        GameWindow->Deinitialize(true); // close everything except sound
-
-                        delete Controllers;
-                        delete World;
-                        while (Mix_Playing(-1))
-                        {
-                        } // wait until last sound is done playing
-                        delete GameWindow;
-                        return 0;
-                    }
-                }
-            }
-            break;
-            case SDL_WINDOWEVENT:
-            {
-                if (CurrentEvent.window.event == SDL_WINDOWEVENT_RESIZED)
-                {
-                    PlayButtonRect = {int(GameWindow->GetWidth2()) - 180,
-                                      int(GameWindow->GetHeight2()) - 40,
-                                      360, 80};
-                    ResumeButtonRect = {int(GameWindow->GetWidth2()) - 100,
-                                        int(GameWindow->GetHeight2()) - 150,
-                                        200, 70};
-                    BackToMenuButtonRect = {int(GameWindow->GetWidth2()) - 100,
-                                            int(GameWindow->GetHeight2()) + 50,
-                                            200, 70};
-                    ExitButtonRect = {int(GameWindow->GetWidth2()) - 180,
-                                      int(GameWindow->GetHeight2()) + 121,
-                                      360, 80};
-                }
-            }
-            break;
-            }
-        }
-        Render->UpdateWindow();
-    }
-
+    std::cout << "StartUp" << std::endl;
     StartUp();
-    while (!MenuOpen && Running)
+    std::cout << "PauseMenu" << std::endl;
+    PauseMenu pauseMenu(GameWindow, &mainMenu);
+    std::cout << "While" << std::endl;
+    while (Running)
     {
         // Input and events
         SDL_Event CurrentEvent;
@@ -317,13 +242,7 @@ int main()
                 SDL_Scancode ScancodeKey = CurrentEvent.key.keysym.scancode;
                 if (ScancodeKey == SDL_SCANCODE_ESCAPE)
                 {
-                    bool Pause = !World->GetPaused();
-                    World->SetPaused(Pause);
-
-                    if (Pause)
-                        SoundHandler->PlaySound(MidUISound);
-                    else
-                        SoundHandler->PlaySound(LowUISound);
+                    pauseMenu.Show();
                 }
                 else if (ScancodeKey == SDL_SCANCODE_Z)
                 {
@@ -360,77 +279,26 @@ int main()
                 SoundHandler->PlaySound(LowSound);
             }
             break;
-            case SDL_MOUSEBUTTONDOWN:
-            {
-                if (World->GetPaused())
-                {
-                    if (CurrentEvent.button.button == SDL_BUTTON_LEFT)
-                    {
-                        int x = CurrentEvent.button.x;
-                        int y = CurrentEvent.button.y;
-                        if (x >= ResumeButtonRect.x && x < ResumeButtonRect.x + ResumeButtonRect.w &&
-                            y >= ResumeButtonRect.y && y < ResumeButtonRect.y + ResumeButtonRect.h)
-                        {
-                            SoundHandler->PlaySound(LowUISound);
-                            World->SetPaused(false);
-                        }
-                        else if (x >= BackToMenuButtonRect.x && x < BackToMenuButtonRect.x + BackToMenuButtonRect.w &&
-                                 y >= BackToMenuButtonRect.y && y < BackToMenuButtonRect.y + BackToMenuButtonRect.h)
-                        {
-                            MenuOpen = true;
-                            SoundHandler->PlaySound(MidUISound);
-                        }
-                    }
-                }
-            }
 
-            break;
-            case SDL_WINDOWEVENT:
-            {
-                if (CurrentEvent.window.event == SDL_WINDOWEVENT_RESIZED)
-                {
-                    PlayButtonRect = {int(GameWindow->GetWidth2()) - 180,
-                                      int(GameWindow->GetHeight2()) - 40,
-                                      360, 80};
-                    ResumeButtonRect = {int(GameWindow->GetWidth2()) - 100,
-                                        int(GameWindow->GetHeight2()) - 150,
-                                        200, 70};
-                    BackToMenuButtonRect = {int(GameWindow->GetWidth2()) - 100,
-                                            int(GameWindow->GetHeight2()) + 50,
-                                            200, 70};
-                    ExitButtonRect = {int(GameWindow->GetWidth2()) - 180,
-                                      int(GameWindow->GetHeight2()) + 121,
-                                      360, 80};
-                }
-            }
-            break;
+                break;
             }
         }
 
         // Ticking
-        if (!World->GetPaused())
-        {
-            World->Tick();
-        }
-
+        std::cout << "Tick" << std::endl;
+        World->Tick();
+        std::cout << "Reset" << std::endl;
         Controllers->TickReset();
-
+        std::cout << "Draw" << std::endl;
         // Drawing
         World->Draw();
+        std::cout << "Render" << std::endl;
         Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
-
-        if (World->GetPaused())
-        {
-            Render->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
-            Render->SetColor(0, 0, 0, 100);
-            Render->FillAll();
-            Render->SetDrawBlendMode(SDL_BLENDMODE_NONE);
-
-            Render->RenderTexture(TextureResume->SDLTexture(), nullptr, ResumeButtonRect);
-            Render->RenderTexture(TextureBack->SDLTexture(), nullptr, BackToMenuButtonRect);
-        }
+        std::cout << "Update" << std::endl;
 
         Render->UpdateWindow();
+        std::cout << "Timer" << std::endl;
         Timer->Tick();
+        std::cout << "All" << std::endl;
     }
 }

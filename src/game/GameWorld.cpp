@@ -179,18 +179,18 @@ Entity *GameWorld::AddEntity(Entity *entity)
         m_Last = entity;
     }
 
-    if (entity->GetType() == ENTTYPE_CHARACTER || entity->GetType() == ENTTYPE_CRATE) {
-        if (!m_FirstShootable) {
-            m_FirstShootable = entity;
-            m_LastShootable = entity;
-            entity->m_PrevShootable = nullptr;
-            entity->m_NextShootable = nullptr;
-        } else {
-            m_LastShootable->m_NextShootable = entity;
-            entity->m_PrevShootable = m_LastShootable;
-            m_LastShootable = entity;
-        }
-    }
+    // if (entity->GetType() == ENTTYPE_CHARACTER || entity->GetType() == ENTTYPE_CRATE) {
+    //     if (!m_FirstShootable) {
+    //         m_FirstShootable = entity;
+    //         m_LastShootable = entity;
+    //         entity->m_PrevShootable = nullptr;
+    //         entity->m_NextShootable = nullptr;
+    //     } else {
+    //         m_LastShootable->m_NextShootable = entity;
+    //         entity->m_PrevShootable = m_LastShootable;
+    //         m_LastShootable = entity;
+    //     }
+    // }
 
     return entity;
 }

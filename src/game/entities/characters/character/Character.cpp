@@ -1058,27 +1058,26 @@ void Character::DrawHook()
 }
 
 void Character::DrawHealthbar()
-{
+{   
     if (m_NPC)
         return;
 
     Drawing *Render = m_World->GameWindow()->Render();
 
     // Render health bar
-    if (m_Health != m_MaxHealth)
-    {
         m_HealthBar.SetColor(m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a);
         Texture *HealthPlate = ConfusingHP ? m_HealthBar.GetTexture() : m_HealthBar.UpdateTexture();
 
-        int HealthBarW = HealthPlate->GetWidth();
+        int HealthBarW = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
         int HealthBarH = HealthPlate->GetHeight();
-        SDL_Rect HealthplateRect = {int(m_Core.Pos.x - HealthBarW / 2.0),
+        SDL_Rect HealthplateRect = {int(m_Core.Pos.x - HealthBarW / 2.0) + 10, // Adjust position to the right
                                     int(m_Core.Pos.y + m_Core.Size.y / 2.0),
                                     HealthBarW, HealthBarH};
 
         if (m_HealthInt->GetFlaggedForUpdate())
         {
             std::string HealthText;
+
             if (!ConfusingHP)
                 HealthText = FString("%i/%i", int(m_Health), int(m_MaxHealth));
             else
@@ -1090,14 +1089,26 @@ void Character::DrawHealthbar()
         Texture *HealthTexture = m_HealthInt->RequestUpdate();
         double HealthTextureW = HealthTexture->GetWidth();
         double HealthTextureH = HealthTexture->GetHeight();
-        SDL_Rect HealthIntRect = {int(m_Core.Pos.x - HealthTextureW / 4.0),
+        SDL_Rect HealthIntRect = {int(m_Core.Pos.x - HealthTextureW / 4.0) + 10, // Adjust position to the right
                                   int(m_Core.Pos.y + m_Core.Size.y / 2.0 + HealthTextureH / 4.0),
                                   int(HealthTextureW / 2.0),
                                   int(HealthTextureH / 2.0)};
 
         Render->RenderTextureCamera(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
         Render->RenderTextureCamera(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
-    }
+
+        // Draw level indicator
+        TTF_Font* SmallFont = m_World->GameWindow()->Assets()->TextHandler()->LoadFont("assets/fonts/Minecraft.ttf", 10); // Load a smaller font
+        std::string LevelText = FString("LVL %i", m_Player->GetLevel()); // Use the level value directly
+        TextSurface LevelSurface(m_World->GameWindow()->Assets(), SmallFont, LevelText, {255, 255, 255});
+        Texture *LevelTexture = LevelSurface.RequestUpdate();
+        int LevelTextureW = LevelTexture->GetWidth();
+        int LevelTextureH = LevelTexture->GetHeight();
+        SDL_Rect LevelRect = {int(m_Core.Pos.x - HealthBarW / 2.0) - LevelTextureW +5, // Position to the left of the health bar
+                              int(m_Core.Pos.y + m_Core.Size.y / 2.0) +3,
+                              LevelTextureW, LevelTextureH};
+
+        Render->RenderTextureCamera(LevelTexture->SDLTexture(), nullptr, LevelRect);
 }
 
 void Character::DrawHands()
@@ -1184,6 +1195,7 @@ void Character::DrawNameplate()
 
     SDL_SetTextureAlphaMod(NamePlateTexture->SDLTexture(), Opacity);
     Render->RenderTextureCamera(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect);
+
 
     auto CoordinateText = FString("%ix, %iy", int(m_Core.Pos.x), int(m_Core.Pos.y));
     m_CoordinatePlate->SetText(CoordinateText);
