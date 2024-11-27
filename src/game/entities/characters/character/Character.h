@@ -29,7 +29,7 @@ struct CharacterInput {
     CharacterInput();
 };
 
-class Character : public DirectionalEntity, public virtual HasHealth {
+class Character : public DirectionalEntity, public IEntityHasHealth {
 public:
     enum {
         CONTROL_UP,
@@ -146,16 +146,15 @@ public:
     [[nodiscard]] CharacterInput& GetInput() { return m_Input; }
     [[nodiscard]] CharacterInput& GetLastInput() { return m_LastInput; }
     [[nodiscard]] bool IsNPC() const { return m_NPC; }
-    [[nodiscard]] bool HasDangerousRecoil() { return m_DangerousRecoil; }
+    [[nodiscard]] bool HasDangerousRecoil() const { return m_DangerousRecoil; }
 
     // Setting
     void SetGameController(GameController* game_controller) { m_GameController = game_controller; }
-
-    // Manipulating
     void RemoveCombat();
     void GiveWeapon(ProjectileWeapon* proj_weapon);
     void AmmoPickup(AmmoBox* ammo_box);
-    void Damage(double damage, bool combat_tag);
+    void Damage(double damage, Entity* damager) override;
+    void Heal(double value) override;
     void DropWeapon();
     void SwitchWeapon(WeaponType type);
     void ReverseMovement();

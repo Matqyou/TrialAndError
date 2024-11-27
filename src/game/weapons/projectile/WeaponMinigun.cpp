@@ -32,7 +32,7 @@ WeaponMinigun::WeaponMinigun(Character* owner)
 }
 
 void WeaponMinigun::Tick() {
-    if (m_Parent->GetType() != ENTTYPE_CHARACTER) {
+    if (m_Parent->GetType() != CHARACTER_ENTITY) {
         std::printf("Warning: Weapon holder is not a characters (no support for error powerups)");
         return;
     }

@@ -166,16 +166,17 @@ Entity *GameWorld::AddEntity(Entity *entity)
         m_Last = entity;
     }
 
-    if (entity->GetType() == ENTTYPE_CHARACTER || entity->GetType() == ENTTYPE_CRATE) {
-        if (!m_FirstShootable) {
-            m_FirstShootable = entity;
-            m_LastShootable = entity;
-            entity->m_PrevShootable = nullptr;
-            entity->m_NextShootable = nullptr;
+    if (entity->HasHealthComponent()) {
+        auto HealthEntity = (IEntityHasHealth*)entity;
+        if (!m_FirstHasHealth) {
+            m_FirstHasHealth = HealthEntity;
+            m_LastHasHealth = HealthEntity;
+            HealthEntity->SetPrevHasHealth(nullptr);
+            HealthEntity->SetNextHasHealth(nullptr);
         } else {
-            m_LastShootable->m_NextShootable = entity;
-            entity->m_PrevShootable = m_LastShootable;
-            m_LastShootable = entity;
+            m_LastHasHealth->SetNextHasHealth(HealthEntity);
+            HealthEntity->SetPrevHasHealth(m_LastHasHealth);
+            m_LastHasHealth = HealthEntity;
         }
     }
 
@@ -209,15 +210,17 @@ void GameWorld::RemoveEntity(Entity *entity)
     if (m_Last == entity)
         m_Last = entity->m_Prev;
 
-    // Remove entity from list of shootable
-    if (entity->m_PrevShootable)
-        entity->m_PrevShootable->m_NextShootable = entity->m_NextShootable;
-    if (entity->m_NextShootable)
-        entity->m_NextShootable->m_PrevShootable = entity->m_PrevShootable;
-    if (m_FirstShootable == entity)
-        m_FirstShootable = entity->m_NextShootable;
-    if (m_LastShootable == entity)
-        m_LastShootable = entity->m_PrevShootable;
+    if (entity->HasHealthComponent()) {
+        auto HealthEntity = (IEntityHasHealth*)entity;
+        if (HealthEntity->PrevHasHealth())
+            HealthEntity->PrevHasHealth()->SetNextHasHealth(HealthEntity->NextHasHealth());
+        if (HealthEntity->NextHasHealth())
+            HealthEntity->NextHasHealth()->SetPrevHasHealth(HealthEntity->PrevHasHealth());
+        if (m_FirstHasHealth == HealthEntity)
+            m_FirstHasHealth = HealthEntity->NextHasHealth();
+        if (m_LastHasHealth == HealthEntity)
+            m_LastHasHealth = HealthEntity->PrevHasHealth();
+    }
 }
 
 void GameWorld::DestroyPlayerByController(GameController *DeletedController) const
@@ -284,7 +287,7 @@ void GameWorld::Event(const SDL_Event &currentEvent)
 
 void GameWorld::TickCamera()
 {
-    if (!m_FirstType[ENTTYPE_CHARACTER])
+    if (!m_FirstType[CHARACTER_ENTITY])
         return;
 
     bool FirstIteration = true;

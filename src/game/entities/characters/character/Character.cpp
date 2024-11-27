@@ -63,20 +63,23 @@ Character::Character(GameWorld *world,
                      double max_health,
                      const Vec2d &start_pos,
                      const Vec2d &start_vel)
-    : DirectionalEntity(world,
-                        ENTTYPE_CHARACTER,
+ :  IEntityHasHealth(*this, max_health),
+    DirectionalEntity(world,
+                        CHARACTER_ENTITY,
                         start_pos,
                         Vec2d(35, 35),
                         start_vel,
                         Vec2d(1.0, 0.0),
-                        0.93),
+                        0.93,
+                        true),
       m_BaseAcceleration(0.45),
       m_Hands(this, 40.0, 10.0),
       m_Hook(this),
-      m_HealthBar(world->GameWindow(), &m_Health, &m_MaxHealth, 75, 15, 2, 2),
+      m_HealthBar(world->GameWindow(), &m_HealthComponent, 75, 15, 2, 2),
       m_Input(),
       m_LastInput()
 {
+
     m_Player = player;
     m_ColorHue = m_Player ? 60.0 - double(m_Player->GetIndex() * 30) : 0.0;
 
@@ -129,8 +132,6 @@ Character::Character(GameWorld *world,
     m_CurrentWeapon = nullptr; // Start by holding nothing
     memset(m_Weapons, 0, sizeof(m_Weapons));
 
-    m_MaxHealth = max_health;
-    m_Health = m_MaxHealth;
     m_PassiveRegeneration = 0.03; // health per tick when in combat
     m_ActiveRegeneration = 0.1;   // health per tick out of combat
     m_TicksOfCombatUntilRegeneration = (unsigned long long)(10 * m_World->GameWindow()->Timer()->GetFramerate());
@@ -180,26 +181,31 @@ Character::~Character()
     }
 }
 
-void Character::Damage(double damage, bool combat_tag)
-{
-    if (!Invincible)
-    {
-        if (HealersParadise)
-        {
+void Character::Damage(double damage, Entity* damager) {
+    if (!Invincible) {
+        if (HealersParadise) {
             double HealBack = damage;
             if (HealBack > 10)
                 HealBack = 10;
-            m_Health += HealBack;
+            m_HealthComponent.ChangeHealthBy(+HealBack);
         }
-        HasHealth::Damage(damage);
+
+        m_HealthComponent.ChangeHealthBy(-damage);
         m_HitTicks = 7;
 
-        Sound *HurtSound = ms_HitSounds[rand() % 3];
+        Sound* HurtSound = ms_HitSounds[rand() % 3];
         m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(HurtSound);
     }
-    if (combat_tag)
+
+    if (damager != nullptr) {
+        m_HealthComponent.UpdateDamager(damager);
         m_LastInCombat = m_World->GetTick();
+    }
 }
+
+void Character::Heal(double value) {
+    m_HealthComponent.ChangeHealthBy(+value);
+};
 
 void Character::ReverseMovement()
 {
@@ -623,10 +629,8 @@ void Character::TickHealth()
 {
     auto CurrentTick = m_World->GetTick();
     bool ActiveRegeneration = CurrentTick - m_LastInCombat < m_TicksOfCombatUntilRegeneration;
-    m_Health += ActiveRegeneration ? m_PassiveRegeneration : m_ActiveRegeneration;
-
-    if (m_Health > m_MaxHealth)
-        m_Health = m_MaxHealth;
+    m_HealthComponent.ChangeHealthBy(+(ActiveRegeneration ? m_PassiveRegeneration : m_ActiveRegeneration));
+    m_HealthComponent.LimitHealthToMax();
 }
 
 void Character::TickControls()
@@ -731,8 +735,9 @@ void Character::TickCollision()
         double YPush = YDistance / Distance * 0.5;
         m_Core.Accelerate(XPush, YPush);
         EntCore.Accelerate(-XPush, -YPush);
+
         if (Spiky && m_NPC != Char->IsNPC())
-            Char->Damage(3, true);
+            Char->Damage(3, this);
     }
 
     auto CrateEntity = m_World->FirstCrate();
@@ -1053,7 +1058,7 @@ void Character::DrawHealthbar()
     Drawing *Render = m_World->GameWindow()->Render();
 
     // Render health bar
-    if (m_Health != m_MaxHealth)
+    if (!m_HealthComponent.IsFullHealth())
     {
         m_HealthBar.SetColor(m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a);
         Texture *HealthPlate = ConfusingHP ? m_HealthBar.GetTexture() : m_HealthBar.UpdateTexture();
@@ -1068,11 +1073,11 @@ void Character::DrawHealthbar()
         {
             std::string HealthText;
             if (!ConfusingHP)
-                HealthText = FString("%i/%i", int(m_Health), int(m_MaxHealth));
+                HealthText = FString("%i/%i", int(m_HealthComponent.m_Health), int(m_HealthComponent.m_MaxHealth));
             else
                 HealthText = FString("%i/%i", int(rand() % 999), int(rand() % 999));
             m_HealthInt->SetText(HealthText);
-            m_HealthInt->SetColor(m_Health / m_MaxHealth <= 0.25 ? m_HealthRed : m_HealthBlack);
+            m_HealthInt->SetColor(m_HealthComponent.GetHealthInPercentage() <= 0.25 ? m_HealthRed : m_HealthBlack);
         }
 
         Texture *HealthTexture = m_HealthInt->RequestUpdate();
@@ -1321,44 +1326,50 @@ void Character::Tick()
     TickVelocity(); // Move the characters entity
     TickWalls();    // Check if colliding with walls
 
-    if ((int)(m_Health) != (int)(m_LastHealth))
+    // Check if health on screen needs updating
+    if ((int)(m_HealthComponent.m_Health) != (int)(m_HealthComponent.m_LastHealth))
         m_HealthInt->FlagForUpdate();
+
+    // Check if coordinate plate on screen needs updating
     if (m_World->GetNamesShown() > 0.05 &&
         ((int)(m_Core.Pos.x) != (int)(m_LastCore.Pos.x) ||
          (int)(m_Core.Pos.y) != (int)(m_LastCore.Pos.y)))
-    {
         m_CoordinatePlate->FlagForUpdate();
-    }
-
-    m_LastHealth = m_Health;
-    TickLastCore();
-    memcpy(&m_LastInput, &m_Input, sizeof(CharacterInput));
 
     m_HitTicks -= 1;
     if (m_HitTicks < 0)
         m_HitTicks = 0;
 
-    if (m_Health <= 0.0)
+    // Summarize the current tick
+    m_HealthComponent.TickUpdateLastHealth();
+    TickUpdateLastCore();
+    memcpy(&m_LastInput, &m_Input, sizeof(CharacterInput));
+
+    // Die
+    if (!m_HealthComponent.IsAlive())
         EventDeath();
 }
 
 void Character::Draw()
 {
-    double Health = m_Health / m_MaxHealth;
+    double HealthPercentage = m_HealthComponent.GetHealthInPercentage();
     double Hue = m_HitTicks ? 0.0 : m_ColorHue;
-    m_CharacterColor = HSLtoRGB({Hue, 1.0, 0.4 + Health * 0.35});
+    m_CharacterColor = HSLtoRGB({Hue, 1.0, 0.4 + HealthPercentage * 0.35});
     m_HookColor = HSLtoRGB({Hue, 0.5, 1.0});
     m_HealthbarColor = m_CharacterColor;
-    m_HandColor = HSLtoRGB({Hue, 1.0, 0.2 + Health * 0.3});
+    m_HandColor = HSLtoRGB({Hue, 1.0, 0.2 + HealthPercentage * 0.3});
     m_NameplateColor = m_HandColor;
+
     DrawHook();
     DrawHands();
     DrawCharacter();
     DrawHealthbar();
     DrawNameplate();
     DrawErrorIcons();
+
     if (m_CurrentWeapon)
         DrawAmmoCounter();
+
     // Only draws the Error names, if the timers havent been going down for any more than 2 seconds
     // 1000(Most Error activity time)-120(2 seconds)
     if (m_IsReverseTimer > 1380 || m_ConfusingHPTimer > 1380 || m_InvincibleTimer > 1380 || m_SpikyTimer > 2880 ||

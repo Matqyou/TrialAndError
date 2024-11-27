@@ -12,6 +12,7 @@
 
 class Player;
 class Entity;
+class IEntityHasHealth;
 class Character;
 class Crate;
 class GameWorld {
@@ -24,9 +25,9 @@ private:
     bool m_Paused;
     bool m_GameOver;
     Player* m_FirstPlayer, * m_LastPlayer;
-    Entity* m_FirstType[NUM_ENTTYPES]{ }, * m_LastType[NUM_ENTTYPES]{ };
+    Entity* m_FirstType[NUM_ENTITY_TYPES]{ }, * m_LastType[NUM_ENTITY_TYPES]{ };
     Entity* m_First, * m_Last;
-    Entity* m_FirstShootable, * m_LastShootable;
+    IEntityHasHealth* m_FirstHasHealth, * m_LastHasHealth;
     unsigned long long m_CurrentTick;
 
     // Cool scrolling background                                        cap
@@ -60,12 +61,12 @@ public:
     [[nodiscard]] unsigned int GetNextPlayerIndex() const;
     [[nodiscard]] Entity* FirstEntity() const { return m_First; }
     [[nodiscard]] Entity* LastEntity() const { return m_Last; }
-    [[nodiscard]] Entity* FirstShootable() const { return m_FirstShootable; }
-    [[nodiscard]] Entity* LastShootable() const { return m_LastShootable; }
+    [[nodiscard]] IEntityHasHealth* FirstHasHealth() const { return m_FirstHasHealth; }
+    [[nodiscard]] IEntityHasHealth* LastHasHealth() const { return m_LastHasHealth; }
     [[nodiscard]] Entity* FirstEntityType(EntityType entity_type) const { return m_FirstType[entity_type]; }
     [[nodiscard]] Entity* LastEntityType(EntityType entity_type) const { return m_LastType[entity_type]; }
-    [[nodiscard]] Character* FirstCharacter() const { return (Character*)(FirstEntityType(ENTTYPE_CHARACTER)); }
-    [[nodiscard]] Crate* FirstCrate() const { return (Crate*)(FirstEntityType(ENTTYPE_CRATE)); }
+    [[nodiscard]] Character* FirstCharacter() const { return (Character*)(FirstEntityType(CHARACTER_ENTITY)); }
+    [[nodiscard]] Crate* FirstCrate() const { return (Crate*)(FirstEntityType(CRATE_ENTITY)); }
     // void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
     // Setting

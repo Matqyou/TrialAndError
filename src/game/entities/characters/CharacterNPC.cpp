@@ -30,7 +30,7 @@ void CharacterNPC::EventDeath() {
     m_World->AddScore(m_IsBoss ? 20 * 5 : 20);
 
     if (rand() % 100 <= 20)
-        new Crate(m_World, m_Core.Pos, 20.0, DropType(rand() % 2));
+        new Crate(m_World, m_Core.Pos, DropType(rand() % 2));
 
     int NumNPCS = 0;
     for (auto Char = m_World->FirstCharacter(); Char; Char = (Character*)Char->NextType()) {
@@ -111,4 +111,8 @@ void CharacterNPC::TickControls() {
             }
         }
     }
+}
+
+const char* CharacterNPC::toString() const {
+    return "CharacterNPC";
 }

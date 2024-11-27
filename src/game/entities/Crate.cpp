@@ -12,31 +12,31 @@ Sound* Crate::ms_BoxSound = nullptr;
 
 Crate::Crate(GameWorld* world,
              const Vec2d& start_pos,
-             double Health,
              DropType RandomDrop)
-    : Entity(world,
-             ENTFORM_NORMAL,
-             ENTTYPE_CRATE,
+ :  IEntityHasHealth(*this, 20),
+    Entity(world,
+             NORMAL_ENTITY,
+             CRATE_ENTITY,
              start_pos,
              Vec2d(50, 50),
              Vec2d(0.0, 0.0),
-             0.95) {
+             0.95,
+             true) {
     m_World = world;
-    m_Health = Health;
     m_Alive = true;
-    m_Type = RandomDrop;
+    m_DropType = RandomDrop;
     m_Texture = &ms_TextureBox;
 
     auto Random = m_World->GameWindow()->Random();
     float RandomFloat = Random->PercentageFloat();
-    if (RandomFloat <= 1 / 8.0f) typeID = DISORIANTED;
-    else if (RandomFloat <= 2 / 8.0f) { typeID = SPIKY; }
-    else if (RandomFloat <= 3 / 8.0f) { typeID = CONFUSING_HP; }
-    else if (RandomFloat <= 4 / 8.0f) { typeID = INVINCIBLE; }
-    else if (RandomFloat <= 5 / 8.0f) { typeID = HEALERS_PARADISE; }
-    else if (RandomFloat <= 6 / 8.0f) { typeID = RANGED; }
-    else if (RandomFloat <= 7 / 8.0f) { typeID = SLOW_DOWN; }
-    else if (RandomFloat <= 8 / 8.0f) { typeID = DANGEROUS_RECOIL; }
+    if (RandomFloat <= 1 / 8.0f) m_ErrorType = DISORIANTED;
+    else if (RandomFloat <= 2 / 8.0f) { m_ErrorType = SPIKY; }
+    else if (RandomFloat <= 3 / 8.0f) { m_ErrorType = CONFUSING_HP; }
+    else if (RandomFloat <= 4 / 8.0f) { m_ErrorType = INVINCIBLE; }
+    else if (RandomFloat <= 5 / 8.0f) { m_ErrorType = HEALERS_PARADISE; }
+    else if (RandomFloat <= 6 / 8.0f) { m_ErrorType = RANGED; }
+    else if (RandomFloat <= 7 / 8.0f) { m_ErrorType = SLOW_DOWN; }
+    else if (RandomFloat <= 8 / 8.0f) { m_ErrorType = DANGEROUS_RECOIL; }
 }
 
 Crate::~Crate()
@@ -50,27 +50,33 @@ Crate::~Crate()
     }
 }
 
-void Crate::Damage(double value) {
+void Crate::Damage(double value, Entity* damager) {
     Sound* BoxHitSound = ms_BoxSound;
     m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(BoxHitSound);
-    m_Health -= value;
-    if (m_Health < 10) m_Texture = &ms_TextureBreakingBox2;
-    else if (m_Health < 20) m_Texture = &ms_TextureBreakingBox1;
+    m_HealthComponent.ChangeHealthBy(-value);
+
+    if (m_HealthComponent.m_Health < 10) m_Texture = &ms_TextureBreakingBox2;
+    else if (m_HealthComponent.m_Health < 20) m_Texture = &ms_TextureBreakingBox1;
 }
+
+void Crate::Heal(double value) {
+    m_HealthComponent.ChangeHealthBy(+value);
+};
 
 void Crate::Tick() {
     TickWalls();
 
-    if (m_Health <= 0) {
+    // Die
+    if (!m_HealthComponent.IsAlive()) {
         m_Alive = false;
         m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_HitSound);
-        if (m_Type != ERROR) {
+        if (m_DropType != ERROR) {
             auto Ammo_type = m_World->GameWindow()->Random()->UnsignedInt() % 4;
             new AmmoBox(m_World, AmmoType(Ammo_type), m_Core.Pos, 20);
         } else {
             new Error(m_World,
                       m_Core.Pos,
-                      typeID); // To change the drop just change typeID the enum value of whatever ERROR is needed
+                      m_ErrorType); // To change the drop just change m_ErrorType the enum value of whatever ERROR is needed
         }
     }
 }

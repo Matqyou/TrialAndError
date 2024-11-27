@@ -16,12 +16,13 @@ AmmoBox::AmmoBox(GameWorld* world,
                  const Vec2d& start_pos,
                  unsigned int AmmoCount)
     : Entity(world,
-             ENTFORM_NORMAL,
-             ENTTYPE_AMMO,
+             NORMAL_ENTITY,
+             AMMO_BOX_ENTITY,
              start_pos,
              Vec2d(40, 28),
              Vec2d(0.0, 0.0),
-             0.95) {
+             0.95,
+             false) {
     m_AmmoCount = AmmoCount;
     m_Type = type;
 
@@ -42,7 +43,7 @@ void AmmoBox::TickPickup() {
         Char->AmmoPickup(this);
 
         // TODO Increase ammo amount, also check which type of ammo has been picked up aswell
-        // something like if(m_Type == AMMO_GLOCK){
+        // something like if(m_DropType == AMMO_GLOCK){
         // m_WeaponType->m_Ammo == m_Amm oCapacity
         // }
     }

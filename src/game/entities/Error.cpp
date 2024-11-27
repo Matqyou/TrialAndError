@@ -18,14 +18,15 @@ Texture* Error::ms_TextureError = nullptr;
 
 Error::Error(GameWorld* world, const Vec2d& start_pos, int typeID)
     : Entity(world,
-             ENTFORM_NORMAL,
-             ENTTYPE_ERROR,
+             NORMAL_ENTITY,
+             ERROR_ENTITY,
              start_pos,
              Vec2d(45, 45),
              Vec2d(0.0, 0.0),
-             0.95) {
+             0.95,
+             false) {
 
-    m_Type = static_cast<ErrorTypes>(typeID);
+    m_Type = static_cast<ErrorType>(typeID);
     if (m_Type == SPIKY) m_Texture = ms_TextureErrorSpiky;
     else if (m_Type == INVINCIBLE) m_Texture = ms_TextureErrorInvincible;
     else if (m_Type == SLOW_DOWN) m_Texture = ms_TextureErrorSlowDown;

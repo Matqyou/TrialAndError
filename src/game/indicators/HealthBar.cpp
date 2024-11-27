@@ -5,15 +5,13 @@
 #include "HealthBar.h"
 
 HealthBar::HealthBar(GameReference* game_window,
-                     double* value,
-                     double* max_value,
+                     HasHealth* health_component,
                      int width,
                      int height,
                      int spacing_w,
                      int spacing_h) {
     m_GameWindow = game_window;
-    m_MaxValue = max_value;
-    m_Value = value;
+    m_HealthComponent = health_component;
     m_Width = width;
     m_Height = height;
     m_SpacingW = spacing_w;
@@ -31,6 +29,14 @@ HealthBar::HealthBar(GameReference* game_window,
                                                                       width,
                                                                       height,
                                                                       false);
+
+    // HealthComponent validation (might not be the prettiest)
+#ifndef NDEBUG
+    if (m_HealthComponent == nullptr) { throw std::runtime_error("HealthComponent cannot be nullptr"); }
+#endif
+
+    m_HealthReference = &m_HealthComponent->m_Health;
+    m_MaxHealthReference = &m_HealthComponent->m_MaxHealth;
 }
 
 HealthBar::~HealthBar() {
@@ -45,16 +51,18 @@ void HealthBar::SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 }
 
 Texture* HealthBar::UpdateTexture() {
-    m_Ratio = *m_Value / *m_MaxValue;
-    int InnerWidth = (int)((double)(m_InnerWidth) * m_Ratio);
+    m_Ratio = *m_HealthReference / *m_MaxHealthReference;
+    int InnerWidth = (int)( (double)(m_InnerWidth) * m_Ratio );
 
     Drawing* Render = m_GameWindow->Render();
     Render->SetRenderTarget(m_Texture);
     Render->SetColor(255, 255, 255, 255);
     Render->Clear();
+
     Render->SetColor(m_r, m_g, m_b, m_a);
     SDL_Rect FillRect = { m_SpacingW, m_SpacingH, InnerWidth, m_InnerHeight };
     Render->FillRect(FillRect);
     Render->SetRenderTarget(nullptr);
+
     return m_Texture;
 }

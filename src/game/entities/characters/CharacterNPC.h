@@ -29,4 +29,6 @@ public:
                  bool is_boss);
     ~CharacterNPC();
 
+    // Generating
+    [[nodiscard]] const char* toString() const override;
 };

@@ -5,11 +5,13 @@
 #pragma once
 
 #include "../../GameReference.h"
+#include "../entities/Entity.h"
 
 class HealthBar {
 private:
     GameReference* m_GameWindow;
-    double* m_MaxValue, * m_Value;
+    HasHealth* m_HealthComponent; // Might stay unused outside of constructor
+    double* m_HealthReference, * m_MaxHealthReference;
     int m_Width, m_Height, m_SpacingW, m_SpacingH;
     double m_Ratio;
 
@@ -19,8 +21,7 @@ private:
 
 public:
     HealthBar(GameReference* game_window,
-              double* value,
-              double* max_value,
+              HasHealth* health_component,
               int width,
               int height,
               int spacing_w,
