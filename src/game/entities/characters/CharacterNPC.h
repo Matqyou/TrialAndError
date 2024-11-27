@@ -27,7 +27,7 @@ public:
                  const Vec2d& start_vel,
                  NPCType ai_type,
                  bool is_boss);
-    ~CharacterNPC();
+    ~CharacterNPC() override;
 
     // Generating
     [[nodiscard]] const char* toString() const override;

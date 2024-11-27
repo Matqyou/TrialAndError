@@ -136,7 +136,7 @@ public:
               double max_health,
               const Vec2d& start_pos,
               const Vec2d& start_vel);
-    ~Character();
+    ~Character() override;
 
     // Getting
     [[nodiscard]] Hook* GetHook() { return &m_Hook; }

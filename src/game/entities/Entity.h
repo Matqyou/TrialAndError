@@ -67,11 +67,12 @@ protected:
     HasHealth m_HealthComponent;
 
     // Setting
-    void SetNextHasHealth(IEntityHasHealth* health_entity);
-    void SetPrevHasHealth(IEntityHasHealth* health_entity);
+    void SetNextHasHealth(IEntityHasHealth* next);
+    void SetPrevHasHealth(IEntityHasHealth* prev);
 
 public:
     IEntityHasHealth(const Entity& parent, double initial_health);
+    virtual ~IEntityHasHealth() = default;
 
     // Getting
     [[nodiscard]] IEntityHasHealth* NextHasHealth() const { return m_HealthComponent.NextHasHealth(); }
@@ -158,7 +159,7 @@ public:
                       const Vec2d& start_direction,
                       double base_damping,
                       bool has_health_component);
-    ~DirectionalEntity();
+    ~DirectionalEntity() override;
 
     // Getting
     [[nodiscard]] DirectionalEntityCore& GetDirectionalCore() const { return m_DirectionalCore; }

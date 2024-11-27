@@ -32,7 +32,7 @@ public:
     Crate(GameWorld* world,
           const Vec2d& start_pos,
           DropType RandomDrop);
-    ~Crate();
+    ~Crate() override;
 
     // Getting
     [[nodiscard]] DropType GetDropType() const { return m_DropType; }

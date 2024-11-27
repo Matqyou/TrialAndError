@@ -51,6 +51,7 @@ Crate::~Crate()
 }
 
 void Crate::Damage(double value, Entity* damager) {
+    std::cout << "Crate::Damage() called" << std::endl;
     Sound* BoxHitSound = ms_BoxSound;
     m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(BoxHitSound);
     m_HealthComponent.ChangeHealthBy(-value);

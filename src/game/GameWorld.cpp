@@ -211,6 +211,7 @@ void GameWorld::RemoveEntity(Entity *entity)
         m_Last = entity->m_Prev;
 
     if (entity->HasHealthComponent()) {
+        std::cout << "Remove " << entity->toString() << " (entity with health)" << std::endl;
         auto HealthEntity = (IEntityHasHealth*)entity;
         if (HealthEntity->PrevHasHealth())
             HealthEntity->PrevHasHealth()->SetNextHasHealth(HealthEntity->NextHasHealth());

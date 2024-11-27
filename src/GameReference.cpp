@@ -7,6 +7,7 @@
 GameReference::GameReference() {
     m_Window = nullptr;
     m_Renderer = nullptr;
+    m_GLContext = nullptr;
     m_Timer = nullptr;
     m_Random = nullptr;
     m_Draw = nullptr;
@@ -113,7 +114,7 @@ bool GameReference::Initialize() {
                                     SDL_WINDOWPOS_CENTERED,
                                     m_Width,
                                     m_Height,
-                                    SDL_WINDOW_RESIZABLE);
+                                    SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
         if (!m_Window) {
             std::printf("Error while creating the window %s\n", SDL_GetError());
             return false;
@@ -127,6 +128,8 @@ bool GameReference::Initialize() {
             return false;
         }
     }
+
+    m_GLContext = SDL_GL_CreateContext(m_Window);
 
     if (!m_Timer) m_Timer = new Clock(60);
     if (!m_Random) m_Random = new Randomizer();

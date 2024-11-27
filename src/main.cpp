@@ -50,6 +50,8 @@ bool Initialize()
     Projectile::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/projectiles/BurstBullet.png", true);
     Projectile::ms_TextureShotgun =
         ImageHandler->LoadTexture("assets/images/entities/projectiles/ShotgunBullet.png", true);
+    Projectile::ms_TextureSniper =
+        ImageHandler->LoadTexture("assets/images/entities/projectiles/ShotgunBullet.png", true);
     Projectile::ms_TextureMinigun =
         ImageHandler->LoadTexture("assets/images/entities/projectiles/MinigunBullet.png", true);
     AmmoBox::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/GlockAmmo.png", true);

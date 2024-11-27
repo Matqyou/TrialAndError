@@ -11,6 +11,7 @@
 Texture* Projectile::ms_TextureGlock = nullptr;
 Texture* Projectile::ms_TextureBurst = nullptr;
 Texture* Projectile::ms_TextureShotgun = nullptr;
+Texture* Projectile::ms_TextureSniper = nullptr;
 Texture* Projectile::ms_TextureMinigun = nullptr;
 
 Projectile::Projectile(GameWorld* world,
@@ -45,7 +46,7 @@ Projectile::Projectile(GameWorld* world,
         }
             break;
         case WEAPON_SNIPER: {
-            m_Texture = ms_TextureGlock;
+            m_Texture = ms_TextureSniper;
         }
     }
     m_Shooter = shooter;
@@ -76,10 +77,11 @@ void Projectile::TickCollision() {
         if (IsShooter && !Collides) { m_StillCollidesShooter = false; }
         else if (Collides && (!IsShooter || !m_StillCollidesShooter)) {
             if (Ent->GetType() == CHARACTER_ENTITY) {
+                HealthEntity->Damage(m_Damage, Ent);
                 auto ShootableCharacter = (Character*)Ent;
-                ShootableCharacter->Damage(m_Damage, Ent);
                 ShootableCharacter->Accelerate(m_Core.Vel * 0.05);
             } else {
+                std::cout << "Projectile impact with " << Ent->toString() << std::endl;
                 HealthEntity->Damage(m_Damage, nullptr);
             }
 

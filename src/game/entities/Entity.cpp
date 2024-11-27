@@ -81,16 +81,16 @@ void HasHealth::TickUpdateLastHealth() {
 }
 
 IEntityHasHealth::IEntityHasHealth(const Entity& parent, double initial_health)
-    : m_HealthComponent(parent, initial_health) {
-    std::cout << "Construct entity w/ health" << std::endl;
+: m_HealthComponent(parent, initial_health) {
+
 }
 
-void IEntityHasHealth::SetNextHasHealth(IEntityHasHealth* health_entity) {
-    m_HealthComponent.SetNextHasHealth(health_entity);
+void IEntityHasHealth::SetNextHasHealth(IEntityHasHealth* next) {
+    m_HealthComponent.SetNextHasHealth(next);
 }
 
-void IEntityHasHealth::SetPrevHasHealth(IEntityHasHealth* health_entity) {
-    m_HealthComponent.SetPrevHasHealth(health_entity);
+void IEntityHasHealth::SetPrevHasHealth(IEntityHasHealth* prev) {
+    m_HealthComponent.SetPrevHasHealth(prev);
 }
 
 Entity::Entity(GameWorld* world,
@@ -106,7 +106,6 @@ Entity::Entity(GameWorld* world,
       m_Core(*m_pUnknownCore),
       m_LastCore(*m_pLastUnknownCore),
       m_HasHealthComponent(has_health_component) {
-    std::cout << "Construct entity" << std::endl;
     m_World = world;
     m_PrevType = nullptr;
     m_NextType = nullptr;
@@ -121,8 +120,6 @@ Entity::Entity(GameWorld* world,
     m_Core.Vel = start_vel;
     m_Core.BaseDamping = base_damping;
     m_SpawnedTick = m_World->GetTick();
-
-    std::cout << "Created entity " << toString() << " with health component set to 0" << std::endl;
 
     m_World->AddEntity(this);
     m_Core.sizeRatio = (m_Core.Size.x + m_Core.Size.y) / 4.0;

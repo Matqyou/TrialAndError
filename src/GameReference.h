@@ -17,6 +17,7 @@ class GameReference {
 private:
     SDL_Window* m_Window;
     SDL_Renderer* m_Renderer;
+    SDL_GLContext m_GLContext;
     Clock* m_Timer;
     Drawing* m_Draw;
     Randomizer* m_Random;
@@ -45,6 +46,7 @@ public:
     // Getting
     [[nodiscard]] SDL_Window* Window() const { return m_Window; }
     [[nodiscard]] SDL_Renderer* Renderer() const { return m_Renderer; }
+    [[nodiscard]] SDL_GLContext& GlContext() { return m_GLContext; }
     [[nodiscard]] Clock* Timer() const { return m_Timer; }
     [[nodiscard]] Randomizer* Random() const { return m_Random; }
     [[nodiscard]] Drawing* Render() const { return m_Draw; }
