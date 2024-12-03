@@ -3,6 +3,7 @@
 //
 
 #include "GameReference.h"
+#include "client/Decals.h"
 
 GameReference::GameReference() {
     m_Window = nullptr;
@@ -106,6 +107,8 @@ bool GameReference::Initialize() {
         !InitializeImages() ||
         !InitializeTTF())
         return false;
+
+    Decals::initialize();
 
     if (!m_Window) {
         UpdateDimensions(1280, 720);

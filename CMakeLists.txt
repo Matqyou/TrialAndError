@@ -99,7 +99,9 @@ set(PROJECT_FILES
         "src/game/entities/Error.cpp"
         "src/game/entities/Error.h"
         "src/game/weapons/projectile/WeaponSniper.cpp"
-        "src/game/weapons/projectile/WeaponSniper.h")
+        "src/game/weapons/projectile/WeaponSniper.h"
+        "src/client/Decals.h"
+        "src/client/Decals.cpp")
 
 # Add executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES})

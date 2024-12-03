@@ -28,9 +28,12 @@ GameControllers *Controllers;
 
 bool Initialize()
 {
+    srand(time(nullptr));
+
     GameWindow = new GameReference();
     if (!GameWindow->Initialize())
         return false;
+
     SDL_ShowCursor(0);
     AssetsManager *AssetsHandler = GameWindow->Assets();
     SoundManager *SoundHandler = AssetsHandler->SoundHandler();
@@ -133,7 +136,6 @@ bool Initialize()
 
 bool StartUp()
 {
-    srand(time(nullptr));
     World = new GameWorld(GameWindow, 50, 30);
     GameWindow->Render()->SetWorld(World);
     Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),
@@ -162,10 +164,13 @@ bool StartUp()
                                100.0,
                                Vec2d(32 * 17.5, 32 * 17.5),
                                Vec2d(10, 10));
+    std::cout << Char1 << std::endl;
+    std::cout << (IEntityHasHealth*)Char1 << std::endl;
     // Char1->GiveWeapon(new WeaponGlock(nullptr));
 
     return true;
 }
+
 int main()
 {
     if (!Initialize())
@@ -209,7 +214,6 @@ int main()
                                int(GameWindow->GetHeight2()) + 121,
                                360, 80};
 
-    Vec2i RealMouse;
     bool MenuOpen = true;
     bool Running = true;
     while (MenuOpen)
@@ -435,4 +439,6 @@ int main()
         Render->UpdateWindow();
         Timer->Tick();
     }
+
+    return 0;
 }
