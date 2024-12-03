@@ -181,18 +181,23 @@ Character::~Character()
     }
 }
 
-
 void Character::LevelupStats(unsigned int level)
 {
     m_MaxHealth += 10 + (1000 - m_MaxHealth) / 10;
     m_Health = m_MaxHealth; // Optionally, heal the character to full health
+
+    // Pause the game and open the LevelUpMenu
+    LevelUpMenu levelUpMenu(m_World->GameWindow());
+    levelUpMenu.Show();
 }
 
-void Character::Damage(double damage, bool combat_tag, Character* attacker)
+void Character::Damage(double damage, bool combat_tag, Character *attacker)
 {
-    if(IsNPC()){
+    if (IsNPC())
+    {
         auto npc = (CharacterNPC *)(this);
-        if (npc) {
+        if (npc)
+        {
             npc->UpdateAttacker(attacker->GetPlayer());
         }
     }
@@ -481,39 +486,39 @@ void Character::AmmoPickup(AmmoBox *ammo_box)
 
 void Character::EventDeath()
 {
-        for (int i = 0; i < NUM_WEAPONS; i++)
+    for (int i = 0; i < NUM_WEAPONS; i++)
+    {
+        if (!m_Weapons[i])
+            continue;
+
+        // In this case the dropper is already dead... so there is no real point to get his address?
+        // or maybe there is? No idea man I'm just a bored programmear -_-
+        ItemEntity *NewWeapon;
+        if (i == WEAPON_GLOCK)
         {
-            if (!m_Weapons[i])
-                continue;
-
-            // In this case the dropper is already dead... so there is no real point to get his address?
-            // or maybe there is? No idea man I'm just a bored programmear -_-
-            ItemEntity *NewWeapon;
-            if (i == WEAPON_GLOCK)
-            {
-                NewWeapon = new EntityGlock(m_World, this, (WeaponGlock *)m_Weapons[WEAPON_GLOCK], m_Core.Pos);
-                m_Weapons[WEAPON_GLOCK] = nullptr;
-            }
-            else if (i == WEAPON_SHOTGUN)
-            {
-                NewWeapon = new EntityShotgun(m_World, this, (WeaponShotgun *)m_Weapons[WEAPON_SHOTGUN], m_Core.Pos);
-                m_Weapons[WEAPON_SHOTGUN] = nullptr;
-            }
-            else if (i == WEAPON_BURST)
-            {
-                NewWeapon = new EntityBurst(m_World, this, (WeaponBurst *)m_Weapons[WEAPON_BURST], m_Core.Pos);
-                m_Weapons[WEAPON_BURST] = nullptr;
-            }
-            else if (i == WEAPON_MINIGUN)
-            {
-                NewWeapon = new EntityMinigun(m_World, this, (WeaponMinigun *)m_Weapons[WEAPON_MINIGUN], m_Core.Pos);
-                m_Weapons[WEAPON_MINIGUN] = nullptr;
-            }
-
-            NewWeapon->Accelerate(m_DirectionalCore.Direction * 5);
-            NewWeapon->SetRotation(m_DirectionalCore.Direction.Atan2());
-            NewWeapon->AccelerateRotation(std::fmod(m_World->GameWindow()->Random()->Float(), 0.35f) - 0.175f);
+            NewWeapon = new EntityGlock(m_World, this, (WeaponGlock *)m_Weapons[WEAPON_GLOCK], m_Core.Pos);
+            m_Weapons[WEAPON_GLOCK] = nullptr;
         }
+        else if (i == WEAPON_SHOTGUN)
+        {
+            NewWeapon = new EntityShotgun(m_World, this, (WeaponShotgun *)m_Weapons[WEAPON_SHOTGUN], m_Core.Pos);
+            m_Weapons[WEAPON_SHOTGUN] = nullptr;
+        }
+        else if (i == WEAPON_BURST)
+        {
+            NewWeapon = new EntityBurst(m_World, this, (WeaponBurst *)m_Weapons[WEAPON_BURST], m_Core.Pos);
+            m_Weapons[WEAPON_BURST] = nullptr;
+        }
+        else if (i == WEAPON_MINIGUN)
+        {
+            NewWeapon = new EntityMinigun(m_World, this, (WeaponMinigun *)m_Weapons[WEAPON_MINIGUN], m_Core.Pos);
+            m_Weapons[WEAPON_MINIGUN] = nullptr;
+        }
+
+        NewWeapon->Accelerate(m_DirectionalCore.Direction * 5);
+        NewWeapon->SetRotation(m_DirectionalCore.Direction.Atan2());
+        NewWeapon->AccelerateRotation(std::fmod(m_World->GameWindow()->Random()->Float(), 0.35f) - 0.175f);
+    }
 
     if (!m_NPC)
     { // prob better place for this code
@@ -526,7 +531,6 @@ void Character::EventDeath()
         if (NumRealCharacters == 1)
             m_World->AlliesGone();
     }
-    
 
     m_Alive = false;
     m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
@@ -718,10 +722,12 @@ void Character::TickHook()
     m_Hook.Tick();
 }
 
-void Character::TickCollision() {
+void Character::TickCollision()
+{
     // Handle collision with other characters
     auto Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character *)(Char->NextType())) {
+    for (; Char; Char = (Character *)(Char->NextType()))
+    {
         if (Char == this)
             continue;
 
@@ -732,7 +738,8 @@ void Character::TickCollision() {
 
         if (Distance > m_Core.sizeRatio + EntCore.sizeRatio)
             continue;
-        else if (Distance == 0.0) {
+        else if (Distance == 0.0)
+        {
             double Radians = (rand() % 360) / 180.0 * M_PI;
             XDistance = cos(Radians);
             YDistance = sin(Radians);
@@ -749,7 +756,8 @@ void Character::TickCollision() {
 
     // Handle collision with crates
     auto CrateEntity = m_World->FirstCrate();
-    for (; CrateEntity; CrateEntity = (Crate*)(CrateEntity->NextType())) {
+    for (; CrateEntity; CrateEntity = (Crate *)(CrateEntity->NextType()))
+    {
         EntityCore &CrateCore = CrateEntity->GetCore();
         Vec2d Difference = m_Core.Pos - CrateCore.Pos;
         double Distance = Difference.Length();
@@ -789,7 +797,7 @@ void Character::TickCurrentWeapon()
 // Function to draw icons for error pickup
 void Character::DrawErrorIcons()
 {
-    SDL_FRect DrawRectError = {float(m_Core.Pos.x) + float(m_Core.Size.x / 2.0)+10,
+    SDL_FRect DrawRectError = {float(m_Core.Pos.x) + float(m_Core.Size.x / 2.0) + 10,
                                float(m_Core.Pos.y) + float(m_Core.Size.y / 2.0),
                                float(20),
                                float(20)};
@@ -1058,57 +1066,57 @@ void Character::DrawHook()
 }
 
 void Character::DrawHealthbar()
-{   
+{
     if (m_NPC)
         return;
 
     Drawing *Render = m_World->GameWindow()->Render();
 
     // Render health bar
-        m_HealthBar.SetColor(m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a);
-        Texture *HealthPlate = ConfusingHP ? m_HealthBar.GetTexture() : m_HealthBar.UpdateTexture();
+    m_HealthBar.SetColor(m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a);
+    Texture *HealthPlate = ConfusingHP ? m_HealthBar.GetTexture() : m_HealthBar.UpdateTexture();
 
-        int HealthBarW = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
-        int HealthBarH = HealthPlate->GetHeight();
-        SDL_Rect HealthplateRect = {int(m_Core.Pos.x - HealthBarW / 2.0) + 10, // Adjust position to the right
-                                    int(m_Core.Pos.y + m_Core.Size.y / 2.0),
-                                    HealthBarW, HealthBarH};
+    int HealthBarW = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
+    int HealthBarH = HealthPlate->GetHeight();
+    SDL_Rect HealthplateRect = {int(m_Core.Pos.x - HealthBarW / 2.0) + 10, // Adjust position to the right
+                                int(m_Core.Pos.y + m_Core.Size.y / 2.0),
+                                HealthBarW, HealthBarH};
 
-        if (m_HealthInt->GetFlaggedForUpdate())
-        {
-            std::string HealthText;
+    if (m_HealthInt->GetFlaggedForUpdate())
+    {
+        std::string HealthText;
 
-            if (!ConfusingHP)
-                HealthText = FString("%i/%i", int(m_Health), int(m_MaxHealth));
-            else
-                HealthText = FString("%i/%i", int(rand() % 999), int(rand() % 999));
-            m_HealthInt->SetText(HealthText);
-            m_HealthInt->SetColor(m_Health / m_MaxHealth <= 0.25 ? m_HealthRed : m_HealthBlack);
-        }
+        if (!ConfusingHP)
+            HealthText = FString("%i/%i", int(m_Health), int(m_MaxHealth));
+        else
+            HealthText = FString("%i/%i", int(rand() % 999), int(rand() % 999));
+        m_HealthInt->SetText(HealthText);
+        m_HealthInt->SetColor(m_Health / m_MaxHealth <= 0.25 ? m_HealthRed : m_HealthBlack);
+    }
 
-        Texture *HealthTexture = m_HealthInt->RequestUpdate();
-        double HealthTextureW = HealthTexture->GetWidth();
-        double HealthTextureH = HealthTexture->GetHeight();
-        SDL_Rect HealthIntRect = {int(m_Core.Pos.x - HealthTextureW / 4.0) + 10, // Adjust position to the right
-                                  int(m_Core.Pos.y + m_Core.Size.y / 2.0 + HealthTextureH / 4.0),
-                                  int(HealthTextureW / 2.0),
-                                  int(HealthTextureH / 2.0)};
+    Texture *HealthTexture = m_HealthInt->RequestUpdate();
+    double HealthTextureW = HealthTexture->GetWidth();
+    double HealthTextureH = HealthTexture->GetHeight();
+    SDL_Rect HealthIntRect = {int(m_Core.Pos.x - HealthTextureW / 4.0) + 10, // Adjust position to the right
+                              int(m_Core.Pos.y + m_Core.Size.y / 2.0 + HealthTextureH / 4.0),
+                              int(HealthTextureW / 2.0),
+                              int(HealthTextureH / 2.0)};
 
-        Render->RenderTextureCamera(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
-        Render->RenderTextureCamera(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
+    Render->RenderTextureCamera(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
+    Render->RenderTextureCamera(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
 
-        // Draw level indicator
-        TTF_Font* SmallFont = m_World->GameWindow()->Assets()->TextHandler()->LoadFont("assets/fonts/Minecraft.ttf", 10); // Load a smaller font
-        std::string LevelText = FString("LVL %i", m_Player->GetLevel()); // Use the level value directly
-        TextSurface LevelSurface(m_World->GameWindow()->Assets(), SmallFont, LevelText, {255, 255, 255});
-        Texture *LevelTexture = LevelSurface.RequestUpdate();
-        int LevelTextureW = LevelTexture->GetWidth();
-        int LevelTextureH = LevelTexture->GetHeight();
-        SDL_Rect LevelRect = {int(m_Core.Pos.x - HealthBarW / 2.0) - LevelTextureW +5, // Position to the left of the health bar
-                              int(m_Core.Pos.y + m_Core.Size.y / 2.0) +3,
-                              LevelTextureW, LevelTextureH};
+    // Draw level indicator
+    TTF_Font *SmallFont = m_World->GameWindow()->Assets()->TextHandler()->LoadFont("assets/fonts/Minecraft.ttf", 10); // Load a smaller font
+    std::string LevelText = FString("LVL %i", m_Player->GetLevel());                                                  // Use the level value directly
+    TextSurface LevelSurface(m_World->GameWindow()->Assets(), SmallFont, LevelText, {255, 255, 255});
+    Texture *LevelTexture = LevelSurface.RequestUpdate();
+    int LevelTextureW = LevelTexture->GetWidth();
+    int LevelTextureH = LevelTexture->GetHeight();
+    SDL_Rect LevelRect = {int(m_Core.Pos.x - HealthBarW / 2.0) - LevelTextureW + 5, // Position to the left of the health bar
+                          int(m_Core.Pos.y + m_Core.Size.y / 2.0) + 3,
+                          LevelTextureW, LevelTextureH};
 
-        Render->RenderTextureCamera(LevelTexture->SDLTexture(), nullptr, LevelRect);
+    Render->RenderTextureCamera(LevelTexture->SDLTexture(), nullptr, LevelRect);
 }
 
 void Character::DrawHands()
@@ -1142,7 +1150,7 @@ void Character::DrawHands()
         {
             WeaponTexture = ms_TextureSniper;
         }
-            break;
+        break;
         case WEAPON_MINIGUN:
         {
             int Phase = int(std::fmod(((WeaponMinigun *)m_Weapons[WEAPON_MINIGUN])->Rotation(), 100.0) / 25.0);
@@ -1195,7 +1203,6 @@ void Character::DrawNameplate()
 
     SDL_SetTextureAlphaMod(NamePlateTexture->SDLTexture(), Opacity);
     Render->RenderTextureCamera(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect);
-
 
     auto CoordinateText = FString("%ix, %iy", int(m_Core.Pos.x), int(m_Core.Pos.y));
     m_CoordinatePlate->SetText(CoordinateText);

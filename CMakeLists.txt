@@ -108,6 +108,8 @@ set(PROJECT_FILES
         "src/game/interface/PauseMenu.h"
         "src/game/interface/SettingsMenu.cpp"
         "src/game/interface/SettingsMenu.h"
+        "src/game/interface/LevelUpMenu.cpp"
+        "src/game/interface/LevelUpMenu.h"
         
         )
 

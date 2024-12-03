@@ -84,6 +84,5 @@ void Crate::Draw() {
                            float(m_Core.Size.x),
                            float(m_Core.Size.y) };
 
-std::cout << "render crates" << std::endl;
     Render->RenderTextureFCamera((*m_Texture)->SDLTexture(), nullptr, DrawRect);
 }

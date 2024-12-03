@@ -137,14 +137,11 @@ bool StartUp()
     srand(time(nullptr));
     World = new GameWorld(GameWindow, 50, 30);
     GameWindow->Render()->SetWorld(World);
-    std::cout << "Textsurface" << std::endl;
     Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),
                                                  World->GameWindow()->Assets()->TextHandler()->GetMainFont(),
                                                  "Bot User", {255, 150, 150, 255});
 
-std::cout << "Crates" << std::endl;
     new Crate(World, Vec2d(200, 200), 20, DropType(rand() % 2));
-    std::cout << "Crates2" << std::endl;
     new Crate(World, Vec2d(400, 200), 20, DropType(rand() % 2));
     new Crate(World, Vec2d(600, 200), 20, DropType(rand() % 2));
     new Crate(World, Vec2d(200, 400), 20, DropType(rand() % 2));
@@ -153,15 +150,12 @@ std::cout << "Crates" << std::endl;
     new Crate(World, Vec2d(200, 600), 20, DropType(rand() % 2));
     new Crate(World, Vec2d(400, 600), 20, DropType(rand() % 2));
     new Crate(World, Vec2d(600, 600), 20, DropType(rand() % 2));
-
-std::cout << "Entityweapons" << std::endl;
     new EntityGlock(World, nullptr, nullptr, Vec2d(800, 200));
     new EntityShotgun(World, nullptr, nullptr, Vec2d(900, 200));
     new EntityBurst(World, nullptr, nullptr, Vec2d(1000, 200));
     new EntityMinigun(World, nullptr, nullptr, Vec2d(1100, 200));
     new EntitySniper(World, nullptr, nullptr, Vec2d(1200, 200));
 
-std::cout << "Character" << std::endl;
     Controllers = new GameControllers();
     auto Player1 = new Player(World, "Keyboard");
     auto Char1 = new Character(World,
@@ -208,11 +202,8 @@ int main()
     Vec2i RealMouse;
 
     bool Running = true;
-    std::cout << "StartUp" << std::endl;
     StartUp();
-    std::cout << "PauseMenu" << std::endl;
     PauseMenu pauseMenu(GameWindow, &mainMenu);
-    std::cout << "While" << std::endl;
     while (Running)
     {
         // Input and events
@@ -285,20 +276,13 @@ int main()
         }
 
         // Ticking
-        std::cout << "Tick" << std::endl;
         World->Tick();
-        std::cout << "Reset" << std::endl;
         Controllers->TickReset();
-        std::cout << "Draw" << std::endl;
         // Drawing
         World->Draw();
-        std::cout << "Render" << std::endl;
         Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
-        std::cout << "Update" << std::endl;
 
         Render->UpdateWindow();
-        std::cout << "Timer" << std::endl;
         Timer->Tick();
-        std::cout << "All" << std::endl;
     }
 }

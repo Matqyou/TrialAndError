@@ -11,6 +11,7 @@
 #include "../../../../technical stuff/GameControllers.h"
 #include "../../../../technical stuff/Colors.h"
 #include "../../../indicators/HealthBar.h"
+#include "../../../interface/LevelUpMenu.h"
 #include "../../../indicators/TextSurface.h"
 #include "../../AmmoBox.h"
 #include "../../Crate.h"
