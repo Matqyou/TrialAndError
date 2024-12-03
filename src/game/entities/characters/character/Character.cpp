@@ -60,11 +60,9 @@ const int Character::ms_DefaultControls[NUM_CONTROLS] = {SDL_SCANCODE_W,
 
 Character::Character(GameWorld *world,
                      Player *player,
-                     double max_health,
                      const Vec2d &start_pos,
                      const Vec2d &start_vel)
- :  IEntityHasHealth(*this, max_health),
-    DirectionalEntity(world,
+    : DirectionalEntity(world,
                         CHARACTER_ENTITY,
                         start_pos,
                         Vec2d(35, 35),
@@ -181,9 +179,12 @@ Character::~Character()
     }
 }
 
-void Character::Damage(double damage, Entity* damager) {
-    if (!Invincible) {
-        if (HealersParadise) {
+void Character::Damage(double damage, Entity *damager)
+{
+    if (!Invincible)
+    {
+        if (HealersParadise)
+        {
             double HealBack = damage;
             if (HealBack > 10)
                 HealBack = 10;
@@ -193,17 +194,19 @@ void Character::Damage(double damage, Entity* damager) {
         m_HealthComponent.ChangeHealthBy(-damage);
         m_HitTicks = 7;
 
-        Sound* HurtSound = ms_HitSounds[rand() % 3];
+        Sound *HurtSound = ms_HitSounds[rand() % 3];
         m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(HurtSound);
     }
 
-    if (damager != nullptr) {
+    if (damager != nullptr)
+    {
         m_HealthComponent.UpdateDamager(damager);
         m_LastInCombat = m_World->GetTick();
     }
 }
 
-void Character::Heal(double value) {
+void Character::Heal(double value)
+{
     m_HealthComponent.ChangeHealthBy(+value);
 };
 
@@ -741,7 +744,7 @@ void Character::TickCollision()
     }
 
     auto CrateEntity = m_World->FirstCrate();
-    for (; CrateEntity; CrateEntity = (Crate*)(CrateEntity->NextType()))
+    for (; CrateEntity; CrateEntity = (Crate *)(CrateEntity->NextType()))
     {
         EntityCore &CrateCore = CrateEntity->GetCore();
         Vec2d Difference = m_Core.Pos - CrateCore.Pos;
@@ -782,7 +785,7 @@ void Character::TickCurrentWeapon()
 // Function to draw icons for error pickup
 void Character::DrawErrorIcons()
 {
-    SDL_FRect DrawRectError = {float(m_Core.Pos.x) + float(m_Core.Size.x / 2.0)+10,
+    SDL_FRect DrawRectError = {float(m_Core.Pos.x) + float(m_Core.Size.x / 2.0) + 10,
                                float(m_Core.Pos.y) + float(m_Core.Size.y / 2.0),
                                float(20),
                                float(20)};
@@ -1124,7 +1127,7 @@ void Character::DrawHands()
         {
             WeaponTexture = ms_TextureSniper;
         }
-            break;
+        break;
         case WEAPON_MINIGUN:
         {
             int Phase = int(std::fmod(((WeaponMinigun *)m_Weapons[WEAPON_MINIGUN])->Rotation(), 100.0) / 25.0);

@@ -29,7 +29,7 @@ struct CharacterInput {
     CharacterInput();
 };
 
-class Character : public DirectionalEntity, public IEntityHasHealth {
+class Character : public DirectionalEntity {
 public:
     enum {
         CONTROL_UP,
@@ -133,7 +133,6 @@ public:
 
     Character(GameWorld* world,
               Player* player,
-              double max_health,
               const Vec2d& start_pos,
               const Vec2d& start_vel);
     ~Character() override;
@@ -153,8 +152,8 @@ public:
     void RemoveCombat();
     void GiveWeapon(ProjectileWeapon* proj_weapon);
     void AmmoPickup(AmmoBox* ammo_box);
-    void Damage(double damage, Entity* damager) override;
-    void Heal(double value) override;
+    void Damage(double damage, Entity* damager) ;
+    void Heal(double value) ;
     void DropWeapon();
     void SwitchWeapon(WeaponType type);
     void ReverseMovement();

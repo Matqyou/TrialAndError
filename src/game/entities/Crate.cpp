@@ -13,7 +13,7 @@ Sound* Crate::ms_BoxSound = nullptr;
 Crate::Crate(GameWorld* world,
              const Vec2d& start_pos,
              DropType RandomDrop)
- :  IEntityHasHealth(*this, 20),
+ :
     Entity(world,
              NORMAL_ENTITY,
              CRATE_ENTITY,

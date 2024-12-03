@@ -161,11 +161,8 @@ bool StartUp()
     auto Player1 = new Player(World, "Keyboard");
     auto Char1 = new Character(World,
                                Player1,
-                               100.0,
                                Vec2d(32 * 17.5, 32 * 17.5),
                                Vec2d(10, 10));
-    std::cout << Char1 << std::endl;
-    std::cout << (IEntityHasHealth*)Char1 << std::endl;
     // Char1->GiveWeapon(new WeaponGlock(nullptr));
 
     return true;
@@ -334,7 +331,6 @@ int main()
                 else if (ScancodeKey == SDL_SCANCODE_Z)
                 {
                     new CharacterNPC(World,
-                                     20.0,
                                      Vec2d(32 * 30, 32),
                                      Vec2d(0, 10),
                                      NPC_TURRET,
@@ -349,7 +345,6 @@ int main()
                 auto NewPlayer = new Player(World, "Controller");
                 auto NewChar = new Character(World,
                                              NewPlayer,
-                                             100.0,
                                              Vec2d(32 * 17.5, 32 * 17.5),
                                              Vec2d(10, 10));
                 NewChar->GiveWeapon(new WeaponGlock(nullptr));

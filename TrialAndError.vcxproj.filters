@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\Clock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\Colors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\characters\character\Character.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\TextManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\GameControllers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\GameReference.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\GameWorld.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\Projectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\ImageManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\Drawing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\SoundManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\ProjectileWeapon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\WeaponGlock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\WeaponShotgun.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\WeaponBurst.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\WeaponMinigun.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\indicators\HealthBar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\characters\character\Hook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\AssetsManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\indicators\TextSurface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\collision\TileMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\AmmoBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\Crate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\Error.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\characters\character\Hands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\characters\CharacterNPC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\laser\LaserWeapon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\item\ItemEntity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\Randomizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\item\weapons\EntityGuns.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\WeaponSniper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\client\Decals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\Clock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\Colors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\characters\character\Character.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\TextManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\GameControllers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\GameReference.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\GameWorld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\Projectile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\ImageManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\Drawing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\SoundManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\ProjectileWeapon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\WeaponGlock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\WeaponShotgun.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\WeaponBurst.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\WeaponMinigun.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\indicators\HealthBar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\characters\character\Hook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\AssetsManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\indicators\TextSurface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\collision\TileMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\Player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\Crate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\Error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\characters\character\Hands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\characters\CharacterNPC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\laser\LaserWeapon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\item\ItemEntity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\Protocol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\Vec2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\Vec2.inl">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\technical stuff\Randomizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\item\weapons\EntityGuns.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\entities\AmmoBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\game\weapons\projectile\WeaponSniper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\src\client\Decals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="C:\Users\Mim\OneDrive\Dators\Unlimited_bacon_but_no_games\TrialAndError\TrialAndError\deps\icon_resource.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8CE366FE-676F-3DAF-BC6C-068A8657AEDD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{FDE7947A-4324-36B4-8CFE-7328FABEE35F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

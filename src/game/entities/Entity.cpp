@@ -12,8 +12,6 @@ void EntityCore::Accelerate(double x, double y) {
 
 HasHealth::HasHealth(const Entity& parent, double initial_health)
  : m_Parent(parent) {
-    m_PrevHasHealth = nullptr;
-    m_NextHasHealth = nullptr;
     m_LastDamager = nullptr;
     m_CombatTick = 0;
 
@@ -40,14 +38,6 @@ double HasHealth::GetHealthDifferenceSincePreviousTick() const {
 
 unsigned long long HasHealth::GetTicksSinceCombat() const {
     return m_Parent.World()->GetTick() - m_CombatTick;
-}
-
-void HasHealth::SetNextHasHealth(IEntityHasHealth* health_entity) {
-    m_NextHasHealth = health_entity;
-}
-
-void HasHealth::SetPrevHasHealth(IEntityHasHealth* health_entity) {
-    m_PrevHasHealth = health_entity;
 }
 
 void HasHealth::ChangeHealthBy(double delta) {
@@ -80,18 +70,7 @@ void HasHealth::TickUpdateLastHealth() {
     m_LastHealth = m_Health;
 }
 
-IEntityHasHealth::IEntityHasHealth(const Entity& parent, double initial_health)
-: m_HealthComponent(parent, initial_health) {
 
-}
-
-void IEntityHasHealth::SetNextHasHealth(IEntityHasHealth* next) {
-    m_HealthComponent.SetNextHasHealth(next);
-}
-
-void IEntityHasHealth::SetPrevHasHealth(IEntityHasHealth* prev) {
-    m_HealthComponent.SetPrevHasHealth(prev);
-}
 
 Entity::Entity(GameWorld* world,
                EntityFormFactor form_factor,
@@ -105,7 +84,7 @@ Entity::Entity(GameWorld* world,
       m_pLastUnknownCore(form_factor == DIRECTIONAL_ENTITY ? new DirectionalEntityCore() : new EntityCore()),
       m_Core(*m_pUnknownCore),
       m_LastCore(*m_pLastUnknownCore),
-      m_HasHealthComponent(has_health_component) {
+      m_HasHealthComponent(has_health_component), m_HealthComponent(*this, 100.0) {
     m_World = world;
     m_PrevType = nullptr;
     m_NextType = nullptr;

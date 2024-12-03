@@ -59,8 +59,8 @@ void Projectile::TickCollision() {
     bool ShooterIsCharacter = m_Shooter->GetType() == CHARACTER_ENTITY;
     auto ShooterCharacter = (Character*)m_Shooter; // ⚠ Check for ShooterIsCharacter ⚠
     // Check if position collides any of the players
-    auto HealthEntity = m_World->FirstHasHealth();
-    for (; HealthEntity; HealthEntity = HealthEntity->NextHasHealth()) {
+    auto HealthEntity = m_World->FirstEntity();
+    for (; HealthEntity; HealthEntity = HealthEntity->Next()) {
         auto Ent = (Entity*)HealthEntity;
         bool IsShooter = m_Shooter == Ent;
         if (!Ent->IsAlive()) continue;
@@ -77,12 +77,13 @@ void Projectile::TickCollision() {
         if (IsShooter && !Collides) { m_StillCollidesShooter = false; }
         else if (Collides && (!IsShooter || !m_StillCollidesShooter)) {
             if (Ent->GetType() == CHARACTER_ENTITY) {
-                HealthEntity->Damage(m_Damage, Ent);
                 auto ShootableCharacter = (Character*)Ent;
+                ShootableCharacter->Damage(m_Damage, Ent);
                 ShootableCharacter->Accelerate(m_Core.Vel * 0.05);
             } else {
                 std::cout << "Projectile impact with " << Ent->toString() << std::endl;
-                HealthEntity->Damage(m_Damage, nullptr);
+                auto ShootableCrate = (Crate*)Ent;
+                ShootableCrate->Damage(m_Damage, nullptr);
             }
 
             // The projectile has served its purpose (clear immediately on impact)

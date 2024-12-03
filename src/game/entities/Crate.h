@@ -15,7 +15,7 @@ enum DropType {
     NUM_DROPS
 };
 
-class Crate : public Entity, public IEntityHasHealth {
+class Crate : public Entity {
 protected:
     friend class GameWorld;
     DropType m_DropType;
@@ -38,8 +38,8 @@ public:
     [[nodiscard]] DropType GetDropType() const { return m_DropType; }
 
     // Manipulating
-    void Damage(double value, Entity* damager) override;
-    void Heal(double value) override;
+    void Damage(double value, Entity* damager) ;
+    void Heal(double value) ;
 
     // Ticking
     void Tick() override;
