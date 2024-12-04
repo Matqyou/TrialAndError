@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.23)
 project(TrialAndError)
 
 # Set the C++ standard
@@ -7,22 +7,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Include directories
 include_directories(deps/SDL2/include deps/SDL2_image/include deps/SDL2_mixer/include deps/SDL2_ttf/include)
-
-# Link directories
 link_directories(deps/SDL2/lib/x64 deps/SDL2_image/lib/x64 deps/SDL2_mixer/lib/x64 deps/SDL2_ttf/lib/x64)
 
-# Set the output directory for the executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
-# Set build options based on build type
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(BUILD_OPTIONS WIN32)
-endif ()
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(BUILD_OPTIONS)
-endif ()
+# if (CMAKE_BUILD_TYPE STREQUAL "Release")
+#     set(BUILD_OPTIONS WIN32)
+# endif ()
+# if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+#     set(BUILD_OPTIONS)
+# endif ()
 
-# Source files
 set(PROJECT_FILES
         "src/main.cpp"
         "src/technical stuff/Clock.cpp"
@@ -101,11 +96,9 @@ set(PROJECT_FILES
         "src/game/weapons/projectile/WeaponSniper.cpp"
         "src/game/weapons/projectile/WeaponSniper.h")
 
-# Add executable
-add_executable(${PROJECT_NAME} ${PROJECT_FILES})
+add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
 
-# Link libraries
-target_link_libraries(${PROJECT_NAME} SDL2 SDL2_image SDL2_mixer SDL2_ttf)
+target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)
 target_link_options(${PROJECT_NAME} PRIVATE "-static")
 
 file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/${PROJECT_NAME})

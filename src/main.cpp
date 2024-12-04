@@ -7,6 +7,13 @@
  */
 
 #define SDL_MAIN_HANDLED
+
+#ifdef _WIN32
+#include <windows.h>
+#undef PlaySound
+#undef ERROR
+#endif
+
 #include "GameReference.h"
 #include "game/GameWorld.h"
 #include "technical stuff/GameControllers.h"
@@ -160,14 +167,17 @@ bool StartUp()
                                100.0,
                                Vec2d(32 * 17.5, 32 * 17.5),
                                Vec2d(10, 10));
-    // Char1->GiveWeapon(new WeaponGlock(nullptr));
+    Char1->GiveWeapon(new WeaponGlock(nullptr));
 
     return true;
 }
-int main()
-{
-    if (!Initialize())
-    {
+int main() {
+#ifdef _WIN32
+#ifdef NDEBUG
+    FreeConsole();
+#endif
+#endif
+    if (!Initialize()) {
         std::printf("Terminating..");
         exit(1);
     }
