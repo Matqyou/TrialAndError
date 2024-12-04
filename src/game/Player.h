@@ -5,6 +5,7 @@
 #pragma once
 
 #include "GameWorld.h"
+#include "./interface/LevelUpMenu.h"
 #include <string>
 
 enum
@@ -21,6 +22,7 @@ private:
     friend class GameWorld;
     GameWorld *m_GameWorld;
     Character *m_Character;
+    LevelUpMenu *m_LevelUpMenu;
     std::string m_Username;
     unsigned int m_Index;
     TextSurface *m_NamePlate;
@@ -35,6 +37,9 @@ public:
     [[nodiscard]] Character *GetCharacter() const { return m_Character; }
     [[nodiscard]] std::string GetUsername() const { return m_Username; }
     [[nodiscard]] unsigned int GetIndex() const { return m_Index; }
+    [[nodiscard]] Player *Next() const { return m_Next; }
+    [[nodiscard]] Player *Prev() const { return m_Prev; }
+    [[nodiscard]] LevelUpMenu *GetLevelUpMenu() const { return m_LevelUpMenu; }
     [[nodiscard]] TextSurface *GetNamePlate() const { return m_NamePlate; }
     [[nodiscard]] unsigned int GetXP() const { return m_XP; }
     [[nodiscard]] unsigned int GetLevel() const { return m_Level; }

@@ -132,7 +132,7 @@ bool Initialize()
 }
 
 bool StartUp()
-{   
+{
 
     srand(time(nullptr));
     World = new GameWorld(GameWindow, 50, 30);
@@ -163,6 +163,7 @@ bool StartUp()
                                100.0,
                                Vec2d(32 * 17.5, 32 * 17.5),
                                Vec2d(10, 10));
+    Char1->LevelupStats(2);
     // Char1->GiveWeapon(new WeaponGlock(nullptr));
 
     return true;
@@ -200,12 +201,31 @@ int main()
     MainMenu mainMenu(GameWindow);
     mainMenu.Show();
     Vec2i RealMouse;
-
     bool Running = true;
     StartUp();
-    PauseMenu pauseMenu(GameWindow, &mainMenu);
+
+    PauseMenu pauseMenu(World, &mainMenu);
+    LevelUpMenu *activeLevelUpMenu = nullptr;
+
+    bool pauseMenuOpen = false;
+    bool levelUpMenuOpen = false;
+    bool delayActive = false;
     while (Running)
     {
+
+        pauseMenuOpen = pauseMenu.Paused();
+
+        activeLevelUpMenu = nullptr;
+        for (auto player = World->FirstPlayer(); player != nullptr; player = player->Next())
+        {
+
+            if (player->GetLevelUpMenu()->Paused())
+            {
+                activeLevelUpMenu = player->GetLevelUpMenu();
+                break;
+            }
+        }
+        levelUpMenuOpen = (activeLevelUpMenu != nullptr) && activeLevelUpMenu->Paused();
         // Input and events
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent))
@@ -214,6 +234,11 @@ int main()
             World->Event(CurrentEvent);
             Controllers->Event(CurrentEvent);
 
+            if (pauseMenuOpen)
+                pauseMenu.HandleEvent(CurrentEvent);
+
+            if (levelUpMenuOpen)
+                activeLevelUpMenu->HandleEvent(CurrentEvent);
             switch (CurrentEvent.type)
             {
             case SDL_QUIT:
@@ -256,6 +281,7 @@ int main()
                                              100.0,
                                              Vec2d(32 * 17.5, 32 * 17.5),
                                              Vec2d(10, 10));
+
                 NewChar->GiveWeapon(new WeaponGlock(nullptr));
                 NewChar->SetGameController(CurrentController);
                 SoundHandler->PlaySound(HighSound);
@@ -274,15 +300,42 @@ int main()
                 break;
             }
         }
-
-        // Ticking
-        World->Tick();
-        Controllers->TickReset();
-        // Drawing
+        if (!World->GetPaused())
+        {
+            // Update game logic
+            World->Tick();
+            Controllers->TickReset();
+        }
         World->Draw();
         Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
+        // Render the pause menu if open
+        if (pauseMenuOpen)
+        {
+            pauseMenu.Render();
+        }
+
+        // Render the pause menu if open
+        if (levelUpMenuOpen)
+        {
+            activeLevelUpMenu->Render();
+            
+        }
         Render->UpdateWindow();
+
+
+        if (World->GetDelay() && (levelUpMenuOpen))
+        {
+            SDL_Delay(1000); // Delay for 1000 milliseconds (1 second)
+            SDL_Event event;
+            while (SDL_PollEvent(&event))
+            {
+                // Discard events
+            }
+            World->SetDelay(false); // Reset the delay flag after the delay
+        }
+
+
         Timer->Tick();
     }
 }

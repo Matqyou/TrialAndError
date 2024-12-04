@@ -55,7 +55,8 @@ GameWorld::~GameWorld()
         CurrentEntity = NextEntity;
     }
 }
-void GameWorld::EnemyKilled(Player* player, Character* enemy) {
+void GameWorld::EnemyKilled(Player *player, Character *enemy)
+{
     // Add score for killing the enemy
     AddScore(100); // Example score value
 
@@ -66,7 +67,6 @@ void GameWorld::EnemyKilled(Player* player, Character* enemy) {
 
     // Grant XP to the player
     player->GainXP(50); // Example XP reward
-
 }
 
 unsigned int GameWorld::GetNextPlayerIndex() const
@@ -443,8 +443,6 @@ void GameWorld::TickDestroy()
 
 void GameWorld::Tick()
 {
-    if (m_Paused || m_GameOver)
-        return;
 
     if (!m_ShowNames)
         m_ShowNamesVisibility *= 0.98;
@@ -459,6 +457,7 @@ void GameWorld::Tick()
 
 void GameWorld::Draw()
 {
+
     Drawing *Render = m_GameWindow->Render();
 
     // Stop drawing when the game has been triggered as over

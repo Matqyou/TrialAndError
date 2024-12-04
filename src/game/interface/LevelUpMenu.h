@@ -3,13 +3,16 @@
 #pragma once
 
 #include "../../GameReference.h"
+#include "../GameWorld.h"
 #include <SDL.h>
 
 class LevelUpMenu
 {
 private:
     TTF_Font *m_Font;
+
     GameReference *m_GameWindow;
+    GameWorld *m_GameWorld;
     Texture *m_TextureAllStats;
     Texture *m_TextureBombs;
     Texture *m_TextureDoubleDamage;
@@ -20,23 +23,22 @@ private:
     Texture *m_TextureSpiky;
     Texture *m_TextureHealth;
     Texture *m_TextureInfiniteGlockAmmo;
+    Texture *m_TextureErrorOutline;
 
-    SDL_Rect m_TextureAllStatsRect;
-    SDL_Rect m_TextureBombsRect;
-    SDL_Rect m_TextureDoubleDamageRect;
-    SDL_Rect m_TextureBossDamageRect;
-    SDL_Rect m_TextureExplosiveAmmoRect;
-    SDL_Rect m_TextureExtraLivesect;
-    SDL_Rect m_TextureSpeedRect;
-    SDL_Rect m_TextureSpikyRect;
-    SDL_Rect m_TextureHealthRect;
-    SDL_Rect m_TextureInfiniteGlockAmmoRect;
+    
+    bool m_Paused;
+    std::vector<Texture *>
+        m_powerupTextures;
+    std::vector<int> m_selectedIndices;
+    SDL_Rect m_ErrorIconRect;
+    SDL_Rect m_ErrorOutlineRect;
 
 public:
-    LevelUpMenu(GameReference *gameWindow);
+    LevelUpMenu(GameWorld *gameWorld);
     ~LevelUpMenu();
 
+    [[nodiscard]] bool Paused() const { return m_Paused; }
     void Show();
-    void HandleEvent(const SDL_Event &event, bool &running, bool &lvlMenuOpen, const std::vector<int> &selectedIndices,const  std::vector<SDL_Rect> &powerupRects);
-    void Render(const std::vector<int> &selectedIndices,  const std::vector<SDL_Rect> &powerupRects, const std::vector<Texture *> &powerupTextures);
+    void HandleEvent(const SDL_Event &event);
+    void Render();
 };

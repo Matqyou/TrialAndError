@@ -186,9 +186,10 @@ void Character::LevelupStats(unsigned int level)
     m_MaxHealth += 10 + (1000 - m_MaxHealth) / 10;
     m_Health = m_MaxHealth; // Optionally, heal the character to full health
 
+
     // Pause the game and open the LevelUpMenu
-    LevelUpMenu levelUpMenu(m_World->GameWindow());
-    levelUpMenu.Show();
+
+    m_Player->GetLevelUpMenu()->Show();
 }
 
 void Character::Damage(double damage, bool combat_tag, Character *attacker)

@@ -14,6 +14,7 @@ Player::Player(GameWorld* game_world, const std::string& username)
       m_Prev(nullptr),
       m_Next(nullptr) {
     SetUsername(username);
+    m_LevelUpMenu = new LevelUpMenu(m_GameWorld);
     m_Index = -1;
     m_Index = m_GameWorld->GetNextPlayerIndex();
     m_NamePlate = new TextSurface(m_GameWorld->GameWindow()->Assets(),

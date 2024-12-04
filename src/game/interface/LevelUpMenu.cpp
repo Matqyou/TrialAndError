@@ -1,42 +1,36 @@
-// src/game/interface/PauseMenu.cpp
-
 #include "LevelUpMenu.h"
 #include <vector>
 #include <cstdlib>
 #include <ctime>
 
-LevelUpMenu::LevelUpMenu(GameReference *gameWindow)
-    : m_GameWindow(gameWindow)
+LevelUpMenu::LevelUpMenu(GameWorld *gameWorld)
+    : m_GameWorld(gameWorld)
 {
+    m_GameWindow = m_GameWorld->GameWindow();
     AssetsManager *assetsHandler = m_GameWindow->Assets();
     ImageManager *imageHandler = assetsHandler->ImageHandler();
 
     m_Font = TTF_OpenFont("assets/fonts/Minecraft.ttf", 24); // Adjust the path and size as needed
-
-
+    if (!m_Font)
+    {
+        // Handle error
+        std::cout << "Failed to load font: " << TTF_GetError() << std::endl;
+    }
+    
     m_TextureAllStats = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/AllStats.jpg", true);
     m_TextureBombs = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/Bombs.jpg", true);
     m_TextureBossDamage = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/BossDamage.jpg", true);
     m_TextureDoubleDamage = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/DoubleDamage.jpg", true);
-    m_TextureExtraLives = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/ExtraLives.jpg", true);
     m_TextureExplosiveAmmo = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/ExplosiveAmmo.jpg", true);
     m_TextureSpeed = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/Speed.jpg", true);
     m_TextureSpiky = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/Spiky.jpg", true);
     m_TextureHealth = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/Health.jpg", true);
     m_TextureInfiniteGlockAmmo = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/InfiniteGlockAmmo.jpg", true);
-
-    int textureWidth = int(m_GameWindow->GetWidth2() * 0.4);
-    int textureHeight = int(m_GameWindow->GetHeight2() * 0.6);
-
-    m_TextureAllStatsRect = {0, 0, textureWidth, textureHeight};
-    m_TextureBombsRect = {textureWidth, 0, textureWidth, textureHeight};
-    m_TextureBossDamageRect = {2 * textureWidth, 0, textureWidth, textureHeight};
-    m_TextureDoubleDamageRect = {0, textureHeight, textureWidth, textureHeight};
-    m_TextureExplosiveAmmoRect = {textureWidth, textureHeight, textureWidth, textureHeight};
-    m_TextureSpeedRect = {2 * textureWidth, textureHeight, textureWidth, textureHeight};
-    m_TextureSpikyRect = {0, 2 * textureHeight, textureWidth, textureHeight};
-    m_TextureHealthRect = {textureWidth, 2 * textureHeight, textureWidth, textureHeight};
-    m_TextureInfiniteGlockAmmoRect = {2 * textureWidth, 2 * textureHeight, textureWidth, textureHeight};
+    m_TextureErrorOutline = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/ErrorOutlineFull.png", true);
+    
+    m_ErrorIconRect = {0, 0, int(m_GameWindow->GetWidth2() * 0.4), int(m_GameWindow->GetHeight2() * 0.4)};
+    m_ErrorOutlineRect = {0, 0, int(m_GameWindow->GetWidth2() / 2.2), int(m_GameWindow->GetHeight2() / 0.6)};
+    m_powerupTextures = {m_TextureAllStats, m_TextureBombs, m_TextureBossDamage, m_TextureDoubleDamage, m_TextureExplosiveAmmo, m_TextureSpeed, m_TextureSpiky, m_TextureHealth, m_TextureInfiniteGlockAmmo};
     srand(static_cast<unsigned int>(time(nullptr)));
 }
 
@@ -51,37 +45,32 @@ LevelUpMenu::~LevelUpMenu()
 
 void LevelUpMenu::Show()
 {
-    bool running = true;
-    bool lvlMenuOpen = true;
 
+    m_GameWorld->SetDelay(true);
+    m_selectedIndices = {};
+    m_GameWorld->SetPaused(true);
+    
+    m_Paused = true;
+    
     // Randomly select 3 powerups
-    std::vector<SDL_Rect> powerupRects = {m_TextureAllStatsRect, m_TextureBombsRect, m_TextureBossDamageRect, m_TextureDoubleDamageRect, m_TextureExplosiveAmmoRect, m_TextureSpeedRect, m_TextureSpikyRect, m_TextureHealthRect, m_TextureInfiniteGlockAmmoRect};
-    std::vector<Texture *> powerupTextures = {m_TextureAllStats, m_TextureBombs, m_TextureBossDamage, m_TextureDoubleDamage, m_TextureExplosiveAmmo, m_TextureSpeed, m_TextureSpiky, m_TextureHealth, m_TextureInfiniteGlockAmmo};
-    std::vector<int> selectedIndices;
-    while (selectedIndices.size() < 3)
+    while(m_selectedIndices.size() < 3)
     {
-        int index = rand() % powerupRects.size();
-        if (std::find(selectedIndices.begin(), selectedIndices.end(), index) == selectedIndices.end())
+        int index = rand() % m_powerupTextures.size();
+        if (std::find(m_selectedIndices.begin(), m_selectedIndices.end(), index) == m_selectedIndices.end())
         {
-            selectedIndices.push_back(index);
+            m_selectedIndices.push_back(index);
         }
     }
-
-    while (lvlMenuOpen)
-    {
-        Render(selectedIndices, powerupRects, powerupTextures);
-        SDL_ShowCursor(1);
-        SDL_Event currentEvent;
-        while (SDL_PollEvent(&currentEvent))
-        {
-            m_GameWindow->Event(currentEvent);
-            HandleEvent(currentEvent, running, lvlMenuOpen, selectedIndices, powerupRects);
-        }
-        m_GameWindow->Render()->UpdateWindow();
-    }
+    
 }
-void LevelUpMenu::HandleEvent(const SDL_Event &event, bool &running, bool &lvlMenuOpen, const std::vector<int> &selectedIndices, const std::vector<SDL_Rect> &powerupRects)
+
+void LevelUpMenu::HandleEvent(const SDL_Event &event)
 {
+    if (m_GameWorld->GetDelay())
+    {
+        // Ignore events during delay
+        return;
+    }
     SoundManager *soundHandler = m_GameWindow->Assets()->SoundHandler();
     Sound *lowUISound = soundHandler->LoadSound("assets/sounds/LowUI.wav", true);
     Sound *midUISound = soundHandler->LoadSound("assets/sounds/MidUI.wav", true);
@@ -89,27 +78,53 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event, bool &running, bool &lvlMe
     switch (event.type)
     {
     case SDL_QUIT:
-        lvlMenuOpen = false;
-        running = false;
         m_GameWindow->Deinitialize(true);
         break;
     case SDL_MOUSEBUTTONDOWN:
         if (event.button.button == SDL_BUTTON_LEFT)
         {
-            
+            SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
             int x = event.button.x;
             int y = event.button.y;
-            for (int i = 0; i < selectedIndices.size(); ++i)
+            for (int i = 0; i < m_selectedIndices.size(); ++i)
             {
-                // TODO: Change to use the whole powerup rect instead of just the icon rect (i should probably just declare the whole rect not jsut the image
-                SDL_Rect rect = powerupRects[selectedIndices[i]];
+                SDL_Rect rect = m_ErrorOutlineRect;
+                rect.x = int(m_GameWindow->GetWidth2() / 12) + i * (rect.w + int(m_GameWindow->GetWidth2() * 0.25));
+                rect.y = int(m_GameWindow->GetHeight2() / 6);
                 if (x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h)
                 {
                     soundHandler->PlaySound(midUISound);
                     // Apply the selected powerup
-                    lvlMenuOpen = false;
+                    m_Paused = false;
+                    m_GameWorld->SetPaused(false);
                     break;
                 }
+            }
+        }
+        break;
+        case SDL_MOUSEMOTION:
+        {
+            int x = event.motion.x;
+            int y = event.motion.y;
+            bool hovering = false;
+            for (int i = 0; i < m_selectedIndices.size(); ++i)
+            {
+                SDL_Rect rect = m_ErrorOutlineRect;
+                rect.x = int(m_GameWindow->GetWidth2() / 12) + i * (rect.w + int(m_GameWindow->GetWidth2() * 0.25));
+                rect.y = int(m_GameWindow->GetHeight2() / 6);
+                if (x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h/1.2)
+                {
+                    hovering = true;
+                    break;
+                }
+            }
+            if (hovering)
+            {
+                SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND));
+            }
+            else
+            {
+                SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
             }
         }
         break;
@@ -117,60 +132,62 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event, bool &running, bool &lvlMe
         if (event.window.event == SDL_WINDOWEVENT_RESIZED)
         {
             // Adjust positions and sizes of powerup textures
-            // TODO still need to fix scaling smthn is off
-            int startX = int(m_GameWindow->GetWidth2() / 6);    
-            int startY = int(m_GameWindow->GetHeight2() / 2.5); 
-            int spacing = int(m_GameWindow->GetWidth2() * 0.25); 
+            int startX = int(m_GameWindow->GetWidth2() / 12);
+            int startY = int(m_GameWindow->GetHeight2() / 6);
+            int spacing = int(m_GameWindow->GetWidth2() * 0.25);
 
-            for (int i = 0; i < selectedIndices.size(); ++i)
+            for (int i = 0; i < m_selectedIndices.size(); ++i)
             {
-                SDL_Rect rect = powerupRects[selectedIndices[i]];
-                rect.w = int(m_GameWindow->GetWidth2() * 0.4);
-                rect.h = int(m_GameWindow->GetHeight2() * 0.6);
+                SDL_Rect &rect = m_ErrorOutlineRect;
                 rect.x = startX + i * (rect.w + spacing);
                 rect.y = startY;
+                rect.w = int(m_GameWindow->GetWidth2() / 2.2);
+                rect.h = int(m_GameWindow->GetHeight2() / 0.6);
             }
+            m_GameWindow->Render()->UpdateWindow(); 
         }
         break;
     case SDL_KEYDOWN:
         SDL_Scancode ScancodeKey = event.key.keysym.scancode;
         if (ScancodeKey == SDL_SCANCODE_ESCAPE)
         {
-            // Apply a random powerup (idk maybe some speedrunners will like this)
             soundHandler->PlaySound(lowUISound);
-            lvlMenuOpen = false;
+            m_Paused = false;
+            m_GameWorld->SetPaused(false);
         }
         break;
     }
 }
-void LevelUpMenu::Render(const std::vector<int> &selectedIndices, const std::vector<SDL_Rect> &powerupRects, const std::vector<Texture *> &powerupTextures)
+
+void LevelUpMenu::Render()
 {
     Drawing *render = m_GameWindow->Render();
+    int startX = int(m_GameWindow->GetWidth2() / 12);
+    int startY = int(m_GameWindow->GetHeight2() / 6);
+    int spacing = int(m_GameWindow->GetWidth2() * 0.25);
 
-    int startX = int(m_GameWindow->GetWidth2() / 6);   
-    int startY = int(m_GameWindow->GetHeight2() / 2.5);   
-    int spacing = int(m_GameWindow->GetWidth2() * 0.25); // Space between powerups
-
-    for (int i = 0; i < selectedIndices.size(); ++i)
+    for (int i = 0; i < m_selectedIndices.size(); ++i)
     {
-        SDL_Rect rect = powerupRects[selectedIndices[i]];
-        Texture *texture = powerupTextures[selectedIndices[i]];
+        SDL_Rect rect = m_ErrorOutlineRect;
+        Texture *texture = m_powerupTextures[m_selectedIndices[i]];
 
         // Adjust position and size
         rect.x = startX + i * (rect.w + spacing);
         rect.y = startY;
 
-        // Draw container with padding
-        SDL_Rect containerRect = {rect.x - 50, rect.y - 10, rect.w + 100, rect.h + 230};
-        render->SetColor(200, 200, 200, 255); // Light gray background
-        render->FillRect(containerRect);
+        // Draw ErrorOutline texture as the base
+        render->RenderTexture(m_TextureErrorOutline->SDLTexture(), nullptr, rect);
 
+        m_ErrorIconRect.x = rect.x + int(rect.w * 0.3);
+        m_ErrorIconRect.y = rect.y + int(rect.h * 0.2);
+        m_ErrorIconRect.w = int(rect.w * 0.4);
+        m_ErrorIconRect.h = int(rect.h * 0.225);
         // Draw powerup texture
-        render->RenderTexture(texture->SDLTexture(), nullptr, rect);
+        render->RenderTexture(texture->SDLTexture(), nullptr, m_ErrorIconRect);
 
         // Draw description below the powerup
-        SDL_Rect descriptionRect = {rect.x - 10, rect.y + rect.h + 10, int(floor((rect.w + 50) / 1.25)), int(floor((rect.h + 115) / 1.45))}; // Adjust height dynamically
-        render->SetColor(0, 0, 0, 255);                                                                                                      // Black text color
+        SDL_Rect descriptionRect = {rect.x + int(rect.w / 4), int((rect.y + rect.h) / 1.8), rect.w - int(rect.w / 2.25), rect.w - int(rect.w / 2.25)}; // Increase height for multiple lines
+        render->SetColor(0, 0, 0, 255);                                                                                         // Black text color
 
         // Create surface and texture for the text
         SDL_Color textColor = {0, 0, 0, 255};
@@ -186,4 +203,5 @@ void LevelUpMenu::Render(const std::vector<int> &selectedIndices, const std::vec
             SDL_FreeSurface(textSurface);
         }
     }
+    render->UpdateWindow();
 }
