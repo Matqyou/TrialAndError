@@ -228,9 +228,16 @@ int main()
             {
             case SDL_QUIT:
             {
-                MenuOpen = false;
-                GameWindow->Deinitialize(true);
-                Running = false;
+                SoundHandler->PlaySound(QuitSound);
+                GameWindow->Deinitialize(true); // close everything except sound
+
+                delete Controllers;
+                delete World;
+                while (Mix_Playing(-1))
+                {
+                } // wait until last sound is done playing
+                delete GameWindow;
+                return 0;
             }
             break;
             case SDL_MOUSEBUTTONDOWN:
