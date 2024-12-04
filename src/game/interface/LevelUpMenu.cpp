@@ -26,7 +26,7 @@ LevelUpMenu::LevelUpMenu(GameWorld *gameWorld)
     m_TextureSpiky = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/Spiky.jpg", true);
     m_TextureHealth = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/Health.jpg", true);
     m_TextureInfiniteGlockAmmo = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/InfiniteGlockAmmo.jpg", true);
-    m_TextureErrorOutline = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/ErrorOutlineFull.png", true);
+    m_TextureErrorOutline = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/RegularOutlineFull.png", true);
     
     m_ErrorIconRect = {0, 0, int(m_GameWindow->GetWidth2() * 0.4), int(m_GameWindow->GetHeight2() * 0.4)};
     m_ErrorOutlineRect = {0, 0, int(m_GameWindow->GetWidth2() / 2.2), int(m_GameWindow->GetHeight2() / 0.6)};
@@ -179,14 +179,14 @@ void LevelUpMenu::Render()
         render->RenderTexture(m_TextureErrorOutline->SDLTexture(), nullptr, rect);
 
         m_ErrorIconRect.x = rect.x + int(rect.w * 0.3);
-        m_ErrorIconRect.y = rect.y + int(rect.h * 0.2);
+        m_ErrorIconRect.y = rect.y + int(rect.h * 0.15);
         m_ErrorIconRect.w = int(rect.w * 0.4);
         m_ErrorIconRect.h = int(rect.h * 0.225);
         // Draw powerup texture
         render->RenderTexture(texture->SDLTexture(), nullptr, m_ErrorIconRect);
 
         // Draw description below the powerup
-        SDL_Rect descriptionRect = {rect.x + int(rect.w / 4), int((rect.y + rect.h) / 1.8), rect.w - int(rect.w / 2.25), rect.w - int(rect.w / 2.25)}; // Increase height for multiple lines
+        SDL_Rect descriptionRect = {rect.x + int(rect.w / 4), int((rect.y + rect.h) / 1.9), rect.w - int(rect.w / 2.25), rect.w - int(rect.w / 2.25)}; // Increase height for multiple lines
         render->SetColor(0, 0, 0, 255);                                                                                         // Black text color
 
         // Create surface and texture for the text
