@@ -23,10 +23,10 @@ private:
     bool m_ShowNames;
     bool m_Paused;
     bool m_GameOver;
+    bool m_LevelUpDelay;
     Player* m_FirstPlayer, * m_LastPlayer;
-    Entity* m_FirstType[NUM_ENTTYPES]{ }, * m_LastType[NUM_ENTTYPES]{ };
+    Entity* m_FirstType[NUM_ENTITY_TYPES]{ }, * m_LastType[NUM_ENTITY_TYPES]{ };
     Entity* m_First, * m_Last;
-    Entity* m_FirstShootable, * m_LastShootable;
     unsigned long long m_CurrentTick;
 
     // Cool scrolling background                                        cap
@@ -54,26 +54,25 @@ public:
     [[nodiscard]] double GetWidth() const { return m_Width; }
     [[nodiscard]] double GetHeight() const { return m_Height; }
     [[nodiscard]] double GetNamesShown() const { return m_ShowNamesVisibility < 0.1 ? 0.0 : m_ShowNamesVisibility; }
-    [[nodiscard]] bool GetPaused() const { return m_Paused; }
     [[nodiscard]] bool GameOver() const { return m_GameOver; }
     [[nodiscard]] unsigned long long GetTick() const { return m_CurrentTick; }
     [[nodiscard]] unsigned int GetNextPlayerIndex() const;
     [[nodiscard]] Entity* FirstEntity() const { return m_First; }
-    [[nodiscard]] Entity* LastEntity() const { return m_Last; }
-    [[nodiscard]] Entity* FirstShootable() const { return m_FirstShootable; }
-    [[nodiscard]] Entity* LastShootable() const { return m_LastShootable; }
     [[nodiscard]] Entity* FirstEntityType(EntityType entity_type) const { return m_FirstType[entity_type]; }
-    [[nodiscard]] Entity* LastEntityType(EntityType entity_type) const { return m_LastType[entity_type]; }
-    [[nodiscard]] Character* FirstCharacter() const { return (Character*)(FirstEntityType(ENTTYPE_CHARACTER)); }
-    [[nodiscard]] Crate* FirstCrate() const { return (Crate*)(FirstEntityType(ENTTYPE_CRATE)); }
+    [[nodiscard]] Player *FirstPlayer() const { return m_FirstPlayer; }
+    [[nodiscard]] Character* FirstCharacter() const { return (Character*)(FirstEntityType(CHARACTER_ENTITY)); }
+    [[nodiscard]] Crate* FirstCrate() const { return (Crate*)(FirstEntityType(CRATE_ENTITY)); }
+    [[nodiscard]] bool GetDelay() const { return  m_LevelUpDelay; }
     // void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
     // Setting
     void SetPaused(bool state) { m_Paused = state; }
+    void SetDelay(bool state)  { m_LevelUpDelay = state; }
 
     // Events
     void EnemiesKilled();
     void AlliesGone();
+    void EnemyKilled(Player *player, Character *enemy);
 
     // Manipulating
     void AddScore(unsigned int score);

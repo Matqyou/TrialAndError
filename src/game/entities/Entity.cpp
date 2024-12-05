@@ -10,17 +10,67 @@ void EntityCore::Accelerate(double x, double y) {
     Vel.y += y;
 }
 
-HasHealth::HasHealth() {
+HasHealth::HasHealth(const Entity& parent, double initial_health)
+ : m_Parent(parent) {
+    m_LastDamager = nullptr;
+    m_CombatTick = 0;
 
+    m_Health = initial_health;
+    m_MaxHealth = initial_health;
+    m_LastHealth = initial_health;
 }
 
-void HasHealth::Damage(double value) {
-    m_Health -= value;
+bool HasHealth::IsAlive() const {
+    return m_Health > 0.0;
 }
 
-void HasHealth::Heal(double value) {
-    m_Health += value;
+bool HasHealth::IsFullHealth() const {
+    return m_Health == m_MaxHealth;
 }
+
+double HasHealth::GetHealthInPercentage() const {
+    return m_Health / m_MaxHealth;
+}
+
+double HasHealth::GetHealthDifferenceSincePreviousTick() const {
+    return m_Health - m_LastHealth;
+}
+
+unsigned long long HasHealth::GetTicksSinceCombat() const {
+    return m_Parent.World()->GetTick() - m_CombatTick;
+}
+
+void HasHealth::ChangeHealthBy(double delta) {
+    m_Health += delta;
+}
+
+void HasHealth::SetHealth(double value) {
+    m_Health = value;
+}
+
+void HasHealth::SetMaxHealth(double value) {
+    m_MaxHealth = value;
+}
+
+void HasHealth::HealFully() {
+    m_Health = m_MaxHealth;
+}
+
+void HasHealth::LimitHealthToMax() {
+    if (m_Health > m_MaxHealth)
+        m_Health = m_MaxHealth;
+}
+
+void HasHealth::UpdateDamager(Entity* damager) {
+    m_CombatTick = m_Parent.World()->GetTick();
+    m_LastDamager = damager;
+}
+
+void HasHealth::TickUpdateLastHealth() {
+    m_LastHealth = m_Health;
+}
+
+
 
 Entity::Entity(GameWorld* world,
                EntityFormFactor form_factor,
@@ -28,18 +78,21 @@ Entity::Entity(GameWorld* world,
                const Vec2d& start_pos,
                const Vec2d& start_size,
                const Vec2d& start_vel,
-               double base_damping = 0.90)
-    : m_pUnknownCore(form_factor == ENTFORM_DIRECTIONAL ? new DirectionalEntityCore() : new EntityCore()),
-      m_pLastUnknownCore(form_factor == ENTFORM_DIRECTIONAL ? new DirectionalEntityCore() : new EntityCore()),
+               double base_damping,
+               bool has_health_component,
+               double max_health)
+    : m_pUnknownCore(form_factor == DIRECTIONAL_ENTITY ? new DirectionalEntityCore() : new EntityCore()),
+      m_pLastUnknownCore(form_factor == DIRECTIONAL_ENTITY ? new DirectionalEntityCore() : new EntityCore()),
       m_Core(*m_pUnknownCore),
-      m_LastCore(*m_pLastUnknownCore) {
+      m_LastCore(*m_pLastUnknownCore),
+      m_HasHealthComponent(has_health_component),
+      m_HealthComponent(*this, max_health) {
     m_World = world;
+
     m_PrevType = nullptr;
     m_NextType = nullptr;
     m_Prev = nullptr;
     m_Next = nullptr;
-    m_PrevShootable = nullptr;
-    m_NextShootable = nullptr;
     m_EntityType = entity_type;
     m_Alive = true;
     m_Core = *m_pUnknownCore;
@@ -60,7 +113,7 @@ Entity::~Entity() {
     m_World->RemoveEntity(this);
 }
 
-void Entity::TickLastCore() {
+void Entity::TickUpdateLastCore() {
     memcpy(&m_LastCore, &m_Core, sizeof(EntityCore));
 }
 
@@ -106,8 +159,8 @@ bool Entity::PointCollides(const Vec2d& point) const {
         point.y > m_Core.Pos.y + h2);
 }
 
-Entity::operator const char*() const {
-    return std::format("Entity(%i)", (int)m_EntityType).c_str();
+const char* Entity::toString() const {
+    return ENTITY_NAMES[m_EntityType];
 }
 
 // Add some velocity to this characters
@@ -130,7 +183,7 @@ void Entity::Draw() {
     Render->FillRectFCamera(DrawRect);
 }
 
-void DirectionalEntity::TickLastCore() {
+void DirectionalEntity::TickUpdateLastCore() {
     memcpy(&m_LastDirectionalCore, &m_DirectionalCore, sizeof(DirectionalEntityCore));
 }
 
@@ -139,14 +192,18 @@ DirectionalEntity::DirectionalEntity(GameWorld* world, EntityType entity_type,
                                      const Vec2d& start_size,
                                      const Vec2d& start_vel,
                                      const Vec2d& start_direction,
-                                     double base_damping)
+                                     double base_damping,
+                                     bool has_health_component,
+                                     double max_health)
     : Entity(world,
-             ENTFORM_DIRECTIONAL,
+             DIRECTIONAL_ENTITY,
              entity_type,
              start_pos,
              start_size,
              start_vel,
-             base_damping),
+             base_damping,
+             has_health_component,
+             max_health),
       m_DirectionalCore(*(DirectionalEntityCore*)(m_pUnknownCore)),
       m_LastDirectionalCore(*(DirectionalEntityCore*)(m_pLastUnknownCore)) {
     m_DirectionalCore.Direction = start_direction;

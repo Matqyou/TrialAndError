@@ -15,10 +15,11 @@ enum DropType {
     NUM_DROPS
 };
 
-class Crate : public Entity, public virtual HasHealth {
+class Crate : public Entity {
 protected:
-    DropType m_Type;
-    int typeID;
+    friend class GameWorld;
+    DropType m_DropType;
+    int m_ErrorType;
     Texture** m_Texture;
 
 public:
@@ -30,15 +31,15 @@ public:
 
     Crate(GameWorld* world,
           const Vec2d& start_pos,
-          double Health,
           DropType RandomDrop);
-    ~Crate();
+    ~Crate() override;
 
     // Getting
-    [[nodiscard]] DropType Type() const { return m_Type; }
+    [[nodiscard]] DropType GetDropType() const { return m_DropType; }
 
     // Manipulating
-    void Damage(double value) override;
+    void Damage(double value, Entity* damager) ;
+    void Heal(double value) ;
 
     // Ticking
     void Tick() override;

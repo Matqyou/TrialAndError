@@ -56,6 +56,20 @@ GameWorld::~GameWorld()
     }
 }
 
+void GameWorld::EnemyKilled(Player *player, Character *enemy)
+{
+    // Add score for killing the enemy
+    AddScore(100); // Example score value
+
+    // Check if the enemy is a boss and add more score
+    // if (enemy->IsBoss()) {
+    //     AddScore(500); // Example boss score value
+    // }
+
+    // Grant XP to the player
+    player->GainXP(50); // Example XP reward
+}
+
 unsigned int GameWorld::GetNextPlayerIndex() const
 {
     unsigned int Index = 0;
@@ -166,19 +180,6 @@ Entity *GameWorld::AddEntity(Entity *entity)
         m_Last = entity;
     }
 
-    if (entity->GetType() == ENTTYPE_CHARACTER || entity->GetType() == ENTTYPE_CRATE) {
-        if (!m_FirstShootable) {
-            m_FirstShootable = entity;
-            m_LastShootable = entity;
-            entity->m_PrevShootable = nullptr;
-            entity->m_NextShootable = nullptr;
-        } else {
-            m_LastShootable->m_NextShootable = entity;
-            entity->m_PrevShootable = m_LastShootable;
-            m_LastShootable = entity;
-        }
-    }
-
     return entity;
 }
 
@@ -208,16 +209,6 @@ void GameWorld::RemoveEntity(Entity *entity)
         m_First = entity->m_Next;
     if (m_Last == entity)
         m_Last = entity->m_Prev;
-
-    // Remove entity from list of shootable
-    if (entity->m_PrevShootable)
-        entity->m_PrevShootable->m_NextShootable = entity->m_NextShootable;
-    if (entity->m_NextShootable)
-        entity->m_NextShootable->m_PrevShootable = entity->m_PrevShootable;
-    if (m_FirstShootable == entity)
-        m_FirstShootable = entity->m_NextShootable;
-    if (m_LastShootable == entity)
-        m_LastShootable = entity->m_PrevShootable;
 }
 
 void GameWorld::DestroyPlayerByController(GameController *DeletedController) const
@@ -284,7 +275,7 @@ void GameWorld::Event(const SDL_Event &currentEvent)
 
 void GameWorld::TickCamera()
 {
-    if (!m_FirstType[ENTTYPE_CHARACTER])
+    if (!m_FirstType[CHARACTER_ENTITY])
         return;
 
     bool FirstIteration = true;
@@ -360,6 +351,8 @@ void GameWorld::TickSpawner()
 
     double Width2 = m_Width / 2.0;
     double Height2 = m_Height / 2.0;
+
+    // Boss every 10 rounds
     if (m_Round % 10 == 0)
     {
         double Angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
@@ -372,6 +365,8 @@ void GameWorld::TickSpawner()
                                        true);
         NewNPC->GiveWeapon(new WeaponMinigun(nullptr));
     }
+
+    // Wave enemies
     for (int i = 0; i < m_NumEnemiesPerWave; i++)
     {
         double Angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;

@@ -14,6 +14,7 @@ enum NPCType {
 class CharacterNPC : public Character {
 protected:
     bool m_IsBoss;
+    Player* m_LastAttacker;
     NPCType m_AIType;
 
     // Listening & Ticking
@@ -27,6 +28,13 @@ public:
                  const Vec2d& start_vel,
                  NPCType ai_type,
                  bool is_boss);
-    ~CharacterNPC();
+    ~CharacterNPC() override;
+
+    // Getting
+    [[nodiscard]] bool IsBoss() const { return m_IsBoss; }
+    [[nodiscard]] const char* toString() const override;
+
+    // Manipulating
+    void UpdateAttacker(Player* attacker);
 
 };

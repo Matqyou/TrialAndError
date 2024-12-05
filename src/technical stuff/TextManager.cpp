@@ -4,6 +4,8 @@
 
 #include "TextManager.h"
 #include <iostream>
+#include <locale>
+#include <codecvt>
 
 std::string FString(const char* format, ...) {
     va_list args;
@@ -24,6 +26,22 @@ std::string FString(const char* format, ...) {
     std::string message(buffer);
     delete[] buffer;
     return message;
+}
+
+std::string ErasePrefix(std::string string, const std::string& prefix) {
+    size_t pos = string.find(prefix);
+    if (pos != std::string::npos)
+        string.erase(pos, prefix.length());
+
+    return string;
+}
+
+std::string EraseSuffix(std::string string, const std::string& suffix) {
+    size_t pos = string.rfind(suffix);
+    if (pos != std::string::npos && pos + suffix.length() == string.length())
+        string.erase(pos, suffix.length());
+
+    return string;
 }
 
 TextManager::TextManager(ImageManager* image_handler) {

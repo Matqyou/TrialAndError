@@ -138,7 +138,7 @@ void Hook::Tick() {
         }
         m_x = GrabbedCore.Pos.x;
         m_y = GrabbedCore.Pos.y;
-        if (m_GrabbedEntity->GetType() == ENTTYPE_CHARACTER) {
+        if (m_GrabbedEntity->GetType() == CHARACTER_ENTITY) {
             auto Player = (Character*)(m_GrabbedEntity);
             double Acceleration = m_HookStrength * Length / m_MaxLength * (1 - m_HookerInfluenceRatio);
             double Influence = m_HookStrength * Length / m_MaxLength * m_HookerInfluenceRatio;

@@ -11,11 +11,13 @@
 #include "../../../../technical stuff/GameControllers.h"
 #include "../../../../technical stuff/Colors.h"
 #include "../../../indicators/HealthBar.h"
+#include "../../../interface/LevelUpMenu.h"
 #include "../../../indicators/TextSurface.h"
 #include "../../AmmoBox.h"
 #include "../../Crate.h"
 #include "Hook.h"
 #include "Hands.h"
+#include "../../../../client/Decals.h"
 
 struct CharacterInput {
     bool m_Shooting;
@@ -29,7 +31,7 @@ struct CharacterInput {
     CharacterInput();
 };
 
-class Character : public DirectionalEntity, public virtual HasHealth {
+class Character : public DirectionalEntity {
 public:
     enum {
         CONTROL_UP,
@@ -48,6 +50,7 @@ protected:
     friend class Projectile; //
     friend class Hands;
     Player* m_Player;
+    Texture2* m_Texture;
     TextSurface* m_CoordinatePlate;
     TextSurface* m_AmmoCount;
     TextSurface* m_HealthInt;
@@ -68,9 +71,11 @@ protected:
     static const int ms_DefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration;
+    double m_DamageAmp;
     Hook m_Hook;
     int m_HitTicks;
     int m_IsReverseTimer, m_ConfusingHPTimer, m_InvincibleTimer, m_SpikyTimer, m_HealersParadiseTimer, m_RangedTimer;
+    int m_BaseDamage;
     int m_IsSlowTimer, m_DangerousRecoilTimer;
     float Displacement;
     HealthBar m_HealthBar;
@@ -125,6 +130,7 @@ public:
     static Texture* ms_TextureErrorDangerousRecoil;
     static Texture* ms_TextureError;
     static Sound* ms_HitSounds[3];
+    static Sound* ms_InvincibleHitSound;
     static Sound* ms_DeathSound;
     static Sound* ms_AmmoPickupSound;
     static Sound* ms_ItemSwitchSound;
@@ -146,16 +152,17 @@ public:
     [[nodiscard]] CharacterInput& GetInput() { return m_Input; }
     [[nodiscard]] CharacterInput& GetLastInput() { return m_LastInput; }
     [[nodiscard]] bool IsNPC() const { return m_NPC; }
-    [[nodiscard]] bool HasDangerousRecoil() { return m_DangerousRecoil; }
+    [[nodiscard]] bool HasDangerousRecoil() const { return m_DangerousRecoil; }
+    [[nodiscard]] int GetBaseDamage() const { if(m_Player)return m_Player->GetBaseDamage(); else return m_BaseDamage; }
+    [[nodiscard]] double GetDamageAmp() const {if(m_Player)return m_Player->GetDamageAmp(); else return m_DamageAmp; }
 
     // Setting
     void SetGameController(GameController* game_controller) { m_GameController = game_controller; }
-
-    // Manipulating
     void RemoveCombat();
     void GiveWeapon(ProjectileWeapon* proj_weapon);
     void AmmoPickup(AmmoBox* ammo_box);
-    void Damage(double damage, bool combat_tag);
+    void Damage(double damage, Entity* damager) ;
+    void Heal(double value) ;
     void DropWeapon();
     void SwitchWeapon(WeaponType type);
     void ReverseMovement();
@@ -166,6 +173,8 @@ public:
     void MakeRanged();
     void SlowDown();
     void ActivateDangerousRecoil();
+
+    void LevelupStats(unsigned int level);
 
     // Listening & Ticking
     void Event(const SDL_Event& currentEvent);

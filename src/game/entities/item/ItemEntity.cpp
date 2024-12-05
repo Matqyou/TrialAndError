@@ -42,12 +42,13 @@ ItemEntity::ItemEntity(GameWorld* world,
                        const Vec2d& start_pos,
                        const Vec2d& start_size)
     : Entity(world,
-             ENTFORM_NORMAL,
-             ENTTYPE_ITEM,
+             NORMAL_ENTITY,
+             ITEM_ENTITY,
              start_pos,
              start_size,
              Vec2d(0.0, 0.0),
-             0.95) {
+             0.95,
+             false) {
     m_Dropper = dropper;
     m_DroppedSince = m_World->GetTick();
     m_PickupCooldown = (unsigned long long)(m_World->GameWindow()->Timer()->GetFramerate());

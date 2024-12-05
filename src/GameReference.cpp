@@ -3,10 +3,12 @@
 //
 
 #include "GameReference.h"
+#include "client/Decals.h"
 
 GameReference::GameReference() {
     m_Window = nullptr;
     m_Renderer = nullptr;
+    m_GLContext = nullptr;
     m_Timer = nullptr;
     m_Random = nullptr;
     m_Draw = nullptr;
@@ -32,6 +34,8 @@ void GameReference::UpdateDimensions(int width, int height) {
     m_Height = height;
     m_Width2 = width / 2.0;
     m_Height2 = height / 2.0;
+
+    
 }
 
 bool GameReference::InitializeSDL() {
@@ -113,7 +117,7 @@ bool GameReference::Initialize() {
                                     SDL_WINDOWPOS_CENTERED,
                                     m_Width,
                                     m_Height,
-                                    SDL_WINDOW_RESIZABLE);
+                                    SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
         if (!m_Window) {
             std::printf("Error while creating the window %s\n", SDL_GetError());
             return false;
@@ -128,6 +132,10 @@ bool GameReference::Initialize() {
         }
     }
 
+    m_GLContext = SDL_GL_CreateContext(m_Window);
+
+    Decals::initialize(m_Renderer);
+
     if (!m_Timer) m_Timer = new Clock(60);
     if (!m_Random) m_Random = new Randomizer();
     if (!m_Draw) m_Draw = new Drawing(this);
@@ -136,6 +144,7 @@ bool GameReference::Initialize() {
 }
 
 void GameReference::Deinitialize(bool keep_sound) {
+    Decals::deinitialize();
     m_AssetsHandler->DeinitializeImages();
     delete m_Draw;
     m_Draw = nullptr;

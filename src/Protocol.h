@@ -5,16 +5,25 @@
 #pragma once
 
 enum EntityFormFactor {
-    ENTFORM_NORMAL,
-    ENTFORM_DIRECTIONAL
+    NORMAL_ENTITY,
+    DIRECTIONAL_ENTITY
 };
 
 enum EntityType {
-    ENTTYPE_ERROR,
-    ENTTYPE_AMMO,
-    ENTTYPE_ITEM,
-    ENTTYPE_CRATE,
-    ENTTYPE_BULLET,
-    ENTTYPE_CHARACTER,
-    NUM_ENTTYPES
+    ERROR_ENTITY,
+    AMMO_BOX_ENTITY,
+    ITEM_ENTITY,
+    CRATE_ENTITY,
+    PROJECTILE_ENTITY,
+    CHARACTER_ENTITY,
+    NUM_ENTITY_TYPES
+};
+
+static const char* ENTITY_NAMES[NUM_ENTITY_TYPES] = {
+    "Error",
+    "AmmoBox",
+    "Item",
+    "Crate",
+    "Projectile",
+    "Character"
 };

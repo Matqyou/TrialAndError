@@ -8,7 +8,7 @@
 #include "../weapons/projectile/ProjectileWeapon.h"
 #include "characters/character/Character.h"
 
-enum ErrorTypes {
+enum ErrorType {
     HEALERS_PARADISE,
     DISORIANTED,
     INVINCIBLE,
@@ -25,7 +25,7 @@ enum ErrorTypes {
 
 class Error : public Entity {
 protected:
-    ErrorTypes m_Type;
+    ErrorType m_Type;
     Texture* m_Texture;
 
     void TickPickup(double x, double y);
