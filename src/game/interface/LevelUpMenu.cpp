@@ -129,7 +129,7 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event)
                     default:
                         break;
                     }
-                    m_Player->GetCharacter(); // Example method to increase health
+//                    m_Player->GetCharacter(); // Example method to increase health
                     m_Paused = false;
                     break;
                 }

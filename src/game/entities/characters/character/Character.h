@@ -130,6 +130,7 @@ public:
     static Texture* ms_TextureErrorDangerousRecoil;
     static Texture* ms_TextureError;
     static Sound* ms_HitSounds[3];
+    static Sound* ms_InvincibleHitSound;
     static Sound* ms_DeathSound;
     static Sound* ms_AmmoPickupSound;
     static Sound* ms_ItemSwitchSound;

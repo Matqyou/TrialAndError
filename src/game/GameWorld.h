@@ -62,6 +62,7 @@ public:
     [[nodiscard]] Player *FirstPlayer() const { return m_FirstPlayer; }
     [[nodiscard]] Character* FirstCharacter() const { return (Character*)(FirstEntityType(CHARACTER_ENTITY)); }
     [[nodiscard]] Crate* FirstCrate() const { return (Crate*)(FirstEntityType(CRATE_ENTITY)); }
+    [[nodiscard]] bool GetDelay() const { return  m_LevelUpDelay; }
     // void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
     // Setting

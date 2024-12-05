@@ -87,8 +87,10 @@ Decals::Decals(SDL_Renderer* renderer): m_InvalidTexture(nullptr)
 
         // Load the texture
         SDL_Surface* TempSurface = IMG_Load(file_path.string().c_str());
-        if (!TempSurface)
-            throw std::runtime_error(FString("Failed to load texture '%s'\n", file_path.string().c_str()));
+        if (!TempSurface) {
+            std::cout << FString("Failed to load texture '%s'", file_path.string().c_str()) << std::endl;
+            continue;
+        }
 
         SDL_Texture* NewSDLTexture = SDL_CreateTextureFromSurface(renderer, TempSurface);
         SDL_FreeSurface(TempSurface);

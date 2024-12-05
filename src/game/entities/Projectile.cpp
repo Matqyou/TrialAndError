@@ -67,11 +67,11 @@ void Projectile::TickCollision() {
         if (!Entity->HasHealthComponent()) continue;
 
         // Ignore npc friendly fire for now
-//        if (HasHealthComponent->GetType() == CHARACTER) {
-//            auto ShootableCharacter = (Character*)HasHealthComponent;
-//            if (ShooterIsCharacter && ShooterCharacter->IsNPC() == ShootableCharacter->IsNPC())
-//                continue;
-//        }
+        if (Entity->GetType() == CHARACTER_ENTITY) {
+            auto ShootableCharacter = (Character*)Entity;
+            if (ShooterIsCharacter && ShooterCharacter->IsNPC() == ShootableCharacter->IsNPC())
+                continue;
+        }
 
         // Check for (Projectile <-> Entity) collision at the position
         bool Collides = Entity->PointCollides(m_Core.Pos);

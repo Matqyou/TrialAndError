@@ -85,8 +85,10 @@ Entity::Entity(GameWorld* world,
       m_pLastUnknownCore(form_factor == DIRECTIONAL_ENTITY ? new DirectionalEntityCore() : new EntityCore()),
       m_Core(*m_pUnknownCore),
       m_LastCore(*m_pLastUnknownCore),
-      m_HasHealthComponent(has_health_component), m_HealthComponent(*this, max_health) {
+      m_HasHealthComponent(has_health_component),
+      m_HealthComponent(*this, max_health) {
     m_World = world;
+
     m_PrevType = nullptr;
     m_NextType = nullptr;
     m_Prev = nullptr;

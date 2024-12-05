@@ -425,7 +425,9 @@ void GameWorld::TickDestroy()
 
 void GameWorld::Tick()
 {
-    // todo: remove m_paused for real
+    if (m_Paused || m_GameOver)
+        return;
+
     if (!m_ShowNames)
         m_ShowNamesVisibility *= 0.98;
 

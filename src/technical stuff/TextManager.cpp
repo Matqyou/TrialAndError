@@ -4,6 +4,8 @@
 
 #include "TextManager.h"
 #include <iostream>
+#include <locale>
+#include <codecvt>
 
 std::string FString(const char* format, ...) {
     va_list args;
