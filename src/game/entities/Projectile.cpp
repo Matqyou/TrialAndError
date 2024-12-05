@@ -79,11 +79,11 @@ void Projectile::TickCollision() {
         else if (Collides && (!IsShooter || !m_StillCollidesShooter)) {
             if (Entity->GetType() == CHARACTER_ENTITY) {
                 auto ShootableCharacter = (Character*)Entity;
-                ShootableCharacter->Damage(m_Damage, Entity);
+                ShootableCharacter->Damage(m_Damage, m_Shooter);
                 ShootableCharacter->Accelerate(m_Core.Vel * 0.05);
             } else if (Entity->GetType() == CRATE_ENTITY) {
                 auto ShootableCrate = (Crate*)Entity;
-                ShootableCrate->Damage(m_Damage, nullptr);
+                ShootableCrate->Damage(m_Damage, m_Shooter);
             }
 
             // The projectile has served its purpose (clear immediately on impact)

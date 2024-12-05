@@ -119,6 +119,7 @@ void Drawing::RenderTextureExFCamera(SDL_Texture* texture,
 }
 
 void Drawing::RenderTextureFullscreen(SDL_Texture* texture, SDL_Rect* srcrect) {
+    
     SDL_RenderCopy(m_Renderer, texture, srcrect, nullptr);
 }
 
@@ -131,5 +132,6 @@ void Drawing::FillAll() {
 }
 
 void Drawing::UpdateWindow() {
+
     SDL_RenderPresent(m_Renderer);
 }

@@ -2,6 +2,7 @@
 // Created by 11dpjgailis on 16.03.2023.
 //
 #include "Character.h"
+#include "../CharacterNPC.h"
 #include <cmath>
 #include <iostream>
 #include "../../item/weapons/EntityGuns.h"
@@ -83,8 +84,14 @@ Character::Character(GameWorld *world,
     m_Player = player;
     m_ColorHue = m_Player ? 60.0 - double(m_Player->GetIndex() * 30) : 0.0;
 
+    m_BaseDamage = 10;
+    m_DamageAmp = 1;
     if (m_Player)
+    {
         m_Player->SetCharacter(this);
+        m_BaseDamage = m_Player->GetBaseDamage();
+        m_DamageAmp = m_Player->GetDamageAmp();
+    }
 
     // Initialises all timers as 0
     m_IsReverseTimer = 0;
@@ -181,8 +188,23 @@ Character::~Character()
     }
 }
 
+void Character::LevelupStats(unsigned int level)
+{
+    m_MaxHealth *= m_Player->GetMaxHealthAmp();
+    m_MaxHealth += 10 + (1000 - m_MaxHealth) / 10;
+    m_Health = m_MaxHealth; // Optionally, heal the character to full health
+}
+
 void Character::Damage(double damage, Entity *damager)
 {
+    if (IsNPC())
+    {
+        auto npc = (CharacterNPC *)(this);
+        if (npc)
+        {
+            npc->UpdateAttacker(attacker->GetPlayer());
+        }
+    }
     if (!Invincible)
     {
         if (HealersParadise)
@@ -714,6 +736,7 @@ void Character::TickHook()
 
 void Character::TickCollision()
 {
+    // Handle collision with other characters
     auto Char = m_World->FirstCharacter();
     for (; Char; Char = (Character *)(Char->NextType()))
     {
@@ -735,7 +758,6 @@ void Character::TickCollision()
             Distance = 1.0;
         }
 
-        // TODO make push stronger when closer to characters not when further....
         double XPush = XDistance / Distance * 0.5;
         double YPush = YDistance / Distance * 0.5;
         m_Core.Accelerate(XPush, YPush);
@@ -745,6 +767,7 @@ void Character::TickCollision()
             Char->Damage(3, this);
     }
 
+    // Handle collision with crates
     auto CrateEntity = m_World->FirstCrate();
     for (; CrateEntity; CrateEntity = (Crate *)(CrateEntity->NextType()))
     {
@@ -1069,9 +1092,9 @@ void Character::DrawHealthbar()
         m_HealthBar.SetColor(m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a);
         Texture *HealthPlate = ConfusingHP ? m_HealthBar.GetTexture() : m_HealthBar.UpdateTexture();
 
-        int HealthBarW = HealthPlate->GetWidth();
+        int HealthBarW = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
         int HealthBarH = HealthPlate->GetHeight();
-        SDL_Rect HealthplateRect = {int(m_Core.Pos.x - HealthBarW / 2.0),
+        SDL_Rect HealthplateRect = {int(m_Core.Pos.x - HealthBarW / 2.0) + 10, // Adjust position to the right
                                     int(m_Core.Pos.y + m_Core.Size.y / 2.0),
                                     HealthBarW, HealthBarH};
 
@@ -1086,17 +1109,29 @@ void Character::DrawHealthbar()
             m_HealthInt->SetColor(m_HealthComponent.GetHealthInPercentage() <= 0.25 ? m_HealthRed : m_HealthBlack);
         }
 
-        Texture *HealthTexture = m_HealthInt->RequestUpdate();
-        double HealthTextureW = HealthTexture->GetWidth();
-        double HealthTextureH = HealthTexture->GetHeight();
-        SDL_Rect HealthIntRect = {int(m_Core.Pos.x - HealthTextureW / 4.0),
-                                  int(m_Core.Pos.y + m_Core.Size.y / 2.0 + HealthTextureH / 4.0),
-                                  int(HealthTextureW / 2.0),
-                                  int(HealthTextureH / 2.0)};
+    Texture *HealthTexture = m_HealthInt->RequestUpdate();
+    double HealthTextureW = HealthTexture->GetWidth();
+    double HealthTextureH = HealthTexture->GetHeight();
+    SDL_Rect HealthIntRect = {int(m_Core.Pos.x - HealthTextureW / 4.0) + 10, // Adjust position to the right
+                              int(m_Core.Pos.y + m_Core.Size.y / 2.0 + HealthTextureH / 4.0),
+                              int(HealthTextureW / 2.0),
+                              int(HealthTextureH / 2.0)};
 
-        Render->RenderTextureCamera(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
-        Render->RenderTextureCamera(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
-    }
+    Render->RenderTextureCamera(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
+    Render->RenderTextureCamera(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
+
+    // Draw level indicator
+    TTF_Font *SmallFont = m_World->GameWindow()->Assets()->TextHandler()->LoadFont("assets/fonts/Minecraft.ttf", 10); // Load a smaller font
+    std::string LevelText = FString("LVL %i", m_Player->GetLevel());                                                  // Use the level value directly
+    TextSurface LevelSurface(m_World->GameWindow()->Assets(), SmallFont, LevelText, {255, 255, 255});
+    Texture *LevelTexture = LevelSurface.RequestUpdate();
+    int LevelTextureW = LevelTexture->GetWidth();
+    int LevelTextureH = LevelTexture->GetHeight();
+    SDL_Rect LevelRect = {int(m_Core.Pos.x - HealthBarW / 2.0) - LevelTextureW + 5, // Position to the left of the health bar
+                          int(m_Core.Pos.y + m_Core.Size.y / 2.0) + 3,
+                          LevelTextureW, LevelTextureH};
+
+    Render->RenderTextureCamera(LevelTexture->SDLTexture(), nullptr, LevelRect);
 }
 
 void Character::DrawHands()
@@ -1351,9 +1386,17 @@ void Character::Tick()
     TickUpdateLastCore();
     memcpy(&m_LastInput, &m_Input, sizeof(CharacterInput));
 
-    // Die
-    if (!m_HealthComponent.IsAlive())
+
+    if (!m_HealthComponent.IsAlive()) {
+        // Extra life
+        if (m_Player && m_Player->GetExtraLifeStatus() ) {
+            m_Player->GetCharacter()->MakeInvincible();
+            return;
+        }
+
+        // Die
         EventDeath();
+    }
 }
 
 void Character::Draw()

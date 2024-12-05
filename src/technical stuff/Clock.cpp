@@ -18,6 +18,7 @@ Clock::Clock(double framerate) {
 }
 
 void Clock::Tick() {
+    
     HPoint Ending = HNow();
     NanoElapsed = MeasureNanoseconds(Beginning, Ending);
     while (NanoElapsed < NanoDelay) {

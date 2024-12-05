@@ -82,6 +82,7 @@ void Crate::Tick() {
 }
 
 void Crate::Draw() {
+    
     Drawing* Render = m_World->GameWindow()->Render();
 
     SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),

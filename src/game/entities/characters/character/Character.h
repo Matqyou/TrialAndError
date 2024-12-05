@@ -11,6 +11,7 @@
 #include "../../../../technical stuff/GameControllers.h"
 #include "../../../../technical stuff/Colors.h"
 #include "../../../indicators/HealthBar.h"
+#include "../../../interface/LevelUpMenu.h"
 #include "../../../indicators/TextSurface.h"
 #include "../../AmmoBox.h"
 #include "../../Crate.h"
@@ -70,9 +71,11 @@ protected:
     static const int ms_DefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration;
+    double m_DamageAmp;
     Hook m_Hook;
     int m_HitTicks;
     int m_IsReverseTimer, m_ConfusingHPTimer, m_InvincibleTimer, m_SpikyTimer, m_HealersParadiseTimer, m_RangedTimer;
+    int m_BaseDamage;
     int m_IsSlowTimer, m_DangerousRecoilTimer;
     float Displacement;
     HealthBar m_HealthBar;
@@ -111,7 +114,7 @@ protected:
     void DrawErrorName();
 
 public:
-//    static Texture* ms_Texture;
+    static Texture* ms_Texture;
     static Texture* ms_TextureGlock;
     static Texture* ms_TextureShotgun;
     static Texture* ms_TextureBurst;
@@ -138,7 +141,7 @@ public:
               double max_health,
               const Vec2d& start_pos,
               const Vec2d& start_vel);
-    ~Character() override;
+    ~Character();
 
     // Getting
     [[nodiscard]] Hook* GetHook() { return &m_Hook; }
@@ -149,6 +152,8 @@ public:
     [[nodiscard]] CharacterInput& GetLastInput() { return m_LastInput; }
     [[nodiscard]] bool IsNPC() const { return m_NPC; }
     [[nodiscard]] bool HasDangerousRecoil() const { return m_DangerousRecoil; }
+    [[nodiscard]] int GetBaseDamage() const { if(m_Player)return m_Player->GetBaseDamage(); else return m_BaseDamage; }
+    [[nodiscard]] double GetDamageAmp() const {if(m_Player)return m_Player->GetDamageAmp(); else return m_DamageAmp; }
 
     // Setting
     void SetGameController(GameController* game_controller) { m_GameController = game_controller; }
@@ -167,6 +172,8 @@ public:
     void MakeRanged();
     void SlowDown();
     void ActivateDangerousRecoil();
+
+    void LevelupStats(unsigned int level);
 
     // Listening & Ticking
     void Event(const SDL_Event& currentEvent);

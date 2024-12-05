@@ -14,6 +14,7 @@ enum NPCType {
 class CharacterNPC : public Character {
 protected:
     bool m_IsBoss;
+    Player* m_LastAttacker;
     NPCType m_AIType;
 
     // Listening & Ticking
@@ -29,6 +30,11 @@ public:
                  bool is_boss);
     ~CharacterNPC() override;
 
-    // Generating
+    // Getting
+    [[nodiscard]] bool IsBoss() const { return m_IsBoss; }
     [[nodiscard]] const char* toString() const override;
+
+    // Manipulating
+    void UpdateAttacker(Player* attacker);
+
 };
