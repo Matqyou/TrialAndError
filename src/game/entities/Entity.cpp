@@ -79,12 +79,13 @@ Entity::Entity(GameWorld* world,
                const Vec2d& start_size,
                const Vec2d& start_vel,
                double base_damping,
-               bool has_health_component)
+               bool has_health_component,
+               double max_health)
     : m_pUnknownCore(form_factor == DIRECTIONAL_ENTITY ? new DirectionalEntityCore() : new EntityCore()),
       m_pLastUnknownCore(form_factor == DIRECTIONAL_ENTITY ? new DirectionalEntityCore() : new EntityCore()),
       m_Core(*m_pUnknownCore),
       m_LastCore(*m_pLastUnknownCore),
-      m_HasHealthComponent(has_health_component), m_HealthComponent(*this, 100.0) {
+      m_HasHealthComponent(has_health_component), m_HealthComponent(*this, max_health) {
     m_World = world;
     m_PrevType = nullptr;
     m_NextType = nullptr;
@@ -190,7 +191,8 @@ DirectionalEntity::DirectionalEntity(GameWorld* world, EntityType entity_type,
                                      const Vec2d& start_vel,
                                      const Vec2d& start_direction,
                                      double base_damping,
-                                     bool has_health_component)
+                                     bool has_health_component,
+                                     double max_health)
     : Entity(world,
              DIRECTIONAL_ENTITY,
              entity_type,
@@ -198,7 +200,8 @@ DirectionalEntity::DirectionalEntity(GameWorld* world, EntityType entity_type,
              start_size,
              start_vel,
              base_damping,
-             has_health_component),
+             has_health_component,
+             max_health),
       m_DirectionalCore(*(DirectionalEntityCore*)(m_pUnknownCore)),
       m_LastDirectionalCore(*(DirectionalEntityCore*)(m_pLastUnknownCore)) {
     m_DirectionalCore.Direction = start_direction;

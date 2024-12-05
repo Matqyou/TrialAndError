@@ -338,24 +338,29 @@ void GameWorld::TickSpawner()
 
     double Width2 = m_Width / 2.0;
     double Height2 = m_Height / 2.0;
+
+    // Boss every 10 rounds
     if (m_Round % 10 == 0)
     {
         double Angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
         Vec2d SpawnPos = Vec2d(Width2 + std::cos(Angle) * Width2, Height2 + std::sin(Angle) * Height2);
         auto NewNPC = new CharacterNPC(this,
-                                       //200.0 + m_Round * 10.0,
+                                       200.0 + m_Round * 10.0,
                                        SpawnPos,
                                        Vec2d(0.0, 0.0),
                                        NPC_TURRET,
                                        true);
         NewNPC->GiveWeapon(new WeaponMinigun(nullptr));
     }
+
+    // Wave enemies
     for (int i = 0; i < m_NumEnemiesPerWave; i++)
     {
         double Angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
         Vec2d SpawnPos = Vec2d(Width2 + std::cos(Angle) * Width2, Height2 + std::sin(Angle) * Height2);
         double Health = std::pow(m_Round, 1.0 / 3) * 10.0;
         auto NewNPC = new CharacterNPC(this,
+                                       Health,
                                        SpawnPos,
                                        Vec2d(0.0, 0.0),
                                        NPC_TURRET,

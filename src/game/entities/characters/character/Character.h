@@ -135,6 +135,7 @@ public:
 
     Character(GameWorld* world,
               Player* player,
+              double max_health,
               const Vec2d& start_pos,
               const Vec2d& start_vel);
     ~Character() override;

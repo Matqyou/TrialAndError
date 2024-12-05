@@ -6,12 +6,14 @@
 #include <cmath>
 
 CharacterNPC::CharacterNPC(GameWorld* world,
+                           double max_health,
                            const Vec2d& start_pos,
                            const Vec2d& start_vel,
                            NPCType ai_type,
                            bool is_boss)
     : Character(world,
                 nullptr,
+                max_health,
                 start_pos,
                 start_vel) {
     m_NPC = true;

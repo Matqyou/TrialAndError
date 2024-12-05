@@ -13,15 +13,15 @@ Sound* Crate::ms_BoxSound = nullptr;
 Crate::Crate(GameWorld* world,
              const Vec2d& start_pos,
              DropType RandomDrop)
- :
-    Entity(world,
+ : Entity(world,
              NORMAL_ENTITY,
              CRATE_ENTITY,
              start_pos,
              Vec2d(50, 50),
              Vec2d(0.0, 0.0),
              0.95,
-             true) {
+             true,
+             20.0) {
     m_World = world;
     m_Alive = true;
     m_DropType = RandomDrop;

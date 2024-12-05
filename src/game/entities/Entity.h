@@ -89,7 +89,8 @@ public:
            const Vec2d &start_size,
            const Vec2d &start_vel,
            double base_damping,
-           bool has_health_component);
+           bool has_health_component,
+           double max_health = 1.0);
     virtual ~Entity();
 
     // Getting
@@ -132,7 +133,8 @@ public:
                       const Vec2d &start_vel,
                       const Vec2d &start_direction,
                       double base_damping,
-                      bool has_health_component);
+                      bool has_health_component,
+                      double max_health = 1.0);
     ~DirectionalEntity() override;
 
     // Getting
