@@ -10,6 +10,8 @@
 #include <string>
 
 std::string FString(const char* format, ...);
+std::string ErasePrefix(std::string string, const std::string& prefix);
+std::string EraseSuffix(std::string string, const std::string& suffix);
 
 class TextManager {
 private:

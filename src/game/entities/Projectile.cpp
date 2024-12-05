@@ -58,12 +58,13 @@ void Projectile::TickCollision() {
     // Sense
     bool ShooterIsCharacter = m_Shooter->GetType() == CHARACTER_ENTITY;
     auto ShooterCharacter = (Character*)m_Shooter; // ⚠ Check for ShooterIsCharacter ⚠
+
     // Check if position collides any of the players
-    auto HealthEntity = m_World->FirstEntity();
-    for (; HealthEntity; HealthEntity = HealthEntity->Next()) {
-        auto Ent = (Entity*)HealthEntity;
-        bool IsShooter = m_Shooter == Ent;
-        if (!Ent->IsAlive()) continue;
+    auto Entity = m_World->FirstEntity();
+    for (; Entity; Entity = Entity->Next()) {
+        bool IsShooter = m_Shooter == Entity;
+        if (!Entity->IsAlive()) continue;
+        if (!Entity->HasHealthComponent()) continue;
 
         // Ignore npc friendly fire for now
 //        if (HasHealthComponent->GetType() == CHARACTER) {
@@ -73,16 +74,15 @@ void Projectile::TickCollision() {
 //        }
 
         // Check for (Projectile <-> Entity) collision at the position
-        bool Collides = Ent->PointCollides(m_Core.Pos);
+        bool Collides = Entity->PointCollides(m_Core.Pos);
         if (IsShooter && !Collides) { m_StillCollidesShooter = false; }
         else if (Collides && (!IsShooter || !m_StillCollidesShooter)) {
-            if (Ent->GetType() == CHARACTER_ENTITY) {
-                auto ShootableCharacter = (Character*)Ent;
-                ShootableCharacter->Damage(m_Damage, Ent);
+            if (Entity->GetType() == CHARACTER_ENTITY) {
+                auto ShootableCharacter = (Character*)Entity;
+                ShootableCharacter->Damage(m_Damage, Entity);
                 ShootableCharacter->Accelerate(m_Core.Vel * 0.05);
-            } else {
-                std::cout << "Projectile impact with " << Ent->toString() << std::endl;
-                auto ShootableCrate = (Crate*)Ent;
+            } else if (Entity->GetType() == CRATE_ENTITY) {
+                auto ShootableCrate = (Crate*)Entity;
                 ShootableCrate->Damage(m_Damage, nullptr);
             }
 

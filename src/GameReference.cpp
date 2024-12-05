@@ -108,8 +108,6 @@ bool GameReference::Initialize() {
         !InitializeTTF())
         return false;
 
-    Decals::initialize();
-
     if (!m_Window) {
         UpdateDimensions(1280, 720);
         m_Window = SDL_CreateWindow("TrialAndError",
@@ -134,6 +132,8 @@ bool GameReference::Initialize() {
 
     m_GLContext = SDL_GL_CreateContext(m_Window);
 
+    Decals::initialize(m_Renderer);
+
     if (!m_Timer) m_Timer = new Clock(60);
     if (!m_Random) m_Random = new Randomizer();
     if (!m_Draw) m_Draw = new Drawing(this);
@@ -142,6 +142,7 @@ bool GameReference::Initialize() {
 }
 
 void GameReference::Deinitialize(bool keep_sound) {
+    Decals::deinitialize();
     m_AssetsHandler->DeinitializeImages();
     delete m_Draw;
     m_Draw = nullptr;

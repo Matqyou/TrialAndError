@@ -16,6 +16,7 @@
 #include "../../Crate.h"
 #include "Hook.h"
 #include "Hands.h"
+#include "../../../../client/Decals.h"
 
 struct CharacterInput {
     bool m_Shooting;
@@ -48,6 +49,7 @@ protected:
     friend class Projectile; //
     friend class Hands;
     Player* m_Player;
+    Texture2* m_Texture;
     TextSurface* m_CoordinatePlate;
     TextSurface* m_AmmoCount;
     TextSurface* m_HealthInt;
@@ -109,7 +111,7 @@ protected:
     void DrawErrorName();
 
 public:
-    static Texture* ms_Texture;
+//    static Texture* ms_Texture;
     static Texture* ms_TextureGlock;
     static Texture* ms_TextureShotgun;
     static Texture* ms_TextureBurst;

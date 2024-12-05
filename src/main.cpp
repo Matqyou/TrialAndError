@@ -39,7 +39,7 @@ bool Initialize()
     SoundManager *SoundHandler = AssetsHandler->SoundHandler();
     ImageManager *ImageHandler = AssetsHandler->ImageHandler();
 
-    Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
+//    Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     Hands::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     ItemEntity::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/items/Glock.png", true);
     ItemEntity::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/items/Shotgun.png", true);
@@ -125,7 +125,6 @@ bool Initialize()
     Character::ms_ItemSwitchSound = SoundHandler->LoadSound("assets/sounds/WeaponSwitch.wav", true);
     Crate::ms_BoxSound = SoundHandler->LoadSound("assets/sounds/BoxHit.wav", true);
     Crate::ms_HitSound = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
-
     // Temp ammo spawn, had to generate random and set the value for each one, also changed it to also sending an int
     //  to the Crate constructor, so its easier to work with and i dont need to have acess to DropTypes, which i do, but no,
     //  it only works cuz this is main and i prefer to use the same typa fix on both ERRORS and crates, since

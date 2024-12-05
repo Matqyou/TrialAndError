@@ -44,7 +44,7 @@ Texture *Character::ms_TextureBurst = nullptr;
 Texture *Character::ms_TextureSniper = nullptr;
 Texture *Character::ms_TexturesMinigun[4] = {nullptr, nullptr, nullptr, nullptr};
 
-Texture *Character::ms_Texture = nullptr;
+//Texture *Character::ms_Texture = nullptr;
 Sound *Character::ms_HitSounds[3] = {nullptr, nullptr, nullptr};
 Sound *Character::ms_DeathSound = nullptr;
 Sound *Character::ms_AmmoPickupSound = nullptr;
@@ -75,9 +75,9 @@ Character::Character(GameWorld *world,
       m_Hook(this),
       m_HealthBar(world->GameWindow(), &m_HealthComponent, 75, 15, 2, 2),
       m_Input(),
-      m_LastInput()
+      m_LastInput(),
+      m_Texture(Decals::Get()->GetTexture("entities.fist"))
 {
-
     m_Player = player;
     m_ColorHue = m_Player ? 60.0 - double(m_Player->GetIndex() * 30) : 0.0;
 
@@ -1021,24 +1021,25 @@ void Character::DrawErrorIcons()
     }
 }
 
-void Character::DrawCharacter()
-{
-    Drawing *Render = m_World->GameWindow()->Render();
+void Character::DrawCharacter() {
+    Drawing* Render = m_World->GameWindow()->Render();
 
-    SDL_FRect DrawRect = {float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
-                          float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
-                          float(m_Core.Size.x),
-                          float(m_Core.Size.y)};
+    SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
+                           float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
+                           float(m_Core.Size.x),
+                           float(m_Core.Size.y) };
 
     // if(m_HitTicks > 0) Render->SetColor(255, 0, 0, 255);
     // else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
     // Render->FillRectFCamera(DrawRect);
     // Render->RenderTextureFCamera(ms_Texture->SDLTexture(), nullptr,DrawRect);
-    ms_Texture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
+
+//    ms_Texture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
+    m_Texture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
 
     double Angle = m_Core.Vel.Atan2() / M_PI * 180.0;
     SDL_RendererFlip flip = Angle > 90 || Angle < -90 ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
-    Render->RenderTextureExFCamera(ms_Texture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, flip);
+    Render->RenderTextureExFCamera(m_Texture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, flip);
 }
 
 void Character::DrawHook()
