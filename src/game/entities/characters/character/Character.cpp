@@ -81,8 +81,14 @@ Character::Character(GameWorld *world,
     m_Player = player;
     m_ColorHue = m_Player ? 60.0 - double(m_Player->GetIndex() * 30) : 0.0;
 
+    m_BaseDamage = 10;
+    m_DamageAmp = 1;
     if (m_Player)
+    {
         m_Player->SetCharacter(this);
+        m_BaseDamage = m_Player->GetBaseDamage();
+        m_DamageAmp = m_Player->GetDamageAmp();
+    }
 
     // Initialises all timers as 0
     m_IsReverseTimer = 0;
@@ -129,7 +135,6 @@ Character::Character(GameWorld *world,
 
     m_CurrentWeapon = nullptr; // Start by holding nothing
     memset(m_Weapons, 0, sizeof(m_Weapons));
-
     m_MaxHealth = max_health;
     m_Health = m_MaxHealth;
     m_PassiveRegeneration = 0.03; // health per tick when in combat
@@ -183,13 +188,9 @@ Character::~Character()
 
 void Character::LevelupStats(unsigned int level)
 {
+    m_MaxHealth *= m_Player->GetMaxHealthAmp();
     m_MaxHealth += 10 + (1000 - m_MaxHealth) / 10;
     m_Health = m_MaxHealth; // Optionally, heal the character to full health
-
-
-    // Pause the game and open the LevelUpMenu
-
-    m_Player->GetLevelUpMenu()->Show();
 }
 
 void Character::Damage(double damage, bool combat_tag, Character *attacker)
@@ -1371,7 +1372,17 @@ void Character::Tick()
         m_HitTicks = 0;
 
     if (m_Health <= 0.0)
+    {
+        if (m_Player)
+        {
+            if (m_Player->GetExtraLifeStatus())
+            {
+                m_Player->GetCharacter()->MakeInvincible();
+                return;
+            }
+        }
         EventDeath();
+    }
 }
 
 void Character::Draw()

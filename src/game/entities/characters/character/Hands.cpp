@@ -4,6 +4,7 @@
 
 #include "Hands.h"
 #include "Character.h"
+#include "../CharacterNPC.h"
 #include <cmath>
 
 Texture* Hands::ms_FistTexture = nullptr;
@@ -95,7 +96,16 @@ void Hands::Tick() {
             if (Ent->GetType() != ENTTYPE_CHARACTER)
                 continue;
             Ent->Accelerate(Vec2d(m_Parent->GetInput().m_LookingX, m_Parent->GetInput().m_LookingY) * 5.0);
-            ((Character*)Ent)->Damage(7, true, m_Parent);
+            int Damage = (m_Parent->GetBaseDamage() * m_Parent->GetDamageAmp());
+            if (!m_Parent->GetPlayer()){
+                ((Character*)Ent)->Damage(Damage, true, m_Parent);
+                continue;
+            }
+            if (((CharacterNPC*)Ent)->IsBoss())
+            {
+                Damage = Damage * m_Parent->GetPlayer()->GetBossDamageAmp();
+            }
+            ((Character*)Ent)->Damage(Damage, true, m_Parent);
 
         }
     }

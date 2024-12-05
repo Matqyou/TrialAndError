@@ -77,8 +77,6 @@ public:
 
     // Setting
     void SetPaused(bool state) { m_Paused = state; }
-
-    //Later animation
     void SetDelay(bool state)  { m_LevelUpDelay = state; }
 
     // Events

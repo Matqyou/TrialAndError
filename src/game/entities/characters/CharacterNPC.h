@@ -33,5 +33,5 @@ public:
                  bool is_boss);
     ~CharacterNPC();
     void UpdateAttacker(Player* attacker);
-    void GetBoss();
+    [[nodiscard]] bool IsBoss() const { return m_IsBoss; }
 };

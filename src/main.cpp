@@ -163,7 +163,7 @@ bool StartUp()
                                100.0,
                                Vec2d(32 * 17.5, 32 * 17.5),
                                Vec2d(10, 10));
-    Char1->LevelupStats(2);
+    Player1->GainXP(300);
     // Char1->GiveWeapon(new WeaponGlock(nullptr));
 
     return true;
@@ -206,25 +206,40 @@ int main()
 
     PauseMenu pauseMenu(World, &mainMenu);
     LevelUpMenu *activeLevelUpMenu = nullptr;
-
+    std::queue<LevelUpMenu *> levelUpMenuQueue;
     bool pauseMenuOpen = false;
     bool levelUpMenuOpen = false;
     bool delayActive = false;
     while (Running)
     {
-
         pauseMenuOpen = pauseMenu.Paused();
 
-        activeLevelUpMenu = nullptr;
+        if(!levelUpMenuOpen){
         for (auto player = World->FirstPlayer(); player != nullptr; player = player->Next())
         {
-
-            if (player->GetLevelUpMenu()->Paused())
+            std::queue<LevelUpMenu *> playerQueue = player->GetLevelUpMenuQueue();
+            while (!playerQueue.empty())
             {
-                activeLevelUpMenu = player->GetLevelUpMenu();
-                break;
+                levelUpMenuQueue.push(playerQueue.front());
+                playerQueue.pop();
+                player->SetLevelUpMenuQueue(playerQueue);
             }
+            playerQueue = std::queue<LevelUpMenu *>();
         }
+
+        if (!levelUpMenuQueue.empty())
+        {
+            activeLevelUpMenu = levelUpMenuQueue.front();
+            activeLevelUpMenu->Show();
+            levelUpMenuOpen = activeLevelUpMenu->Paused();
+        }
+        else
+        {
+            activeLevelUpMenu = nullptr;
+            levelUpMenuOpen = false;
+        }
+        }
+
         levelUpMenuOpen = (activeLevelUpMenu != nullptr) && activeLevelUpMenu->Paused();
         // Input and events
         SDL_Event CurrentEvent;
@@ -263,8 +278,8 @@ int main()
                 else if (ScancodeKey == SDL_SCANCODE_Z)
                 {
                     new CharacterNPC(World,
-                                     20.0,
-                                     Vec2d(32 * 30, 32),
+                                     50.0,
+                                     Vec2d(32 * 30   , 32),
                                      Vec2d(0, 10),
                                      NPC_TURRET,
                                      true);
@@ -315,14 +330,22 @@ int main()
             pauseMenu.Render();
         }
 
-        // Render the pause menu if open
+        // Render one of the levelupmenus in queue if any
         if (levelUpMenuOpen)
-        {
+        {   
             activeLevelUpMenu->Render();
-            
+            if (!activeLevelUpMenu->Paused())
+            {
+                levelUpMenuQueue.pop();
+                if(levelUpMenuQueue.empty())
+                {
+                    World->SetPaused(false);
+                }
+            }
         }
-        Render->UpdateWindow();
 
+
+        Render->UpdateWindow();
 
         if (World->GetDelay() && (levelUpMenuOpen))
         {
@@ -334,7 +357,6 @@ int main()
             }
             World->SetDelay(false); // Reset the delay flag after the delay
         }
-
 
         Timer->Tick();
     }

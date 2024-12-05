@@ -6,6 +6,7 @@
 #include "../GameWorld.h"
 #include <SDL.h>
 
+class Player;
 class LevelUpMenu
 {
 private:
@@ -25,16 +26,30 @@ private:
     Texture *m_TextureInfiniteGlockAmmo;
     Texture *m_TextureErrorOutline;
 
-    
     bool m_Paused;
+    Player *m_Player;
     std::vector<Texture *>
         m_powerupTextures;
     std::vector<int> m_selectedIndices;
     SDL_Rect m_ErrorIconRect;
     SDL_Rect m_ErrorOutlineRect;
 
+
+    // Powerup effect functions
+    void ApplyAllStats();
+    void ApplyBombs();
+    void ApplyDoubleDamage();
+    void ApplyBossDamage();
+    void ApplyExplosiveAmmo();
+    void ApplyExtraLives();
+    void ApplySpeed();
+    void ApplySpiky();
+    void ApplyHealth();
+    void ApplyInfiniteGlockAmmo();
+
+
 public:
-    LevelUpMenu(GameWorld *gameWorld);
+    LevelUpMenu(GameWorld *gameWorld, Player *player);
     ~LevelUpMenu();
 
     [[nodiscard]] bool Paused() const { return m_Paused; }

@@ -69,9 +69,11 @@ protected:
     static const int ms_DefaultControls[NUM_CONTROLS];
 
     const double m_BaseAcceleration;
+    double m_DamageAmp;
     Hook m_Hook;
     int m_HitTicks;
     int m_IsReverseTimer, m_ConfusingHPTimer, m_InvincibleTimer, m_SpikyTimer, m_HealersParadiseTimer, m_RangedTimer;
+    int m_BaseDamage;
     int m_IsSlowTimer, m_DangerousRecoilTimer;
     float Displacement;
     HealthBar m_HealthBar;
@@ -148,6 +150,8 @@ public:
     [[nodiscard]] CharacterInput& GetLastInput() { return m_LastInput; }
     [[nodiscard]] bool IsNPC() const { return m_NPC; }
     [[nodiscard]] bool HasDangerousRecoil() { return m_DangerousRecoil; }
+    [[nodiscard]] int GetBaseDamage() const { if(m_Player)return m_Player->GetBaseDamage(); else return m_BaseDamage; }
+    [[nodiscard]] double GetDamageAmp() const {if(m_Player)return m_Player->GetDamageAmp(); else return m_DamageAmp; }
 
     // Setting
     void SetGameController(GameController* game_controller) { m_GameController = game_controller; }
