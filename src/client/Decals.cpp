@@ -14,9 +14,9 @@
 Decals* Decals::Instance = nullptr;
 
 Texture2::Texture2(std::string key, SDL_Texture* sdl_texture, std::string load_extension)
-: m_Key(std::move(key)) {
+: m_Key(std::move(key)),
+  m_LoadExtension(std::move(load_extension)) {
     m_SDLTexture = sdl_texture;
-    m_LoadExtension = std::move(load_extension);
 
     m_Information = {};
     SDL_QueryTexture(m_SDLTexture,
@@ -43,16 +43,34 @@ void Texture2::SetAlphaMod(int alpha) {
     SDL_SetTextureAlphaMod(m_SDLTexture, alpha);
 }
 
-Decals::Decals(SDL_Renderer* renderer): m_InvalidTexture(nullptr)
-{
-    // Todo: Loading assets in realtime (adding/removing files?)
-    // Load assets (decals specifically)
-    const char* ASSETS_DIRECTORY = R"(.\assets\images\)";
-    std::unordered_set<std::string> supportedExtensions = {
-        ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tif", ".tiff", ".webp"
-    };
+Sound2::Sound2(std::string key, Mix_Chunk* mix_chunk, std::string load_extension)
+ : m_Key(std::move(key)),
+   m_LoadExtension(std::move(load_extension)) {
+    m_MixChunk = mix_chunk;
+}
 
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(ASSETS_DIRECTORY)) {
+Sound2::~Sound2() {
+    if (m_MixChunk)
+        Mix_FreeChunk(m_MixChunk);
+}
+
+void Sound2::SetVolume(int volume) {
+    Mix_VolumeChunk(m_MixChunk, volume);
+}
+
+void Sound2::PlaySound()
+{
+    if (m_MixChunk == nullptr || !Decals::Get()->SoundsEnabled())
+        return;
+
+    Mix_PlayChannel(-1, m_MixChunk, 0);
+}
+
+std::vector<std::tuple<std::string, std::string, std::string>> GetResourceKeys(const char* directory,
+    const std::unordered_set<std::string>& supported_extensions) {
+    std::vector<std::tuple<std::string, std::string, std::string>> results;
+
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(directory)) {
         if (!entry.is_regular_file())
             continue;
 
@@ -64,14 +82,14 @@ Decals::Decals(SDL_Renderer* renderer): m_InvalidTexture(nullptr)
         std::transform(extension_lower.begin(), extension_lower.end(), extension_lower.begin(), ::tolower);
 
         // Check if the extension is supported
-        if (supportedExtensions.find(extension) == supportedExtensions.end()) {
+        if (supported_extensions.find(extension) == supported_extensions.end()) {
             std::cout << "Unsupported texture format: " << file_path.string() << std::endl;
             continue;
         }
 
         // Process the path string for logging or other use
         std::string identificator = file_path.string();
-        identificator = ErasePrefix(identificator, ASSETS_DIRECTORY);
+        identificator = ErasePrefix(identificator, directory);
         identificator = EraseSuffix(identificator, extension);
 
         // Convert to lowercase and replace slashes to periods
@@ -79,16 +97,38 @@ Decals::Decals(SDL_Renderer* renderer): m_InvalidTexture(nullptr)
         std::replace(identificator.begin(), identificator.end(), '/', '.');
         std::replace(identificator.begin(), identificator.end(), '\\', '.');
 
-        auto it = m_Textures.find(identificator);
+        // Add the key and path to the results
+        results.emplace_back(identificator, file_path.string(), extension);
+    }
+
+    return results;
+}
+
+Decals::Decals(SDL_Renderer* renderer, bool sounds_enabled)
+ : m_InvalidTexture(nullptr) {
+    m_SoundsEnabled = sounds_enabled;
+
+    // Todo: Loading assets in realtime (adding/removing files?)
+    // Load assets (decals specifically)
+    std::unordered_set<std::string> texture_extensions = {
+        ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tif", ".tiff", ".webp"
+    };
+    auto texture_keys = GetResourceKeys(R"(.\assets\images\)", texture_extensions);
+    for (auto entry : texture_keys) {
+        std::string& key = std::get<0>(entry);
+        std::string& file_path = std::get<1>(entry);
+        std::string& extension = std::get<2>(entry);
+
+        auto it = m_Textures.find(key);
         if (it != m_Textures.end()) {
-            std::cout << FString("Attempted to load duplicate texture '%s' (%s)", identificator.c_str(), it->second->m_LoadExtension.c_str()) << std::endl;
+            std::cout << FString("Attempted to load duplicate texture '%s' (%s)", key.c_str(), it->second->m_LoadExtension.c_str()) << std::endl;
             continue;
         }
 
         // Load the texture
-        SDL_Surface* TempSurface = IMG_Load(file_path.string().c_str());
+        SDL_Surface* TempSurface = IMG_Load(file_path.c_str());
         if (!TempSurface) {
-            std::cout << FString("Failed to load texture '%s'", file_path.string().c_str()) << std::endl;
+            std::cout << FString("Failed to load texture '%s'", file_path.c_str()) << std::endl;
             continue;
         }
 
@@ -96,29 +136,63 @@ Decals::Decals(SDL_Renderer* renderer): m_InvalidTexture(nullptr)
         SDL_FreeSurface(TempSurface);
 
         // Add it to all the textures
-        auto new_texture = new Texture2(identificator, NewSDLTexture, extension_lower);
-        m_Textures[identificator] = new_texture;
+        auto new_texture = new Texture2(key, NewSDLTexture, extension);
+        m_Textures[key] = new_texture;
     }
-
     std::cout << FString("Loaded %i textures", m_Textures.size()) << std::endl;
     m_InvalidTexture = nullptr;
     m_InvalidTexture = GetTexture("invalid");
+
+    std::unordered_set<std::string> sound_extensions = {
+        ".wav", ".aiff", ".voc", ".mp3", ".ogg", ".flac",
+        ".mod", ".s3m", ".it", ".xm", ".mid", ".midi", ".opus"
+    };
+    auto sound_keys = GetResourceKeys(R"(.\assets\sounds\)", sound_extensions);
+    for (auto entry : sound_keys) {
+        std::string& key = std::get<0>(entry);
+        std::string& file_path = std::get<1>(entry);
+        std::string& extension = std::get<2>(entry);
+
+        auto it = m_Sounds.find(key);
+        if (it != m_Sounds.end()) {
+            std::cout << FString("Attempted to load duplicate sound '%s' (%s)", key.c_str(), it->second->m_LoadExtension.c_str()) << std::endl;
+            continue;
+        }
+
+        // Load the sound
+        Mix_Chunk* NewMixChunk = Mix_LoadWAV(file_path.c_str());
+        if (!NewMixChunk) {
+            std::cout << FString("Failed to load sound '%s'", file_path.c_str()) << std::endl;
+            continue;
+        }
+
+        // Add it to all the textures
+        auto new_sound = new Sound2(key, NewMixChunk, extension);
+        m_Sounds[key] = new_sound;
+    }
+    std::cout << FString("Loaded %i sounds", m_Sounds.size()) << std::endl;
 }
 
 Decals::~Decals()
 {
-    size_t num_destroyed = 0;
+    size_t destroyed_textures = 0;
+    size_t destroyed_sounds = 0;
     for (const auto& entry : m_Textures) {
         delete entry.second;
-        num_destroyed++;
+        destroyed_textures++;
     }
-    std::cout << FString("Unloaded %zu textures", num_destroyed) << std::endl;
+    for (const auto& entry : m_Sounds) {
+        delete entry.second;
+        destroyed_sounds++;
+    }
+    std::cout << FString("Unloaded %zu textures", destroyed_textures) << std::endl;
+    std::cout << FString("Unloaded %zu sounds", destroyed_sounds) << std::endl;
 }
 
-void Decals::initialize(SDL_Renderer* renderer)
+void Decals::initialize(SDL_Renderer* renderer, bool sounds_enabled)
 {
     if (Instance == nullptr)
-        Instance = new Decals(renderer);
+        Instance = new Decals(renderer, sounds_enabled);
 }
 
 void Decals::deinitialize()
@@ -142,4 +216,13 @@ Texture2* Decals::GetTexture(const std::string& texture_key) {
 
     std::cout << FString("Texture '%s' not found", texture_key.c_str()) << std::endl;
     return m_InvalidTexture;
+}
+
+Sound2* Decals::GetSound(const std::string& sound_key) {
+    auto it = m_Sounds.find(sound_key);
+    if (it != m_Sounds.end())
+        return it->second;
+
+    std::cout << FString("Sound '%s' not found", sound_key.c_str()) << std::endl;
+    return nullptr;
 }

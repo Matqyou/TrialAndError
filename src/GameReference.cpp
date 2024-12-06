@@ -4,6 +4,8 @@
 
 #include "GameReference.h"
 #include "client/Decals.h"
+#include "game/entities/Crate.h"
+#include "game/entities/item/weapons/EntityGuns.h"
 
 GameReference::GameReference() {
     m_Window = nullptr;
@@ -134,16 +136,52 @@ bool GameReference::Initialize() {
 
     m_GLContext = SDL_GL_CreateContext(m_Window);
 
-    Decals::initialize(m_Renderer);
+    Decals::initialize(m_Renderer, m_InitializedAudio);
 
     if (!m_Timer) m_Timer = new Clock(60);
     if (!m_Random) m_Random = new Randomizer();
     if (!m_Draw) m_Draw = new Drawing(this);
     if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager(m_Renderer, m_InitializedAudio);
+
+    m_GameWorld = new GameWorld(this, 50, 30);
+    m_Controllers = new GameControllers();
+
+    m_Draw->SetWorld(m_GameWorld);
+    Character::ms_BotNamePlate = new TextSurface(m_GameWorld->GameWindow()->Assets(),
+                                                 m_GameWorld->GameWindow()->Assets()->TextHandler()->GetMainFont(),
+                                                 "Bot User", { 255, 150, 150, 255 });
+    new Crate(m_GameWorld, Vec2d(200, 200), DropType(rand() % 2));
+    new Crate(m_GameWorld, Vec2d(400, 200), DropType(rand() % 2));
+    new Crate(m_GameWorld, Vec2d(600, 200), DropType(rand() % 2));
+    new Crate(m_GameWorld, Vec2d(200, 400), DropType(rand() % 2));
+    new Crate(m_GameWorld, Vec2d(400, 400), DropType(rand() % 2));
+    new Crate(m_GameWorld, Vec2d(600, 400), DropType(rand() % 2));
+    new Crate(m_GameWorld, Vec2d(200, 600), DropType(rand() % 2));
+    new Crate(m_GameWorld, Vec2d(400, 600), DropType(rand() % 2));
+    new Crate(m_GameWorld, Vec2d(600, 600), DropType(rand() % 2));
+
+    new EntityGlock(m_GameWorld, nullptr, nullptr, Vec2d(800, 200));
+    new EntityShotgun(m_GameWorld, nullptr, nullptr, Vec2d(900, 200));
+    new EntityBurst(m_GameWorld, nullptr, nullptr, Vec2d(1000, 200));
+    new EntityMinigun(m_GameWorld, nullptr, nullptr, Vec2d(1100, 200));
+    new EntitySniper(m_GameWorld, nullptr, nullptr, Vec2d(1200, 200));
+
+
+    auto Player1 = new Player(m_GameWorld, "Keyboard");
+    auto Char1 = new Character(m_GameWorld,
+                               Player1,
+                               100.0,
+                               Vec2d(32 * 17.5, 32 * 17.5),
+                               Vec2d(10, 10));
+    Player1->GainXP(300);
+    // Char1->GiveWeapon(new WeaponGlock(nullptr));
+
     return true;
 }
 
 void GameReference::Deinitialize(bool keep_sound) {
+    delete m_GameWorld;
+    delete m_Controllers;
     Decals::deinitialize();
     m_AssetsHandler->DeinitializeImages();
     delete m_Draw;

@@ -50,9 +50,9 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
     switch (event.type)
     {
     case SDL_QUIT:
-        menuOpen = false;
-        running = false;
-        m_GameWindow->Deinitialize(true);
+        m_GameWindow->Deinitialize(true); // close everything except sound
+        while (Mix_Playing(-1)) {} // wait until last sound is done playing
+        delete m_GameWindow;
         break;
     case SDL_MOUSEBUTTONDOWN:
         SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
@@ -71,8 +71,8 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
             {
                 soundHandler->PlaySound(quitSound);
                 m_GameWindow->Deinitialize(true);
-                running = false;
-                menuOpen = false;
+                while (Mix_Playing(-1)) {} // wait until last sound is done playing
+                delete m_GameWindow;
             }
         }
         break;

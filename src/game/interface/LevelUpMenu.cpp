@@ -80,6 +80,8 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event)
     {
     case SDL_QUIT:
         m_GameWindow->Deinitialize(true);
+        while (Mix_Playing(-1)) {} // wait until last sound is done playing
+        delete m_GameWindow;
         break;
     case SDL_MOUSEBUTTONDOWN:
         if (event.button.button == SDL_BUTTON_LEFT)

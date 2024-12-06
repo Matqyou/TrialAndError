@@ -32,8 +32,6 @@
 #include <random>
 
 GameReference *GameWindow;
-GameWorld *World;
-GameControllers *Controllers;
 
 bool Initialize() {
     srand(time(nullptr));
@@ -142,40 +140,6 @@ bool Initialize() {
     return true;
 }
 
-bool StartUp() {
-    World = new GameWorld(GameWindow, 50, 30);
-    GameWindow->Render()->SetWorld(World);
-    Character::ms_BotNamePlate = new TextSurface(World->GameWindow()->Assets(),
-                                                 World->GameWindow()->Assets()->TextHandler()->GetMainFont(),
-                                                 "Bot User", { 255, 150, 150, 255 });
-    new Crate(World, Vec2d(200, 200), DropType(rand() % 2));
-    new Crate(World, Vec2d(400, 200), DropType(rand() % 2));
-    new Crate(World, Vec2d(600, 200), DropType(rand() % 2));
-    new Crate(World, Vec2d(200, 400), DropType(rand() % 2));
-    new Crate(World, Vec2d(400, 400), DropType(rand() % 2));
-    new Crate(World, Vec2d(600, 400), DropType(rand() % 2));
-    new Crate(World, Vec2d(200, 600), DropType(rand() % 2));
-    new Crate(World, Vec2d(400, 600), DropType(rand() % 2));
-    new Crate(World, Vec2d(600, 600), DropType(rand() % 2));
-
-    new EntityGlock(World, nullptr, nullptr, Vec2d(800, 200));
-    new EntityShotgun(World, nullptr, nullptr, Vec2d(900, 200));
-    new EntityBurst(World, nullptr, nullptr, Vec2d(1000, 200));
-    new EntityMinigun(World, nullptr, nullptr, Vec2d(1100, 200));
-    new EntitySniper(World, nullptr, nullptr, Vec2d(1200, 200));
-
-    Controllers = new GameControllers();
-    auto Player1 = new Player(World, "Keyboard");
-    auto Char1 = new Character(World,
-                               Player1,
-                               100.0,
-                               Vec2d(32 * 17.5, 32 * 17.5),
-                               Vec2d(10, 10));
-    Player1->GainXP(300);
-    // Char1->GiveWeapon(new WeaponGlock(nullptr));
-
-    return true;
-}
 int main() {
 #ifdef _WIN32
 #ifdef NDEBUG
@@ -209,12 +173,13 @@ int main() {
     Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
     Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
 
+    Decals::Get()->GetSound("quit")->PlaySound();
+
     MainMenu mainMenu(GameWindow);
     mainMenu.Show();
     bool Running = true;
-    StartUp();
 
-    PauseMenu pauseMenu(World, &mainMenu);
+    PauseMenu pauseMenu(GameWindow->World(), &mainMenu);
     LevelUpMenu* activeLevelUpMenu = nullptr;
     std::queue<LevelUpMenu*> levelUpMenuQueue;
     bool pauseMenuOpen = false;
@@ -224,7 +189,7 @@ int main() {
         pauseMenuOpen = pauseMenu.Paused();
 
         if (!levelUpMenuOpen) {
-            for (auto player = World->FirstPlayer(); player != nullptr; player = player->Next()) {
+            for (auto player = GameWindow->World()->FirstPlayer(); player != nullptr; player = player->Next()) {
                 std::queue<LevelUpMenu*> playerQueue = player->GetLevelUpMenuQueue();
                 while (!playerQueue.empty()) {
                     levelUpMenuQueue.push(playerQueue.front());
@@ -249,8 +214,8 @@ int main() {
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent)) {
             GameWindow->Event(CurrentEvent);
-            World->Event(CurrentEvent);
-            Controllers->Event(CurrentEvent);
+            GameWindow->World()->Event(CurrentEvent);
+            GameWindow->Controllers()->Event(CurrentEvent);
 
             if (pauseMenuOpen)
                 pauseMenu.HandleEvent(CurrentEvent);
@@ -259,13 +224,11 @@ int main() {
                 activeLevelUpMenu->HandleEvent(CurrentEvent);
 
             switch (CurrentEvent.type) {
-                case SDL_QUIT:SoundHandler->PlaySound(QuitSound);
+                case SDL_QUIT:
+                    SoundHandler->PlaySound(QuitSound);
                     GameWindow->Deinitialize(true); // close everything except sound
 
-                    delete Controllers;
-                    delete World;
-                    while (Mix_Playing(-1)) {
-                    } // wait until last sound is done playing
+                    while (Mix_Playing(-1)) {} // wait until last sound is done playing
                     delete GameWindow;
                     return 0;
 
@@ -274,7 +237,7 @@ int main() {
                     if (ScancodeKey == SDL_SCANCODE_ESCAPE) {
                         pauseMenu.Show();
                     } else if (ScancodeKey == SDL_SCANCODE_Z) {
-                        new CharacterNPC(World,
+                        new CharacterNPC(GameWindow->World(),
                                          50.0,
                                          Vec2d(32 * 30, 32),
                                          Vec2d(0, 10),
@@ -285,9 +248,9 @@ int main() {
                     break;
                 case SDL_CONTROLLERDEVICEADDED: {
                     int DeviceID = CurrentEvent.cdevice.which;
-                    GameController* CurrentController = Controllers->OpenController(DeviceID);
-                    auto NewPlayer = new Player(World, "Controller");
-                    auto NewChar = new Character(World,
+                    GameController* CurrentController = GameWindow->Controllers()->OpenController(DeviceID);
+                    auto NewPlayer = new Player(GameWindow->World(), "Controller");
+                    auto NewChar = new Character(GameWindow->World(),
                                                  NewPlayer,
                                                  100.0,
                                                  Vec2d(32 * 17.5, 32 * 17.5),
@@ -300,9 +263,9 @@ int main() {
                     break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
-                    GameController* DeletedController = Controllers->CloseController(InstanceID);
-                    World->DestroyPlayerByController(DeletedController);
-                    World->DestroyCharacterByController(DeletedController);
+                    GameController* DeletedController = GameWindow->Controllers()->CloseController(InstanceID);
+                    GameWindow->World()->DestroyPlayerByController(DeletedController);
+                    GameWindow->World()->DestroyCharacterByController(DeletedController);
                     SoundHandler->PlaySound(LowSound);
                 }
                     break;
@@ -310,11 +273,11 @@ int main() {
         }
 
         // Ticking
-        World->Tick();
-        Controllers->TickReset();
+        GameWindow->World()->Tick();
+        GameWindow->Controllers()->TickReset();
 
         // Drawing
-        World->Draw();
+        GameWindow->World()->Draw();
         Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
         // Render the pause menu if open
@@ -328,20 +291,21 @@ int main() {
             if (!activeLevelUpMenu->Paused()) {
                 levelUpMenuQueue.pop();
                 if (levelUpMenuQueue.empty()) {
-                    World->SetPaused(false);
+                    GameWindow->World()->SetPaused(false);
                 }
             }
         }
 
         Render->UpdateWindow();
 
-        if (World->GetDelay() && (levelUpMenuOpen)) {
+        if (GameWindow->World()->GetDelay() && (levelUpMenuOpen)) {
             SDL_Delay(1000); // Delay for 1000 milliseconds (1 second)
             SDL_Event event;
             while (SDL_PollEvent(&event)) {
                 // Discard events
             }
-            World->SetDelay(false); // Reset the delay flag after the delay
+
+            GameWindow->World()->SetDelay(false); // Reset the delay flag after the delay
         }
 
         Timer->Tick();
