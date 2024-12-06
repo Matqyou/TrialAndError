@@ -43,59 +43,57 @@ bool Initialize() {
     SDL_ShowCursor(0);
     AssetsManager* AssetsHandler = GameWindow->Assets();
     SoundManager* SoundHandler = AssetsHandler->SoundHandler();
-    ImageManager* ImageHandler = AssetsHandler->ImageHandler();
+    Decals* decals = Decals::Get();
 
 //    Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
-    Hands::ms_FistTexture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
-    ItemEntity::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/items/Glock.png", true);
-    ItemEntity::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/items/Shotgun.png", true);
-    ItemEntity::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/items/Burst.png", true);
-    ItemEntity::ms_TextureSniper = ImageHandler->LoadTexture("assets/images/entities/items/Sniper.png", true);
-    ItemEntity::ms_TexturesMinigun[0] = ImageHandler->LoadTexture("assets/images/entities/items/Minigun1.png", true);
-    ItemEntity::ms_TexturesMinigun[1] = ImageHandler->LoadTexture("assets/images/entities/items/Minigun2.png", true);
-    ItemEntity::ms_TexturesMinigun[2] = ImageHandler->LoadTexture("assets/images/entities/items/Minigun3.png", true);
-    ItemEntity::ms_TexturesMinigun[3] = ImageHandler->LoadTexture("assets/images/entities/items/Minigun4.png", true);
-    Projectile::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/projectiles/GlockBullet.png", true);
-    Projectile::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/projectiles/BurstBullet.png", true);
-    Projectile::ms_TextureShotgun =
-        ImageHandler->LoadTexture("assets/images/entities/projectiles/ShotgunBullet.png", true);
-    Projectile::ms_TextureSniper =
-        ImageHandler->LoadTexture("assets/images/entities/projectiles/ShotgunBullet.png", true);
-    Projectile::ms_TextureMinigun =
-        ImageHandler->LoadTexture("assets/images/entities/projectiles/MinigunBullet.png", true);
-    AmmoBox::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/entities/GlockAmmo.png", true);
-    AmmoBox::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/entities/ShotgunAmmo.png", true);
-    AmmoBox::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/entities/BurstAmmo.png", true);
-    AmmoBox::ms_TextureMinigun = ImageHandler->LoadTexture("assets/images/entities/MinigunAmmo.png", true);
-    Crate::ms_TextureBox = ImageHandler->LoadTexture("assets/images/entities/AmmoCrate.png", true);
-    Crate::ms_TextureBreakingBox1 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_1.png", true);
-    Crate::ms_TextureBreakingBox2 = ImageHandler->LoadTexture("assets/images/entities/RTS_Crate_Breaking_2.png", true);
-    Error::ms_TextureErrorInvincible = ImageHandler->LoadTexture("assets/images/entities/Invincible.png", true);
-    Error::ms_TextureErrorSpiky = ImageHandler->LoadTexture("assets/images/entities/Cactus.png", true);
-    Error::ms_TextureErrorSlowDown = ImageHandler->LoadTexture("assets/images/entities/Clock.png", true);
-    Error::ms_TextureErrorDisorianted = ImageHandler->LoadTexture("assets/images/entities/Disorianted.png", true);
-    Error::ms_TextureErrorHealersParadise = ImageHandler->LoadTexture("assets/images/entities/Healer.png", true);
-    Error::ms_TextureErrorConfusingHP = ImageHandler->LoadTexture("assets/images/entities/Confusion.png", true);
-    Error::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/entities/Ranged.png", true);
-    Error::ms_TextureError = ImageHandler->LoadTexture("assets/images/entities/golden_apple.png", true);
+    Hands::ms_FistTexture = decals->GetTexture("entities.fist");
+    ItemEntity::ms_TextureGlock = decals->GetTexture("entities.items.glock");
+    ItemEntity::ms_TextureShotgun = decals->GetTexture("entities.items.shotgun");
+    ItemEntity::ms_TextureBurst = decals->GetTexture("entities.items.burst");
+    ItemEntity::ms_TextureSniper = decals->GetTexture("entities.items.sniper");
+    ItemEntity::ms_TexturesMinigun[0] = decals->GetTexture("entities.items.minigun1");
+    ItemEntity::ms_TexturesMinigun[1] = decals->GetTexture("entities.items.minigun2");
+    ItemEntity::ms_TexturesMinigun[2] = decals->GetTexture("entities.items.minigun3");
+    ItemEntity::ms_TexturesMinigun[3] = decals->GetTexture("entities.items.minigun4");
+    Projectile::ms_TextureGlock = decals->GetTexture("entities.projectiles.glockbullet");
+    Projectile::ms_TextureBurst = decals->GetTexture("entities.projectiles.burstbullet");
+    Projectile::ms_TextureShotgun = decals->GetTexture("entities.projectiles.shotgunbullet");
+    Projectile::ms_TextureSniper = decals->GetTexture("entities.projectiles.shotgunbullet");
+    Projectile::ms_TextureMinigun = decals->GetTexture("entities.projectiles.minigunbullet");
+    AmmoBox::ms_TextureGlock = decals->GetTexture("entities.glockammo");
+    AmmoBox::ms_TextureShotgun = decals->GetTexture("entities.shotgunammo");
+    AmmoBox::ms_TextureBurst = decals->GetTexture("entities.burstammo");
+    AmmoBox::ms_TextureMinigun = decals->GetTexture("entities.minigunammo");
+    Crate::ms_TextureBox = decals->GetTexture("entities.ammocrate");
+    Crate::ms_TextureBreakingBox1 = decals->GetTexture("entities.rts_crate_breaking_1");
+    Crate::ms_TextureBreakingBox2 = decals->GetTexture("entities.rts_crate_breaking_2");
+    Error::ms_TextureErrorInvincible = decals->GetTexture("entities.invincible");
+    Error::ms_TextureErrorSpiky = decals->GetTexture("entities.cactus");
+    Error::ms_TextureErrorSlowDown = decals->GetTexture("entities.clock");
+    Error::ms_TextureErrorDisorianted = decals->GetTexture("entities.disorianted");
+    Error::ms_TextureErrorHealersParadise = decals->GetTexture("entities.healer");
+    Error::ms_TextureErrorConfusingHP = decals->GetTexture("entities.confusion");
+    Error::ms_TextureErrorRanged = decals->GetTexture("entities.ranged");
+    Error::ms_TextureError = decals->GetTexture("entities.golden_apple");
 
-    Character::ms_TextureErrorInvincible = ImageHandler->LoadTexture("assets/images/icons/Invincible.png", true);
-    Character::ms_TextureErrorSpiky = ImageHandler->LoadTexture("assets/images/icons/Cactus.png", true);
-    Character::ms_TextureErrorSlowDown = ImageHandler->LoadTexture("assets/images/icons/Clock.png", true);
-    Character::ms_TextureErrorDisorianted = ImageHandler->LoadTexture("assets/images/icons/Disorianted.png", true);
-    Character::ms_TextureErrorHealersParadise = ImageHandler->LoadTexture("assets/images/icons/Healer.png", true);
-    Character::ms_TextureErrorConfusingHP = ImageHandler->LoadTexture("assets/images/icons/Confusion.png", true);
-    Character::ms_TextureErrorRanged = ImageHandler->LoadTexture("assets/images/icons/Ranged.png", true);
-    Character::ms_TextureError = ImageHandler->LoadTexture("assets/images/entities/golden_apple.png", true);
+    Character::ms_TextureErrorInvincible = decals->GetTexture("icons.invincible");
+    Character::ms_TextureErrorSpiky = decals->GetTexture("icons.cactus");
+    Character::ms_TextureErrorSlowDown = decals->GetTexture("icons.clock");
+    Character::ms_TextureErrorDisorianted = decals->GetTexture("icons.disorianted");
+    Character::ms_TextureErrorHealersParadise = decals->GetTexture("icons.healer");
+    Character::ms_TextureErrorConfusingHP = decals->GetTexture("icons.confusion");
+    Character::ms_TextureErrorRanged = decals->GetTexture("icons.ranged");
+    Character::ms_TextureError = decals->GetTexture("entities.golden_apple");
 
-    Character::ms_TextureGlock = ImageHandler->LoadTexture("assets/images/weapons/Glock.png", true);
-    Character::ms_TextureShotgun = ImageHandler->LoadTexture("assets/images/weapons/Shotgun.png", true);
-    Character::ms_TextureBurst = ImageHandler->LoadTexture("assets/images/weapons/Burst.png", true);
-    Character::ms_TextureSniper = ImageHandler->LoadTexture("assets/images/weapons/Sniper.png", true);
-    Character::ms_TexturesMinigun[0] = ImageHandler->LoadTexture("assets/images/weapons/Minigun1.png", true);
-    Character::ms_TexturesMinigun[1] = ImageHandler->LoadTexture("assets/images/weapons/Minigun2.png", true);
-    Character::ms_TexturesMinigun[2] = ImageHandler->LoadTexture("assets/images/weapons/Minigun3.png", true);
-    Character::ms_TexturesMinigun[3] = ImageHandler->LoadTexture("assets/images/weapons/Minigun4.png", true);
+    Character::ms_TextureGlock = decals->GetTexture("weapons.glock");
+    Character::ms_TextureShotgun = decals->GetTexture("weapons.shotgun");
+    Character::ms_TextureBurst = decals->GetTexture("weapons.burst");
+    Character::ms_TextureSniper = decals->GetTexture("weapons.sniper");
+    Character::ms_TexturesMinigun[0] = decals->GetTexture("weapons.minigun1");
+    Character::ms_TexturesMinigun[1] = decals->GetTexture("weapons.minigun2");
+    Character::ms_TexturesMinigun[2] = decals->GetTexture("weapons.minigun3");
+    Character::ms_TexturesMinigun[3] = decals->GetTexture("weapons.minigun4");
+
     // Load sounds
     Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);
     Sound* FailReloadSound = SoundHandler->LoadSound("assets/sounds/FailReload.wav", true);
@@ -155,15 +153,15 @@ int main() {
     Drawing* Render = GameWindow->Render();
     AssetsManager* AssetsHandler = GameWindow->Assets();
     SoundManager* SoundHandler = AssetsHandler->SoundHandler();
-    ImageManager* ImageHandler = AssetsHandler->ImageHandler();
 
-    Texture* TextureResume = ImageHandler->LoadTexture("assets/images/interface/Resume.png", true);
-    Texture* TexturePlay = ImageHandler->LoadTexture("assets/images/interface/PlayButton.png", true);
-    Texture* TextureBack = ImageHandler->LoadTexture("assets/images/interface/Back.png", true);
-    Texture* TextureExit = ImageHandler->LoadTexture("assets/images/interface/Exit.png", true);
-    Texture* TextureSettings = ImageHandler->LoadTexture("assets/images/interface/Settings.png", true);
-    Texture* MenuTexture = ImageHandler->LoadTexture("assets/images/interface/Menu.png", true);
-    Texture* Vignette = ImageHandler->LoadTexture("assets/images/backgrounds/vignette.png", true);
+    Decals* decals = Decals::Get();
+    Texture* TextureResume = decals->GetTexture("interface.resume");
+    Texture* TexturePlay = decals->GetTexture("interface.playbutton");
+    Texture* TextureBack = decals->GetTexture("interface.back");
+    Texture* TextureExit = decals->GetTexture("interface.exit");
+    Texture* TextureSettings = decals->GetTexture("interface.settings");
+    Texture* MenuTexture = decals->GetTexture("interface.menu");
+    Texture* Vignette = decals->GetTexture("backgrounds.vignette");
     Vignette->SetAlphaMod(200);
 
     Sound* LowSound = SoundHandler->LoadSound("assets/sounds/Low.wav", true);
@@ -173,7 +171,7 @@ int main() {
     Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
     Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
 
-    Decals::Get()->GetSound("quit")->PlaySound();
+    // Decals::Get()->GetSound("quit")->PlaySound();
 
     MainMenu mainMenu(GameWindow);
     mainMenu.Show();

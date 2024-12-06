@@ -5,9 +5,9 @@
 #pragma once
 
 #include <SDL_ttf.h>
-#include "ImageManager.h"
 #include <vector>
 #include <string>
+#include "../client/Decals.h"
 
 std::string FString(const char* format, ...);
 std::string ErasePrefix(std::string string, const std::string& prefix);
@@ -15,17 +15,15 @@ std::string EraseSuffix(std::string string, const std::string& suffix);
 
 class TextManager {
 private:
-    ImageManager* m_ImageHandler;
     TTF_Font* m_MainFont;
 
     std::vector<TTF_Font*> m_Fonts;
 
 public:
-    explicit TextManager(ImageManager* image_handler);
+    explicit TextManager();
     ~TextManager();
 
     // Getting
-    [[nodiscard]] ImageManager* ImageHandler() const { return m_ImageHandler; }
     [[nodiscard]] TTF_Font* GetFont(int font_index) const { return m_Fonts[font_index]; }
     [[nodiscard]] TTF_Font* GetMainFont() const { return m_MainFont; }
 

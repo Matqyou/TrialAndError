@@ -44,8 +44,7 @@ std::string EraseSuffix(std::string string, const std::string& suffix) {
     return string;
 }
 
-TextManager::TextManager(ImageManager* image_handler) {
-    m_ImageHandler = image_handler;
+TextManager::TextManager() {
     m_MainFont = LoadFont("assets/fonts/Minecraft.ttf", 16);
 }
 
@@ -55,10 +54,11 @@ TextManager::~TextManager() {
 }
 
 Texture* TextManager::Render(TTF_Font* font, const char* text, SDL_Color color, bool auto_cleanup) {
-    SDL_Surface* TempSurface = TTF_RenderText_Blended(font, text, color);
-    Texture* NewTexture = m_ImageHandler->TextureFromSurface(TempSurface, auto_cleanup);
-    SDL_FreeSurface(TempSurface);
-    return NewTexture;
+    return nullptr; // todo: fix text rendering
+    // SDL_Surface* TempSurface = TTF_RenderText_Blended(font, text, color);
+    // Texture* NewTexture = m_ImageHandler->TextureFromSurface(TempSurface, auto_cleanup);
+    // SDL_FreeSurface(TempSurface);
+    // return NewTexture;
 }
 
 TTF_Font* TextManager::LoadFont(const char* filepath, int ptsize) {

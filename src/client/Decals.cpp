@@ -13,7 +13,7 @@
 
 Decals* Decals::Instance = nullptr;
 
-Texture2::Texture2(std::string key, SDL_Texture* sdl_texture, std::string load_extension)
+Texture::Texture(std::string key, SDL_Texture* sdl_texture, std::string load_extension)
 : m_Key(std::move(key)),
   m_LoadExtension(std::move(load_extension)) {
     m_SDLTexture = sdl_texture;
@@ -26,20 +26,20 @@ Texture2::Texture2(std::string key, SDL_Texture* sdl_texture, std::string load_e
                      &m_Information.h);
 }
 
-Texture2::~Texture2() {
+Texture::~Texture() {
     if (m_SDLTexture)
         SDL_DestroyTexture(m_SDLTexture);
 }
 
-void Texture2::SetBlendMode(SDL_BlendMode blend_mode) {
+void Texture::SetBlendMode(SDL_BlendMode blend_mode) {
     SDL_SetTextureBlendMode(m_SDLTexture, blend_mode);
 }
 
-void Texture2::SetColorMod(Uint8 r, Uint8 g, Uint8 b) {
+void Texture::SetColorMod(Uint8 r, Uint8 g, Uint8 b) {
     SDL_SetTextureColorMod(m_SDLTexture, r, g, b);
 }
 
-void Texture2::SetAlphaMod(int alpha) {
+void Texture::SetAlphaMod(int alpha) {
     SDL_SetTextureAlphaMod(m_SDLTexture, alpha);
 }
 
@@ -136,7 +136,7 @@ Decals::Decals(SDL_Renderer* renderer, bool sounds_enabled)
         SDL_FreeSurface(TempSurface);
 
         // Add it to all the textures
-        auto new_texture = new Texture2(key, NewSDLTexture, extension);
+        auto new_texture = new Texture(key, NewSDLTexture, extension);
         m_Textures[key] = new_texture;
     }
     std::cout << FString("Loaded %i textures", m_Textures.size()) << std::endl;
@@ -209,7 +209,7 @@ Decals* Decals::Get()
     return Instance;
 }
 
-Texture2* Decals::GetTexture(const std::string& texture_key) {
+Texture* Decals::GetTexture(const std::string& texture_key) {
     auto it = m_Textures.find(texture_key);
     if (it != m_Textures.end())
         return it->second;

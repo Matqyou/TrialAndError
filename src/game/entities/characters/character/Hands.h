@@ -5,7 +5,7 @@
 #pragma once
 
 #include "../../../../technical stuff/Colors.h"
-#include "../../../../technical stuff/ImageManager.h"
+#include "../../../../client/Decals.h"
 
 class Character;
 class Hands {

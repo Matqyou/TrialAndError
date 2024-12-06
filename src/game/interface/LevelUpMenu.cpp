@@ -10,7 +10,7 @@ LevelUpMenu::LevelUpMenu(GameWorld *gameWorld, Player *Player)
     m_Player = Player;
     m_GameWindow = m_GameWorld->GameWindow();
     AssetsManager *assetsHandler = m_GameWindow->Assets();
-    ImageManager *imageHandler = assetsHandler->ImageHandler();
+    Decals* decals = Decals::Get();
 
     m_Font = TTF_OpenFont("assets/fonts/Minecraft.ttf", 24); // Adjust the path and size as needed
     if (!m_Font)
@@ -19,16 +19,16 @@ LevelUpMenu::LevelUpMenu(GameWorld *gameWorld, Player *Player)
         std::cout << "Failed to load font: " << TTF_GetError() << std::endl;
     }
 
-    m_TextureAllStats = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/AllStats.jpg", true);
-    m_TextureBombs = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/Bombs.jpg", true);
-    m_TextureBossDamage = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/BossDamage.jpg", true);
-    m_TextureDoubleDamage = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/DoubleDamage.jpg", true);
-    m_TextureExplosiveAmmo = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/ExplosiveAmmo.jpg", true);
-    m_TextureSpeed = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/Speed.jpg", true);
-    m_TextureSpiky = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/Spiky.jpg", true);
-    m_TextureHealth = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/Health.jpg", true);
-    m_TextureInfiniteGlockAmmo = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/InfiniteGlockAmmo.jpg", true);
-    m_TextureErrorOutline = imageHandler->LoadTexture("assets/images/interface/PermanentErrors/RegularOutlineFull.png", true);
+    m_TextureAllStats = decals->GetTexture("interface.permanenterrors.allstats");
+    m_TextureBombs = decals->GetTexture("interface.permanenterrors.bombs");
+    m_TextureBossDamage = decals->GetTexture("interface.permanenterrors.bossdamage");
+    m_TextureDoubleDamage = decals->GetTexture("interface.permanenterrors.doubledamage");
+    m_TextureExplosiveAmmo = decals->GetTexture("interface.permanenterrors.explosiveammo");
+    m_TextureSpeed = decals->GetTexture("interface.permanenterrors.speed");
+    m_TextureSpiky = decals->GetTexture("interface.permanenterrors.spiky");
+    m_TextureHealth = decals->GetTexture("interface.permanenterrors.health");
+    m_TextureInfiniteGlockAmmo = decals->GetTexture("interface.permanenterrors.infiniteglockammo");
+    m_TextureErrorOutline = decals->GetTexture("interface.permanenterrors.regularoutlinefull");
 
     m_ErrorIconRect = {0, 0, int(m_GameWindow->GetWidth2() * 0.4), int(m_GameWindow->GetHeight2() * 0.4)};
     m_ErrorOutlineRect = {0, 0, int(m_GameWindow->GetWidth2() / 2.2), int(m_GameWindow->GetHeight2() / 0.6)};

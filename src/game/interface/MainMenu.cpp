@@ -6,11 +6,11 @@ MainMenu::MainMenu(GameReference *gameWindow)
     : m_GameWindow(gameWindow)
 {
     AssetsManager *assetsHandler = m_GameWindow->Assets();
-    ImageManager *imageHandler = assetsHandler->ImageHandler();
+    Decals* decals = Decals::Get();
 
-    m_MenuTexture = imageHandler->LoadTexture("assets/images/interface/Menu.png", true);
-    m_TexturePlay = imageHandler->LoadTexture("assets/images/interface/PlayButton.png", true);
-    m_TextureExit = imageHandler->LoadTexture("assets/images/interface/Exit.png", true);
+    m_MenuTexture = decals->GetTexture("interface.menu");
+    m_TexturePlay = decals->GetTexture("interface.playbutton");
+    m_TextureExit = decals->GetTexture("interface.exit");
 
     m_PlayButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) - 40, 360, 80};
     m_ExitButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) + 121, 360, 80};
@@ -53,7 +53,7 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
         m_GameWindow->Deinitialize(true); // close everything except sound
         while (Mix_Playing(-1)) {} // wait until last sound is done playing
         delete m_GameWindow;
-        break;
+        exit(0);
     case SDL_MOUSEBUTTONDOWN:
         SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
         if (event.button.button == SDL_BUTTON_LEFT)

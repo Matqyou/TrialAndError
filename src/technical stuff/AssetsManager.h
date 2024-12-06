@@ -4,13 +4,11 @@
 
 #pragma once
 
-#include "ImageManager.h"
 #include "SoundManager.h"
 #include "TextManager.h"
 
 class AssetsManager {
 private:
-    ImageManager* m_ImageHandler;
     SoundManager* m_SoundHandler;
     TextManager* m_TextHandler;
 
@@ -22,11 +20,11 @@ public:
     ~AssetsManager();
 
     // Getting
-    [[nodiscard]] ImageManager* ImageHandler() const { return m_ImageHandler; }
     [[nodiscard]] SoundManager* SoundHandler() const { return m_SoundHandler; }
     [[nodiscard]] TextManager* TextHandler() const { return m_TextHandler; }
 
     // Manipulating
     void DeinitializeImages();
     void DeinitializeSounds();
+
 };

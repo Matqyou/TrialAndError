@@ -50,7 +50,7 @@ protected:
     friend class Projectile; //
     friend class Hands;
     Player* m_Player;
-    Texture2* m_Texture;
+    Texture* m_Texture;
     TextSurface* m_CoordinatePlate;
     TextSurface* m_AmmoCount;
     TextSurface* m_HealthInt;

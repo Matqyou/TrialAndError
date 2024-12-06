@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "ImageManager.h"
 #include <SDL_image.h>
+#include "../client/Decals.h"
 
 class GameReference;
 class GameWorld;

@@ -6,11 +6,11 @@ PauseMenu::PauseMenu(GameWorld *GameWorld, MainMenu *mainMenu)
     : m_GameWorld(GameWorld), m_MainMenu(mainMenu)
 {
     AssetsManager *assetsHandler = m_GameWorld->GameWindow()->Assets();
-    ImageManager *imageHandler = assetsHandler->ImageHandler();
+    Decals* decals = Decals::Get();
 
     m_GameWindow = m_GameWorld->GameWindow();
-    m_TextureResume = imageHandler->LoadTexture("assets/images/interface/Resume.png", true);
-    m_TextureBack = imageHandler->LoadTexture("assets/images/interface/Back.png", true);
+    m_TextureResume = decals->GetTexture("interface.resume");
+    m_TextureBack = decals->GetTexture("interface.back");
     m_Paused = false;
     m_ResumeButtonRect = {int(m_GameWindow->GetWidth2()) - 100, int(m_GameWindow->GetHeight2()) - 150, 200, 70};
     m_BackToMenuButtonRect = {int(m_GameWindow->GetWidth2()) - 100, int(m_GameWindow->GetHeight2()) + 50, 200, 70};

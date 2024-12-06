@@ -39,8 +39,6 @@ set(PROJECT_FILES
         "src/game/GameWorld.h"
         "src/game/entities/Projectile.cpp"
         "src/game/entities/Projectile.h"
-        "src/technical stuff/ImageManager.cpp"
-        "src/technical stuff/ImageManager.h"
         "src/technical stuff/Drawing.cpp"
         "src/technical stuff/Drawing.h"
         "src/technical stuff/SoundManager.cpp"

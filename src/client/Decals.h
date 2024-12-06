@@ -13,23 +13,23 @@
 #include "SDL_mixer.h"
 
 
-struct TextureInfo2 {
+struct TextureInfo {
     Uint32 format;
     int access, w, h;
 };
 
 class Decals;
-class Texture2 {
+class Texture {
 private:
     friend class Decals;
     const std::string m_Key;
     SDL_Texture * m_SDLTexture;
-    TextureInfo2 m_Information;
+    TextureInfo m_Information;
     std::string m_LoadExtension;
 
 public:
-    explicit Texture2(std::string key = "NaN", SDL_Texture* sdl_texture = nullptr, std::string load_extension = "NaN");
-    ~Texture2();
+    explicit Texture(std::string key = "NaN", SDL_Texture* sdl_texture = nullptr, std::string load_extension = "NaN");
+    ~Texture();
 
     // Getting
     [[nodiscard]] SDL_Texture* SDLTexture() const { return m_SDLTexture; }
@@ -66,10 +66,10 @@ public:
 class Decals {
     static Decals* Instance;
     bool m_SoundsEnabled;
-    std::unordered_map<std::string, Texture2*> m_Textures;
+    std::unordered_map<std::string, Texture*> m_Textures;
     std::unordered_map<std::string, Sound2*> m_Sounds;
     // std::vector<Texture2> m_UsedTextures;
-    Texture2* m_InvalidTexture;
+    Texture* m_InvalidTexture;
 
 public:
     static void initialize(SDL_Renderer* renderer, bool sounds_enabled);
@@ -80,7 +80,7 @@ public:
     Decals& operator=(const Decals&) = delete;
 
     // Copying textures
-    Texture2* GetTexture(const std::string& texture_key);
+    Texture* GetTexture(const std::string& texture_key);
     Sound2* GetSound(const std::string& sound_key);
     bool SoundsEnabled() const { return m_SoundsEnabled; }
 
