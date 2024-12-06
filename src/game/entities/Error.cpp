@@ -15,13 +15,13 @@ LoadedTexture Error::sTextureErrorRanged("entities.ranged");
 LoadedTexture Error::sTextureErrorSlowDown("entities.clock");
 LoadedTexture Error::sTextureErrorDangerousRecoil("entities.golden_apple");
 LoadedSound Error::ms_PickupSounds[7] = {
-    LoadedSound(""),
-    LoadedSound(""),
-    LoadedSound(""),
-    LoadedSound(""),
-    LoadedSound(""),
-    LoadedSound(""),
-    LoadedSound(""),
+    LoadedSound("errorpickupsound"),
+    LoadedSound("errorpickupsound"),
+    LoadedSound("errorpickupsound"),
+    LoadedSound("errorpickupsound"),
+    LoadedSound("errorpickupsound"),
+    LoadedSound("errorpickupsound"),
+    LoadedSound("errorpickupsound"),
 };
 
 Error::Error(GameWorld* world, const Vec2d& start_pos, int typeID)

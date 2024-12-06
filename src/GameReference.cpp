@@ -104,7 +104,12 @@ bool GameReference::InitializeTTF() {
 bool GameReference::Initialize() {
     SDL_version Version;
     SDL_GetVersion(&Version);
-    std::cout << "Using SDL " << (int)Version.major << "." << (int)Version.minor << "." << (int)Version.patch << std::endl;
+    std::cout << FString("&8SDL %u.%u.%u", Version.major, Version.minor, Version.patch) << std::endl;
+
+    auto version = IMG_Linked_Version();
+    std::cout << FString("&8SDL Image %u.%u.%u", version->major, version->minor, version->patch) << std::endl;
+
+    std::cout << FString("&8---------------------------- &fInitializing &8----------------------------") << std::endl;
 
     if (!InitializeSDL() ||
         !InitializeMix() ||
@@ -182,6 +187,7 @@ bool GameReference::Initialize() {
 }
 
 void GameReference::Deinitialize(bool keep_sound) {
+    std::cout << FString("&8---------------------------- &fDeinitializing &8----------------------------") << std::endl;
     delete m_GameWorld;
     delete m_Controllers;
     Assets::deinitialize();

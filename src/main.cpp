@@ -27,9 +27,11 @@
 #include "game/entities/Error.h"
 #include "game/interface/MainMenu.h"
 #include "game/interface/PauseMenu.h"
+#include "technical stuff/TextManager.h"
 #include <vector>
 #include <iostream>
 #include <random>
+#include <cstdlib>
 
 GameReference *GameWindow;
 
@@ -41,8 +43,6 @@ bool Initialize() {
         return false;
 
     SDL_ShowCursor(0);
-
-//    Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
 
     // Temp ammo spawn, had to generate random and set the value for each one, also changed it to also sending an int
     //  to the Crate constructor, so its easier to work with and i dont need to have acess to DropTypes, which i do, but no,
@@ -58,6 +58,8 @@ int main() {
     FreeConsole();
 #endif
 #endif
+
+    system("");
     if (!Initialize()) {
         std::printf("Terminating..");
         exit(1);
