@@ -12,7 +12,8 @@
 #include "../technical stuff/TextManager.h"
 
 Assets* Assets::Instance = nullptr;
-std::vector<RegisteredSound*> Assets::m_RegisterSounds = {};
+std::vector<LoadedTexture*> Assets::m_RegisterTextures = {};
+std::vector<LoadedSound*> Assets::m_RegisterSounds = {};
 
 Texture::Texture(std::string key, SDL_Texture* sdl_texture, std::string load_extension)
 : m_Key(std::move(key)),
@@ -176,7 +177,16 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
 
 
     // LINK REQUIRED DEPENDENCIES
-    // Sound
+    // Textures
+    for (auto required_texture : m_RegisterTextures) {
+        const std::string& texture_key = required_texture->Key();
+
+        required_texture->m_Texture = GetTexture(texture_key);
+    }
+    std::cout << FString("Linked %zu textures", m_RegisterTextures.size()) << std::endl;
+    m_RegisterTextures.clear();
+
+    // Sounds
     for (auto required_sound : m_RegisterSounds) {
         const std::string& sound_key = required_sound->Key();
 
@@ -252,14 +262,27 @@ Texture* Assets::CreateTexture(Uint32 format, int access, int w, int h) {
     return new Texture("CreateTexture", NewSDLTexture, "NaN");
 }
 
-void Assets::RequireSound(RegisteredSound* register_sound) {
+void Assets::RequireTexture(LoadedTexture* register_texture) {
+    m_RegisterTextures.push_back(register_texture);
+}
+
+void Assets::RequireSound(LoadedSound* register_sound) {
     m_RegisterSounds.push_back(register_sound);
 }
 
-RegisteredSound::RegisteredSound(std::string sound_key)
+LoadedTexture::LoadedTexture(std::string texture_key)
+    : m_Key(std::move(texture_key)) {
+    m_Texture = nullptr;
+
+    Assets::RequireTexture(this);
+    std::cout << FString("Created LoadedTexture(%s)", m_Key.c_str()) << std::endl;
+}
+
+
+LoadedSound::LoadedSound(std::string sound_key)
 : m_Key(std::move(sound_key)) {
     m_Sound = nullptr;
 
     Assets::RequireSound(this);
-    std::cout << FString("Created RegisteredSound(%s)") << std::endl;
+    std::cout << FString("Created LoadedSound(%s)", m_Key.c_str()) << std::endl;
 }

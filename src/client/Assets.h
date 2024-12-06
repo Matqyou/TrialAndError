@@ -64,7 +64,8 @@ public:
     void PlaySound();
 };
 
-class RegisteredSound;
+class LoadedTexture;
+class LoadedSound;
 class Assets {
     static Assets* Instance;
     SDL_Renderer* m_Renderer;
@@ -74,7 +75,8 @@ class Assets {
     // std::vector<Texture2> m_UsedTextures;
     Texture* m_InvalidTexture;
 
-    static std::vector<RegisteredSound*> m_RegisterSounds;
+    static std::vector<LoadedTexture*> m_RegisterTextures;
+    static std::vector<LoadedSound*> m_RegisterSounds;
 
 public:
     static void initialize(SDL_Renderer* renderer, bool sounds_enabled);
@@ -94,7 +96,8 @@ public:
     Texture* CreateTexture(Uint32 format, int access, int w, int h);
 
     // Manipulating
-    static void RequireSound(RegisteredSound* register_sound);
+    static void RequireTexture(LoadedTexture* register_texture);
+    static void RequireSound(LoadedSound* register_sound);
 
 private:
     Assets(SDL_Renderer* renderer, bool sounds_enabled);
@@ -102,14 +105,29 @@ private:
 
 };
 
-class RegisteredSound {
+class LoadedTexture {
+private:
+    friend class Assets;
+    std::string m_Key;
+    Texture* m_Texture;
+
+public:
+    explicit LoadedTexture(std::string texture_key);
+
+    // Getting
+    [[nodiscard]] const std::string& Key() const { return m_Key; }
+    [[nodiscard]] Texture* GetTexture() const { return m_Texture; }
+
+};
+
+class LoadedSound {
 private:
     friend class Assets;
     std::string m_Key;
     Sound* m_Sound;
 
 public:
-    explicit RegisteredSound(std::string sound_key);
+    explicit LoadedSound(std::string sound_key);
 
     // Getting
     [[nodiscard]] const std::string& Key() const { return m_Key; }

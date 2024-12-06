@@ -179,24 +179,6 @@ bool GameReference::Initialize() {
     Error::ms_TextureErrorRanged = decals->GetTexture("entities.ranged");
     Error::ms_TextureError = decals->GetTexture("entities.golden_apple");
 
-    Character::ms_TextureErrorInvincible = decals->GetTexture("icons.invincible");
-    Character::ms_TextureErrorSpiky = decals->GetTexture("icons.cactus");
-    Character::ms_TextureErrorSlowDown = decals->GetTexture("icons.clock");
-    Character::ms_TextureErrorDisorianted = decals->GetTexture("icons.disorianted");
-    Character::ms_TextureErrorHealersParadise = decals->GetTexture("icons.healer");
-    Character::ms_TextureErrorConfusingHP = decals->GetTexture("icons.confusion");
-    Character::ms_TextureErrorRanged = decals->GetTexture("icons.ranged");
-    Character::ms_TextureError = decals->GetTexture("entities.golden_apple");
-
-    Character::ms_TextureGlock = decals->GetTexture("weapons.glock");
-    Character::ms_TextureShotgun = decals->GetTexture("weapons.shotgun");
-    Character::ms_TextureBurst = decals->GetTexture("weapons.burst");
-    Character::ms_TextureSniper = decals->GetTexture("weapons.sniper");
-    Character::ms_TexturesMinigun[0] = decals->GetTexture("weapons.minigun1");
-    Character::ms_TexturesMinigun[1] = decals->GetTexture("weapons.minigun2");
-    Character::ms_TexturesMinigun[2] = decals->GetTexture("weapons.minigun3");
-    Character::ms_TexturesMinigun[3] = decals->GetTexture("weapons.minigun4");
-
     // Load sounds
     Sound* Basic_Death = decals->GetSound("basic_death");
     Sound* FailReloadSound = decals->GetSound("failreload");
@@ -224,13 +206,6 @@ bool GameReference::Initialize() {
     WeaponMinigun::ms_ShootSound = BurstShootSound;
     WeaponMinigun::ms_ClickSound = FailReloadSound;
     WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
-    Character::ms_DeathSound = Basic_Death;
-    Character::ms_HitSounds[0] = decals->GetSound("entities.character.hurt1");
-    Character::ms_HitSounds[1] = decals->GetSound("entities.character.hurt2");
-    Character::ms_HitSounds[2] = decals->GetSound("entities.character.hurt3");
-//    Character::ms_InvincibleHitSound = decals->GetSound("entities.character.invinciblehit");
-    Character::ms_AmmoPickupSound = decals->GetSound("entities.ammo.pick6");
-    Character::ms_ItemSwitchSound = decals->GetSound("weaponswitch");
     Crate::ms_BoxSound = decals->GetSound("boxhit");
     Crate::ms_HitSound = decals->GetSound("entities.character.hurt1");
 

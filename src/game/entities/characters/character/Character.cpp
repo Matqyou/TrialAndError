@@ -29,30 +29,40 @@ CharacterInput::CharacterInput() {
     m_LookingLength = 0.0;
 }
 
-Texture* Character::ms_TextureErrorDisorianted = nullptr;
-Texture* Character::ms_TextureErrorSpiky = nullptr;
-Texture* Character::ms_TextureErrorConfusingHP = nullptr;
-Texture* Character::ms_TextureErrorInvincible = nullptr;
-Texture* Character::ms_TextureErrorHealersParadise = nullptr;
-Texture* Character::ms_TextureErrorRanged = nullptr;
-Texture* Character::ms_TextureErrorSlowDown = nullptr;
-Texture* Character::ms_TextureErrorDangerousRecoil = nullptr;
-Texture* Character::ms_TextureError = nullptr;
-Texture* Character::ms_TextureGlock = nullptr;
-Texture* Character::ms_TextureShotgun = nullptr;
-Texture* Character::ms_TextureBurst = nullptr;
-Texture* Character::ms_TextureSniper = nullptr;
-Texture* Character::ms_TexturesMinigun[4] = { nullptr, nullptr, nullptr, nullptr };
+// Link textures
+LoadedTexture Character::sCharacterTexture("entities.items.shotgun");
+LoadedTexture Character::sTextureGlock("weapons.glock");
+LoadedTexture Character::sTextureShotgun("weapons.shotgun");
+LoadedTexture Character::sTextureBurst("weapons.burst");
+LoadedTexture Character::sTextureSniper("weapons.sniper");
+LoadedTexture Character::sTexturesMinigun[4] = {
+    LoadedTexture("weapons.minigun1"),
+    LoadedTexture("weapons.minigun2"),
+    LoadedTexture("weapons.minigun3"),
+    LoadedTexture("weapons.minigun4"),
+};
+LoadedTexture Character::sTextureErrorDisorianted("icons.disorianted");
+LoadedTexture Character::sTextureErrorSpiky("icons.cactus");
+LoadedTexture Character::sTextureErrorConfusingHP("icons.confusion");
+LoadedTexture Character::sTextureErrorInvincible("icons.invincible");
+LoadedTexture Character::sTextureErrorHealersParadise("icons.healer");
+LoadedTexture Character::sTextureErrorRanged("icons.ranged");
+LoadedTexture Character::sTextureErrorSlowDown("icons.clock");
+LoadedTexture Character::sTextureErrorDangerousRecoil("entities.golden_apple");
 
-//Texture *Character::ms_Texture = nullptr;
-Sound* Character::ms_HitSounds[3] = { nullptr, nullptr, nullptr };
-RegisteredSound Character::ms_InvincibleHitSound("entities.character.invinciblehit");
-Sound* Character::ms_DeathSound = nullptr;
-Sound* Character::ms_AmmoPickupSound = nullptr;
-Sound* Character::ms_ItemSwitchSound = nullptr;
+// Link sounds
+LoadedSound Character::sHitSounds[3]= {
+    LoadedSound("entities.character.hurt1"),
+    LoadedSound("entities.character.hurt2"),
+    LoadedSound("entities.character.hurt3")
+};
+LoadedSound Character::sInvincibleHitSound("entities.character.invinciblehit");
+LoadedSound Character::sDeathSound("basic_death");
+LoadedSound Character::sAmmoPickupSound("entities.ammo.pick6");
+LoadedSound Character::sItemSwitchSound("weaponswitch");
+
+// Other
 TextSurface* Character::ms_BotNamePlate = nullptr;
-// TODO: see if we can make a little system that tells us if the textures/sounds are unitialized
-
 const int Character::ms_DefaultControls[NUM_CONTROLS] = { SDL_SCANCODE_W,
                                                           SDL_SCANCODE_D,
                                                           SDL_SCANCODE_S,
@@ -78,8 +88,7 @@ Character::Character(GameWorld* world,
       m_Hook(this),
       m_HealthBar(world->GameWindow(), &m_HealthComponent, 75, 15, 2, 2),
       m_Input(),
-      m_LastInput(),
-      m_Texture(Assets::Get()->GetTexture("entities.fist")) {
+      m_LastInput() {
     m_Player = player;
     m_ColorHue = m_Player ? 60.0 - double(m_Player->GetIndex() * 30) : 0.0;
 
@@ -202,10 +211,10 @@ void Character::Damage(double damage, Entity* damager) {
         m_HealthComponent.ChangeHealthBy(-damage);
         m_HitTicks = 7;
 
-        Sound* HurtSound = ms_HitSounds[rand() % 3];
+        Sound* HurtSound = sHitSounds[rand() % 3].GetSound();
         HurtSound->PlaySound();
     } else {
-        ms_InvincibleHitSound.GetSound()->PlaySound();
+        sInvincibleHitSound.GetSound()->PlaySound();
     }
 
     if (damager != nullptr) {
@@ -382,7 +391,7 @@ void Character::DropWeapon() {
 }
 
 void Character::SwitchWeapon(WeaponType type) {
-    // m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_ItemSwitchSound);
+    // m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(sItemSwitchSound);
     // npcs are constantly swapping -_-
     if (!m_Weapons[type] ||
         m_CurrentWeapon == m_Weapons[type]) {
@@ -441,7 +450,7 @@ void Character::AmmoPickup(AmmoBox* ammo_box) {
     auto TakenAmmo = ammo_box->TakeAmmo(AmmoNeeded);
     m_Weapons[ReloadWeapon]->AddTrueAmmo(TakenAmmo);
     if (TakenAmmo > 0)
-        ms_AmmoPickupSound->PlaySound();
+        sAmmoPickupSound.GetSound()->PlaySound();
 
     if (m_CurrentWeapon == m_Weapons[ReloadWeapon])
         m_AmmoCount->FlagForUpdate();
@@ -485,7 +494,7 @@ void Character::EventDeath() {
     }
 
     m_Alive = false;
-    ms_DeathSound->PlaySound();
+    sDeathSound.GetSound()->PlaySound();
 }
 
 void Character::TickKeyboardControls() { // TODO: move to characterInput class
@@ -728,8 +737,8 @@ void Character::DrawErrorIcons() {
             DrawRectError.y += DrawErrorIsReversed.y; // Changes the y by the displacement when picked up
             double Percentage = float(m_IsReverseTimer) / 1500;
             SDL_Rect SourceRect = { 0, 0,
-                                    ms_TextureErrorDisorianted->GetWidth(),
-                                    ms_TextureErrorDisorianted->GetHeight() };
+                                    sTextureErrorDisorianted.GetTexture()->GetWidth(),
+                                    sTextureErrorDisorianted.GetTexture()->GetHeight() };
             int NewSourceH = int(SourceRect.h * Percentage);
             SourceRect.y = SourceRect.h - NewSourceH;
             SourceRect.h = NewSourceH;
@@ -739,7 +748,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(ms_TextureErrorDisorianted->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(sTextureErrorDisorianted.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorIsReversed.y; // Changes it back
             // Then i do that for EVERY SINGLE ERROR!!
         }
@@ -753,8 +762,8 @@ void Character::DrawErrorIcons() {
             DrawRectError.y += DrawErrorConfusingHP.y; // Changes the y by the displacement when picked up
             double Percentage = float(m_ConfusingHPTimer) / 1500;
             SDL_Rect SourceRect = { 0, 0,
-                                    ms_TextureErrorConfusingHP->GetWidth(),
-                                    ms_TextureErrorConfusingHP->GetHeight() };
+                                    sTextureErrorConfusingHP.GetTexture()->GetWidth(),
+                                    sTextureErrorConfusingHP.GetTexture()->GetHeight() };
             int NewSourceH = int(SourceRect.h * Percentage);
             SourceRect.y = SourceRect.h - NewSourceH;
             SourceRect.h = NewSourceH;
@@ -764,7 +773,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(ms_TextureErrorConfusingHP->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(sTextureErrorConfusingHP.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorConfusingHP.y;
         }
     }
@@ -777,8 +786,8 @@ void Character::DrawErrorIcons() {
             DrawRectError.y += DrawErrorInvincible.y;
             double Percentage = float(m_InvincibleTimer) / 1500;
             SDL_Rect SourceRect = { 0, 0,
-                                    ms_TextureErrorInvincible->GetWidth(),
-                                    ms_TextureErrorInvincible->GetHeight() };
+                                    sTextureErrorInvincible.GetTexture()->GetWidth(),
+                                    sTextureErrorInvincible.GetTexture()->GetHeight() };
             int NewSourceH = int(SourceRect.h * Percentage);
             SourceRect.y = SourceRect.h - NewSourceH;
             SourceRect.h = NewSourceH;
@@ -788,7 +797,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(ms_TextureErrorInvincible->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(sTextureErrorInvincible.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorInvincible.y;
         }
     }
@@ -802,8 +811,8 @@ void Character::DrawErrorIcons() {
             DrawRectError.y += DrawErrorSpiky.y;
             double Percentage = float(m_SpikyTimer) / 3000;
             SDL_Rect SourceRect = { 0, 0,
-                                    ms_TextureErrorSpiky->GetWidth(),
-                                    ms_TextureErrorSpiky->GetHeight() };
+                                    sTextureErrorSpiky.GetTexture()->GetWidth(),
+                                    sTextureErrorSpiky.GetTexture()->GetHeight() };
             int NewSourceH = int(SourceRect.h * Percentage);
             SourceRect.y = SourceRect.h - NewSourceH;
             SourceRect.h = NewSourceH;
@@ -813,7 +822,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(ms_TextureErrorSpiky->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(sTextureErrorSpiky.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorSpiky.y;
         }
     }
@@ -827,8 +836,8 @@ void Character::DrawErrorIcons() {
             DrawRectError.y += DrawErrorHealersParadise.y;
             double Percentage = float(m_HealersParadiseTimer) / 1500;
             SDL_Rect SourceRect = { 0, 0,
-                                    ms_TextureErrorHealersParadise->GetWidth(),
-                                    ms_TextureErrorHealersParadise->GetHeight() };
+                                    sTextureErrorHealersParadise.GetTexture()->GetWidth(),
+                                    sTextureErrorHealersParadise.GetTexture()->GetHeight() };
             int NewSourceH = int(SourceRect.h * Percentage);
             SourceRect.y = SourceRect.h - NewSourceH;
             SourceRect.h = NewSourceH;
@@ -838,7 +847,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(ms_TextureErrorHealersParadise->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(sTextureErrorHealersParadise.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorHealersParadise.y;
         }
     }
@@ -851,8 +860,8 @@ void Character::DrawErrorIcons() {
             DrawRectError.y += DrawErrorRanged.y;
             double Percentage = float(m_RangedTimer) / 3000;
             SDL_Rect SourceRect = { 0, 0,
-                                    ms_TextureErrorRanged->GetWidth(),
-                                    ms_TextureErrorRanged->GetHeight() };
+                                    sTextureErrorRanged.GetTexture()->GetWidth(),
+                                    sTextureErrorRanged.GetTexture()->GetHeight() };
             int NewSourceH = int(SourceRect.h * Percentage);
             SourceRect.y = SourceRect.h - NewSourceH;
             SourceRect.h = NewSourceH;
@@ -862,7 +871,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(ms_TextureErrorRanged->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(sTextureErrorRanged.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorRanged.y;
         }
     }
@@ -875,8 +884,8 @@ void Character::DrawErrorIcons() {
             DrawRectError.y += DrawErrorDangerousRecoil.y;
             double Percentage = float(m_DangerousRecoilTimer) / 3000;
             SDL_Rect SourceRect = { 0, 0,
-                                    ms_TextureError->GetWidth(),
-                                    ms_TextureError->GetHeight() };
+                                    sTextureErrorDangerousRecoil.GetTexture()->GetWidth(),
+                                    sTextureErrorDangerousRecoil.GetTexture()->GetHeight() };
             int NewSourceH = int(SourceRect.h * Percentage);
             SourceRect.y = SourceRect.h - NewSourceH;
             SourceRect.h = NewSourceH;
@@ -886,7 +895,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(ms_TextureError->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(sTextureErrorDangerousRecoil.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorDangerousRecoil.y;
         }
     }
@@ -899,8 +908,8 @@ void Character::DrawErrorIcons() {
             DrawRectError.y += DrawErrorIsSlow.y;
             double Percentage = float(m_IsSlowTimer) / 1500;
             SDL_Rect SourceRect = { 0, 0,
-                                    ms_TextureErrorSlowDown->GetWidth(),
-                                    ms_TextureErrorSlowDown->GetHeight() };
+                                    sTextureErrorSlowDown.GetTexture()->GetWidth(),
+                                    sTextureErrorSlowDown.GetTexture()->GetHeight() };
             int NewSourceH = int(SourceRect.h * Percentage);
             SourceRect.y = SourceRect.h - NewSourceH;
             SourceRect.h = NewSourceH;
@@ -910,7 +919,7 @@ void Character::DrawErrorIcons() {
             int NewDrawH = int(DrawRect.h * Percentage);
             DrawRect.y += DrawRect.h - NewDrawH;
             DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(ms_TextureErrorSlowDown->SDLTexture(), &SourceRect, DrawRect);
+            Render->RenderTextureCamera(sTextureErrorSlowDown.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
             DrawRectError.y -= DrawErrorIsSlow.y;
         }
     }
@@ -930,11 +939,11 @@ void Character::DrawCharacter() {
     // Render->RenderTextureFCamera(ms_Texture->SDLTexture(), nullptr,DrawRect);
 
 //    ms_Texture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
-    m_Texture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
+    sCharacterTexture.GetTexture()->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
 
     double Angle = m_Core.Vel.Atan2() / M_PI * 180.0;
     SDL_RendererFlip flip = Angle > 90 || Angle < -90 ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
-    Render->RenderTextureExFCamera(m_Texture->SDLTexture(), nullptr, DrawRect, Angle, nullptr, flip);
+    Render->RenderTextureExFCamera(sCharacterTexture.GetTexture()->SDLTexture(), nullptr, DrawRect, Angle, nullptr, flip);
 }
 
 void Character::DrawHook() {
@@ -1015,24 +1024,24 @@ void Character::DrawHands() {
         Texture* WeaponTexture;
         switch (m_CurrentWeapon->WepType()) {
             case WEAPON_GLOCK: {
-                WeaponTexture = ms_TextureGlock;
+                WeaponTexture = sTextureGlock.GetTexture();
             }
                 break;
             case WEAPON_BURST: {
-                WeaponTexture = ms_TextureBurst;
+                WeaponTexture = sTextureBurst.GetTexture();
             }
                 break;
             case WEAPON_SHOTGUN: {
-                WeaponTexture = ms_TextureShotgun;
+                WeaponTexture = sTextureShotgun.GetTexture();
             }
                 break;
             case WEAPON_SNIPER: {
-                WeaponTexture = ms_TextureSniper;
+                WeaponTexture = sTextureSniper.GetTexture();
             }
                 break;
             case WEAPON_MINIGUN: {
                 int Phase = int(std::fmod(((WeaponMinigun*)m_Weapons[WEAPON_MINIGUN])->Rotation(), 100.0) / 25.0);
-                WeaponTexture = ms_TexturesMinigun[Phase];
+                WeaponTexture = sTexturesMinigun[Phase].GetTexture();
             }
                 break;
         }

@@ -50,7 +50,6 @@ protected:
     friend class Projectile; //
     friend class Hands;
     Player* m_Player;
-    Texture* m_Texture;
     TextSurface* m_CoordinatePlate;
     TextSurface* m_AmmoCount;
     TextSurface* m_HealthInt;
@@ -114,27 +113,25 @@ protected:
     void DrawErrorName();
 
 public:
-    static Texture* ms_Texture;
-    static Texture* ms_TextureGlock;
-    static Texture* ms_TextureShotgun;
-    static Texture* ms_TextureBurst;
-    static Texture* ms_TextureSniper;
-    static Texture* ms_TexturesMinigun[4];
-    static Texture* ms_TextureErrorDisorianted;
-    static Texture* ms_TextureErrorSpiky;
-    static Texture* ms_TextureErrorConfusingHP;
-    static Texture* ms_TextureErrorInvincible;
-    static Texture* ms_TextureErrorHealersParadise;
-    static Texture* ms_TextureErrorRanged;
-    static Texture* ms_TextureErrorSlowDown;
-    static Texture* ms_TextureErrorDangerousRecoil;
-    static Texture* ms_TextureError;
-    static Sound* ms_HitSounds[3];
-//    static Sound* ms_InvincibleHitSound;
-    static RegisteredSound ms_InvincibleHitSound;
-    static Sound* ms_DeathSound;
-    static Sound* ms_AmmoPickupSound;
-    static Sound* ms_ItemSwitchSound;
+    static LoadedTexture sCharacterTexture;
+    static LoadedTexture sTextureGlock;
+    static LoadedTexture sTextureShotgun;
+    static LoadedTexture sTextureBurst;
+    static LoadedTexture sTextureSniper;
+    static LoadedTexture sTexturesMinigun[4];
+    static LoadedTexture sTextureErrorDisorianted;
+    static LoadedTexture sTextureErrorSpiky;
+    static LoadedTexture sTextureErrorConfusingHP;
+    static LoadedTexture sTextureErrorInvincible;
+    static LoadedTexture sTextureErrorHealersParadise;
+    static LoadedTexture sTextureErrorRanged;
+    static LoadedTexture sTextureErrorSlowDown;
+    static LoadedTexture sTextureErrorDangerousRecoil;
+    static LoadedSound sHitSounds[3];
+    static LoadedSound sInvincibleHitSound;
+    static LoadedSound sDeathSound;
+    static LoadedSound sAmmoPickupSound;
+    static LoadedSound sItemSwitchSound;
     static TextSurface* ms_BotNamePlate;
     TextSurface* m_ErrorText;
 
