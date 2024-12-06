@@ -142,12 +142,11 @@ bool GameReference::Initialize() {
     if (!m_Timer) m_Timer = new Clock(60);
     if (!m_Random) m_Random = new Randomizer();
     if (!m_Draw) m_Draw = new Drawing(this);
-    if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager(m_Renderer, m_InitializedAudio);
+    if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager();
 
     m_GameWorld = new GameWorld(this, 50, 30);
     m_Controllers = new GameControllers();
 
-    SoundManager* SoundHandler = m_AssetsHandler->SoundHandler();
     Assets* decals = Assets::Get();
 
     Hands::ms_FistTexture = decals->GetTexture("entities.fist");
@@ -199,15 +198,15 @@ bool GameReference::Initialize() {
     Character::ms_TexturesMinigun[3] = decals->GetTexture("weapons.minigun4");
 
     // Load sounds
-    Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);
-    Sound* FailReloadSound = SoundHandler->LoadSound("assets/sounds/FailReload.wav", true);
-    Sound* GlockShootSound = SoundHandler->LoadSound("assets/sounds/GlockShoot.wav", true);
+    Sound* Basic_Death = decals->GetSound("basic_death");
+    Sound* FailReloadSound = decals->GetSound("failreload");
+    Sound* GlockShootSound = decals->GetSound("glockshoot");
     GlockShootSound->SetVolume(64); // max 128
-    Sound* GlockClickSound = SoundHandler->LoadSound("assets/sounds/GunClick.wav", true);
+    Sound* GlockClickSound = decals->GetSound("gunclick");
     GlockClickSound->SetVolume(32); // max 128
-    Sound* ShotgunShootSound = SoundHandler->LoadSound("assets/sounds/ShotgunShoot.wav", true);
-    Sound* BurstShootSound = SoundHandler->LoadSound("assets/sounds/ShootBurst.wav", true);
-    Sound* ShotgunReloadSound = SoundHandler->LoadSound("assets/sounds/ShotgunReload.wav", true);
+    Sound* ShotgunShootSound = decals->GetSound("shotgunshoot");
+    Sound* BurstShootSound = decals->GetSound("shootburst");
+    Sound* ShotgunReloadSound = decals->GetSound("shotgunreload");
 
     WeaponGlock::ms_ShootSound = GlockShootSound;
     WeaponGlock::ms_ClickSound = FailReloadSound;
@@ -226,14 +225,14 @@ bool GameReference::Initialize() {
     WeaponMinigun::ms_ClickSound = FailReloadSound;
     WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
     Character::ms_DeathSound = Basic_Death;
-    Character::ms_HitSounds[0] = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
-    Character::ms_HitSounds[1] = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt2.wav", true);
-    Character::ms_HitSounds[2] = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt3.wav", true);
-    Character::ms_InvincibleHitSound = SoundHandler->LoadSound("assets/sounds/entities/character/InvincibleHit.wav", true);
-    Character::ms_AmmoPickupSound = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick6.wav", true);
-    Character::ms_ItemSwitchSound = SoundHandler->LoadSound("assets/sounds/WeaponSwitch.wav", true);
-    Crate::ms_BoxSound = SoundHandler->LoadSound("assets/sounds/BoxHit.wav", true);
-    Crate::ms_HitSound = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
+    Character::ms_HitSounds[0] = decals->GetSound("entities.character.hurt1");
+    Character::ms_HitSounds[1] = decals->GetSound("entities.character.hurt2");
+    Character::ms_HitSounds[2] = decals->GetSound("entities.character.hurt3");
+    Character::ms_InvincibleHitSound = decals->GetSound("entities.character.invinciblehit");
+    Character::ms_AmmoPickupSound = decals->GetSound("entities.ammo.pick6");
+    Character::ms_ItemSwitchSound = decals->GetSound("weaponswitch");
+    Crate::ms_BoxSound = decals->GetSound("boxhit");
+    Crate::ms_HitSound = decals->GetSound("entities.character.hurt1");
 
     m_Draw->SetWorld(m_GameWorld);
     Character::ms_BotNamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
@@ -297,8 +296,6 @@ void GameReference::Deinitialize(bool keep_sound) {
     }
 
     if (!keep_sound) { // TODO: Check this out -_- looks very sus
-        m_AssetsHandler->DeinitializeSounds();
-
         if (m_InitializedAudio) {
             m_InitializedAudio = false;
             Mix_CloseAudio();

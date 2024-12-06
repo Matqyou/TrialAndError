@@ -29,9 +29,8 @@ void PauseMenu::Show()
 
 void PauseMenu::HandleEvent(const SDL_Event &event)
 {
-    SoundManager *soundHandler = m_GameWindow->Assetz()->SoundHandler();
-    Sound *lowUISound = soundHandler->LoadSound("assets/sounds/LowUI.wav", true);
-    Sound *midUISound = soundHandler->LoadSound("assets/sounds/MidUI.wav", true);
+    Sound *lowUISound = Assets::Get()->GetSound("lowui");
+    Sound *midUISound = Assets::Get()->GetSound("midui");
 
     switch (event.type)
     {
@@ -49,14 +48,14 @@ void PauseMenu::HandleEvent(const SDL_Event &event)
             if (x >= m_ResumeButtonRect.x && x < m_ResumeButtonRect.x + m_ResumeButtonRect.w &&
                 y >= m_ResumeButtonRect.y && y < m_ResumeButtonRect.y + m_ResumeButtonRect.h)
             {
-                soundHandler->PlaySound(lowUISound);
+                lowUISound->PlaySound();
                 m_Paused = false;
                 m_GameWorld->SetPaused(false);
             }
             else if (x >= m_BackToMenuButtonRect.x && x < m_BackToMenuButtonRect.x + m_BackToMenuButtonRect.w &&
                      y >= m_BackToMenuButtonRect.y && y < m_BackToMenuButtonRect.y + m_BackToMenuButtonRect.h)
             {
-                soundHandler->PlaySound(midUISound);
+                midUISound->PlaySound();
                 m_GameWorld->SetPaused(true);
                 m_Paused = false;
                 m_MainMenu->Show(); // Open the main menu
@@ -98,7 +97,7 @@ void PauseMenu::HandleEvent(const SDL_Event &event)
         if (ScancodeKey == SDL_SCANCODE_ESCAPE)
         {
             std::cout << "Escape key pressed" << std::endl;
-            soundHandler->PlaySound(lowUISound);
+            lowUISound->PlaySound();
             m_Paused = false;
             m_GameWorld->SetPaused(false);
            

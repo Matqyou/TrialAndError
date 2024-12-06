@@ -118,9 +118,9 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed,
 
 void ProjectileWeapon::Reload() {
     if (m_TrueAmmo != 0) {
-        m_Parent->World()->GameWindow()->Assetz()->SoundHandler()->PlaySound(ms_ReloadSound);
+        ms_ReloadSound->PlaySound();
     } else {
-        m_Parent->World()->GameWindow()->Assetz()->SoundHandler()->PlaySound(ms_NoAmmo);
+        ms_NoAmmo->PlaySound();
     }
     unsigned int AmmoNeeded = m_AmmoCapacity - m_Ammo;
     if (m_TrueAmmo >= AmmoNeeded) {

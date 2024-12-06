@@ -46,7 +46,6 @@ void WeaponMinigun::Tick() {
     if (!m_Parent) return;
     GameWorld* World = m_Parent->World();
     auto& ShooterCore = m_Parent->GetDirectionalCore();
-    SoundManager* SoundHandler = World->GameWindow()->Assetz()->SoundHandler();
     auto CurrentTick = World->GetTick();
     if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere
         m_FireRate += m_RateAcceleration;
@@ -57,7 +56,7 @@ void WeaponMinigun::Tick() {
             if (m_Ammo) {
                 m_Ammo--;
                 m_LastShotAt = CurrentTick;
-                SoundHandler->PlaySound(ms_ShootSound);
+                ms_ShootSound->PlaySound();
 
                 double Angle = ShooterCore.Direction.Atan2() + GenerateSpreadAngle();
                 Vec2d ProjectileVelocity = AngleVec2d(Angle) * m_ProjectileSpeed;
@@ -71,7 +70,7 @@ void WeaponMinigun::Tick() {
                 Vec2d Recoil = ShooterCore.Direction * -m_RecoilForce;
                 m_Parent->Accelerate(Recoil);
             } else {
-                SoundHandler->PlaySound(ms_ClickSound);
+                ms_ClickSound->PlaySound();
             }
         }
     } else {

@@ -41,8 +41,6 @@ set(PROJECT_FILES
         "src/game/entities/Projectile.h"
         "src/technical stuff/Drawing.cpp"
         "src/technical stuff/Drawing.h"
-        "src/technical stuff/SoundManager.cpp"
-        "src/technical stuff/SoundManager.h"
         "src/game/weapons/projectile/ProjectileWeapon.cpp"
         "src/game/weapons/projectile/ProjectileWeapon.h"
         "src/game/weapons/projectile/WeaponGlock.cpp"

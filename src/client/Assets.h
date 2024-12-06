@@ -5,8 +5,8 @@
 #pragma once
 
 #include <iostream>
-#include <memory> // For std::unique_ptr
-#include <mutex>  // For std::call_once and std::once_flag
+#include <memory>
+#include <mutex>
 #include <vector>
 #include <unordered_map>
 #include "SDL_image.h"
@@ -45,7 +45,7 @@ public:
     void SetAlphaMod(int alpha);
 };
 
-class Sound2 {
+class Sound {
 private:
     friend class Assets;
     const std::string m_Key;
@@ -53,8 +53,8 @@ private:
     std::string m_LoadExtension;
 
 public:
-    explicit Sound2(std::string key = "NaN", Mix_Chunk* mix_chunk = nullptr, std::string load_extension = "NaN");
-    ~Sound2();
+    explicit Sound(std::string key = "NaN", Mix_Chunk* mix_chunk = nullptr, std::string load_extension = "NaN");
+    ~Sound();
 
     // Getting
     [[nodiscard]] Mix_Chunk* MixChunk() const { return m_MixChunk; }
@@ -69,7 +69,7 @@ class Assets {
     SDL_Renderer* m_Renderer;
     bool m_SoundsEnabled;
     std::unordered_map<std::string, Texture*> m_Textures;
-    std::unordered_map<std::string, Sound2*> m_Sounds;
+    std::unordered_map<std::string, Sound*> m_Sounds;
     // std::vector<Texture2> m_UsedTextures;
     Texture* m_InvalidTexture;
 
@@ -83,7 +83,7 @@ public:
 
     // Getting
     Texture* GetTexture(const std::string& texture_key);
-    Sound2* GetSound(const std::string& sound_key);
+    Sound* GetSound(const std::string& sound_key);
     bool SoundsEnabled() const { return m_SoundsEnabled; }
 
     // Generating

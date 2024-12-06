@@ -40,13 +40,11 @@ void WeaponShotgun::Tick() {
         if (CurrentTick - m_LastShotAt <= m_TickCooldown)
             return;
 
-        SoundManager* SoundHandler = World->GameWindow()->Assetz()->SoundHandler();
-
         m_LastShot = m_Ammo == 1;
         if (m_Ammo) {
             m_Ammo--;
             m_LastShotAt = CurrentTick;
-            SoundHandler->PlaySound(ms_ShootSound);
+            ms_ShootSound->PlaySound();
 
             double LookAngle = ShooterCore.Direction.Atan2();
             for (int i = 0; i < m_PelletCount; i++) {
@@ -65,7 +63,7 @@ void WeaponShotgun::Tick() {
             double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
             m_Parent->Accelerate(Vec2d(RecoilX, RecoilY));
         } else {
-            SoundHandler->PlaySound(ms_ClickSound);
+            ms_ClickSound->PlaySound();
         }
     }
 }

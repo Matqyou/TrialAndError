@@ -59,14 +59,13 @@ void WeaponBurst::Tick() {
     if (m_Parent) {
         GameWorld* World = m_Parent->World();
         auto& ShooterCore = m_Parent->GetDirectionalCore();
-        SoundManager* SoundHandler = World->GameWindow()->Assetz()->SoundHandler();
         auto CurrentTick = World->GetTick();
         if (m_BurstShotsLeft && CurrentTick - m_BurstTick > m_BurstCooldown) {
             m_BurstTick = CurrentTick;
             m_BurstShotsLeft--;
             if (m_Ammo) {
                 m_Ammo--;
-                SoundHandler->PlaySound(ms_ShootSound);
+                ms_ShootSound->PlaySound();
 
                 Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
                 new Projectile(World,
@@ -80,7 +79,7 @@ void WeaponBurst::Tick() {
                 double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
                 m_Parent->Accelerate(Vec2d(RecoilX, RecoilY));
             } else {
-                SoundHandler->PlaySound(ms_ClickSound);
+                ms_ClickSound->PlaySound();
             }
         }
 
@@ -94,7 +93,7 @@ void WeaponBurst::Tick() {
             if (m_Ammo) {
                 m_Ammo--;
                 m_LastShotAt = CurrentTick;
-                SoundHandler->PlaySound(ms_ShootSound);
+                ms_ShootSound->PlaySound();
 
                 Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
                 new Projectile(World,
@@ -108,7 +107,7 @@ void WeaponBurst::Tick() {
                 double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
                 m_Parent->Accelerate(Vec2d(RecoilX, RecoilY));
             } else {
-                SoundHandler->PlaySound(ms_ClickSound);
+                ms_ClickSound->PlaySound();
             }
         }
     }

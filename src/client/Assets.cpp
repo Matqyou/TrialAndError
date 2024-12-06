@@ -43,22 +43,22 @@ void Texture::SetAlphaMod(int alpha) {
     SDL_SetTextureAlphaMod(m_SDLTexture, alpha);
 }
 
-Sound2::Sound2(std::string key, Mix_Chunk* mix_chunk, std::string load_extension)
+Sound::Sound(std::string key, Mix_Chunk* mix_chunk, std::string load_extension)
  : m_Key(std::move(key)),
    m_LoadExtension(std::move(load_extension)) {
     m_MixChunk = mix_chunk;
 }
 
-Sound2::~Sound2() {
+Sound::~Sound() {
     if (m_MixChunk)
         Mix_FreeChunk(m_MixChunk);
 }
 
-void Sound2::SetVolume(int volume) {
+void Sound::SetVolume(int volume) {
     Mix_VolumeChunk(m_MixChunk, volume);
 }
 
-void Sound2::PlaySound()
+void Sound::PlaySound()
 {
     if (m_MixChunk == nullptr || !Assets::Get()->SoundsEnabled())
         return;
@@ -168,7 +168,7 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
         }
 
         // Add it to all the textures
-        auto new_sound = new Sound2(key, NewMixChunk, extension);
+        auto new_sound = new Sound(key, NewMixChunk, extension);
         m_Sounds[key] = new_sound;
     }
     std::cout << FString("Loaded %i sounds", m_Sounds.size()) << std::endl;
@@ -219,7 +219,7 @@ Texture* Assets::GetTexture(const std::string& texture_key) {
     return m_InvalidTexture;
 }
 
-Sound2* Assets::GetSound(const std::string& sound_key) {
+Sound* Assets::GetSound(const std::string& sound_key) {
     auto it = m_Sounds.find(sound_key);
     if (it != m_Sounds.end())
         return it->second;

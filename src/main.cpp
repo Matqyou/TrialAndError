@@ -42,7 +42,6 @@ bool Initialize() {
 
     SDL_ShowCursor(0);
 
-
 //    Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
 
     // Temp ammo spawn, had to generate random and set the value for each one, also changed it to also sending an int
@@ -67,7 +66,6 @@ int main() {
     Clock* Timer = GameWindow->Timer();
     Drawing* Render = GameWindow->Render();
     AssetsManager* AssetsHandler = GameWindow->Assetz();
-    SoundManager* SoundHandler = AssetsHandler->SoundHandler();
     Assets* decals = Assets::Get();
 
     Texture* TextureResume = decals->GetTexture("interface.resume");
@@ -79,12 +77,12 @@ int main() {
     Texture* Vignette = decals->GetTexture("backgrounds.vignette");
     Vignette->SetAlphaMod(200);
 
-    Sound* LowSound = SoundHandler->LoadSound("assets/sounds/Low.wav", true);
-    Sound* HighSound = SoundHandler->LoadSound("assets/sounds/High.wav", true);
-    Sound* QuitSound = SoundHandler->LoadSound("assets/sounds/Quit.wav", true);
-    Sound* LowUISound = SoundHandler->LoadSound("assets/sounds/LowUI.wav", true);
-    Sound* MidUISound = SoundHandler->LoadSound("assets/sounds/MidUI.wav", true);
-    Sound* HighUISound = SoundHandler->LoadSound("assets/sounds/HighUI.wav", true);
+    Sound* LowSound = decals->GetSound("low");
+    Sound* HighSound = decals->GetSound("high");
+    Sound* QuitSound = decals->GetSound("quit");
+    Sound* LowUISound = decals->GetSound("lowui");
+    Sound* MidUISound = decals->GetSound("midui");
+    Sound* HighUISound = decals->GetSound("highui");
 
     // Decals::Get()->GetSound("quit")->PlaySound();
 
@@ -138,7 +136,7 @@ int main() {
 
             switch (CurrentEvent.type) {
                 case SDL_QUIT:
-                    SoundHandler->PlaySound(QuitSound);
+                    QuitSound->PlaySound();
                     GameWindow->Deinitialize(true); // close everything except sound
 
                     while (Mix_Playing(-1)) {} // wait until last sound is done playing
@@ -171,7 +169,7 @@ int main() {
 
                     NewChar->GiveWeapon(new WeaponGlock(nullptr));
                     NewChar->SetGameController(CurrentController);
-                    SoundHandler->PlaySound(HighSound);
+                    HighSound->PlaySound();
                 }
                     break;
                 case SDL_CONTROLLERDEVICEREMOVED: {
@@ -179,7 +177,7 @@ int main() {
                     GameController* DeletedController = GameWindow->Controllers()->CloseController(InstanceID);
                     GameWindow->World()->DestroyPlayerByController(DeletedController);
                     GameWindow->World()->DestroyCharacterByController(DeletedController);
-                    SoundHandler->PlaySound(LowSound);
+                    LowSound->PlaySound();
                 }
                     break;
             }

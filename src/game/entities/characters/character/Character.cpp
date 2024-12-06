@@ -203,9 +203,9 @@ void Character::Damage(double damage, Entity* damager) {
         m_HitTicks = 7;
 
         Sound* HurtSound = ms_HitSounds[rand() % 3];
-        m_World->GameWindow()->Assetz()->SoundHandler()->PlaySound(HurtSound);
+        HurtSound->PlaySound();
     } else {
-        m_World->GameWindow()->Assetz()->SoundHandler()->PlaySound(ms_InvincibleHitSound);
+        ms_InvincibleHitSound->PlaySound();
     }
 
     if (damager != nullptr) {
@@ -441,7 +441,7 @@ void Character::AmmoPickup(AmmoBox* ammo_box) {
     auto TakenAmmo = ammo_box->TakeAmmo(AmmoNeeded);
     m_Weapons[ReloadWeapon]->AddTrueAmmo(TakenAmmo);
     if (TakenAmmo > 0)
-        m_World->GameWindow()->Assetz()->SoundHandler()->PlaySound(ms_AmmoPickupSound);
+        ms_AmmoPickupSound->PlaySound();
 
     if (m_CurrentWeapon == m_Weapons[ReloadWeapon])
         m_AmmoCount->FlagForUpdate();
@@ -485,7 +485,7 @@ void Character::EventDeath() {
     }
 
     m_Alive = false;
-    m_World->GameWindow()->Assetz()->SoundHandler()->PlaySound(ms_DeathSound);
+    ms_DeathSound->PlaySound();
 }
 
 void Character::TickKeyboardControls() { // TODO: move to characterInput class
