@@ -64,6 +64,7 @@ public:
     void PlaySound();
 };
 
+class RegisteredSound;
 class Assets {
     static Assets* Instance;
     SDL_Renderer* m_Renderer;
@@ -72,6 +73,8 @@ class Assets {
     std::unordered_map<std::string, Sound*> m_Sounds;
     // std::vector<Texture2> m_UsedTextures;
     Texture* m_InvalidTexture;
+
+    static std::vector<RegisteredSound*> m_RegisterSounds;
 
 public:
     static void initialize(SDL_Renderer* renderer, bool sounds_enabled);
@@ -90,8 +93,26 @@ public:
     Texture* TextureFromSurface(SDL_Surface* sdl_surface);
     Texture* CreateTexture(Uint32 format, int access, int w, int h);
 
+    // Manipulating
+    static void RequireSound(RegisteredSound* register_sound);
+
 private:
     Assets(SDL_Renderer* renderer, bool sounds_enabled);
     ~Assets();
+
+};
+
+class RegisteredSound {
+private:
+    friend class Assets;
+    std::string m_Key;
+    Sound* m_Sound;
+
+public:
+    explicit RegisteredSound(std::string sound_key);
+
+    // Getting
+    [[nodiscard]] const std::string& Key() const { return m_Key; }
+    [[nodiscard]] Sound* GetSound() const { return m_Sound; }
 
 };

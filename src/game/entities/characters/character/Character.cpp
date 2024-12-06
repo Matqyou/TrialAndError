@@ -46,7 +46,7 @@ Texture* Character::ms_TexturesMinigun[4] = { nullptr, nullptr, nullptr, nullptr
 
 //Texture *Character::ms_Texture = nullptr;
 Sound* Character::ms_HitSounds[3] = { nullptr, nullptr, nullptr };
-Sound* Character::ms_InvincibleHitSound = nullptr;
+RegisteredSound Character::ms_InvincibleHitSound("entities.character.invinciblehit");
 Sound* Character::ms_DeathSound = nullptr;
 Sound* Character::ms_AmmoPickupSound = nullptr;
 Sound* Character::ms_ItemSwitchSound = nullptr;
@@ -205,7 +205,7 @@ void Character::Damage(double damage, Entity* damager) {
         Sound* HurtSound = ms_HitSounds[rand() % 3];
         HurtSound->PlaySound();
     } else {
-        ms_InvincibleHitSound->PlaySound();
+        ms_InvincibleHitSound.GetSound()->PlaySound();
     }
 
     if (damager != nullptr) {

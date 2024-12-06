@@ -228,7 +228,7 @@ bool GameReference::Initialize() {
     Character::ms_HitSounds[0] = decals->GetSound("entities.character.hurt1");
     Character::ms_HitSounds[1] = decals->GetSound("entities.character.hurt2");
     Character::ms_HitSounds[2] = decals->GetSound("entities.character.hurt3");
-    Character::ms_InvincibleHitSound = decals->GetSound("entities.character.invinciblehit");
+//    Character::ms_InvincibleHitSound = decals->GetSound("entities.character.invinciblehit");
     Character::ms_AmmoPickupSound = decals->GetSound("entities.ammo.pick6");
     Character::ms_ItemSwitchSound = decals->GetSound("weaponswitch");
     Crate::ms_BoxSound = decals->GetSound("boxhit");
@@ -247,6 +247,8 @@ bool GameReference::Initialize() {
     new Crate(m_GameWorld, Vec2d(200, 600), DropType(rand() % 2));
     new Crate(m_GameWorld, Vec2d(400, 600), DropType(rand() % 2));
     new Crate(m_GameWorld, Vec2d(600, 600), DropType(rand() % 2));
+
+    new Error(m_GameWorld, Vec2d(700, 700), ErrorType::INVINCIBLE);
 
     new EntityGlock(m_GameWorld, nullptr, nullptr, Vec2d(800, 200));
     new EntityShotgun(m_GameWorld, nullptr, nullptr, Vec2d(900, 200));

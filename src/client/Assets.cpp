@@ -12,6 +12,7 @@
 #include "../technical stuff/TextManager.h"
 
 Assets* Assets::Instance = nullptr;
+std::vector<RegisteredSound*> Assets::m_RegisterSounds = {};
 
 Texture::Texture(std::string key, SDL_Texture* sdl_texture, std::string load_extension)
 : m_Key(std::move(key)),
@@ -172,6 +173,17 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
         m_Sounds[key] = new_sound;
     }
     std::cout << FString("Loaded %i sounds", m_Sounds.size()) << std::endl;
+
+
+    // LINK REQUIRED DEPENDENCIES
+    // Sound
+    for (auto required_sound : m_RegisterSounds) {
+        const std::string& sound_key = required_sound->Key();
+
+        required_sound->m_Sound = GetSound(sound_key);
+    }
+    std::cout << FString("Linked %zu sounds", m_RegisterSounds.size()) << std::endl;
+    m_RegisterSounds.clear();
 }
 
 Assets::~Assets()
@@ -205,7 +217,7 @@ void Assets::deinitialize()
 Assets* Assets::Get()
 {
     if (Instance == nullptr)
-        throw std::runtime_error("Decals not initialized. Call initialize() first.");
+        throw std::runtime_error("Assets not initialized. Call initialize() first.");
 
     return Instance;
 }
@@ -238,4 +250,16 @@ Texture* Assets::CreateTexture(Uint32 format, int access, int w, int h) {
     SDL_Texture* NewSDLTexture = SDL_CreateTexture(m_Renderer, format, access, w, h);
 
     return new Texture("CreateTexture", NewSDLTexture, "NaN");
+}
+
+void Assets::RequireSound(RegisteredSound* register_sound) {
+    m_RegisterSounds.push_back(register_sound);
+}
+
+RegisteredSound::RegisteredSound(std::string sound_key)
+: m_Key(std::move(sound_key)) {
+    m_Sound = nullptr;
+
+    Assets::RequireSound(this);
+    std::cout << FString("Created RegisteredSound(%s)") << std::endl;
 }
