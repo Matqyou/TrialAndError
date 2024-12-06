@@ -19,16 +19,16 @@ class AmmoBox : public Entity {
 protected:
     unsigned int m_AmmoCount;
     AmmoType m_Type;
-    Texture** m_Texture;
+    Texture* m_Texture;
 
     // Ticking
     void TickPickup();
 
 public:
-    static Texture* ms_TextureGlock;
-    static Texture* ms_TextureShotgun;
-    static Texture* ms_TextureBurst;
-    static Texture* ms_TextureMinigun;
+    static LoadedTexture sTextureGlock;
+    static LoadedTexture sTextureShotgun;
+    static LoadedTexture sTextureBurst;
+    static LoadedTexture sTextureMinigun;
     // static Sound* ms_PickupSounds[7];
 
     AmmoBox(GameWorld* world,

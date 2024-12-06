@@ -7,8 +7,8 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-Sound* WeaponBurst::ms_ShootSound = nullptr;
-Sound* WeaponBurst::ms_ClickSound = nullptr;
+LoadedSound WeaponBurst::sShootSound("shootburst");
+LoadedSound WeaponBurst::sClickSound("failreload");
 
 WeaponBurst::WeaponBurst(Character* owner)
     : ProjectileWeapon(owner, WEAPON_BURST, 30, 24, 24 * 3, 35.0, false) {
@@ -65,7 +65,7 @@ void WeaponBurst::Tick() {
             m_BurstShotsLeft--;
             if (m_Ammo) {
                 m_Ammo--;
-                ms_ShootSound->PlaySound();
+                sShootSound.GetSound()->PlaySound();
 
                 Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
                 new Projectile(World,
@@ -79,7 +79,7 @@ void WeaponBurst::Tick() {
                 double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
                 m_Parent->Accelerate(Vec2d(RecoilX, RecoilY));
             } else {
-                ms_ClickSound->PlaySound();
+                sClickSound.GetSound()->PlaySound();
             }
         }
 
@@ -93,7 +93,7 @@ void WeaponBurst::Tick() {
             if (m_Ammo) {
                 m_Ammo--;
                 m_LastShotAt = CurrentTick;
-                ms_ShootSound->PlaySound();
+                sShootSound.GetSound()->PlaySound();
 
                 Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
                 new Projectile(World,
@@ -107,7 +107,7 @@ void WeaponBurst::Tick() {
                 double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
                 m_Parent->Accelerate(Vec2d(RecoilX, RecoilY));
             } else {
-                ms_ClickSound->PlaySound();
+                sClickSound.GetSound()->PlaySound();
             }
         }
     }

@@ -5,10 +5,11 @@
 #include "characters/character/Character.h"
 #include <cmath>
 #include <iostream>
-Texture* AmmoBox::ms_TextureGlock = nullptr;
-Texture* AmmoBox::ms_TextureShotgun = nullptr;
-Texture* AmmoBox::ms_TextureBurst = nullptr;
-Texture* AmmoBox::ms_TextureMinigun = nullptr;
+
+LoadedTexture AmmoBox::sTextureGlock("entities.glockammo");
+LoadedTexture AmmoBox::sTextureShotgun("entities.shotgunammo");
+LoadedTexture AmmoBox::sTextureBurst("entities.burstammo");
+LoadedTexture AmmoBox::sTextureMinigun("entities.minigunammo");
 // Sound* AmmoBox::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 AmmoBox::AmmoBox(GameWorld* world,
@@ -26,10 +27,10 @@ AmmoBox::AmmoBox(GameWorld* world,
     m_AmmoCount = AmmoCount;
     m_Type = type;
 
-    if (type == AMMO_GLOCK) m_Texture = &ms_TextureGlock;
-    else if (type == AMMO_SHOTGUN) m_Texture = &ms_TextureShotgun;
-    else if (type == AMMO_BURST) m_Texture = &ms_TextureBurst;
-    else if (type == AMMO_MINIGUN) m_Texture = &ms_TextureMinigun;
+    if (type == AMMO_GLOCK) m_Texture = sTextureGlock.GetTexture();
+    else if (type == AMMO_SHOTGUN) m_Texture = sTextureShotgun.GetTexture();
+    else if (type == AMMO_BURST) m_Texture = sTextureBurst.GetTexture();
+    else if (type == AMMO_MINIGUN) m_Texture = sTextureMinigun.GetTexture();
 }
 void AmmoBox::TickPickup() {
     // Check if position collides any of the players
@@ -80,5 +81,5 @@ void AmmoBox::Draw() {
                            float(m_Core.Size.x),
                            float(m_Core.Size.y) };
 
-    Render->RenderTextureFCamera((*m_Texture)->SDLTexture(), nullptr, DrawRect);
+    Render->RenderTextureFCamera(m_Texture->SDLTexture(), nullptr, DrawRect);
 }

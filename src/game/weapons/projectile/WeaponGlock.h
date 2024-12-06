@@ -13,8 +13,8 @@ private:
     double m_Damage;
 
 public:
-    static Sound* ms_ShootSound;
-    static Sound* ms_ClickSound;
+    static LoadedSound sShootSound;
+    static LoadedSound sClickSound;
 
     explicit WeaponGlock(DirectionalEntity* parent);
 

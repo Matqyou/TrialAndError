@@ -19,8 +19,8 @@ private:
     double m_Rotation;
 
 public:
-    static Sound* ms_ShootSound;
-    static Sound* ms_ClickSound;
+    static LoadedSound sShootSound;
+    static LoadedSound sClickSound;
 
     explicit WeaponMinigun(Character* owner);
 

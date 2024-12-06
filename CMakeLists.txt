@@ -73,8 +73,6 @@ set(PROJECT_FILES
         "src/game/entities/characters/character/Hands.h"
         "src/game/entities/characters/CharacterNPC.cpp"
         "src/game/entities/characters/CharacterNPC.h"
-        "src/game/weapons/laser/LaserWeapon.cpp"
-        "src/game/weapons/laser/LaserWeapon.h"
         "src/game/entities/item/ItemEntity.cpp"
         "src/game/entities/item/ItemEntity.h"
         "src/Protocol.h"

@@ -21,11 +21,11 @@ private:
 
 
 public:
-    static Texture* ms_TextureGlock;
-    static Texture* ms_TextureBurst;
-    static Texture* ms_TextureShotgun;
-    static Texture* ms_TextureSniper;
-    static Texture* ms_TextureMinigun;
+    static LoadedTexture sTextureGlock;
+    static LoadedTexture sTextureBurst;
+    static LoadedTexture sTextureShotgun;
+    static LoadedTexture sTextureSniper;
+    static LoadedTexture sTextureMinigun;
 
     Projectile(GameWorld* world,
                Entity* shooter,

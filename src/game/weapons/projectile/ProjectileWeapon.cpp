@@ -7,8 +7,8 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-Sound* ProjectileWeapon::ms_ReloadSound = nullptr;
-Sound* ProjectileWeapon::ms_NoAmmo = nullptr;
+LoadedSound ProjectileWeapon::sReloadSound("shotgunreload");
+LoadedSound ProjectileWeapon::sNoAmmoSound("gunclick");
 
 double ProjectileWeapon::GenerateSpreadAngle() const {
     return (double(rand() % m_FullRandomSpread) - m_HalfRandomSpread) / m_RandomSpreadDivisor;
@@ -118,9 +118,9 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed,
 
 void ProjectileWeapon::Reload() {
     if (m_TrueAmmo != 0) {
-        ms_ReloadSound->PlaySound();
+        sReloadSound.GetSound()->PlaySound();
     } else {
-        ms_NoAmmo->PlaySound();
+        sNoAmmoSound.GetSound()->PlaySound();
     }
     unsigned int AmmoNeeded = m_AmmoCapacity - m_Ammo;
     if (m_TrueAmmo >= AmmoNeeded) {
@@ -136,6 +136,6 @@ void ProjectileWeapon::Tick() {
     TickTrigger();
 }
 
-
 void ProjectileWeapon::OnSelected() {
+
 }

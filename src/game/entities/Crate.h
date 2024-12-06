@@ -20,14 +20,14 @@ protected:
     friend class GameWorld;
     DropType m_DropType;
     int m_ErrorType;
-    Texture** m_Texture;
+    Texture* m_Texture;
 
 public:
-    static Sound* ms_HitSound;
-    static Sound* ms_BoxSound;
-    static Texture* ms_TextureBox;
-    static Texture* ms_TextureBreakingBox1;
-    static Texture* ms_TextureBreakingBox2;
+    static LoadedSound sHitSound;
+    static LoadedSound sBoxSound;
+    static LoadedTexture sBoxTexture;
+    static LoadedTexture sBreakingBox1Texture;
+    static LoadedTexture sBreakingBox2Texture;
 
     Crate(GameWorld* world,
           const Vec2d& start_pos,

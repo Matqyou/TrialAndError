@@ -7,8 +7,8 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-Sound* WeaponMinigun::ms_ShootSound = nullptr;
-Sound* WeaponMinigun::ms_ClickSound = nullptr;
+LoadedSound WeaponMinigun::sShootSound("shootburst");
+LoadedSound WeaponMinigun::sClickSound("failreload");
 
 WeaponMinigun::WeaponMinigun(Character* owner)
     : ProjectileWeapon(owner, WEAPON_MINIGUN, 14, 64, 64 * 3, 35.0, true) {
@@ -56,7 +56,7 @@ void WeaponMinigun::Tick() {
             if (m_Ammo) {
                 m_Ammo--;
                 m_LastShotAt = CurrentTick;
-                ms_ShootSound->PlaySound();
+                sShootSound.GetSound()->PlaySound();
 
                 double Angle = ShooterCore.Direction.Atan2() + GenerateSpreadAngle();
                 Vec2d ProjectileVelocity = AngleVec2d(Angle) * m_ProjectileSpeed;
@@ -70,7 +70,7 @@ void WeaponMinigun::Tick() {
                 Vec2d Recoil = ShooterCore.Direction * -m_RecoilForce;
                 m_Parent->Accelerate(Recoil);
             } else {
-                ms_ClickSound->PlaySound();
+                sClickSound.GetSound()->PlaySound();
             }
         }
     } else {

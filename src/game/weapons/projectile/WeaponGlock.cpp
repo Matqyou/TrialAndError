@@ -6,8 +6,8 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
-Sound* WeaponGlock::ms_ShootSound = nullptr;
-Sound* WeaponGlock::ms_ClickSound = nullptr;
+LoadedSound WeaponGlock::sShootSound("glockshoot");
+LoadedSound WeaponGlock::sClickSound("failreload");
 
 WeaponGlock::WeaponGlock(DirectionalEntity* parent)
     : ProjectileWeapon(parent, WEAPON_GLOCK, 10, 15, 15 * 3, 35.0, false) {
@@ -39,7 +39,7 @@ void WeaponGlock::Tick() {
         if (m_Ammo) {
             m_Ammo--;
             m_LastShotAt = CurrentTick;
-            ms_ShootSound->PlaySound();
+            sShootSound.GetSound()->PlaySound();
 
             Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
             new Projectile(World,
@@ -52,7 +52,7 @@ void WeaponGlock::Tick() {
             Vec2d Recoil = ShooterCore.Direction * -m_RecoilForce;
             m_Parent->Accelerate(Recoil);
         } else {
-            ms_ClickSound->PlaySound();
+            sClickSound.GetSound()->PlaySound();
         }
     }
 }

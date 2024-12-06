@@ -5,34 +5,39 @@
 #include "ItemEntity.h"
 #include "../characters/character/Character.h"
 
-Texture* ItemEntity::ms_TextureGlock = nullptr;
-Texture* ItemEntity::ms_TextureShotgun = nullptr;
-Texture* ItemEntity::ms_TextureBurst = nullptr;
-Texture* ItemEntity::ms_TextureSniper = nullptr;
-Texture* ItemEntity::ms_TexturesMinigun[4] = { nullptr, nullptr, nullptr, nullptr };
+LoadedTexture ItemEntity::sTextureGlock("entities.items.glock");
+LoadedTexture ItemEntity::sTextureShotgun("entities.items.shotgun");
+LoadedTexture ItemEntity::sTextureBurst("entities.items.burst");
+LoadedTexture ItemEntity::sTextureSniper("entities.items.sniper");
+LoadedTexture ItemEntity::sTexturesMinigun[4] = {
+    LoadedTexture("entities.items.minigun1"),
+    LoadedTexture("entities.items.minigun2"),
+    LoadedTexture("entities.items.minigun3"),
+    LoadedTexture("entities.items.minigun4"),
+};
 
 void ItemEntity::SetTexture(ItemType item_type) {
     switch (item_type) {
         case ITEMTYPE_GLOCK: {
-            m_Texture = ms_TextureGlock;
-        }
+            m_Texture = sTextureGlock.GetTexture();
             break;
+        }
         case ITEMTYPE_SHOTGUN: {
-            m_Texture = ms_TextureShotgun;
-        }
+            m_Texture = sTextureShotgun.GetTexture();
             break;
+        }
         case ITEMTYPE_BURST: {
-            m_Texture = ms_TextureBurst;
-        }
+            m_Texture = sTextureBurst.GetTexture();
             break;
+        }
         case ITEMTYPE_SNIPER: {
-            m_Texture = ms_TextureSniper;
-        }
+            m_Texture = sTextureSniper.GetTexture();
             break;
+        }
         case ITEMTYPE_MINIGUN: {
-            m_Texture = ms_TexturesMinigun[0]; // TODO depend on rotation
-        }
+            m_Texture = sTexturesMinigun[0].GetTexture(); // TODO depend on rotation
             break;
+        }
     }
 }
 
@@ -81,7 +86,7 @@ void ItemEntity::TickPickup() {
         // Todo: think of some connected/smart pointers cuz that is the next big thing i need to learn
         if (!Char->IsAlive() || (Char == m_Dropper && m_World->GetTick() - m_DroppedSince < m_PickupCooldown)) continue;
         double Distance = DistanceVec2(m_Core.Pos, Char->GetCore().Pos);
-        if (Distance > m_Core.sizeRatio+Char->GetCore().sizeRatio) continue;
+        if (Distance > m_Core.sizeRatio + Char->GetCore().sizeRatio) continue;
 
         EventPickup(*Char);
         break;

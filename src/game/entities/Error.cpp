@@ -6,15 +6,23 @@
 #include <random>
 #include <string>
 
-Texture* Error::ms_TextureErrorDisorianted = nullptr;
-Texture* Error::ms_TextureErrorSpiky = nullptr;
-Texture* Error::ms_TextureErrorConfusingHP = nullptr;
-Texture* Error::ms_TextureErrorInvincible = nullptr;
-Texture* Error::ms_TextureErrorHealersParadise = nullptr;
-Texture* Error::ms_TextureErrorRanged = nullptr;
-Texture* Error::ms_TextureErrorSlowDown = nullptr;
-Texture* Error::ms_TextureErrorDangerousRecoil = nullptr;
-Texture* Error::ms_TextureError = nullptr;
+LoadedTexture Error::sTextureErrorDisorianted("entities.disorianted");
+LoadedTexture Error::sTextureErrorSpiky("entities.cactus");
+LoadedTexture Error::sTextureErrorConfusingHP("entities.confusion");
+LoadedTexture Error::sTextureErrorInvincible("entities.invincible");
+LoadedTexture Error::sTextureErrorHealersParadise("entities.healer");
+LoadedTexture Error::sTextureErrorRanged("entities.ranged");
+LoadedTexture Error::sTextureErrorSlowDown("entities.clock");
+LoadedTexture Error::sTextureErrorDangerousRecoil("entities.golden_apple");
+LoadedSound Error::ms_PickupSounds[7] = {
+    LoadedSound(""),
+    LoadedSound(""),
+    LoadedSound(""),
+    LoadedSound(""),
+    LoadedSound(""),
+    LoadedSound(""),
+    LoadedSound(""),
+};
 
 Error::Error(GameWorld* world, const Vec2d& start_pos, int typeID)
     : Entity(world,
@@ -27,14 +35,14 @@ Error::Error(GameWorld* world, const Vec2d& start_pos, int typeID)
              false) {
 
     m_Type = static_cast<ErrorType>(typeID);
-    if (m_Type == SPIKY) m_Texture = ms_TextureErrorSpiky;
-    else if (m_Type == INVINCIBLE) m_Texture = ms_TextureErrorInvincible;
-    else if (m_Type == SLOW_DOWN) m_Texture = ms_TextureErrorSlowDown;
-    else if (m_Type == HEALERS_PARADISE) m_Texture = ms_TextureErrorHealersParadise;
-    else if (m_Type == DISORIANTED) m_Texture = ms_TextureErrorDisorianted;
-    else if (m_Type == CONFUSING_HP) m_Texture = ms_TextureErrorConfusingHP;
-    else if (m_Type == RANGED) m_Texture = ms_TextureErrorRanged;
-    else m_Texture = ms_TextureError;
+    if (m_Type == SPIKY) m_Texture = sTextureErrorSpiky.GetTexture();
+    else if (m_Type == INVINCIBLE) m_Texture = sTextureErrorInvincible.GetTexture();
+    else if (m_Type == SLOW_DOWN) m_Texture = sTextureErrorSlowDown.GetTexture();
+    else if (m_Type == HEALERS_PARADISE) m_Texture = sTextureErrorHealersParadise.GetTexture();
+    else if (m_Type == DISORIANTED) m_Texture = sTextureErrorDisorianted.GetTexture();
+    else if (m_Type == CONFUSING_HP) m_Texture = sTextureErrorConfusingHP.GetTexture();
+    else if (m_Type == RANGED) m_Texture = sTextureErrorRanged.GetTexture();
+    else m_Texture = sTextureErrorDangerousRecoil.GetTexture();
 }
 
 void Error::TickPickup(double x, double y) {

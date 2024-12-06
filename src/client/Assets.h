@@ -131,6 +131,6 @@ public:
 
     // Getting
     [[nodiscard]] const std::string& Key() const { return m_Key; }
-    [[nodiscard]] Sound* GetSound() const { return m_Sound; }
+    [[nodiscard]] Sound* GetSound() const;
 
 };

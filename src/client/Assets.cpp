@@ -284,5 +284,11 @@ LoadedSound::LoadedSound(std::string sound_key)
     m_Sound = nullptr;
 
     Assets::RequireSound(this);
-    std::cout << FString("Created LoadedSound(%s)", m_Key.c_str()) << std::endl;
+}
+
+Sound* LoadedSound::GetSound() const {
+    if (m_Sound == nullptr)
+        throw std::runtime_error(FString("GetSound '%s' was nullptr", m_Key.c_str()));
+
+    return m_Sound;
 }

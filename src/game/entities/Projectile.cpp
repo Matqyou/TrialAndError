@@ -8,11 +8,11 @@
 #include "Crate.h"
 #include "characters/character/Character.h"
 
-Texture* Projectile::ms_TextureGlock = nullptr;
-Texture* Projectile::ms_TextureBurst = nullptr;
-Texture* Projectile::ms_TextureShotgun = nullptr;
-Texture* Projectile::ms_TextureSniper = nullptr;
-Texture* Projectile::ms_TextureMinigun = nullptr;
+LoadedTexture Projectile::sTextureGlock("entities.projectiles.glockbullet");
+LoadedTexture Projectile::sTextureBurst("entities.projectiles.burstbullet");
+LoadedTexture Projectile::sTextureShotgun("entities.projectiles.shotgunbullet");
+LoadedTexture Projectile::sTextureSniper("entities.projectiles.shotgunbullet");
+LoadedTexture Projectile::sTextureMinigun("entities.projectiles.minigunbullet");
 
 Projectile::Projectile(GameWorld* world,
                        Entity* shooter,
@@ -30,23 +30,24 @@ Projectile::Projectile(GameWorld* world,
              false) {
     switch (weapon_type) {
         case WEAPON_GLOCK: {
-            m_Texture = ms_TextureGlock;
-        }
+            m_Texture = sTextureGlock.GetTexture();
             break;
+        }
         case WEAPON_BURST: {
-            m_Texture = ms_TextureBurst;
-        }
+            m_Texture = sTextureBurst.GetTexture();
             break;
+        }
         case WEAPON_SHOTGUN: {
-            m_Texture = ms_TextureShotgun;
-        }
+            m_Texture = sTextureShotgun.GetTexture();
             break;
+        }
         case WEAPON_MINIGUN: {
-            m_Texture = ms_TextureMinigun;
-        }
+            m_Texture = sTextureMinigun.GetTexture();
             break;
+        }
         case WEAPON_SNIPER: {
-            m_Texture = ms_TextureSniper;
+            m_Texture = sTextureSniper.GetTexture();
+            break;
         }
     }
     m_Shooter = shooter;

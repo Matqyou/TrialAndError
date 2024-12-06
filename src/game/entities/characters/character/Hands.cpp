@@ -7,7 +7,7 @@
 #include "../CharacterNPC.h"
 #include <cmath>
 
-Texture* Hands::ms_FistTexture = nullptr;
+LoadedTexture Hands::sFistTexture("entities.fist");
 
 Hands::Hands(Character* parent, double hand_spacing, double fist_animation_duration)
     : m_HandSpacing(hand_spacing / 180.0 * M_PI),
@@ -148,7 +148,7 @@ void Hands::Draw() {
                                 float(ParentCore.Pos.y - m_Size2 + YOffRight),
                                 float(m_Size), float(m_Size) };
 
-    ms_FistTexture->SetColorMod(m_Color.r, m_Color.g, m_Color.b);
-    Render->RenderTextureExFCamera(ms_FistTexture->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE);
-    Render->RenderTextureExFCamera(ms_FistTexture->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE);
+    sFistTexture.GetTexture()->SetColorMod(m_Color.r, m_Color.g, m_Color.b);
+    Render->RenderTextureExFCamera(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE);
+    Render->RenderTextureExFCamera(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE);
 }

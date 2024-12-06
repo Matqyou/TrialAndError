@@ -7,8 +7,8 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-Sound* WeaponShotgun::ms_ShootSound = nullptr;
-Sound* WeaponShotgun::ms_ClickSound = nullptr;
+LoadedSound WeaponShotgun::sShootSound("shotgunshoot");
+LoadedSound WeaponShotgun::sClickSound("failreload");
 
 WeaponShotgun::WeaponShotgun(Character* owner)
     : ProjectileWeapon(owner, WEAPON_SHOTGUN, 42, 8, 8 * 3, 35.0, false) {
@@ -44,7 +44,7 @@ void WeaponShotgun::Tick() {
         if (m_Ammo) {
             m_Ammo--;
             m_LastShotAt = CurrentTick;
-            ms_ShootSound->PlaySound();
+            sShootSound.GetSound()->PlaySound();
 
             double LookAngle = ShooterCore.Direction.Atan2();
             for (int i = 0; i < m_PelletCount; i++) {
@@ -63,7 +63,7 @@ void WeaponShotgun::Tick() {
             double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
             m_Parent->Accelerate(Vec2d(RecoilX, RecoilY));
         } else {
-            ms_ClickSound->PlaySound();
+            sClickSound.GetSound()->PlaySound();
         }
     }
 }

@@ -17,8 +17,8 @@ private:
     int m_BurstShotsLeft;
 
 public:
-    static Sound* ms_ShootSound;
-    static Sound* ms_ClickSound;
+    static LoadedSound sShootSound;
+    static LoadedSound sClickSound;
 
     explicit WeaponBurst(Character* owner);
 

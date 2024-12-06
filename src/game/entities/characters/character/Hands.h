@@ -22,9 +22,9 @@ private:
     double m_xRight, m_yRight;
     double m_Size, m_Size2;
 
-public:
-    static Texture* ms_FistTexture;
+    static LoadedTexture sFistTexture;
 
+public:
     Hands(Character* parent, double hand_spacing, double fist_animation_duration);
     ~Hands();
 

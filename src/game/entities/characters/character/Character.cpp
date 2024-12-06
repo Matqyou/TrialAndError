@@ -30,7 +30,7 @@ CharacterInput::CharacterInput() {
 }
 
 // Link textures
-LoadedTexture Character::sCharacterTexture("entities.items.shotgun");
+LoadedTexture Character::sCharacterTexture("entities.fist");
 LoadedTexture Character::sTextureGlock("weapons.glock");
 LoadedTexture Character::sTextureShotgun("weapons.shotgun");
 LoadedTexture Character::sTextureBurst("weapons.burst");

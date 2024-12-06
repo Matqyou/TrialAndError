@@ -147,68 +147,6 @@ bool GameReference::Initialize() {
     m_GameWorld = new GameWorld(this, 50, 30);
     m_Controllers = new GameControllers();
 
-    Assets* decals = Assets::Get();
-
-    Hands::ms_FistTexture = decals->GetTexture("entities.fist");
-    ItemEntity::ms_TextureGlock = decals->GetTexture("entities.items.glock");
-    ItemEntity::ms_TextureShotgun = decals->GetTexture("entities.items.shotgun");
-    ItemEntity::ms_TextureBurst = decals->GetTexture("entities.items.burst");
-    ItemEntity::ms_TextureSniper = decals->GetTexture("entities.items.sniper");
-    ItemEntity::ms_TexturesMinigun[0] = decals->GetTexture("entities.items.minigun1");
-    ItemEntity::ms_TexturesMinigun[1] = decals->GetTexture("entities.items.minigun2");
-    ItemEntity::ms_TexturesMinigun[2] = decals->GetTexture("entities.items.minigun3");
-    ItemEntity::ms_TexturesMinigun[3] = decals->GetTexture("entities.items.minigun4");
-    Projectile::ms_TextureGlock = decals->GetTexture("entities.projectiles.glockbullet");
-    Projectile::ms_TextureBurst = decals->GetTexture("entities.projectiles.burstbullet");
-    Projectile::ms_TextureShotgun = decals->GetTexture("entities.projectiles.shotgunbullet");
-    Projectile::ms_TextureSniper = decals->GetTexture("entities.projectiles.shotgunbullet");
-    Projectile::ms_TextureMinigun = decals->GetTexture("entities.projectiles.minigunbullet");
-    AmmoBox::ms_TextureGlock = decals->GetTexture("entities.glockammo");
-    AmmoBox::ms_TextureShotgun = decals->GetTexture("entities.shotgunammo");
-    AmmoBox::ms_TextureBurst = decals->GetTexture("entities.burstammo");
-    AmmoBox::ms_TextureMinigun = decals->GetTexture("entities.minigunammo");
-    Crate::ms_TextureBox = decals->GetTexture("entities.ammocrate");
-    Crate::ms_TextureBreakingBox1 = decals->GetTexture("entities.rts_crate_breaking_1");
-    Crate::ms_TextureBreakingBox2 = decals->GetTexture("entities.rts_crate_breaking_2");
-    Error::ms_TextureErrorInvincible = decals->GetTexture("entities.invincible");
-    Error::ms_TextureErrorSpiky = decals->GetTexture("entities.cactus");
-    Error::ms_TextureErrorSlowDown = decals->GetTexture("entities.clock");
-    Error::ms_TextureErrorDisorianted = decals->GetTexture("entities.disorianted");
-    Error::ms_TextureErrorHealersParadise = decals->GetTexture("entities.healer");
-    Error::ms_TextureErrorConfusingHP = decals->GetTexture("entities.confusion");
-    Error::ms_TextureErrorRanged = decals->GetTexture("entities.ranged");
-    Error::ms_TextureError = decals->GetTexture("entities.golden_apple");
-
-    // Load sounds
-    Sound* Basic_Death = decals->GetSound("basic_death");
-    Sound* FailReloadSound = decals->GetSound("failreload");
-    Sound* GlockShootSound = decals->GetSound("glockshoot");
-    GlockShootSound->SetVolume(64); // max 128
-    Sound* GlockClickSound = decals->GetSound("gunclick");
-    GlockClickSound->SetVolume(32); // max 128
-    Sound* ShotgunShootSound = decals->GetSound("shotgunshoot");
-    Sound* BurstShootSound = decals->GetSound("shootburst");
-    Sound* ShotgunReloadSound = decals->GetSound("shotgunreload");
-
-    WeaponGlock::ms_ShootSound = GlockShootSound;
-    WeaponGlock::ms_ClickSound = FailReloadSound;
-    WeaponGlock::ms_ReloadSound = ShotgunReloadSound;
-    ProjectileWeapon::ms_NoAmmo = GlockClickSound;
-    WeaponShotgun::ms_ShootSound = ShotgunShootSound;
-    WeaponShotgun::ms_ClickSound = FailReloadSound;
-    WeaponShotgun::ms_ReloadSound = ShotgunReloadSound;
-    WeaponBurst::ms_ShootSound = BurstShootSound;
-    WeaponBurst::ms_ClickSound = FailReloadSound;
-    WeaponBurst::ms_ReloadSound = ShotgunReloadSound;
-    WeaponSniper::ms_ShootSound = nullptr;
-    WeaponSniper::ms_ClickSound = nullptr;
-    WeaponSniper::ms_ReloadSound = nullptr;
-    WeaponMinigun::ms_ShootSound = BurstShootSound;
-    WeaponMinigun::ms_ClickSound = FailReloadSound;
-    WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
-    Crate::ms_BoxSound = decals->GetSound("boxhit");
-    Crate::ms_HitSound = decals->GetSound("entities.character.hurt1");
-
     m_Draw->SetWorld(m_GameWorld);
     Character::ms_BotNamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
                                                  m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),

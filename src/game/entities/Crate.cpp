@@ -4,11 +4,11 @@
 #include "characters/character/Character.h"
 #include "Crate.h"
 #include <iostream>
-Texture* Crate::ms_TextureBox = nullptr;
-Texture* Crate::ms_TextureBreakingBox1 = nullptr;
-Texture* Crate::ms_TextureBreakingBox2 = nullptr;
-Sound* Crate::ms_HitSound = nullptr;
-Sound* Crate::ms_BoxSound = nullptr;
+LoadedSound Crate::sHitSound("entities.character.hurt1");
+LoadedSound Crate::sBoxSound("boxhit");
+LoadedTexture Crate::sBoxTexture("entities.ammocrate");
+LoadedTexture Crate::sBreakingBox1Texture("entities.rts_crate_breaking_1");
+LoadedTexture Crate::sBreakingBox2Texture("entities.rts_crate_breaking_2");
 
 Crate::Crate(GameWorld* world,
              const Vec2d& start_pos,
@@ -25,7 +25,7 @@ Crate::Crate(GameWorld* world,
     m_World = world;
     m_Alive = true;
     m_DropType = RandomDrop;
-    m_Texture = &ms_TextureBox;
+    m_Texture = sBoxTexture.GetTexture();
 
     auto Random = m_World->GameWindow()->Random();
     float RandomFloat = Random->PercentageFloat();
@@ -51,12 +51,12 @@ Crate::~Crate()
 }
 
 void Crate::Damage(double value, Entity* damager) {
-    Sound* BoxHitSound = ms_BoxSound;
+    Sound* BoxHitSound = sBoxSound.GetSound();
     BoxHitSound->PlaySound();
     m_HealthComponent.ChangeHealthBy(-value);
 
-    if (m_HealthComponent.m_Health < 10) m_Texture = &ms_TextureBreakingBox2;
-    else if (m_HealthComponent.m_Health < 20) m_Texture = &ms_TextureBreakingBox1;
+    if (m_HealthComponent.m_Health < 10) m_Texture = sBreakingBox2Texture.GetTexture();
+    else if (m_HealthComponent.m_Health < 20) m_Texture = sBreakingBox1Texture.GetTexture();
 }
 
 void Crate::Heal(double value) {
@@ -69,7 +69,7 @@ void Crate::Tick() {
     // Die
     if (!m_HealthComponent.IsAlive()) {
         m_Alive = false;
-        ms_HitSound->PlaySound();
+        sHitSound.GetSound()->PlaySound();
         if (m_DropType != ERROR) {
             auto Ammo_type = m_World->GameWindow()->Random()->UnsignedInt() % 4;
             new AmmoBox(m_World, AmmoType(Ammo_type), m_Core.Pos, 20);
@@ -90,5 +90,5 @@ void Crate::Draw() {
                            float(m_Core.Size.x),
                            float(m_Core.Size.y) };
 
-    Render->RenderTextureFCamera((*m_Texture)->SDLTexture(), nullptr, DrawRect);
+    Render->RenderTextureFCamera(m_Texture->SDLTexture(), nullptr, DrawRect);
 }
