@@ -5,7 +5,7 @@
 PauseMenu::PauseMenu(GameWorld *GameWorld, MainMenu *mainMenu)
     : m_GameWorld(GameWorld), m_MainMenu(mainMenu)
 {
-    AssetsManager *assetsHandler = m_GameWorld->GameWindow()->Assets();
+    AssetsManager *assetsHandler = m_GameWorld->GameWindow()->Assetz();
     Assets* decals = Assets::Get();
 
     m_GameWindow = m_GameWorld->GameWindow();
@@ -29,7 +29,7 @@ void PauseMenu::Show()
 
 void PauseMenu::HandleEvent(const SDL_Event &event)
 {
-    SoundManager *soundHandler = m_GameWindow->Assets()->SoundHandler();
+    SoundManager *soundHandler = m_GameWindow->Assetz()->SoundHandler();
     Sound *lowUISound = soundHandler->LoadSound("assets/sounds/LowUI.wav", true);
     Sound *midUISound = soundHandler->LoadSound("assets/sounds/MidUI.wav", true);
 

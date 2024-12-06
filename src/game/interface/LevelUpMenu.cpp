@@ -9,7 +9,7 @@ LevelUpMenu::LevelUpMenu(GameWorld *gameWorld, Player *Player)
 {
     m_Player = Player;
     m_GameWindow = m_GameWorld->GameWindow();
-    AssetsManager *assetsHandler = m_GameWindow->Assets();
+    AssetsManager *assetsHandler = m_GameWindow->Assetz();
     Assets* decals = Assets::Get();
 
     m_Font = TTF_OpenFont("assets/fonts/Minecraft.ttf", 24); // Adjust the path and size as needed
@@ -72,7 +72,7 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event)
         // Ignore events during delay
         return;
     }
-    SoundManager *soundHandler = m_GameWindow->Assets()->SoundHandler();
+    SoundManager *soundHandler = m_GameWindow->Assetz()->SoundHandler();
     Sound *lowUISound = soundHandler->LoadSound("assets/sounds/LowUI.wav", true);
     Sound *midUISound = soundHandler->LoadSound("assets/sounds/MidUI.wav", true);
 

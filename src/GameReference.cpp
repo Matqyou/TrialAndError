@@ -6,6 +6,7 @@
 #include "client/Assets.h"
 #include "game/entities/Crate.h"
 #include "game/entities/item/weapons/EntityGuns.h"
+#include "game/entities/Projectile.h"
 
 GameReference::GameReference() {
     m_Window = nullptr;
@@ -146,9 +147,97 @@ bool GameReference::Initialize() {
     m_GameWorld = new GameWorld(this, 50, 30);
     m_Controllers = new GameControllers();
 
+    SoundManager* SoundHandler = m_AssetsHandler->SoundHandler();
+    Assets* decals = Assets::Get();
+
+    Hands::ms_FistTexture = decals->GetTexture("entities.fist");
+    ItemEntity::ms_TextureGlock = decals->GetTexture("entities.items.glock");
+    ItemEntity::ms_TextureShotgun = decals->GetTexture("entities.items.shotgun");
+    ItemEntity::ms_TextureBurst = decals->GetTexture("entities.items.burst");
+    ItemEntity::ms_TextureSniper = decals->GetTexture("entities.items.sniper");
+    ItemEntity::ms_TexturesMinigun[0] = decals->GetTexture("entities.items.minigun1");
+    ItemEntity::ms_TexturesMinigun[1] = decals->GetTexture("entities.items.minigun2");
+    ItemEntity::ms_TexturesMinigun[2] = decals->GetTexture("entities.items.minigun3");
+    ItemEntity::ms_TexturesMinigun[3] = decals->GetTexture("entities.items.minigun4");
+    Projectile::ms_TextureGlock = decals->GetTexture("entities.projectiles.glockbullet");
+    Projectile::ms_TextureBurst = decals->GetTexture("entities.projectiles.burstbullet");
+    Projectile::ms_TextureShotgun = decals->GetTexture("entities.projectiles.shotgunbullet");
+    Projectile::ms_TextureSniper = decals->GetTexture("entities.projectiles.shotgunbullet");
+    Projectile::ms_TextureMinigun = decals->GetTexture("entities.projectiles.minigunbullet");
+    AmmoBox::ms_TextureGlock = decals->GetTexture("entities.glockammo");
+    AmmoBox::ms_TextureShotgun = decals->GetTexture("entities.shotgunammo");
+    AmmoBox::ms_TextureBurst = decals->GetTexture("entities.burstammo");
+    AmmoBox::ms_TextureMinigun = decals->GetTexture("entities.minigunammo");
+    Crate::ms_TextureBox = decals->GetTexture("entities.ammocrate");
+    Crate::ms_TextureBreakingBox1 = decals->GetTexture("entities.rts_crate_breaking_1");
+    Crate::ms_TextureBreakingBox2 = decals->GetTexture("entities.rts_crate_breaking_2");
+    Error::ms_TextureErrorInvincible = decals->GetTexture("entities.invincible");
+    Error::ms_TextureErrorSpiky = decals->GetTexture("entities.cactus");
+    Error::ms_TextureErrorSlowDown = decals->GetTexture("entities.clock");
+    Error::ms_TextureErrorDisorianted = decals->GetTexture("entities.disorianted");
+    Error::ms_TextureErrorHealersParadise = decals->GetTexture("entities.healer");
+    Error::ms_TextureErrorConfusingHP = decals->GetTexture("entities.confusion");
+    Error::ms_TextureErrorRanged = decals->GetTexture("entities.ranged");
+    Error::ms_TextureError = decals->GetTexture("entities.golden_apple");
+
+    Character::ms_TextureErrorInvincible = decals->GetTexture("icons.invincible");
+    Character::ms_TextureErrorSpiky = decals->GetTexture("icons.cactus");
+    Character::ms_TextureErrorSlowDown = decals->GetTexture("icons.clock");
+    Character::ms_TextureErrorDisorianted = decals->GetTexture("icons.disorianted");
+    Character::ms_TextureErrorHealersParadise = decals->GetTexture("icons.healer");
+    Character::ms_TextureErrorConfusingHP = decals->GetTexture("icons.confusion");
+    Character::ms_TextureErrorRanged = decals->GetTexture("icons.ranged");
+    Character::ms_TextureError = decals->GetTexture("entities.golden_apple");
+
+    Character::ms_TextureGlock = decals->GetTexture("weapons.glock");
+    Character::ms_TextureShotgun = decals->GetTexture("weapons.shotgun");
+    Character::ms_TextureBurst = decals->GetTexture("weapons.burst");
+    Character::ms_TextureSniper = decals->GetTexture("weapons.sniper");
+    Character::ms_TexturesMinigun[0] = decals->GetTexture("weapons.minigun1");
+    Character::ms_TexturesMinigun[1] = decals->GetTexture("weapons.minigun2");
+    Character::ms_TexturesMinigun[2] = decals->GetTexture("weapons.minigun3");
+    Character::ms_TexturesMinigun[3] = decals->GetTexture("weapons.minigun4");
+
+    // Load sounds
+    Sound* Basic_Death = SoundHandler->LoadSound("assets/sounds/basic_death.wav", true);
+    Sound* FailReloadSound = SoundHandler->LoadSound("assets/sounds/FailReload.wav", true);
+    Sound* GlockShootSound = SoundHandler->LoadSound("assets/sounds/GlockShoot.wav", true);
+    GlockShootSound->SetVolume(64); // max 128
+    Sound* GlockClickSound = SoundHandler->LoadSound("assets/sounds/GunClick.wav", true);
+    GlockClickSound->SetVolume(32); // max 128
+    Sound* ShotgunShootSound = SoundHandler->LoadSound("assets/sounds/ShotgunShoot.wav", true);
+    Sound* BurstShootSound = SoundHandler->LoadSound("assets/sounds/ShootBurst.wav", true);
+    Sound* ShotgunReloadSound = SoundHandler->LoadSound("assets/sounds/ShotgunReload.wav", true);
+
+    WeaponGlock::ms_ShootSound = GlockShootSound;
+    WeaponGlock::ms_ClickSound = FailReloadSound;
+    WeaponGlock::ms_ReloadSound = ShotgunReloadSound;
+    ProjectileWeapon::ms_NoAmmo = GlockClickSound;
+    WeaponShotgun::ms_ShootSound = ShotgunShootSound;
+    WeaponShotgun::ms_ClickSound = FailReloadSound;
+    WeaponShotgun::ms_ReloadSound = ShotgunReloadSound;
+    WeaponBurst::ms_ShootSound = BurstShootSound;
+    WeaponBurst::ms_ClickSound = FailReloadSound;
+    WeaponBurst::ms_ReloadSound = ShotgunReloadSound;
+    WeaponSniper::ms_ShootSound = nullptr;
+    WeaponSniper::ms_ClickSound = nullptr;
+    WeaponSniper::ms_ReloadSound = nullptr;
+    WeaponMinigun::ms_ShootSound = BurstShootSound;
+    WeaponMinigun::ms_ClickSound = FailReloadSound;
+    WeaponMinigun::ms_ReloadSound = ShotgunReloadSound;
+    Character::ms_DeathSound = Basic_Death;
+    Character::ms_HitSounds[0] = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
+    Character::ms_HitSounds[1] = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt2.wav", true);
+    Character::ms_HitSounds[2] = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt3.wav", true);
+    Character::ms_InvincibleHitSound = SoundHandler->LoadSound("assets/sounds/entities/character/InvincibleHit.wav", true);
+    Character::ms_AmmoPickupSound = SoundHandler->LoadSound("assets/sounds/entities/ammo/Pick6.wav", true);
+    Character::ms_ItemSwitchSound = SoundHandler->LoadSound("assets/sounds/WeaponSwitch.wav", true);
+    Crate::ms_BoxSound = SoundHandler->LoadSound("assets/sounds/BoxHit.wav", true);
+    Crate::ms_HitSound = SoundHandler->LoadSound("assets/sounds/entities/character/Hurt1.wav", true);
+
     m_Draw->SetWorld(m_GameWorld);
-    Character::ms_BotNamePlate = new TextSurface(m_GameWorld->GameWindow()->Assets(),
-                                                 m_GameWorld->GameWindow()->Assets()->TextHandler()->GetMainFont(),
+    Character::ms_BotNamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
+                                                 m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
                                                  "Bot User", { 255, 150, 150, 255 });
     new Crate(m_GameWorld, Vec2d(200, 200), DropType(rand() % 2));
     new Crate(m_GameWorld, Vec2d(400, 200), DropType(rand() % 2));
@@ -165,7 +254,6 @@ bool GameReference::Initialize() {
     new EntityBurst(m_GameWorld, nullptr, nullptr, Vec2d(1000, 200));
     new EntityMinigun(m_GameWorld, nullptr, nullptr, Vec2d(1100, 200));
     new EntitySniper(m_GameWorld, nullptr, nullptr, Vec2d(1200, 200));
-
 
     auto Player1 = new Player(m_GameWorld, "Keyboard");
     auto Char1 = new Character(m_GameWorld,

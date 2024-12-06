@@ -35,7 +35,7 @@ void WeaponGlock::Tick() {
         if (CurrentTick - m_LastShotAt <= m_TickCooldown)
             return;
 
-        SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
+        SoundManager* SoundHandler = World->GameWindow()->Assetz()->SoundHandler();
 
         m_LastShot = m_Ammo == 1;
         if (m_Ammo) {

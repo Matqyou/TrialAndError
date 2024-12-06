@@ -24,8 +24,8 @@ Player::Player(GameWorld *game_world, const std::string &username)
     m_LevelUpMenu = new LevelUpMenu(m_GameWorld, this);
     m_Index = -1;
     m_Index = m_GameWorld->GetNextPlayerIndex();
-    m_NamePlate = new TextSurface(m_GameWorld->GameWindow()->Assets(),
-                                  m_GameWorld->GameWindow()->Assets()->TextHandler()->GetMainFont(),
+    m_NamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
+                                  m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
                                   m_Username, {255, 255, 255, 255});
     m_GameWorld->AddPlayer(this);
 }

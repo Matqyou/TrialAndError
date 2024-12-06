@@ -104,6 +104,9 @@ void ItemEntity::Tick() {
 }
 
 void ItemEntity::Draw() {
+    if (m_Texture == nullptr)
+        return;
+
     Drawing* Render = m_World->GameWindow()->Render();
 
     SDL_Rect DrawRect = { int(m_Core.Pos.x - m_Core.Size.x / 2.0),

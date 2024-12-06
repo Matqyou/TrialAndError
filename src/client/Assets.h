@@ -37,6 +37,7 @@ public:
     [[nodiscard]] int GetAccess() const { return m_Information.access; }
     [[nodiscard]] int GetWidth() const { return m_Information.w; }
     [[nodiscard]] int GetHeight() const { return m_Information.h; }
+    [[nodiscard]] const std::string& Key() const { return m_Key; }
 
     // Manipulating
     void SetBlendMode(SDL_BlendMode blend_mode);
@@ -65,6 +66,7 @@ public:
 
 class Assets {
     static Assets* Instance;
+    SDL_Renderer* m_Renderer;
     bool m_SoundsEnabled;
     std::unordered_map<std::string, Texture*> m_Textures;
     std::unordered_map<std::string, Sound2*> m_Sounds;
@@ -79,10 +81,14 @@ public:
     Assets(const Assets&) = delete;
     Assets& operator=(const Assets&) = delete;
 
-    // Copying textures
+    // Getting
     Texture* GetTexture(const std::string& texture_key);
     Sound2* GetSound(const std::string& sound_key);
     bool SoundsEnabled() const { return m_SoundsEnabled; }
+
+    // Generating
+    Texture* TextureFromSurface(SDL_Surface* sdl_surface);
+    Texture* CreateTexture(Uint32 format, int access, int w, int h);
 
 private:
     Assets(SDL_Renderer* renderer, bool sounds_enabled);

@@ -15,7 +15,6 @@ private:
     TTF_Font* m_Font;
     SDL_Color m_Color;
     bool m_Update;
-    SDL_Texture* m_SDLTexture;
 
     // Generating
     Texture* UpdateTexture();
@@ -29,7 +28,6 @@ public:
     [[nodiscard]] std::string GetText() const { return m_Text; }
     [[nodiscard]] TTF_Font* GetFont() const { return m_Font; }
     [[nodiscard]] SDL_Color GetColor() const { return m_Color; }
-    [[nodiscard]] SDL_Texture* SDLTexture() const { return m_SDLTexture; }
     [[nodiscard]] bool GetFlaggedForUpdate() const { return m_Update; }
 
     // Setting

@@ -106,6 +106,7 @@ std::vector<std::tuple<std::string, std::string, std::string>> GetResourceKeys(c
 
 Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
  : m_InvalidTexture(nullptr) {
+    m_Renderer = renderer;
     m_SoundsEnabled = sounds_enabled;
 
     // Todo: Loading assets in realtime (adding/removing files?)
@@ -225,4 +226,16 @@ Sound2* Assets::GetSound(const std::string& sound_key) {
 
     std::cout << FString("Sound '%s' not found", sound_key.c_str()) << std::endl;
     return nullptr;
+}
+
+Texture* Assets::TextureFromSurface(SDL_Surface* sdl_surface) {
+    SDL_Texture* NewSDLTexture = SDL_CreateTextureFromSurface(m_Renderer, sdl_surface);
+
+    return new Texture("FromSurface", NewSDLTexture, "NaN");
+}
+
+Texture* Assets::CreateTexture(Uint32 format, int access, int w, int h) {
+    SDL_Texture* NewSDLTexture = SDL_CreateTexture(m_Renderer, format, access, w, h);
+
+    return new Texture("CreateTexture", NewSDLTexture, "NaN");
 }

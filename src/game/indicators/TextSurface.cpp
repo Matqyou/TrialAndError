@@ -7,7 +7,7 @@
 
 Texture* TextSurface::UpdateTexture() {
     delete m_Texture;
-    m_Texture = m_AssetsHandler->TextHandler()->Render(m_Font, m_Text.c_str(), m_Color, false);
+    m_Texture = m_AssetsHandler->TextHandler()->Render(m_Font, m_Text.c_str(), m_Color);
 
     m_Update = false;
     return m_Texture;

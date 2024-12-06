@@ -37,8 +37,8 @@ GameWorld::GameWorld(GameReference *game_window, int width, int height)
     m_NumEnemiesPerWave = 1;
     m_Round = 0;
     m_Score = 0;
-    m_ScoreText = new TextSurface(m_GameWindow->Assets(),
-                                  m_GameWindow->Assets()->TextHandler()->GetMainFont(),
+    m_ScoreText = new TextSurface(m_GameWindow->Assetz(),
+                                  m_GameWindow->Assetz()->TextHandler()->GetMainFont(),
                                   "Score: 0", {150, 150, 0});
 }
 

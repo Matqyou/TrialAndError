@@ -28,6 +28,6 @@ public:
     [[nodiscard]] TTF_Font* GetMainFont() const { return m_MainFont; }
 
     // Generating
-    [[nodiscard]] Texture* Render(TTF_Font* font, const char* text, SDL_Color color, bool auto_cleanup);
+    [[nodiscard]] Texture* Render(TTF_Font* font, const char* text, SDL_Color color);
     [[nodiscard]] TTF_Font* LoadFont(const char* filepath, int ptsize);
 };

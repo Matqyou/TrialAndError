@@ -46,7 +46,7 @@ void WeaponMinigun::Tick() {
     if (!m_Parent) return;
     GameWorld* World = m_Parent->World();
     auto& ShooterCore = m_Parent->GetDirectionalCore();
-    SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
+    SoundManager* SoundHandler = World->GameWindow()->Assetz()->SoundHandler();
     auto CurrentTick = World->GetTick();
     if (m_Triggered) { // If want to trigger without an owner, need to save world somewhere
         m_FireRate += m_RateAcceleration;

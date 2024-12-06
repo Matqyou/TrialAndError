@@ -52,7 +52,7 @@ Crate::~Crate()
 
 void Crate::Damage(double value, Entity* damager) {
     Sound* BoxHitSound = ms_BoxSound;
-    m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(BoxHitSound);
+    m_World->GameWindow()->Assetz()->SoundHandler()->PlaySound(BoxHitSound);
     m_HealthComponent.ChangeHealthBy(-value);
 
     if (m_HealthComponent.m_Health < 10) m_Texture = &ms_TextureBreakingBox2;
@@ -69,7 +69,7 @@ void Crate::Tick() {
     // Die
     if (!m_HealthComponent.IsAlive()) {
         m_Alive = false;
-        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_HitSound);
+        m_World->GameWindow()->Assetz()->SoundHandler()->PlaySound(ms_HitSound);
         if (m_DropType != ERROR) {
             auto Ammo_type = m_World->GameWindow()->Random()->UnsignedInt() % 4;
             new AmmoBox(m_World, AmmoType(Ammo_type), m_Core.Pos, 20);

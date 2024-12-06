@@ -6,6 +6,7 @@
 #include <iostream>
 #include <locale>
 #include <codecvt>
+#include "../client/Assets.h"
 
 std::string FString(const char* format, ...) {
     va_list args;
@@ -53,12 +54,11 @@ TextManager::~TextManager() {
         TTF_CloseFont(Font);
 }
 
-Texture* TextManager::Render(TTF_Font* font, const char* text, SDL_Color color, bool auto_cleanup) {
-    return nullptr; // todo: fix text rendering
-    // SDL_Surface* TempSurface = TTF_RenderText_Blended(font, text, color);
-    // Texture* NewTexture = m_ImageHandler->TextureFromSurface(TempSurface, auto_cleanup);
-    // SDL_FreeSurface(TempSurface);
-    // return NewTexture;
+Texture* TextManager::Render(TTF_Font* font, const char* text, SDL_Color color) {
+    SDL_Surface* TempSurface = TTF_RenderText_Blended(font, text, color);
+    Texture* NewTexture = Assets::Get()->TextureFromSurface(TempSurface);
+    SDL_FreeSurface(TempSurface);
+    return NewTexture;
 }
 
 TTF_Font* TextManager::LoadFont(const char* filepath, int ptsize) {

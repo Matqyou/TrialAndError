@@ -148,17 +148,17 @@ Character::Character(GameWorld* world,
 
     m_NPC = false;
 
-    TTF_Font* MainFont = m_World->GameWindow()->Assets()->TextHandler()->GetMainFont();
-    m_AmmoCount = new TextSurface(m_World->GameWindow()->Assets(),
+    TTF_Font* MainFont = m_World->GameWindow()->Assetz()->TextHandler()->GetMainFont();
+    m_AmmoCount = new TextSurface(m_World->GameWindow()->Assetz(),
                                   MainFont,
                                   "0", { 255, 255, 255 });
 
     auto CoordinateText = FString("Spawned [%ix, %iy]", int(start_pos.x), int(start_pos.y));
-    m_CoordinatePlate = new TextSurface(m_World->GameWindow()->Assets(),
+    m_CoordinatePlate = new TextSurface(m_World->GameWindow()->Assetz(),
                                         MainFont, CoordinateText, { 255, 255, 255 });
 
-    m_HealthInt = new TextSurface(m_World->GameWindow()->Assets(),
-                                  m_World->GameWindow()->Assets()->TextHandler()->GetMainFont(),
+    m_HealthInt = new TextSurface(m_World->GameWindow()->Assetz(),
+                                  m_World->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
                                   "0", { 0, 0, 0 });
 
     m_HitTicks = 0;
@@ -203,9 +203,9 @@ void Character::Damage(double damage, Entity* damager) {
         m_HitTicks = 7;
 
         Sound* HurtSound = ms_HitSounds[rand() % 3];
-        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(HurtSound);
+        m_World->GameWindow()->Assetz()->SoundHandler()->PlaySound(HurtSound);
     } else {
-        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_InvincibleHitSound);
+        m_World->GameWindow()->Assetz()->SoundHandler()->PlaySound(ms_InvincibleHitSound);
     }
 
     if (damager != nullptr) {
@@ -441,7 +441,7 @@ void Character::AmmoPickup(AmmoBox* ammo_box) {
     auto TakenAmmo = ammo_box->TakeAmmo(AmmoNeeded);
     m_Weapons[ReloadWeapon]->AddTrueAmmo(TakenAmmo);
     if (TakenAmmo > 0)
-        m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_AmmoPickupSound);
+        m_World->GameWindow()->Assetz()->SoundHandler()->PlaySound(ms_AmmoPickupSound);
 
     if (m_CurrentWeapon == m_Weapons[ReloadWeapon])
         m_AmmoCount->FlagForUpdate();
@@ -485,7 +485,7 @@ void Character::EventDeath() {
     }
 
     m_Alive = false;
-    m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(ms_DeathSound);
+    m_World->GameWindow()->Assetz()->SoundHandler()->PlaySound(ms_DeathSound);
 }
 
 void Character::TickKeyboardControls() { // TODO: move to characterInput class
@@ -989,11 +989,11 @@ void Character::DrawHealthbar() {
     Render->RenderTextureCamera(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
 
     // Draw level indicator
-    TTF_Font* SmallFont = m_World->GameWindow()->Assets()->TextHandler()->LoadFont("assets/fonts/Minecraft.ttf",
+    TTF_Font* SmallFont = m_World->GameWindow()->Assetz()->TextHandler()->LoadFont("assets/fonts/Minecraft.ttf",
                                                                                    10); // Load a smaller font
     std::string LevelText = FString("LVL %i",
                                     m_Player->GetLevel());                                                  // Use the level value directly
-    TextSurface LevelSurface(m_World->GameWindow()->Assets(), SmallFont, LevelText, { 255, 255, 255 });
+    TextSurface LevelSurface(m_World->GameWindow()->Assetz(), SmallFont, LevelText, { 255, 255, 255 });
     Texture* LevelTexture = LevelSurface.RequestUpdate();
     int LevelTextureW = LevelTexture->GetWidth();
     int LevelTextureH = LevelTexture->GetHeight();
@@ -1139,8 +1139,8 @@ void Character::DrawErrorName() {
     else if (RecoilMSG)
         std::snprintf(msg, sizeof(msg), "ERROR activated \"Dangerous recoil\"");
 
-    m_ErrorText = new TextSurface(m_World->GameWindow()->Assets(),
-                                  m_World->GameWindow()->Assets()->TextHandler()->GetMainFont(),
+    m_ErrorText = new TextSurface(m_World->GameWindow()->Assetz(),
+                                  m_World->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
                                   msg, { 255, 255, 255 });
     m_ErrorText->SetText(msg);
     Texture* ErrorTexture = m_ErrorText->RequestUpdate();

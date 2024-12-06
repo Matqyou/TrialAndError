@@ -59,7 +59,7 @@ void WeaponBurst::Tick() {
     if (m_Parent) {
         GameWorld* World = m_Parent->World();
         auto& ShooterCore = m_Parent->GetDirectionalCore();
-        SoundManager* SoundHandler = World->GameWindow()->Assets()->SoundHandler();
+        SoundManager* SoundHandler = World->GameWindow()->Assetz()->SoundHandler();
         auto CurrentTick = World->GetTick();
         if (m_BurstShotsLeft && CurrentTick - m_BurstTick > m_BurstCooldown) {
             m_BurstTick = CurrentTick;

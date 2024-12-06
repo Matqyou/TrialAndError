@@ -5,7 +5,7 @@
 MainMenu::MainMenu(GameReference *gameWindow)
     : m_GameWindow(gameWindow)
 {
-    AssetsManager *assetsHandler = m_GameWindow->Assets();
+    AssetsManager *assetsHandler = m_GameWindow->Assetz();
     Assets* decals = Assets::Get();
 
     m_MenuTexture = decals->GetTexture("interface.menu");
@@ -43,7 +43,7 @@ void MainMenu::Show()
 
 void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen)
 {
-    SoundManager *soundHandler = m_GameWindow->Assets()->SoundHandler();
+    SoundManager *soundHandler = m_GameWindow->Assetz()->SoundHandler();
     Sound *quitSound = soundHandler->LoadSound("assets/sounds/Quit.wav", true);
     Sound *lowUISound = soundHandler->LoadSound("assets/sounds/LowUI.wav", true);
 

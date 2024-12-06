@@ -55,7 +55,7 @@ public:
     [[nodiscard]] Clock* Timer() const { return m_Timer; }
     [[nodiscard]] Randomizer* Random() const { return m_Random; }
     [[nodiscard]] Drawing* Render() const { return m_Draw; }
-    [[nodiscard]] AssetsManager* Assets() const { return m_AssetsHandler; }
+    [[nodiscard]] AssetsManager* Assetz() const { return m_AssetsHandler; }
     [[nodiscard]] GameWorld* World() const { return m_GameWorld; }
     [[nodiscard]] GameControllers* Controllers() const { return m_Controllers; }
     [[nodiscard]] int GetWidth() const { return m_Width; }
