@@ -18,10 +18,10 @@ struct TextureInfo {
     int access, w, h;
 };
 
-class Decals;
+class Assets;
 class Texture {
 private:
-    friend class Decals;
+    friend class Assets;
     const std::string m_Key;
     SDL_Texture * m_SDLTexture;
     TextureInfo m_Information;
@@ -46,7 +46,7 @@ public:
 
 class Sound2 {
 private:
-    friend class Decals;
+    friend class Assets;
     const std::string m_Key;
     Mix_Chunk* m_MixChunk;
     std::string m_LoadExtension;
@@ -63,8 +63,8 @@ public:
     void PlaySound();
 };
 
-class Decals {
-    static Decals* Instance;
+class Assets {
+    static Assets* Instance;
     bool m_SoundsEnabled;
     std::unordered_map<std::string, Texture*> m_Textures;
     std::unordered_map<std::string, Sound2*> m_Sounds;
@@ -74,10 +74,10 @@ class Decals {
 public:
     static void initialize(SDL_Renderer* renderer, bool sounds_enabled);
     static void deinitialize();
-    static Decals* Get();
+    static Assets* Get();
 
-    Decals(const Decals&) = delete;
-    Decals& operator=(const Decals&) = delete;
+    Assets(const Assets&) = delete;
+    Assets& operator=(const Assets&) = delete;
 
     // Copying textures
     Texture* GetTexture(const std::string& texture_key);
@@ -85,7 +85,7 @@ public:
     bool SoundsEnabled() const { return m_SoundsEnabled; }
 
 private:
-    Decals(SDL_Renderer* renderer, bool sounds_enabled);
-    ~Decals();
+    Assets(SDL_Renderer* renderer, bool sounds_enabled);
+    ~Assets();
 
 };

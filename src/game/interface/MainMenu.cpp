@@ -6,7 +6,7 @@ MainMenu::MainMenu(GameReference *gameWindow)
     : m_GameWindow(gameWindow)
 {
     AssetsManager *assetsHandler = m_GameWindow->Assets();
-    Decals* decals = Decals::Get();
+    Assets* decals = Assets::Get();
 
     m_MenuTexture = decals->GetTexture("interface.menu");
     m_TexturePlay = decals->GetTexture("interface.playbutton");

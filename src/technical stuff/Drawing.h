@@ -5,7 +5,7 @@
 #pragma once
 
 #include <SDL_image.h>
-#include "../client/Decals.h"
+#include "../client/Assets.h"
 
 class GameReference;
 class GameWorld;

@@ -79,7 +79,7 @@ Character::Character(GameWorld* world,
       m_HealthBar(world->GameWindow(), &m_HealthComponent, 75, 15, 2, 2),
       m_Input(),
       m_LastInput(),
-      m_Texture(Decals::Get()->GetTexture("entities.fist")) {
+      m_Texture(Assets::Get()->GetTexture("entities.fist")) {
     m_Player = player;
     m_ColorHue = m_Player ? 60.0 - double(m_Player->GetIndex() * 30) : 0.0;
 

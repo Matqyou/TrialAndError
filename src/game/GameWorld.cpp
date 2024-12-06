@@ -28,7 +28,7 @@ GameWorld::GameWorld(GameReference *game_window, int width, int height)
     m_FirstPlayer = nullptr;
     m_LastPlayer = nullptr;
 
-    m_Background = Decals::Get()->GetTexture("backgrounds.background_pattern");
+    m_Background = Assets::Get()->GetTexture("backgrounds.background_pattern");
     m_BackgroundW = m_Background->GetWidth();
     m_BackgroundH = m_Background->GetHeight();
 

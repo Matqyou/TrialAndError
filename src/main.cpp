@@ -43,7 +43,7 @@ bool Initialize() {
     SDL_ShowCursor(0);
     AssetsManager* AssetsHandler = GameWindow->Assets();
     SoundManager* SoundHandler = AssetsHandler->SoundHandler();
-    Decals* decals = Decals::Get();
+    Assets* decals = Assets::Get();
 
 //    Character::ms_Texture = ImageHandler->LoadTexture("assets/images/entities/Fist.png", true);
     Hands::ms_FistTexture = decals->GetTexture("entities.fist");
@@ -154,7 +154,7 @@ int main() {
     AssetsManager* AssetsHandler = GameWindow->Assets();
     SoundManager* SoundHandler = AssetsHandler->SoundHandler();
 
-    Decals* decals = Decals::Get();
+    Assets* decals = Assets::Get();
     Texture* TextureResume = decals->GetTexture("interface.resume");
     Texture* TexturePlay = decals->GetTexture("interface.playbutton");
     Texture* TextureBack = decals->GetTexture("interface.back");

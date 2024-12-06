@@ -7,7 +7,7 @@
 #include <SDL_ttf.h>
 #include <vector>
 #include <string>
-#include "../client/Decals.h"
+#include "../client/Assets.h"
 
 std::string FString(const char* format, ...);
 std::string ErasePrefix(std::string string, const std::string& prefix);

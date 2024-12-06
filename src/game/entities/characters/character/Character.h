@@ -17,7 +17,7 @@
 #include "../../Crate.h"
 #include "Hook.h"
 #include "Hands.h"
-#include "../../../../client/Decals.h"
+#include "../../../../client/Assets.h"
 
 struct CharacterInput {
     bool m_Shooting;

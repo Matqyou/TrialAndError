@@ -3,7 +3,7 @@
 //
 
 #include "GameReference.h"
-#include "client/Decals.h"
+#include "client/Assets.h"
 #include "game/entities/Crate.h"
 #include "game/entities/item/weapons/EntityGuns.h"
 
@@ -136,7 +136,7 @@ bool GameReference::Initialize() {
 
     m_GLContext = SDL_GL_CreateContext(m_Window);
 
-    Decals::initialize(m_Renderer, m_InitializedAudio);
+    Assets::initialize(m_Renderer, m_InitializedAudio);
 
     if (!m_Timer) m_Timer = new Clock(60);
     if (!m_Random) m_Random = new Randomizer();
@@ -182,7 +182,7 @@ bool GameReference::Initialize() {
 void GameReference::Deinitialize(bool keep_sound) {
     delete m_GameWorld;
     delete m_Controllers;
-    Decals::deinitialize();
+    Assets::deinitialize();
     m_AssetsHandler->DeinitializeImages();
     delete m_Draw;
     m_Draw = nullptr;

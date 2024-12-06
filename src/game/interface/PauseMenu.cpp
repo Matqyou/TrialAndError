@@ -6,7 +6,7 @@ PauseMenu::PauseMenu(GameWorld *GameWorld, MainMenu *mainMenu)
     : m_GameWorld(GameWorld), m_MainMenu(mainMenu)
 {
     AssetsManager *assetsHandler = m_GameWorld->GameWindow()->Assets();
-    Decals* decals = Decals::Get();
+    Assets* decals = Assets::Get();
 
     m_GameWindow = m_GameWorld->GameWindow();
     m_TextureResume = decals->GetTexture("interface.resume");

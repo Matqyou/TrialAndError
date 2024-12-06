@@ -2,7 +2,7 @@
 // Created by Mat on 12/3/2024.
 //
 
-#include "Decals.h"
+#include "Assets.h"
 #include <filesystem>
 #include <fstream>
 #include <unordered_set>
@@ -11,7 +11,7 @@
 #include <utility>
 #include "../technical stuff/TextManager.h"
 
-Decals* Decals::Instance = nullptr;
+Assets* Assets::Instance = nullptr;
 
 Texture::Texture(std::string key, SDL_Texture* sdl_texture, std::string load_extension)
 : m_Key(std::move(key)),
@@ -60,7 +60,7 @@ void Sound2::SetVolume(int volume) {
 
 void Sound2::PlaySound()
 {
-    if (m_MixChunk == nullptr || !Decals::Get()->SoundsEnabled())
+    if (m_MixChunk == nullptr || !Assets::Get()->SoundsEnabled())
         return;
 
     Mix_PlayChannel(-1, m_MixChunk, 0);
@@ -104,7 +104,7 @@ std::vector<std::tuple<std::string, std::string, std::string>> GetResourceKeys(c
     return results;
 }
 
-Decals::Decals(SDL_Renderer* renderer, bool sounds_enabled)
+Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
  : m_InvalidTexture(nullptr) {
     m_SoundsEnabled = sounds_enabled;
 
@@ -173,7 +173,7 @@ Decals::Decals(SDL_Renderer* renderer, bool sounds_enabled)
     std::cout << FString("Loaded %i sounds", m_Sounds.size()) << std::endl;
 }
 
-Decals::~Decals()
+Assets::~Assets()
 {
     size_t destroyed_textures = 0;
     size_t destroyed_sounds = 0;
@@ -189,19 +189,19 @@ Decals::~Decals()
     std::cout << FString("Unloaded %zu sounds", destroyed_sounds) << std::endl;
 }
 
-void Decals::initialize(SDL_Renderer* renderer, bool sounds_enabled)
+void Assets::initialize(SDL_Renderer* renderer, bool sounds_enabled)
 {
     if (Instance == nullptr)
-        Instance = new Decals(renderer, sounds_enabled);
+        Instance = new Assets(renderer, sounds_enabled);
 }
 
-void Decals::deinitialize()
+void Assets::deinitialize()
 {
     delete Instance;
     Instance = nullptr;
 }
 
-Decals* Decals::Get()
+Assets* Assets::Get()
 {
     if (Instance == nullptr)
         throw std::runtime_error("Decals not initialized. Call initialize() first.");
@@ -209,7 +209,7 @@ Decals* Decals::Get()
     return Instance;
 }
 
-Texture* Decals::GetTexture(const std::string& texture_key) {
+Texture* Assets::GetTexture(const std::string& texture_key) {
     auto it = m_Textures.find(texture_key);
     if (it != m_Textures.end())
         return it->second;
@@ -218,7 +218,7 @@ Texture* Decals::GetTexture(const std::string& texture_key) {
     return m_InvalidTexture;
 }
 
-Sound2* Decals::GetSound(const std::string& sound_key) {
+Sound2* Assets::GetSound(const std::string& sound_key) {
     auto it = m_Sounds.find(sound_key);
     if (it != m_Sounds.end())
         return it->second;

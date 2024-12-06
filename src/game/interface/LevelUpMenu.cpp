@@ -10,7 +10,7 @@ LevelUpMenu::LevelUpMenu(GameWorld *gameWorld, Player *Player)
     m_Player = Player;
     m_GameWindow = m_GameWorld->GameWindow();
     AssetsManager *assetsHandler = m_GameWindow->Assets();
-    Decals* decals = Decals::Get();
+    Assets* decals = Assets::Get();
 
     m_Font = TTF_OpenFont("assets/fonts/Minecraft.ttf", 24); // Adjust the path and size as needed
     if (!m_Font)
