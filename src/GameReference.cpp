@@ -104,11 +104,13 @@ bool GameReference::InitializeTTF() {
 bool GameReference::Initialize() {
     SDL_version Version;
     SDL_GetVersion(&Version);
-    std::cout << FString("&8SDL %u.%u.%u", Version.major, Version.minor, Version.patch) << std::endl;
-
-    auto version = IMG_Linked_Version();
-    std::cout << FString("&8SDL Image %u.%u.%u", version->major, version->minor, version->patch) << std::endl;
-
+    auto image_version = IMG_Linked_Version();
+    auto mixer_version = Mix_Linked_Version();
+    auto ttf_version = TTF_Linked_Version();
+    std::cout << FString("&8SDL2 %u.%u.%u", Version.major, Version.minor, Version.patch) << std::endl;
+    std::cout << FString("&8SDLimage %u.%u.%u", image_version->major, image_version->minor, image_version->patch) << std::endl;
+    std::cout << FString("&8SDLmixer %u.%u.%u", mixer_version->major, mixer_version->minor, mixer_version->patch) << std::endl;
+    std::cout << FString("&8SDLttf %u.%u.%u", ttf_version->major, ttf_version->minor, ttf_version->patch) << std::endl;
     std::cout << FString("&8---------------------------- &fInitializing &8----------------------------") << std::endl;
 
     if (!InitializeSDL() ||
@@ -148,7 +150,10 @@ bool GameReference::Initialize() {
     if (!m_Random) m_Random = new Randomizer();
     if (!m_Draw) m_Draw = new Drawing(this);
     if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager();
+    std::cout << FString("&8------------------------------------------------------------------------") << std::endl;
+    std::cout << std::endl;
 
+    // Game related stuff afterwards
     m_GameWorld = new GameWorld(this, 50, 30);
     m_Controllers = new GameControllers();
 
@@ -230,6 +235,8 @@ void GameReference::Deinitialize(bool keep_sound) {
             SDL_Quit();
         }
     }
+    std::cout << FString("&8------------------------------------------------------------------------") << std::endl;
+    std::cout << std::endl;
 }
 
 void GameReference::Event(const SDL_Event& event) {
