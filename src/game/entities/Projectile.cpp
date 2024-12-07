@@ -11,7 +11,7 @@
 LoadedTexture Projectile::sTextureGlock("entity.projectile.glock");
 LoadedTexture Projectile::sTextureBurst("entity.projectile.burst");
 LoadedTexture Projectile::sTextureShotgun("entity.projectile.shotgun");
-LoadedTexture Projectile::sTextureSniper("entity.projectile.shotgun");
+LoadedTexture Projectile::sTextureSniper("entity.projectile.sniper");
 LoadedTexture Projectile::sTextureMinigun("entity.projectile.minigun");
 
 Projectile::Projectile(GameWorld* world,
@@ -62,7 +62,7 @@ void Projectile::TickCollision() {
     if (distance_traveled <= 0.0)
         return;
 
-    Vec2d direction = (LastPosition - CurrentPosition) / distance_traveled;
+    Vec2d direction = (CurrentPosition - LastPosition) / distance_traveled;
     int units_traveled = (int)distance_traveled; // +fraction
 
     // Sense

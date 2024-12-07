@@ -10,6 +10,7 @@ LoadedTexture AmmoBox::sTextureGlock("entity.ammo_box.glock");
 LoadedTexture AmmoBox::sTextureShotgun("entity.ammo_box.shotgun");
 LoadedTexture AmmoBox::sTextureBurst("entity.ammo_box.burst");
 LoadedTexture AmmoBox::sTextureMinigun("entity.ammo_box.minigun");
+LoadedTexture AmmoBox::sTextureSniper("entity.ammo_box.sniper");
 // Sound* AmmoBox::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 AmmoBox::AmmoBox(GameWorld* world,
@@ -31,6 +32,7 @@ AmmoBox::AmmoBox(GameWorld* world,
     else if (type == AMMO_SHOTGUN) m_Texture = sTextureShotgun.GetTexture();
     else if (type == AMMO_BURST) m_Texture = sTextureBurst.GetTexture();
     else if (type == AMMO_MINIGUN) m_Texture = sTextureMinigun.GetTexture();
+    else if (type == AMMO_SNIPER) m_Texture = sTextureSniper.GetTexture();
 }
 void AmmoBox::TickPickup() {
     // Check if position collides any of the players

@@ -20,7 +20,7 @@ enum ErrorType {
     SLOW_DOWN,
     I_CANT_HEAR,
     RANGED,
-    NUM_ERRORS
+    NUM_ERROR_TYPES
 };
 
 class Error : public Entity {

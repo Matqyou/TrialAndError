@@ -44,7 +44,7 @@ void WeaponSniper::Tick() {
             Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
             new Projectile(World,
                            m_Parent,
-                           WEAPON_GLOCK,
+                           WEAPON_SNIPER,
                            m_Damage,
                            ShooterCore.Pos,
                            ProjectileVelocity);

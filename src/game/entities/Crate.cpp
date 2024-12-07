@@ -71,7 +71,7 @@ void Crate::Tick() {
         m_Alive = false;
         sHitSound.GetSound()->PlaySound();
         if (m_DropType != ERROR) {
-            auto Ammo_type = m_World->GameWindow()->Random()->UnsignedInt() % 4;
+            auto Ammo_type = m_World->GameWindow()->Random()->UnsignedInt() % NUM_AMMO_TYPES;
             new AmmoBox(m_World, AmmoType(Ammo_type), m_Core.Pos, 20);
         } else {
             new Error(m_World,

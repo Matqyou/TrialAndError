@@ -226,17 +226,16 @@ void GameReference::TestEnvironment() {
     Character::ms_BotNamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
                                                  m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
                                                  "Bot User", { 255, 150, 150, 255 });
-    new Crate(m_GameWorld, Vec2d(200, 200), DropType(rand() % 2));
-    new Crate(m_GameWorld, Vec2d(400, 200), DropType(rand() % 2));
-    new Crate(m_GameWorld, Vec2d(600, 200), DropType(rand() % 2));
-    new Crate(m_GameWorld, Vec2d(200, 400), DropType(rand() % 2));
-    new Crate(m_GameWorld, Vec2d(400, 400), DropType(rand() % 2));
-    new Crate(m_GameWorld, Vec2d(600, 400), DropType(rand() % 2));
-    new Crate(m_GameWorld, Vec2d(200, 600), DropType(rand() % 2));
-    new Crate(m_GameWorld, Vec2d(400, 600), DropType(rand() % 2));
-    new Crate(m_GameWorld, Vec2d(600, 600), DropType(rand() % 2));
 
-    new Error(m_GameWorld, Vec2d(700, 700), ErrorType::INVINCIBLE);
+    for (int y = 0; y < 5; y++)
+        for (int x = 0; x < 5; x++)
+            new Crate(m_GameWorld, Vec2d(200 + 50 * x, 200 + 50 * y), DropType(rand() % 2));
+
+    for (int x = 0 ; x < NUM_ERROR_TYPES; x++)
+        new Error(m_GameWorld, Vec2d(50 + 50 * x, m_GameWorld->GetHeight() - 50), ErrorType(x));
+
+    for (int x = 0 ; x < NUM_AMMO_TYPES; x++)
+        new AmmoBox(m_GameWorld, AmmoType(x), Vec2d(50 + 50 * x, m_GameWorld->GetHeight() - 100), 50);
 
     new EntityGlock(m_GameWorld, nullptr, nullptr, Vec2d(800, 200));
     new EntityShotgun(m_GameWorld, nullptr, nullptr, Vec2d(900, 200));

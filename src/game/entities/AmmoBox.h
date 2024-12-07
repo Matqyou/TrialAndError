@@ -12,7 +12,8 @@ enum AmmoType {
     AMMO_BURST,
     AMMO_SHOTGUN,
     AMMO_MINIGUN,
-    NUM_AMMO
+    AMMO_SNIPER,
+    NUM_AMMO_TYPES
 };
 
 class AmmoBox : public Entity {
@@ -29,6 +30,7 @@ public:
     static LoadedTexture sTextureShotgun;
     static LoadedTexture sTextureBurst;
     static LoadedTexture sTextureMinigun;
+    static LoadedTexture sTextureSniper;
     // static Sound* ms_PickupSounds[7];
 
     AmmoBox(GameWorld* world,

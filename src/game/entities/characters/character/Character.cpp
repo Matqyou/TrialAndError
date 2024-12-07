@@ -366,23 +366,28 @@ void Character::DropWeapon() {
         case WEAPON_GLOCK: {
             NewWeapon = new EntityGlock(m_World, this, (WeaponGlock*)m_Weapons[WEAPON_GLOCK], m_Core.Pos);
             m_Weapons[WEAPON_GLOCK] = nullptr;
-        }
             break;
+        }
         case WEAPON_BURST: {
             NewWeapon = new EntityBurst(m_World, this, (WeaponBurst*)m_Weapons[WEAPON_BURST], m_Core.Pos);
             m_Weapons[WepType] = nullptr;
-        }
             break;
+        }
         case WEAPON_SHOTGUN: {
             NewWeapon = new EntityShotgun(m_World, this, (WeaponShotgun*)m_Weapons[WEAPON_SHOTGUN], m_Core.Pos);
             m_Weapons[WepType] = nullptr;
-        }
             break;
+        }
         case WEAPON_MINIGUN: {
             NewWeapon = new EntityMinigun(m_World, this, (WeaponMinigun*)m_Weapons[WEAPON_MINIGUN], m_Core.Pos);
             m_Weapons[WepType] = nullptr;
-        }
             break;
+        }
+        case WEAPON_SNIPER: {
+            NewWeapon = new EntitySniper(m_World, this, (WeaponSniper*)m_Weapons[WEAPON_SNIPER], m_Core.Pos);
+            m_Weapons[WepType] = nullptr;
+            break;
+        }
     }
 
     NewWeapon->Accelerate(m_DirectionalCore.Direction * 20);
@@ -442,6 +447,8 @@ void Character::AmmoPickup(AmmoBox* ammo_box) {
         ReloadWeapon = WEAPON_BURST;
     else if (ammo_box->Type() == AMMO_MINIGUN)
         ReloadWeapon = WEAPON_MINIGUN;
+    else if (ammo_box->Type() == AMMO_SNIPER)
+        ReloadWeapon = WEAPON_SNIPER;
     else
         return; // AmmoBox type has no matching gun type
 
@@ -945,7 +952,12 @@ void Character::DrawCharacter() {
 
     double Angle = m_Core.Vel.Atan2() / M_PI * 180.0;
     SDL_RendererFlip flip = Angle > 90 || Angle < -90 ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
-    Render->RenderTextureExFCamera(sCharacterTexture.GetTexture()->SDLTexture(), nullptr, DrawRect, Angle, nullptr, flip);
+    Render->RenderTextureExFCamera(sCharacterTexture.GetTexture()->SDLTexture(),
+                                   nullptr,
+                                   DrawRect,
+                                   Angle,
+                                   nullptr,
+                                   flip);
 }
 
 void Character::DrawHook() {
