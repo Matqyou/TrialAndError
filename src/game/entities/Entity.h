@@ -104,6 +104,7 @@ public:
     [[nodiscard]] EntityCore &GetLastCore() { return m_LastCore; }
     [[nodiscard]] bool IsAlive() const { return m_Alive; }
     [[nodiscard]] bool HasHealthComponent() const { return m_HasHealthComponent; }
+    [[nodiscard]] HasHealth& HealthComponent() { return m_HealthComponent; }
 
     // Generating
     [[nodiscard]] bool PointCollides(const Vec2d &point) const;

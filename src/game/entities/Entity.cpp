@@ -101,10 +101,11 @@ Entity::Entity(GameWorld* world,
     m_Core.Size = start_size;
     m_Core.Vel = start_vel;
     m_Core.BaseDamping = base_damping;
+    m_Core.sizeRatio = (m_Core.Size.x + m_Core.Size.y) / 4.0;
     m_SpawnedTick = m_World->GetTick();
+    TickUpdateLastCore();
 
     m_World->AddEntity(this);
-    m_Core.sizeRatio = (m_Core.Size.x + m_Core.Size.y) / 4.0;
 }
 
 Entity::~Entity() {
@@ -207,6 +208,7 @@ DirectionalEntity::DirectionalEntity(GameWorld* world, EntityType entity_type,
       m_DirectionalCore(*(DirectionalEntityCore*)(m_pUnknownCore)),
       m_LastDirectionalCore(*(DirectionalEntityCore*)(m_pLastUnknownCore)) {
     m_DirectionalCore.Direction = start_direction;
+    TickUpdateLastCore();
 }
 
 DirectionalEntity::~DirectionalEntity() = default;

@@ -182,30 +182,30 @@ void GameReference::Deinitialize(bool keep_sound) {
     if (m_InitializedTTF) {
         m_InitializedTTF = false;
         TTF_Quit();
-        std::cout << FStringColors("[GameReference] &8Closed TTF") << std::endl;
+        std::cout << FStringColors("[Game] &8Closed TTF") << std::endl;
     }
 
     if (m_InitializedImages) {
         m_InitializedImages = false;
         IMG_Quit();
-        std::cout << FStringColors("[GameReference] &8Closed Images") << std::endl;
+        std::cout << FStringColors("[Game] &8Closed Images") << std::endl;
     }
 
     if (!keep_sound) { // TODO: Check this out -_- looks very sus
         if (m_InitializedAudio) {
             m_InitializedAudio = false;
             Mix_CloseAudio();
-            std::cout << FStringColors("[GameReference] &8Closed Audio") << std::endl;
+            std::cout << FStringColors("[Game] &8Closed Audio") << std::endl;
         }
         if (m_InitializedMix) {
             m_InitializedMix = false;
             Mix_Quit();
-            std::cout << FStringColors("[GameReference] &8Closed Mixer") << std::endl;
+            std::cout << FStringColors("[Game] &8Closed Mixer") << std::endl;
         }
         if (m_InitializedSDL) {
             m_InitializedSDL = false;
             SDL_Quit();
-            std::cout << FStringColors("[GameReference] &8Closed SDL") << std::endl;
+            std::cout << FStringColors("[Game] &8Closed SDL") << std::endl;
         }
     }
 }

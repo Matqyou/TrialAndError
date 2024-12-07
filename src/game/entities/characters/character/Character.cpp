@@ -1025,25 +1025,25 @@ void Character::DrawHands() {
         switch (m_CurrentWeapon->WepType()) {
             case WEAPON_GLOCK: {
                 WeaponTexture = sTextureGlock.GetTexture();
-            }
                 break;
+            }
             case WEAPON_BURST: {
                 WeaponTexture = sTextureBurst.GetTexture();
-            }
                 break;
+            }
             case WEAPON_SHOTGUN: {
                 WeaponTexture = sTextureShotgun.GetTexture();
-            }
                 break;
+            }
             case WEAPON_SNIPER: {
                 WeaponTexture = sTextureSniper.GetTexture();
-            }
                 break;
+            }
             case WEAPON_MINIGUN: {
                 int Phase = int(std::fmod(((WeaponMinigun*)m_Weapons[WEAPON_MINIGUN])->Rotation(), 100.0) / 25.0);
                 WeaponTexture = sTexturesMinigun[Phase].GetTexture();
-            }
                 break;
+            }
         }
 
         SDL_Rect WeaponRect = { 0, 0,
@@ -1055,9 +1055,16 @@ void Character::DrawHands() {
         WeaponRect.y = int(YLook + m_Core.Pos.y - float(WeaponRect.h) / 2.0);
         SDL_Point WeaponPivot = { 0, int(double(WeaponRect.h) / 2.0 * Render->GetZoom()) };
 
-        double Angle = m_DirectionalCore.Direction.Atan2() / M_PI * 180.0;
+        // Laser sight
+        if (m_CurrentWeapon->WepType() == WeaponType::WEAPON_SNIPER) {
+            Vec2d end_position = m_Core.Pos + m_DirectionalCore.Direction * 1000;
+            Render->SetColor(255, 0, 0, 255);
+            Render->LineCamera(m_Core.Pos.x, m_Core.Pos.y, end_position.x, end_position.y);
+        }
+
         // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
         // and not the center of the player
+        double Angle = m_DirectionalCore.Direction.Atan2() / M_PI * 180.0;
         Render->RenderTextureExCamera(WeaponTexture->SDLTexture(),
                                       nullptr,
                                       WeaponRect,

@@ -56,40 +56,57 @@ Projectile::Projectile(GameWorld* world,
 }
 
 void Projectile::TickCollision() {
+    auto CurrentPosition = m_Core.Pos;
+    auto LastPosition = m_LastCore.Pos;
+    double distance_traveled = DistanceVec2(CurrentPosition, LastPosition);
+    if (distance_traveled <= 0.0)
+        return;
+
+    Vec2d direction = (LastPosition - CurrentPosition) / distance_traveled;
+    int units_traveled = (int)distance_traveled; // +fraction
+
     // Sense
     bool ShooterIsCharacter = m_Shooter->GetType() == CHARACTER_ENTITY;
     auto ShooterCharacter = (Character*)m_Shooter; // ⚠ Check for ShooterIsCharacter ⚠
 
-    // Check if position collides any of the players
-    auto Entity = m_World->FirstEntity();
-    for (; Entity; Entity = Entity->Next()) {
-        bool IsShooter = m_Shooter == Entity;
-        if (!Entity->IsAlive()) continue;
-        if (!Entity->HasHealthComponent()) continue;
+    for (int i = 0; i < units_traveled; i++) {
+        if (!m_Alive)
+            break;
 
-        // Ignore npc friendly fire for now
-        if (Entity->GetType() == CHARACTER_ENTITY) {
-            auto ShootableCharacter = (Character*)Entity;
-            if (ShooterIsCharacter && ShooterCharacter->IsNPC() == ShootableCharacter->IsNPC())
-                continue;
-        }
+        Vec2d current_position = CurrentPosition + direction * (double)i;
 
-        // Check for (Projectile <-> Entity) collision at the position
-        bool Collides = Entity->PointCollides(m_Core.Pos);
-        if (IsShooter && !Collides) { m_StillCollidesShooter = false; }
-        else if (Collides && (!IsShooter || !m_StillCollidesShooter)) {
+        // Check if position collides any of the players
+        auto Entity = m_World->FirstEntity();
+        for (; Entity; Entity = Entity->Next()) {
+            bool IsShooter = m_Shooter == Entity;
+            if (!Entity->IsAlive()) continue;
+            if (!Entity->HasHealthComponent()) continue;
+            if (!Entity->HealthComponent().IsAlive()) continue;
+
+            // Ignore npc friendly fire for now
             if (Entity->GetType() == CHARACTER_ENTITY) {
                 auto ShootableCharacter = (Character*)Entity;
-                ShootableCharacter->Damage(m_Damage, m_Shooter);
-                ShootableCharacter->Accelerate(m_Core.Vel * 0.05);
-            } else if (Entity->GetType() == CRATE_ENTITY) {
-                auto ShootableCrate = (Crate*)Entity;
-                ShootableCrate->Damage(m_Damage, m_Shooter);
+                if (ShooterIsCharacter && ShooterCharacter->IsNPC() == ShootableCharacter->IsNPC())
+                    continue;
             }
 
-            // The projectile has served its purpose (clear immediately on impact)
-            m_Alive = false;
-            break;
+            // Check for (Projectile <-> Entity) collision at the position
+            bool Collides = Entity->PointCollides(current_position);
+            if (IsShooter && !Collides) { m_StillCollidesShooter = false; }
+            else if (Collides && (!IsShooter || !m_StillCollidesShooter)) {
+                if (Entity->GetType() == CHARACTER_ENTITY) {
+                    auto ShootableCharacter = (Character*)Entity;
+                    ShootableCharacter->Damage(m_Damage, m_Shooter);
+                    ShootableCharacter->Accelerate(m_Core.Vel * 0.01 * m_Damage);
+                } else if (Entity->GetType() == CRATE_ENTITY) {
+                    auto ShootableCrate = (Crate*)Entity;
+                    ShootableCrate->Damage(m_Damage, m_Shooter);
+                }
+
+                // The projectile has served its purpose (clear immediately on impact)
+                m_Alive = false;
+                break;
+            }
         }
     }
 }
