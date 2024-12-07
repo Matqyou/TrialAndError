@@ -152,8 +152,71 @@ bool GameReference::Initialize() {
     if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager();
     std::cout << FString("&8------------------------------------------------------------------------") << std::endl;
     std::cout << std::endl;
+    return true;
+}
 
-    // Game related stuff afterwards
+void GameReference::Deinitialize(bool keep_sound) {
+    std::cout << FString("&8---------------------------- &fDeinitializing(keep_sound = %s) &8----------------------------", keep_sound ? "true" : "false") << std::endl;
+    delete m_GameWorld;
+    m_GameWorld = nullptr;
+    delete m_Controllers;
+    m_Controllers = nullptr;
+    Assets::deinitialize();
+    m_AssetsHandler->DeinitializeImages();
+    delete m_Draw;
+    m_Draw = nullptr;
+    delete m_Random;
+    m_Random = nullptr;
+    delete m_Timer;
+    m_Timer = nullptr;
+    if (m_Renderer) SDL_DestroyRenderer(m_Renderer);
+    if (m_Window) SDL_DestroyWindow(m_Window);
+
+    m_Draw = nullptr;
+    m_Timer = nullptr;
+    m_Renderer = nullptr;
+    m_Window = nullptr;
+
+    if (m_InitializedTTF) {
+        m_InitializedTTF = false;
+        TTF_Quit();
+        std::cout << FString("[GameReference] &8Closed TTF") << std::endl;
+    }
+
+    if (m_InitializedImages) {
+        m_InitializedImages = false;
+        IMG_Quit();
+        std::cout << FString("[GameReference] &8Closed Images") << std::endl;
+    }
+
+    if (!keep_sound) { // TODO: Check this out -_- looks very sus
+        if (m_InitializedAudio) {
+            m_InitializedAudio = false;
+            Mix_CloseAudio();
+            std::cout << FString("[GameReference] &8Closed Audio") << std::endl;
+        }
+        if (m_InitializedMix) {
+            m_InitializedMix = false;
+            Mix_Quit();
+            std::cout << FString("[GameReference] &8Closed Mixer") << std::endl;
+        }
+        if (m_InitializedSDL) {
+            m_InitializedSDL = false;
+            SDL_Quit();
+            std::cout << FString("[GameReference] &8Closed SDL") << std::endl;
+        }
+    }
+}
+
+void GameReference::Event(const SDL_Event& event) {
+    if (event.type != SDL_WINDOWEVENT ||
+        event.window.event != SDL_WINDOWEVENT_SIZE_CHANGED)
+        return;
+
+    UpdateDimensions(event.window.data1, event.window.data2);
+}
+
+void GameReference::TestEnvironment() {
     m_GameWorld = new GameWorld(this, 50, 30);
     m_Controllers = new GameControllers();
 
@@ -187,62 +250,4 @@ bool GameReference::Initialize() {
                                Vec2d(10, 10));
     Player1->GainXP(300);
     // Char1->GiveWeapon(new WeaponGlock(nullptr));
-
-    return true;
-}
-
-void GameReference::Deinitialize(bool keep_sound) {
-    std::cout << FString("&8---------------------------- &fDeinitializing &8----------------------------") << std::endl;
-    delete m_GameWorld;
-    delete m_Controllers;
-    Assets::deinitialize();
-    m_AssetsHandler->DeinitializeImages();
-    delete m_Draw;
-    m_Draw = nullptr;
-    delete m_Random;
-    m_Random = nullptr;
-    delete m_Timer;
-    m_Timer = nullptr;
-    if (m_Renderer) SDL_DestroyRenderer(m_Renderer);
-    if (m_Window) SDL_DestroyWindow(m_Window);
-
-    m_Draw = nullptr;
-    m_Timer = nullptr;
-    m_Renderer = nullptr;
-    m_Window = nullptr;
-
-    if (m_InitializedTTF) {
-        m_InitializedTTF = false;
-        TTF_Quit();
-    }
-
-    if (m_InitializedImages) {
-        m_InitializedImages = false;
-        IMG_Quit();
-    }
-
-    if (!keep_sound) { // TODO: Check this out -_- looks very sus
-        if (m_InitializedAudio) {
-            m_InitializedAudio = false;
-            Mix_CloseAudio();
-        }
-        if (m_InitializedMix) {
-            m_InitializedMix = false;
-            Mix_Quit();
-        }
-        if (m_InitializedSDL) {
-            m_InitializedSDL = false;
-            SDL_Quit();
-        }
-    }
-    std::cout << FString("&8------------------------------------------------------------------------") << std::endl;
-    std::cout << std::endl;
-}
-
-void GameReference::Event(const SDL_Event& event) {
-    if (event.type != SDL_WINDOWEVENT ||
-        event.window.event != SDL_WINDOWEVENT_SIZE_CHANGED)
-        return;
-
-    UpdateDimensions(event.window.data1, event.window.data2);
 }

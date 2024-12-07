@@ -66,6 +66,7 @@ public:
     // Manipulating
     bool Initialize();
     void Deinitialize(bool keep_sound);
+    void TestEnvironment();
 
     // Listening
     void Event(const SDL_Event& event);

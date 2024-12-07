@@ -43,12 +43,6 @@ bool Initialize() {
         return false;
 
     SDL_ShowCursor(0);
-
-    // Temp ammo spawn, had to generate random and set the value for each one, also changed it to also sending an int
-    //  to the Crate constructor, so its easier to work with and i dont need to have acess to DropTypes, which i do, but no,
-    //  it only works cuz this is main and i prefer to use the same typa fix on both ERRORS and crates, since
-    //  for ERRORS that fix wouldnt have worked, also it lowers the line count cuz i dont gotta set the ERROR/AMMO types
-    //  to each random number, can just send the number straight up
     return true;
 }
 
@@ -65,28 +59,18 @@ int main() {
         exit(1);
     }
 
+    GameWindow->TestEnvironment();
+
     Clock* Timer = GameWindow->Timer();
     Drawing* Render = GameWindow->Render();
-    AssetsManager* AssetsHandler = GameWindow->Assetz();
-    Assets* decals = Assets::Get();
+    Assets* assets = Assets::Get();
 
-    Texture* TextureResume = decals->GetTexture("interface.resume");
-    Texture* TexturePlay = decals->GetTexture("interface.playbutton");
-    Texture* TextureBack = decals->GetTexture("interface.back");
-    Texture* TextureExit = decals->GetTexture("interface.exit");
-    Texture* TextureSettings = decals->GetTexture("interface.settings");
-    Texture* MenuTexture = decals->GetTexture("interface.menu");
-    Texture* Vignette = decals->GetTexture("backgrounds.vignette");
+    Texture* Vignette = assets->GetTexture("backgrounds.vignette");
     Vignette->SetAlphaMod(200);
 
-    Sound* LowSound = decals->GetSound("low");
-    Sound* HighSound = decals->GetSound("high");
-    Sound* QuitSound = decals->GetSound("quit");
-    Sound* LowUISound = decals->GetSound("lowui");
-    Sound* MidUISound = decals->GetSound("midui");
-    Sound* HighUISound = decals->GetSound("highui");
-
-    // Decals::Get()->GetSound("quit")->PlaySound();
+    Sound* LowSound = assets->GetSound("low");
+    Sound* HighSound = assets->GetSound("high");
+    Sound* QuitSound = assets->GetSound("quit");
 
     MainMenu mainMenu(GameWindow);
     mainMenu.Show();
@@ -97,7 +81,6 @@ int main() {
     std::queue<LevelUpMenu*> levelUpMenuQueue;
     bool pauseMenuOpen = false;
     bool levelUpMenuOpen = false;
-    bool delayActive = false;
     while (Running) {
         pauseMenuOpen = pauseMenu.Paused();
 
