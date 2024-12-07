@@ -8,17 +8,22 @@
 class MainMenu {
 private:
     GameReference* m_GameWindow;
-    Texture* m_MenuTexture;
-    Texture* m_TexturePlay;
-    Texture* m_TextureExit;
+    static LoadedTexture sMenuTexture;
+    static LoadedTexture sTextureTitle;
+    static LoadedTexture sTexturePlay;
+    static LoadedTexture sTextureExit;
+    SDL_Rect m_TitleRect;
     SDL_Rect m_PlayButtonRect;
     SDL_Rect m_ExitButtonRect;
 
+    std::vector<std::pair<Vec2d, double>> m_Stars;
+
 public:
-    MainMenu(GameReference* gameWindow);
+    MainMenu(GameReference* game_window);
     ~MainMenu();
 
     void Show();
     void HandleEvent(const SDL_Event& event, bool& running, bool& menuOpen);
+    void Tick();
     void Render();
 };

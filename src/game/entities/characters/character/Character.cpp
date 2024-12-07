@@ -30,7 +30,7 @@ CharacterInput::CharacterInput() {
 }
 
 // Link textures
-LoadedTexture Character::sCharacterTexture("entity.character.fist");
+LoadedTexture Character::sCharacterTexture("entity.character.body");
 LoadedTexture Character::sTextureGlock("weapons.glock");
 LoadedTexture Character::sTextureShotgun("weapons.shotgun");
 LoadedTexture Character::sTextureBurst("weapons.burst");
@@ -942,20 +942,14 @@ void Character::DrawCharacter() {
                            float(m_Core.Size.x),
                            float(m_Core.Size.y) };
 
-    // if(m_HitTicks > 0) Render->SetColor(255, 0, 0, 255);
-    // else { Render->SetColor(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b, 255); }
-    // Render->FillRectFCamera(DrawRect);
-    // Render->RenderTextureFCamera(ms_Texture->SDLTexture(), nullptr,DrawRect);
-
-//    ms_Texture->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
     sCharacterTexture.GetTexture()->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
 
     double Angle = m_Core.Vel.Atan2() / M_PI * 180.0;
-    SDL_RendererFlip flip = Angle > 90 || Angle < -90 ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
+    SDL_RendererFlip flip = SDL_FLIP_NONE;
     Render->RenderTextureExFCamera(sCharacterTexture.GetTexture()->SDLTexture(),
                                    nullptr,
                                    DrawRect,
-                                   Angle,
+                                   Angle - 90.0,
                                    nullptr,
                                    flip);
 }
@@ -1100,8 +1094,7 @@ void Character::DrawNameplate() {
 
     int Opacity = int(NameVisibility * 255.0);
 
-    Texture
-        * NamePlateTexture = m_Player ? m_Player->GetNamePlate()->RequestUpdate() : ms_BotNamePlate->GetTexture();
+    Texture* NamePlateTexture = m_Player ? m_Player->GetNamePlate()->RequestUpdate() : ms_BotNamePlate->GetTexture();
 
     int NamePlateW = NamePlateTexture->GetWidth();
     int NamePlateH = NamePlateTexture->GetHeight();
