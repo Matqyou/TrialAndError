@@ -296,7 +296,7 @@ LoadedSound::LoadedSound(std::string sound_key)
 
 Sound* LoadedSound::GetSound() const {
     if (m_Sound == nullptr)
-        throw std::runtime_error(FStringColors("[Sound] GetSound '%s' was nullptr", m_Key.c_str()));
+        throw std::runtime_error(FString("[Sound] GetSound '%s' was nullptr", m_Key.c_str()));
 
     return m_Sound;
 }

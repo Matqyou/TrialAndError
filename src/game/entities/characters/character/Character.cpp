@@ -30,7 +30,7 @@ CharacterInput::CharacterInput() {
 }
 
 // Link textures
-LoadedTexture Character::sCharacterTexture("entities.fist");
+LoadedTexture Character::sCharacterTexture("entity.character.fist");
 LoadedTexture Character::sTextureGlock("weapons.glock");
 LoadedTexture Character::sTextureShotgun("weapons.shotgun");
 LoadedTexture Character::sTextureBurst("weapons.burst");
@@ -41,25 +41,26 @@ LoadedTexture Character::sTexturesMinigun[4] = {
     LoadedTexture("weapons.minigun3"),
     LoadedTexture("weapons.minigun4"),
 };
-LoadedTexture Character::sTextureErrorDisorianted("icons.disorianted");
+LoadedTexture Character::sTextureErrorDisorianted("icons.disoriented");
 LoadedTexture Character::sTextureErrorSpiky("icons.cactus");
-LoadedTexture Character::sTextureErrorConfusingHP("icons.confusion");
+LoadedTexture Character::sTextureErrorConfusingHP("icons.confused");
 LoadedTexture Character::sTextureErrorInvincible("icons.invincible");
-LoadedTexture Character::sTextureErrorHealersParadise("icons.healer");
+LoadedTexture Character::sTextureErrorHealersParadise("icons.healing");
 LoadedTexture Character::sTextureErrorRanged("icons.ranged");
-LoadedTexture Character::sTextureErrorSlowDown("icons.clock");
-LoadedTexture Character::sTextureErrorDangerousRecoil("entities.golden_apple");
+LoadedTexture Character::sTextureErrorSlowDown("icons.slow");
+LoadedTexture Character::sTextureErrorDangerousRecoil("icons.golden_apple");
 
 // Link sounds
-LoadedSound Character::sHitSounds[3]= {
-    LoadedSound("entities.character.hurt1"),
-    LoadedSound("entities.character.hurt2"),
-    LoadedSound("entities.character.hurt3")
+LoadedSound Character::sHitSounds[3] = {
+    LoadedSound("entity.character.hurt.1"),
+    LoadedSound("entity.character.hurt.2"),
+    LoadedSound("entity.character.hurt.3")
 };
-LoadedSound Character::sInvincibleHitSound("entities.character.invinciblehit");
-LoadedSound Character::sDeathSound("basic_death");
-LoadedSound Character::sAmmoPickupSound("entities.ammo.pick6");
-LoadedSound Character::sItemSwitchSound("weaponswitch");
+LoadedSound Character::sInvincibleHitSound("entity.character.hurt.invincible");
+LoadedSound Character::sDeathSound("entity.character.death");
+LoadedSound Character::sAmmoPickupSound("entity.ammo_box.pickup.6");
+LoadedSound Character::sItemSwitchSound("weapon.switch");
+LoadedSound Character::sThrowItemSound("weapon.throw");
 
 // Other
 TextSurface* Character::ms_BotNamePlate = nullptr;
@@ -391,12 +392,13 @@ void Character::DropWeapon() {
 }
 
 void Character::SwitchWeapon(WeaponType type) {
-    // m_World->GameWindow()->Assets()->SoundHandler()->PlaySound(sItemSwitchSound);
     // npcs are constantly swapping -_-
     if (!m_Weapons[type] ||
         m_CurrentWeapon == m_Weapons[type]) {
         m_CurrentWeapon = nullptr;
     } else {
+        sItemSwitchSound.GetSound()->PlaySound();
+
         m_CurrentWeapon = m_Weapons[type];
         m_AmmoCount->FlagForUpdate();
         m_CurrentWeapon->OnSelected();

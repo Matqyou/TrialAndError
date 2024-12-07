@@ -163,7 +163,6 @@ void GameReference::Deinitialize(bool keep_sound) {
     m_GameWorld = nullptr;
     delete m_Controllers;
     m_Controllers = nullptr;
-    Assets::deinitialize();
     m_AssetsHandler->DeinitializeImages();
     delete m_Draw;
     m_Draw = nullptr;
@@ -192,6 +191,7 @@ void GameReference::Deinitialize(bool keep_sound) {
     }
 
     if (!keep_sound) { // TODO: Check this out -_- looks very sus
+        Assets::deinitialize();
         if (m_InitializedAudio) {
             m_InitializedAudio = false;
             Mix_CloseAudio();

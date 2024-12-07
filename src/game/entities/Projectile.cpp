@@ -8,11 +8,11 @@
 #include "Crate.h"
 #include "characters/character/Character.h"
 
-LoadedTexture Projectile::sTextureGlock("entities.projectiles.glockbullet");
-LoadedTexture Projectile::sTextureBurst("entities.projectiles.burstbullet");
-LoadedTexture Projectile::sTextureShotgun("entities.projectiles.shotgunbullet");
-LoadedTexture Projectile::sTextureSniper("entities.projectiles.shotgunbullet");
-LoadedTexture Projectile::sTextureMinigun("entities.projectiles.minigunbullet");
+LoadedTexture Projectile::sTextureGlock("entity.projectile.glock");
+LoadedTexture Projectile::sTextureBurst("entity.projectile.burst");
+LoadedTexture Projectile::sTextureShotgun("entity.projectile.shotgun");
+LoadedTexture Projectile::sTextureSniper("entity.projectile.shotgun");
+LoadedTexture Projectile::sTextureMinigun("entity.projectile.minigun");
 
 Projectile::Projectile(GameWorld* world,
                        Entity* shooter,

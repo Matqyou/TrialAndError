@@ -6,22 +6,22 @@
 #include <random>
 #include <string>
 
-LoadedTexture Error::sTextureErrorDisorianted("entities.disorianted");
-LoadedTexture Error::sTextureErrorSpiky("entities.cactus");
-LoadedTexture Error::sTextureErrorConfusingHP("entities.confusion");
-LoadedTexture Error::sTextureErrorInvincible("entities.invincible");
-LoadedTexture Error::sTextureErrorHealersParadise("entities.healer");
-LoadedTexture Error::sTextureErrorRanged("entities.ranged");
-LoadedTexture Error::sTextureErrorSlowDown("entities.clock");
-LoadedTexture Error::sTextureErrorDangerousRecoil("entities.golden_apple");
+LoadedTexture Error::sTextureErrorDisorianted("entity.error.disoriented");
+LoadedTexture Error::sTextureErrorSpiky("entity.error.cactus");
+LoadedTexture Error::sTextureErrorConfusingHP("entity.error.confused");
+LoadedTexture Error::sTextureErrorInvincible("entity.error.invincible");
+LoadedTexture Error::sTextureErrorHealersParadise("entity.error.healer");
+LoadedTexture Error::sTextureErrorRanged("entity.error.ranged");
+LoadedTexture Error::sTextureErrorSlowDown("entity.error.slow");
+LoadedTexture Error::sTextureErrorDangerousRecoil("entity.error.golden_apple");
 LoadedSound Error::ms_PickupSounds[7] = {
-    LoadedSound("errorpickupsound"),
-    LoadedSound("errorpickupsound"),
-    LoadedSound("errorpickupsound"),
-    LoadedSound("errorpickupsound"),
-    LoadedSound("errorpickupsound"),
-    LoadedSound("errorpickupsound"),
-    LoadedSound("errorpickupsound"),
+    LoadedSound("entity.error.pickup"),
+    LoadedSound("entity.error.pickup"),
+    LoadedSound("entity.error.pickup"),
+    LoadedSound("entity.error.pickup"),
+    LoadedSound("entity.error.pickup"),
+    LoadedSound("entity.error.pickup"),
+    LoadedSound("entity.error.pickup"),
 };
 
 Error::Error(GameWorld* world, const Vec2d& start_pos, int typeID)
@@ -56,6 +56,8 @@ void Error::TickPickup(double x, double y) {
 
         if (!Collides)
             continue;
+
+        ms_PickupSounds[rand() % 7].GetSound()->PlaySound();
 
         if (m_Type == DISORIANTED) {
             if (Char->IsNPC()) { Char->ReverseMovement(); }

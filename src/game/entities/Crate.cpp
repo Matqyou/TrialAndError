@@ -4,11 +4,11 @@
 #include "characters/character/Character.h"
 #include "Crate.h"
 #include <iostream>
-LoadedSound Crate::sHitSound("entities.character.hurt1");
-LoadedSound Crate::sBoxSound("boxhit");
-LoadedTexture Crate::sBoxTexture("entities.ammocrate");
-LoadedTexture Crate::sBreakingBox1Texture("entities.rts_crate_breaking_1");
-LoadedTexture Crate::sBreakingBox2Texture("entities.rts_crate_breaking_2");
+LoadedSound Crate::sHitSound("entity.crate.death");
+LoadedSound Crate::sBoxSound("entity.crate.hurt");
+LoadedTexture Crate::sBoxTexture("entity.crate");
+LoadedTexture Crate::sBreakingBox1Texture("entity.crate2");
+LoadedTexture Crate::sBreakingBox2Texture("entity.crate3");
 
 Crate::Crate(GameWorld* world,
              const Vec2d& start_pos,

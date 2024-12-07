@@ -72,12 +72,11 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event)
         // Ignore events during delay
         return;
     }
-    Sound *lowUISound = Assets::Get()->GetSound("lowui");
-    Sound *midUISound = Assets::Get()->GetSound("midui");
 
     switch (event.type)
     {
     case SDL_QUIT:
+        Assets::Get()->GetSound("ui.quit")->PlaySound();
         m_GameWindow->Deinitialize(true);
         while (Mix_Playing(-1)) {} // wait until last sound is done playing
         delete m_GameWindow;
@@ -95,7 +94,7 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event)
                 rect.y = int(m_GameWindow->GetHeight2() / 6);
                 if (x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h)
                 {
-                    midUISound->PlaySound();
+                    Assets::Get()->GetSound("ui.pitch.mid")->PlaySound();
 
                     // Apply the selected powerup
                     switch (m_selectedIndices[i])
@@ -186,7 +185,7 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event)
         SDL_Scancode ScancodeKey = event.key.keysym.scancode;
         if (ScancodeKey == SDL_SCANCODE_ESCAPE)
         {
-            lowUISound->PlaySound();
+            Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
             m_Paused = false;
         }
         break;

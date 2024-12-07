@@ -6,8 +6,8 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
-LoadedSound WeaponGlock::sShootSound("glockshoot");
-LoadedSound WeaponGlock::sClickSound("failreload");
+LoadedSound WeaponGlock::sShootSound("weapon.glock.shoot");
+LoadedSound WeaponGlock::sClickSound("weapon.glock.fail_reload");
 
 WeaponGlock::WeaponGlock(DirectionalEntity* parent)
     : ProjectileWeapon(parent, WEAPON_GLOCK, 10, 15, 15 * 3, 35.0, false) {

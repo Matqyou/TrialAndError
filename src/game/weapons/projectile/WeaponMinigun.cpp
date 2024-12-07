@@ -7,8 +7,8 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-LoadedSound WeaponMinigun::sShootSound("shootburst");
-LoadedSound WeaponMinigun::sClickSound("failreload");
+LoadedSound WeaponMinigun::sShootSound("weapon.burst.shoot");
+LoadedSound WeaponMinigun::sClickSound("weapon.minigun.fail_reload");
 
 WeaponMinigun::WeaponMinigun(Character* owner)
     : ProjectileWeapon(owner, WEAPON_MINIGUN, 14, 64, 64 * 3, 35.0, true) {

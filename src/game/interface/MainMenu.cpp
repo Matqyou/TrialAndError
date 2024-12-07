@@ -43,12 +43,10 @@ void MainMenu::Show()
 
 void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen)
 {
-    Sound *quitSound = Assets::Get()->GetSound("quit");
-    Sound *lowUISound = Assets::Get()->GetSound("lowui");
-
     switch (event.type)
     {
     case SDL_QUIT:
+        Assets::Get()->GetSound("ui.quit")->PlaySound();
         m_GameWindow->Deinitialize(true); // close everything except sound
         while (Mix_Playing(-1)) {} // wait until last sound is done playing
         delete m_GameWindow;
@@ -63,12 +61,12 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
                 y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h)
             {
                 menuOpen = false;
-                lowUISound->PlaySound();
+                Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
             }
             if (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
                 y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h)
             {
-                quitSound->PlaySound();
+                Assets::Get()->GetSound("ui.quit")->PlaySound();
                 m_GameWindow->Deinitialize(true);
                 while (Mix_Playing(-1)) {} // wait until last sound is done playing
                 delete m_GameWindow;

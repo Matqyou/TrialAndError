@@ -6,8 +6,8 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
-LoadedSound WeaponSniper::sShootSound("glockshoot");
-LoadedSound WeaponSniper::sClickSound("failreload");
+LoadedSound WeaponSniper::sShootSound("weapon.sniper.shoot");
+LoadedSound WeaponSniper::sClickSound("weapon.sniper.fail_reload");
 
 WeaponSniper::WeaponSniper(DirectionalEntity* parent)
     : ProjectileWeapon(parent, WEAPON_SNIPER, 50, 1, 16, 100.0, false) {

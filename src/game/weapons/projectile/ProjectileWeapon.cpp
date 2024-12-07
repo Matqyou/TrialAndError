@@ -7,8 +7,8 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-LoadedSound ProjectileWeapon::sReloadSound("shotgunreload");
-LoadedSound ProjectileWeapon::sNoAmmoSound("gunclick");
+LoadedSound ProjectileWeapon::sReloadSound("weapon.reload");
+LoadedSound ProjectileWeapon::sNoAmmoSound("weapon.no_ammo");
 
 double ProjectileWeapon::GenerateSpreadAngle() const {
     return (double(rand() % m_FullRandomSpread) - m_HalfRandomSpread) / m_RandomSpreadDivisor;

@@ -6,10 +6,10 @@
 #include <cmath>
 #include <iostream>
 
-LoadedTexture AmmoBox::sTextureGlock("entities.glockammo");
-LoadedTexture AmmoBox::sTextureShotgun("entities.shotgunammo");
-LoadedTexture AmmoBox::sTextureBurst("entities.burstammo");
-LoadedTexture AmmoBox::sTextureMinigun("entities.minigunammo");
+LoadedTexture AmmoBox::sTextureGlock("entity.ammo_box.glock");
+LoadedTexture AmmoBox::sTextureShotgun("entity.ammo_box.shotgun");
+LoadedTexture AmmoBox::sTextureBurst("entity.ammo_box.burst");
+LoadedTexture AmmoBox::sTextureMinigun("entity.ammo_box.minigun");
 // Sound* AmmoBox::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 AmmoBox::AmmoBox(GameWorld* world,

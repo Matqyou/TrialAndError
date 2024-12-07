@@ -7,8 +7,8 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-LoadedSound WeaponBurst::sShootSound("shootburst");
-LoadedSound WeaponBurst::sClickSound("failreload");
+LoadedSound WeaponBurst::sShootSound("weapon.burst.shoot");
+LoadedSound WeaponBurst::sClickSound("weapon.burst.fail_reload");
 
 WeaponBurst::WeaponBurst(Character* owner)
     : ProjectileWeapon(owner, WEAPON_BURST, 30, 24, 24 * 3, 35.0, false) {

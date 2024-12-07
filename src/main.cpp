@@ -68,10 +68,6 @@ int main() {
     Texture* Vignette = assets->GetTexture("backgrounds.vignette");
     Vignette->SetAlphaMod(200);
 
-    Sound* LowSound = assets->GetSound("low");
-    Sound* HighSound = assets->GetSound("high");
-    Sound* QuitSound = assets->GetSound("quit");
-
     MainMenu mainMenu(GameWindow);
     mainMenu.Show();
     bool Running = true;
@@ -121,7 +117,7 @@ int main() {
 
             switch (CurrentEvent.type) {
                 case SDL_QUIT:
-                    QuitSound->PlaySound();
+                    Assets::Get()->GetSound("ui.quit")->PlaySound();
                     GameWindow->Deinitialize(true); // close everything except sound
 
                     while (Mix_Playing(-1)) {} // wait until last sound is done playing
@@ -154,17 +150,17 @@ int main() {
 
                     NewChar->GiveWeapon(new WeaponGlock(nullptr));
                     NewChar->SetGameController(CurrentController);
-                    HighSound->PlaySound();
-                }
+                    Assets::Get()->GetSound("ui.pitch.high")->PlaySound();
                     break;
+                }
                 case SDL_CONTROLLERDEVICEREMOVED: {
                     int InstanceID = CurrentEvent.cdevice.which;
                     GameController* DeletedController = GameWindow->Controllers()->CloseController(InstanceID);
                     GameWindow->World()->DestroyPlayerByController(DeletedController);
                     GameWindow->World()->DestroyCharacterByController(DeletedController);
-                    LowSound->PlaySound();
-                }
+                    Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
                     break;
+                }
             }
         }
 

@@ -7,7 +7,7 @@
 #include "../CharacterNPC.h"
 #include <cmath>
 
-LoadedTexture Hands::sFistTexture("entities.fist");
+LoadedTexture Hands::sFistTexture("entity.character.fist");
 
 Hands::Hands(Character* parent, double hand_spacing, double fist_animation_duration)
     : m_HandSpacing(hand_spacing / 180.0 * M_PI),

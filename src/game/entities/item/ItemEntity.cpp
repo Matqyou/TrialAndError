@@ -5,15 +5,15 @@
 #include "ItemEntity.h"
 #include "../characters/character/Character.h"
 
-LoadedTexture ItemEntity::sTextureGlock("entities.items.glock");
-LoadedTexture ItemEntity::sTextureShotgun("entities.items.shotgun");
-LoadedTexture ItemEntity::sTextureBurst("entities.items.burst");
-LoadedTexture ItemEntity::sTextureSniper("entities.items.sniper");
+LoadedTexture ItemEntity::sTextureGlock("entity.items.glock");
+LoadedTexture ItemEntity::sTextureShotgun("entity.items.shotgun");
+LoadedTexture ItemEntity::sTextureBurst("entity.items.burst");
+LoadedTexture ItemEntity::sTextureSniper("entity.items.sniper");
 LoadedTexture ItemEntity::sTexturesMinigun[4] = {
-    LoadedTexture("entities.items.minigun1"),
-    LoadedTexture("entities.items.minigun2"),
-    LoadedTexture("entities.items.minigun3"),
-    LoadedTexture("entities.items.minigun4"),
+    LoadedTexture("entity.items.minigun1"),
+    LoadedTexture("entity.items.minigun2"),
+    LoadedTexture("entity.items.minigun3"),
+    LoadedTexture("entity.items.minigun4"),
 };
 
 void ItemEntity::SetTexture(ItemType item_type) {
