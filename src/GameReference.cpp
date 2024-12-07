@@ -107,11 +107,11 @@ bool GameReference::Initialize() {
     auto image_version = IMG_Linked_Version();
     auto mixer_version = Mix_Linked_Version();
     auto ttf_version = TTF_Linked_Version();
-    std::cout << FString("&8SDL2 %u.%u.%u", Version.major, Version.minor, Version.patch) << std::endl;
-    std::cout << FString("&8SDLimage %u.%u.%u", image_version->major, image_version->minor, image_version->patch) << std::endl;
-    std::cout << FString("&8SDLmixer %u.%u.%u", mixer_version->major, mixer_version->minor, mixer_version->patch) << std::endl;
-    std::cout << FString("&8SDLttf %u.%u.%u", ttf_version->major, ttf_version->minor, ttf_version->patch) << std::endl;
-    std::cout << FString("&8---------------------------- &fInitializing &8----------------------------") << std::endl;
+    std::cout << FStringColors("&8SDL2 %u.%u.%u", Version.major, Version.minor, Version.patch) << std::endl;
+    std::cout << FStringColors("&8SDLimage %u.%u.%u", image_version->major, image_version->minor, image_version->patch) << std::endl;
+    std::cout << FStringColors("&8SDLmixer %u.%u.%u", mixer_version->major, mixer_version->minor, mixer_version->patch) << std::endl;
+    std::cout << FStringColors("&8SDLttf %u.%u.%u", ttf_version->major, ttf_version->minor, ttf_version->patch) << std::endl;
+    std::cout << FStringColors("&8---------------------------- &fInitializing &8----------------------------") << std::endl;
 
     if (!InitializeSDL() ||
         !InitializeMix() ||
@@ -150,13 +150,15 @@ bool GameReference::Initialize() {
     if (!m_Random) m_Random = new Randomizer();
     if (!m_Draw) m_Draw = new Drawing(this);
     if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager();
-    std::cout << FString("&8------------------------------------------------------------------------") << std::endl;
+    std::cout << FStringColors("&8------------------------------------------------------------------------") << std::endl;
     std::cout << std::endl;
     return true;
 }
 
 void GameReference::Deinitialize(bool keep_sound) {
-    std::cout << FString("&8---------------------------- &fDeinitializing(keep_sound = %s) &8----------------------------", keep_sound ? "true" : "false") << std::endl;
+    std::cout << FStringColors(
+        "&8---------------------------- &fDeinitializing(keep_sound = %s) &8----------------------------",
+        keep_sound ? "true" : "false") << std::endl;
     delete m_GameWorld;
     m_GameWorld = nullptr;
     delete m_Controllers;
@@ -180,30 +182,30 @@ void GameReference::Deinitialize(bool keep_sound) {
     if (m_InitializedTTF) {
         m_InitializedTTF = false;
         TTF_Quit();
-        std::cout << FString("[GameReference] &8Closed TTF") << std::endl;
+        std::cout << FStringColors("[GameReference] &8Closed TTF") << std::endl;
     }
 
     if (m_InitializedImages) {
         m_InitializedImages = false;
         IMG_Quit();
-        std::cout << FString("[GameReference] &8Closed Images") << std::endl;
+        std::cout << FStringColors("[GameReference] &8Closed Images") << std::endl;
     }
 
     if (!keep_sound) { // TODO: Check this out -_- looks very sus
         if (m_InitializedAudio) {
             m_InitializedAudio = false;
             Mix_CloseAudio();
-            std::cout << FString("[GameReference] &8Closed Audio") << std::endl;
+            std::cout << FStringColors("[GameReference] &8Closed Audio") << std::endl;
         }
         if (m_InitializedMix) {
             m_InitializedMix = false;
             Mix_Quit();
-            std::cout << FString("[GameReference] &8Closed Mixer") << std::endl;
+            std::cout << FStringColors("[GameReference] &8Closed Mixer") << std::endl;
         }
         if (m_InitializedSDL) {
             m_InitializedSDL = false;
             SDL_Quit();
-            std::cout << FString("[GameReference] &8Closed SDL") << std::endl;
+            std::cout << FStringColors("[GameReference] &8Closed SDL") << std::endl;
         }
     }
 }

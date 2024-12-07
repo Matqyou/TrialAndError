@@ -9,6 +9,7 @@
 #include <string>
 #include "../client/Assets.h"
 
+std::string FStringColors(const char* format, ...);
 std::string FString(const char* format, ...);
 std::string ErasePrefix(std::string string, const std::string& prefix);
 std::string EraseSuffix(std::string string, const std::string& suffix);

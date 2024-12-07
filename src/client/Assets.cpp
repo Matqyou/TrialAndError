@@ -95,7 +95,9 @@ std::vector<std::tuple<std::string, std::string, std::string>> GetResourceKeys(c
 
         // Check if the extension is supported
         if (supported_extensions.find(extension) == supported_extensions.end()) {
-            std::cout << FString("[Assets] &8Unsupported texture format '%s' for '%s'", extension.c_str(), identificator.c_str()) << std::endl;
+            std::cout << FStringColors("[Assets] &8Unsupported texture format '%s' for '%s'",
+                                       extension.c_str(),
+                                       identificator.c_str()) << std::endl;
             continue;
         }
 
@@ -124,15 +126,18 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
 
         auto it = m_Textures.find(key);
         if (it != m_Textures.end()) {
-            std::cout << FString("[Assets] &8Duplicate texture '%s' for existing '%s'(%s)", extension.c_str(), key.c_str(), it->second->m_LoadExtension.c_str()) << std::endl;
+            std::cout << FStringColors("[Assets] &8Duplicate texture '%s' for existing '%s'(%s)",
+                                       extension.c_str(),
+                                       key.c_str(),
+                                       it->second->m_LoadExtension.c_str()) << std::endl;
             continue;
         }
 
         // Load the texture
         SDL_Surface* TempSurface = IMG_Load(file_path.c_str());
         if (!TempSurface) {
-            std::cout << FString("[Assets] &cFailed to load texture '%s'", file_path.c_str()) << std::endl;
-            std::cout << FString("[Assets] &cReason (%s)", SDL_GetError()) << std::endl;
+            std::cout << FStringColors("[Assets] &cFailed to load texture '%s'", file_path.c_str()) << std::endl;
+            std::cout << FStringColors("[Assets] &cReason (%s)", SDL_GetError()) << std::endl;
             continue;
         }
 
@@ -143,7 +148,7 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
         auto new_texture = new Texture(key, NewSDLTexture, extension);
         m_Textures[key] = new_texture;
     }
-    std::cout << FString("[Assets] &5Loaded %i textures", m_Textures.size()) << std::endl;
+    std::cout << FStringColors("[Assets] &5Loaded %i textures", m_Textures.size()) << std::endl;
     m_InvalidTexture = nullptr;
     m_InvalidTexture = GetTexture("invalid");
 
@@ -159,15 +164,18 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
 
         auto it = m_Sounds.find(key);
         if (it != m_Sounds.end()) {
-            std::cout << FString("[Assets] &8Duplicate sound '%s' for existing '%s'(%s)", extension.c_str(), key.c_str(), it->second->m_LoadExtension.c_str()) << std::endl;
+            std::cout << FStringColors("[Assets] &8Duplicate sound '%s' for existing '%s'(%s)",
+                                       extension.c_str(),
+                                       key.c_str(),
+                                       it->second->m_LoadExtension.c_str()) << std::endl;
             continue;
         }
 
         // Load the sound
         Mix_Chunk* NewMixChunk = Mix_LoadWAV(file_path.c_str());
         if (!NewMixChunk) {
-            std::cout << FString("[Assets] &cFailed to load sound '%s'", file_path.c_str()) << std::endl;
-            std::cout << FString("[Assets] &cReason (%s)", SDL_GetError()) << std::endl;
+            std::cout << FStringColors("[Assets] &cFailed to load sound '%s'", file_path.c_str()) << std::endl;
+            std::cout << FStringColors("[Assets] &cReason (%s)", SDL_GetError()) << std::endl;
             continue;
         }
 
@@ -175,7 +183,7 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
         auto new_sound = new Sound(key, NewMixChunk, extension);
         m_Sounds[key] = new_sound;
     }
-    std::cout << FString("[Assets] &5Loaded %i sounds", m_Sounds.size()) << std::endl;
+    std::cout << FStringColors("[Assets] &5Loaded %i sounds", m_Sounds.size()) << std::endl;
 
 
     // LINK REQUIRED DEPENDENCIES
@@ -185,7 +193,7 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
 
         required_texture->m_Texture = GetTexture(texture_key);
     }
-    std::cout << FString("[Assets] &5Linked %zu textures", m_RegisterTextures.size()) << std::endl;
+    std::cout << FStringColors("[Assets] &5Linked %zu textures", m_RegisterTextures.size()) << std::endl;
     m_RegisterTextures.clear();
 
     // Sounds
@@ -194,7 +202,7 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
 
         required_sound->m_Sound = GetSound(sound_key);
     }
-    std::cout << FString("[Assets] &5Linked %zu sounds", m_RegisterSounds.size()) << std::endl;
+    std::cout << FStringColors("[Assets] &5Linked %zu sounds", m_RegisterSounds.size()) << std::endl;
     m_RegisterSounds.clear();
 }
 
@@ -210,8 +218,8 @@ Assets::~Assets()
         delete entry.second;
         destroyed_sounds++;
     }
-    std::cout << FString("[Assets] &5Unloaded %zu textures", destroyed_textures) << std::endl;
-    std::cout << FString("[Assets] &5Unloaded %zu sounds", destroyed_sounds) << std::endl;
+    std::cout << FStringColors("[Assets] &5Unloaded %zu textures", destroyed_textures) << std::endl;
+    std::cout << FStringColors("[Assets] &5Unloaded %zu sounds", destroyed_sounds) << std::endl;
 }
 
 void Assets::initialize(SDL_Renderer* renderer, bool sounds_enabled)
@@ -239,7 +247,7 @@ Texture* Assets::GetTexture(const std::string& texture_key) {
     if (it != m_Textures.end())
         return it->second;
 
-    std::cout << FString("[Assets] &8Texture '%s' not found", texture_key.c_str()) << std::endl;
+    std::cout << FStringColors("[Assets] &8Texture '%s' not found", texture_key.c_str()) << std::endl;
     return m_InvalidTexture;
 }
 
@@ -248,7 +256,7 @@ Sound* Assets::GetSound(const std::string& sound_key) {
     if (it != m_Sounds.end())
         return it->second;
 
-    std::cout << FString("[Assets] &8Sound '%s' not found", sound_key.c_str()) << std::endl;
+    std::cout << FStringColors("[Assets] &8Sound '%s' not found", sound_key.c_str()) << std::endl;
     return nullptr;
 }
 
@@ -288,7 +296,7 @@ LoadedSound::LoadedSound(std::string sound_key)
 
 Sound* LoadedSound::GetSound() const {
     if (m_Sound == nullptr)
-        throw std::runtime_error(FString("[Sound] GetSound '%s' was nullptr", m_Key.c_str()));
+        throw std::runtime_error(FStringColors("[Sound] GetSound '%s' was nullptr", m_Key.c_str()));
 
     return m_Sound;
 }

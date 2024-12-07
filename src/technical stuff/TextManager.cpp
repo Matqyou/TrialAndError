@@ -29,7 +29,7 @@ const std::unordered_map<char, std::string> minecraftToAnsi = {
     {'r', "\033[0m"}   // Reset
 };
 
-std::string FString(const char* format, ...) {
+std::string FStringColors(const char* format, ...) {
     va_list args;
     va_start(args, format);
 
@@ -67,26 +67,26 @@ std::string FString(const char* format, ...) {
     return message + "\033[0m"; // Ensure the string ends with a reset code
 }
 
-//std::string FString(const char* format, ...) {
-//    va_list args;
-//    va_start(args, format);
-//
-//    // Determine the required buffer size
-//    va_list argsCopy;
-//    va_copy(argsCopy, args);
-//    int bufferSize = std::vsnprintf(nullptr, 0, format, argsCopy) + 1;  // +1 for null terminator
-//    va_end(argsCopy);
-//
-//    // Create the buffer with the required size
-//    char* buffer = new char[bufferSize];
-//
-//    // Format the string
-//    std::vsnprintf(buffer, bufferSize, format, args);
-//    va_end(args);
-//    std::string message(buffer);
-//    delete[] buffer;
-//    return message;
-//}
+std::string FString(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    // Determine the required buffer size
+    va_list argsCopy;
+    va_copy(argsCopy, args);
+    int bufferSize = std::vsnprintf(nullptr, 0, format, argsCopy) + 1;  // +1 for null terminator
+    va_end(argsCopy);
+
+    // Create the buffer with the required size
+    char* buffer = new char[bufferSize];
+
+    // Format the string
+    std::vsnprintf(buffer, bufferSize, format, args);
+    va_end(args);
+    std::string message(buffer);
+    delete[] buffer;
+    return message;
+}
 
 std::string ErasePrefix(std::string string, const std::string& prefix) {
     size_t pos = string.find(prefix);
