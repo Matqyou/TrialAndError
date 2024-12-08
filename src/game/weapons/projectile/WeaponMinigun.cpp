@@ -7,11 +7,12 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-LoadedSound WeaponMinigun::sShootSound("weapon.burst.shoot");
+LoadedSound WeaponMinigun::sShootSound("weapon.minigun.shoot");
 LoadedSound WeaponMinigun::sClickSound("weapon.minigun.fail_reload");
+LoadedSound WeaponMinigun::sReloadSound("weapon.minigun.reload");
 
 WeaponMinigun::WeaponMinigun(Character* owner)
-    : ProjectileWeapon(owner, WEAPON_MINIGUN, 14, 64, 64 * 3, 35.0, true) {
+    : ProjectileWeapon(owner, WEAPON_MINIGUN, sReloadSound.GetSound(), 14, 64, 64 * 3, 35.0, true) {
     m_BaseRecoilForce = 3.2;
     m_RecoilForce = m_BaseRecoilForce;
     m_Damage = 4.0;

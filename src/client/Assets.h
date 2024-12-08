@@ -64,19 +64,42 @@ public:
     void PlaySound();
 };
 
+class Music {
+private:
+    friend class Assets;
+    const std::string m_Key;
+    Mix_Music* m_MixMusic;
+    std::string m_LoadExtension;
+
+public:
+    explicit Music(std::string key = "NaN", Mix_Music* mix_music = nullptr, std::string load_extension = "NaN");
+    ~Music();
+
+    // Getting
+    [[nodiscard]] Mix_Music* MixMusic() const { return m_MixMusic; }
+
+    // Manipulating
+    void PlayMusic(int loops);
+
+};
+
 class LoadedTexture;
 class LoadedSound;
+class LoadedMusic;
 class Assets {
     static Assets* Instance;
     SDL_Renderer* m_Renderer;
     bool m_SoundsEnabled;
+
     std::unordered_map<std::string, Texture*> m_Textures;
     std::unordered_map<std::string, Sound*> m_Sounds;
+    std::unordered_map<std::string, Music*> m_Music;
     // std::vector<Texture2> m_UsedTextures;
     Texture* m_InvalidTexture;
 
     static std::vector<LoadedTexture*> m_RegisterTextures;
     static std::vector<LoadedSound*> m_RegisterSounds;
+    static std::vector<LoadedMusic*> m_RegisterMusic;
 
 public:
     static void initialize(SDL_Renderer* renderer, bool sounds_enabled);
@@ -89,6 +112,7 @@ public:
     // Getting
     Texture* GetTexture(const std::string& texture_key);
     Sound* GetSound(const std::string& sound_key);
+    Music* GetMusic(const std::string& music_key);
     bool SoundsEnabled() const { return m_SoundsEnabled; }
 
     // Generating
@@ -98,6 +122,9 @@ public:
     // Manipulating
     static void RequireTexture(LoadedTexture* register_texture);
     static void RequireSound(LoadedSound* register_sound);
+    static void RequireMusic(LoadedMusic* register_music);
+    static void SetMusicVolume(int volume);
+    static void PauseMusic();
 
 private:
     Assets(SDL_Renderer* renderer, bool sounds_enabled);
@@ -132,5 +159,20 @@ public:
     // Getting
     [[nodiscard]] const std::string& Key() const { return m_Key; }
     [[nodiscard]] Sound* GetSound() const;
+
+};
+
+class LoadedMusic {
+private:
+    friend class Assets;
+    std::string m_Key;
+    Music* m_Music;
+
+public:
+    explicit LoadedMusic(std::string music_key);
+
+    // Getting
+    [[nodiscard]] const std::string& Key() const { return m_Key; }
+    [[nodiscard]] Music* GetMusic() const;
 
 };

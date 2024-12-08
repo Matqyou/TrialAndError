@@ -23,7 +23,7 @@ protected:
     Texture* m_Texture;
 
 public:
-    static LoadedSound sHitSound;
+    static LoadedSound sHitSound[3];
     static LoadedSound sBoxSound;
     static LoadedTexture sBoxTexture;
     static LoadedTexture sBreakingBox1Texture;

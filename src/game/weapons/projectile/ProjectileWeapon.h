@@ -37,6 +37,7 @@ protected:
 
     DirectionalEntity* m_Parent;
     WeaponType m_Type;
+    Sound* m_ReloadSound;
 
     // Ticking
     virtual void TickTrigger();
@@ -46,11 +47,11 @@ protected:
     [[nodiscard]] double GenerateRandomProjectileSpeed() const;
 
 public:
-    static LoadedSound sReloadSound;
     static LoadedSound sNoAmmoSound;
 
     ProjectileWeapon(DirectionalEntity* parent,
                      WeaponType type,
+                     Sound* reload_sound,
                      int tick_cooldown,
                      int ammo_capacity,
                      int total_ammo_capacity,

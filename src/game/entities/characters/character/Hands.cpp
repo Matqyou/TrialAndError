@@ -8,6 +8,7 @@
 #include <cmath>
 
 LoadedTexture Hands::sFistTexture("entity.character.fist");
+LoadedSound Hands::sPunchSound("entity.character.punch");
 
 Hands::Hands(Character* parent, double hand_spacing, double fist_animation_duration)
     : m_HandSpacing(hand_spacing / 180.0 * M_PI),

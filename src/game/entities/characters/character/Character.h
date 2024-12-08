@@ -133,6 +133,7 @@ public:
     static LoadedSound sAmmoPickupSound;
     static LoadedSound sItemSwitchSound;
     static LoadedSound sThrowItemSound;
+    static LoadedSound sPickupItemSound;
     static TextSurface* ms_BotNamePlate;
     TextSurface* m_ErrorText;
 

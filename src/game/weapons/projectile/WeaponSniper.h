@@ -15,6 +15,7 @@ private:
 public:
     static LoadedSound sShootSound;
     static LoadedSound sClickSound;
+    static LoadedSound sReloadSound;
 
     explicit WeaponSniper(DirectionalEntity* parent);
 

@@ -9,9 +9,10 @@
 
 LoadedSound WeaponBurst::sShootSound("weapon.burst.shoot");
 LoadedSound WeaponBurst::sClickSound("weapon.burst.fail_reload");
+LoadedSound WeaponBurst::sReloadSound("weapon.burst.reload");
 
 WeaponBurst::WeaponBurst(Character* owner)
-    : ProjectileWeapon(owner, WEAPON_BURST, 30, 24, 24 * 3, 35.0, false) {
+    : ProjectileWeapon(owner, WEAPON_BURST, sReloadSound.GetSound(), 30, 24, 24 * 3, 35.0, false) {
     m_BaseRecoilForce = 3.0;
     m_RecoilForce = m_BaseRecoilForce;
     m_Damage = 8.5;

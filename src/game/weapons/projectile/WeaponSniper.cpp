@@ -8,9 +8,10 @@
 
 LoadedSound WeaponSniper::sShootSound("weapon.sniper.shoot");
 LoadedSound WeaponSniper::sClickSound("weapon.sniper.fail_reload");
+LoadedSound WeaponSniper::sReloadSound("weapon.sniper.reload");
 
 WeaponSniper::WeaponSniper(DirectionalEntity* parent)
-    : ProjectileWeapon(parent, WEAPON_SNIPER, 50, 1, 16, 100.0, false) {
+    : ProjectileWeapon(parent, WEAPON_SNIPER, sReloadSound.GetSound(), 50, 1, 16, 100.0, false) {
     m_BaseRecoilForce = 12.0;
     m_RecoilForce = m_BaseRecoilForce;
     m_Damage = 70;

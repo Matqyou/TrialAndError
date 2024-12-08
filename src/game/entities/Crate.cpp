@@ -4,7 +4,11 @@
 #include "characters/character/Character.h"
 #include "Crate.h"
 #include <iostream>
-LoadedSound Crate::sHitSound("entity.crate.death");
+LoadedSound Crate::sHitSound[] = {
+    LoadedSound("entity.crate.broken.1"),
+    LoadedSound("entity.crate.broken.2"),
+    LoadedSound("entity.crate.broken.3"),
+};
 LoadedSound Crate::sBoxSound("entity.crate.hurt");
 LoadedTexture Crate::sBoxTexture("entity.crate");
 LoadedTexture Crate::sBreakingBox1Texture("entity.crate2");
@@ -69,7 +73,7 @@ void Crate::Tick() {
     // Die
     if (!m_HealthComponent.IsAlive()) {
         m_Alive = false;
-        sHitSound.GetSound()->PlaySound();
+        sHitSound[rand()%3].GetSound()->PlaySound();
         if (m_DropType != ERROR) {
             auto Ammo_type = m_World->GameWindow()->Random()->UnsignedInt() % NUM_AMMO_TYPES;
             new AmmoBox(m_World, AmmoType(Ammo_type), m_Core.Pos, 20);

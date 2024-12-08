@@ -6,11 +6,12 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
-LoadedSound WeaponGlock::sShootSound("weapon.glock.shoot");
+LoadedSound WeaponGlock::sShootSound("weapon.glock.shoot2");
 LoadedSound WeaponGlock::sClickSound("weapon.glock.fail_reload");
+LoadedSound WeaponGlock::sReloadSound("weapon.glock.reload");
 
 WeaponGlock::WeaponGlock(DirectionalEntity* parent)
-    : ProjectileWeapon(parent, WEAPON_GLOCK, 10, 15, 15 * 3, 35.0, false) {
+    : ProjectileWeapon(parent, WEAPON_GLOCK, sReloadSound.GetSound(), 10, 15, 15 * 3, 35.0, false) {
     m_BaseRecoilForce = 3.0;
     m_RecoilForce = m_BaseRecoilForce;
     m_Damage = 7.5;

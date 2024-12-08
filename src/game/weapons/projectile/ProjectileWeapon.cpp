@@ -7,7 +7,6 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-LoadedSound ProjectileWeapon::sReloadSound("weapon.reload");
 LoadedSound ProjectileWeapon::sNoAmmoSound("weapon.no_ammo");
 
 double ProjectileWeapon::GenerateSpreadAngle() const {
@@ -21,6 +20,7 @@ double ProjectileWeapon::GenerateRandomProjectileSpeed() const {
 
 ProjectileWeapon::ProjectileWeapon(DirectionalEntity* owner,
                                    WeaponType type,
+                                   Sound* reload_sound,
                                    int tick_cooldown,
                                    int ammo_capacity,
                                    int total_ammo_capacity,
@@ -46,6 +46,8 @@ ProjectileWeapon::ProjectileWeapon(DirectionalEntity* owner,
     m_NegativeRandomProjectileSpeed = 0.0;
     m_FullRandomProjectileSpeed = 0;
     m_Parent = nullptr;
+
+    m_ReloadSound = reload_sound == nullptr ? Assets::Get()->GetSound("weapon.default.reload") : reload_sound;
 }
 
 void ProjectileWeapon::TickTrigger() {
@@ -118,10 +120,11 @@ void ProjectileWeapon::SetRandomProjectileSpeed(double delta_speed,
 
 void ProjectileWeapon::Reload() {
     if (m_TrueAmmo != 0) {
-        sReloadSound.GetSound()->PlaySound();
+        m_ReloadSound->PlaySound();
     } else {
         sNoAmmoSound.GetSound()->PlaySound();
     }
+
     unsigned int AmmoNeeded = m_AmmoCapacity - m_Ammo;
     if (m_TrueAmmo >= AmmoNeeded) {
         m_TrueAmmo -= AmmoNeeded;

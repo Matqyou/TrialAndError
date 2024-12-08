@@ -191,7 +191,7 @@ int main() {
         Render->UpdateWindow();
 
         if (GameWindow->World()->GetDelay() && (levelUpMenuOpen)) {
-            SDL_Delay(1000); // Delay for 1000 milliseconds (1 second)
+//            SDL_Delay(1000); // Delay for 1000 milliseconds (1 second)
             SDL_Event event;
             while (SDL_PollEvent(&event)) {
                 // Discard events

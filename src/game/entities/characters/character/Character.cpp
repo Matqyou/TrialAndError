@@ -61,6 +61,7 @@ LoadedSound Character::sDeathSound("entity.character.death");
 LoadedSound Character::sAmmoPickupSound("entity.ammo_box.pickup.6");
 LoadedSound Character::sItemSwitchSound("weapon.switch");
 LoadedSound Character::sThrowItemSound("weapon.throw");
+LoadedSound Character::sPickupItemSound("weapon.pickup");
 
 // Other
 TextSurface* Character::ms_BotNamePlate = nullptr;
@@ -1065,7 +1066,7 @@ void Character::DrawHands() {
 
         // Laser sight
         if (m_CurrentWeapon->WepType() == WeaponType::WEAPON_SNIPER) {
-            Vec2d end_position = m_Core.Pos + m_DirectionalCore.Direction * 1000;
+            Vec2d end_position = m_Core.Pos + m_DirectionalCore.Direction * 3000; // Todo make it collide with stuff
             Render->SetColor(255, 0, 0, 255);
             Render->LineCamera(m_Core.Pos.x, m_Core.Pos.y, end_position.x, end_position.y);
         }

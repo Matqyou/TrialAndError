@@ -159,6 +159,7 @@ void GameReference::Deinitialize(bool keep_sound) {
     std::cout << FStringColors(
         "&8---------------------------- &fDeinitializing(keep_sound = %s) &8----------------------------",
         keep_sound ? "true" : "false") << std::endl;
+    Assets::PauseMusic();
     delete m_GameWorld;
     m_GameWorld = nullptr;
     delete m_Controllers;

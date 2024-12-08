@@ -8,6 +8,7 @@
 class MainMenu {
 private:
     GameReference* m_GameWindow;
+    static LoadedMusic sElevatorMusic;
     static LoadedTexture sMenuTexture;
     static LoadedTexture sTextureTitle;
     static LoadedTexture sTexturePlay;
@@ -16,7 +17,7 @@ private:
     SDL_Rect m_PlayButtonRect;
     SDL_Rect m_ExitButtonRect;
 
-    std::vector<std::pair<Vec2d, double>> m_Stars;
+    std::vector<std::tuple<Vec2d, Vec2d, double>> m_Stars;
 
 public:
     MainMenu(GameReference* game_window);

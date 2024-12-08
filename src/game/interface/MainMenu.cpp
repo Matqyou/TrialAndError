@@ -2,6 +2,7 @@
 
 #include "MainMenu.h"
 
+LoadedMusic MainMenu::sElevatorMusic("elevator");
 LoadedTexture MainMenu::sMenuTexture("interface.menu");
 LoadedTexture MainMenu::sTextureTitle("ui.main.title");
 LoadedTexture MainMenu::sTexturePlay("ui.main.playbutton");
@@ -24,6 +25,7 @@ void MainMenu::Show()
     bool running = true;
     bool menuOpen = true;
 
+    sElevatorMusic.GetMusic()->PlayMusic(-1);
     while (menuOpen)
     {
         Tick();
@@ -60,6 +62,7 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
                 y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h)
             {
                 menuOpen = false;
+                Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
             }
             if (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
@@ -107,10 +110,10 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
 }
 
 void MainMenu::Tick() {
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 3; i++) {
         auto random_position = Vec2d(rand() % m_GameWindow->GetWidth(), rand() % m_GameWindow->GetHeight());
         auto duration = 1500.0;
-        m_Stars.emplace_back(random_position, duration);
+        m_Stars.emplace_back(random_position, Vec2d(0.0, 0.0), duration);
     }
 
     Vec2i MousePosition;
@@ -118,19 +121,21 @@ void MainMenu::Tick() {
     auto MousePositionD = Vec2d(MousePosition.x, MousePosition.y);
 
     for (int i = m_Stars.size() - 1; i >= 0; --i) {
-        auto& [position, duration] = m_Stars[i];
+        auto& [position, velocity, duration] = m_Stars[i];
 
-        // Falling effect
-        position.x += 0.01;
-        position.y += 0.02;
+        auto direction = position - MousePositionD;
+        double distance = direction.Length();
+        velocity += direction.Normalize() / distance * 0.15;
+        velocity.x += (sin((position.x + position.y*2)/50)) * 0.0015;
+
+        velocity *= 0.98;
+
+        position.x += velocity.x;
+        position.y += velocity.y;
         if (position.x > m_GameWindow->GetWidth())
             position.x -= m_GameWindow->GetWidth();
         if (position.y > m_GameWindow->GetHeight())
             position.y -= m_GameWindow->GetHeight();
-
-        auto direction = position - MousePositionD;
-        double distance = direction.Length();
-        position -= direction.Normalize() / distance * 5;
 
         duration -= 1;
         if (duration <= 0.0)
@@ -154,9 +159,9 @@ void MainMenu::Render()
 
     render->SetColor(200, 200, 200, 255);
     for (int i = m_Stars.size() - 1; i >= 0; --i) {
-        auto& [position, duration] = m_Stars[i];
+        auto& [position, velocity, duration] = m_Stars[i];
 
-        auto size = (int)duration / 1000.0;
+        auto size = (int)duration / 750.0;
         for (int j = 0; j < size; j++) {
             for (int k = 0; k < size; k++) {
                 int draw_x = position.x - size / 2 + j;

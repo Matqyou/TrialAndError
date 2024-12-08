@@ -12,15 +12,16 @@
 #include "../technical stuff/TextManager.h"
 
 Assets* Assets::Instance = nullptr;
-std::vector<LoadedTexture*> Assets::m_RegisterTextures = {};
-std::vector<LoadedSound*> Assets::m_RegisterSounds = {};
+std::vector<LoadedTexture*> Assets::m_RegisterTextures = { };
+std::vector<LoadedSound*> Assets::m_RegisterSounds = { };
+std::vector<LoadedMusic*> Assets::m_RegisterMusic = { };
 
 Texture::Texture(std::string key, SDL_Texture* sdl_texture, std::string load_extension)
-: m_Key(std::move(key)),
-  m_LoadExtension(std::move(load_extension)) {
+    : m_Key(std::move(key)),
+      m_LoadExtension(std::move(load_extension)) {
     m_SDLTexture = sdl_texture;
 
-    m_Information = {};
+    m_Information = { };
     SDL_QueryTexture(m_SDLTexture,
                      &m_Information.format,
                      &m_Information.access,
@@ -46,8 +47,8 @@ void Texture::SetAlphaMod(int alpha) {
 }
 
 Sound::Sound(std::string key, Mix_Chunk* mix_chunk, std::string load_extension)
- : m_Key(std::move(key)),
-   m_LoadExtension(std::move(load_extension)) {
+    : m_Key(std::move(key)),
+      m_LoadExtension(std::move(load_extension)) {
     m_MixChunk = mix_chunk;
 }
 
@@ -60,16 +61,33 @@ void Sound::SetVolume(int volume) {
     Mix_VolumeChunk(m_MixChunk, volume);
 }
 
-void Sound::PlaySound()
-{
+void Sound::PlaySound() {
     if (m_MixChunk == nullptr || !Assets::Get()->SoundsEnabled())
         return;
 
     Mix_PlayChannel(-1, m_MixChunk, 0);
 }
 
+Music::Music(std::string key, Mix_Music* mix_music, std::string load_extension)
+    : m_Key(std::move(key)),
+      m_LoadExtension(std::move(load_extension)) {
+    m_MixMusic = mix_music;
+}
+
+Music::~Music() {
+    if (m_MixMusic)
+        Mix_FreeMusic(m_MixMusic);
+}
+
+void Music::PlayMusic(int loops) {
+    if (m_MixMusic == nullptr || !Assets::Get()->SoundsEnabled())
+        return;
+
+    Mix_PlayMusic(m_MixMusic, loops);
+}
+
 std::vector<std::tuple<std::string, std::string, std::string>> GetResourceKeys(const char* directory,
-    const std::unordered_set<std::string>& supported_extensions) {
+                                                                               const std::unordered_set<std::string>& supported_extensions) {
     std::vector<std::tuple<std::string, std::string, std::string>> results;
 
     for (const auto& entry : std::filesystem::recursive_directory_iterator(directory)) {
@@ -109,7 +127,7 @@ std::vector<std::tuple<std::string, std::string, std::string>> GetResourceKeys(c
 }
 
 Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
- : m_InvalidTexture(nullptr) {
+    : m_InvalidTexture(nullptr) {
     m_Renderer = renderer;
     m_SoundsEnabled = sounds_enabled;
 
@@ -185,6 +203,34 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
     }
     std::cout << FStringColors("[Assets] &5Loaded %i sounds", m_Sounds.size()) << std::endl;
 
+    auto music_keys = GetResourceKeys(R"(.\assets\music\)", sound_extensions);
+    for (auto entry : music_keys) {
+        std::string& key = std::get<0>(entry);
+        std::string& file_path = std::get<1>(entry);
+        std::string& extension = std::get<2>(entry);
+
+        auto it = m_Music.find(key);
+        if (it != m_Music.end()) {
+            std::cout << FStringColors("[Assets] &8Duplicate music '%s' for existing '%s'(%s)",
+                                       extension.c_str(),
+                                       key.c_str(),
+                                       it->second->m_LoadExtension.c_str()) << std::endl;
+            continue;
+        }
+
+        // Load the sound
+        Mix_Music* NewMixMusic = Mix_LoadMUS(file_path.c_str());
+        if (!NewMixMusic) {
+            std::cout << FStringColors("[Assets] &cFailed to load music '%s'", file_path.c_str()) << std::endl;
+            std::cout << FStringColors("[Assets] &cReason (%s)", SDL_GetError()) << std::endl;
+            continue;
+        }
+
+        // Add it to all the textures
+        auto new_music = new Music(key, NewMixMusic, extension);
+        m_Music[key] = new_music;
+    }
+    std::cout << FStringColors("[Assets] &5Loaded %i music", m_Music.size()) << std::endl;
 
     // LINK REQUIRED DEPENDENCIES
     // Textures
@@ -204,12 +250,21 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
     }
     std::cout << FStringColors("[Assets] &5Linked %zu sounds", m_RegisterSounds.size()) << std::endl;
     m_RegisterSounds.clear();
+
+    // Music
+    for (auto required_music : m_RegisterMusic) {
+        const std::string& music_key = required_music->Key();
+
+        required_music->m_Music = GetMusic(music_key);
+    }
+    std::cout << FStringColors("[Assets] &5Linked %zu music", m_RegisterMusic.size()) << std::endl;
+    m_RegisterMusic.clear();
 }
 
-Assets::~Assets()
-{
+Assets::~Assets() {
     size_t destroyed_textures = 0;
     size_t destroyed_sounds = 0;
+    size_t destroyed_music = 0;
     for (const auto& entry : m_Textures) {
         delete entry.second;
         destroyed_textures++;
@@ -218,24 +273,26 @@ Assets::~Assets()
         delete entry.second;
         destroyed_sounds++;
     }
+    for (const auto& entry : m_Music) {
+        delete entry.second;
+        destroyed_music++;
+    }
     std::cout << FStringColors("[Assets] &5Unloaded %zu textures", destroyed_textures) << std::endl;
     std::cout << FStringColors("[Assets] &5Unloaded %zu sounds", destroyed_sounds) << std::endl;
+    std::cout << FStringColors("[Assets] &5Unloaded %zu music", destroyed_music) << std::endl;
 }
 
-void Assets::initialize(SDL_Renderer* renderer, bool sounds_enabled)
-{
+void Assets::initialize(SDL_Renderer* renderer, bool sounds_enabled) {
     if (Instance == nullptr)
         Instance = new Assets(renderer, sounds_enabled);
 }
 
-void Assets::deinitialize()
-{
+void Assets::deinitialize() {
     delete Instance;
     Instance = nullptr;
 }
 
-Assets* Assets::Get()
-{
+Assets* Assets::Get() {
     if (Instance == nullptr)
         throw std::runtime_error("Assets not initialized. Call initialize() first.");
 
@@ -260,6 +317,15 @@ Sound* Assets::GetSound(const std::string& sound_key) {
     return nullptr;
 }
 
+Music* Assets::GetMusic(const std::string& music_key) {
+    auto it = m_Music.find(music_key);
+    if (it != m_Music.end())
+        return it->second;
+
+    std::cout << FStringColors("[Assets] &8Music '%s' not found", music_key.c_str()) << std::endl;
+    return nullptr;
+}
+
 Texture* Assets::TextureFromSurface(SDL_Surface* sdl_surface) {
     SDL_Texture* NewSDLTexture = SDL_CreateTextureFromSurface(m_Renderer, sdl_surface);
 
@@ -280,6 +346,18 @@ void Assets::RequireSound(LoadedSound* register_sound) {
     m_RegisterSounds.push_back(register_sound);
 }
 
+void Assets::RequireMusic(LoadedMusic* register_music) {
+    m_RegisterMusic.push_back(register_music);
+}
+
+void Assets::SetMusicVolume(int volume) {
+    Mix_VolumeMusic(volume);
+}
+
+void Assets::PauseMusic() {
+    Mix_PauseMusic();
+}
+
 LoadedTexture::LoadedTexture(std::string texture_key)
     : m_Key(std::move(texture_key)) {
     m_Texture = nullptr;
@@ -288,7 +366,7 @@ LoadedTexture::LoadedTexture(std::string texture_key)
 }
 
 LoadedSound::LoadedSound(std::string sound_key)
-: m_Key(std::move(sound_key)) {
+ : m_Key(std::move(sound_key)) {
     m_Sound = nullptr;
 
     Assets::RequireSound(this);
@@ -299,4 +377,18 @@ Sound* LoadedSound::GetSound() const {
         throw std::runtime_error(FString("[Sound] GetSound '%s' was nullptr", m_Key.c_str()));
 
     return m_Sound;
+}
+
+LoadedMusic::LoadedMusic(std::string music_key)
+ : m_Key(std::move(music_key)) {
+    m_Music = nullptr;
+
+    Assets::RequireMusic(this);
+}
+
+Music* LoadedMusic::GetMusic() const {
+    if (m_Music == nullptr)
+        throw std::runtime_error(FString("[Sound] GetMusic '%s' was nullptr", m_Key.c_str()));
+
+    return m_Music;
 }

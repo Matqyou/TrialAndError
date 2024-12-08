@@ -23,6 +23,7 @@ private:
     double m_Size, m_Size2;
 
     static LoadedTexture sFistTexture;
+    static LoadedSound sPunchSound;
 
 public:
     Hands(Character* parent, double hand_spacing, double fist_animation_duration);
