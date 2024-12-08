@@ -35,6 +35,7 @@ LoadedTexture Character::sTextureGlock("weapons.glock");
 LoadedTexture Character::sTextureShotgun("weapons.shotgun");
 LoadedTexture Character::sTextureBurst("weapons.burst");
 LoadedTexture Character::sTextureSniper("weapons.sniper");
+LoadedTexture Character::sTexturePatersonNavy("weapons.paterson_navy");
 LoadedTexture Character::sTexturesMinigun[4] = {
     LoadedTexture("weapons.minigun.1"),
     LoadedTexture("weapons.minigun.2"),
@@ -389,6 +390,11 @@ void Character::DropWeapon() {
             m_Weapons[WepType] = nullptr;
             break;
         }
+        case WEAPON_PATERSONNAVY: {
+            NewWeapon = new EntityPatersonNavy(m_World, this, (PatersonNavy*)m_Weapons[WEAPON_PATERSONNAVY], m_Core.Pos);
+            m_Weapons[WepType] = nullptr;
+            break;
+        }
     }
 
     NewWeapon->Accelerate(m_DirectionalCore.Direction * 20);
@@ -489,6 +495,9 @@ void Character::EventDeath() {
         } else if (i == WEAPON_SNIPER) {
             NewWeapon = new EntitySniper(m_World, this, (WeaponSniper*)m_Weapons[WEAPON_SNIPER], m_Core.Pos);
             m_Weapons[WEAPON_SNIPER] = nullptr;
+        } else if (i == WEAPON_PATERSONNAVY) {
+            NewWeapon = new EntityPatersonNavy(m_World, this, (PatersonNavy*)m_Weapons[WEAPON_PATERSONNAVY], m_Core.Pos);
+            m_Weapons[WEAPON_PATERSONNAVY] = nullptr;
         } else {
             throw std::runtime_error("Unhandled weapon drop on death (TODO)");
         }
@@ -1059,6 +1068,10 @@ void Character::DrawHands() {
                 WeaponTexture = sTexturesMinigun[Phase].GetTexture();
                 break;
             }
+            case WEAPON_PATERSONNAVY: {
+                WeaponTexture = sTexturePatersonNavy.GetTexture();
+                break;
+            }
         }
 
         double Radians = m_DirectionalCore.Direction.Atan2();
@@ -1202,6 +1215,8 @@ void Character::Event(const SDL_Event& currentEvent) {
                 SwitchWeapon(WEAPON_MINIGUN);
             } else if (KeyCode == SDL_SCANCODE_5) {
                 SwitchWeapon(WEAPON_SNIPER);
+            } else if (KeyCode == SDL_SCANCODE_6) {
+                SwitchWeapon(WEAPON_PATERSONNAVY);
             } else if (KeyCode == SDL_SCANCODE_Q) {
                 DropWeapon();
             }

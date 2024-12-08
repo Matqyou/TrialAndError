@@ -79,4 +79,19 @@ EntityMinigun::EntityMinigun(GameWorld* world, Entity* dropper,WeaponMinigun* mi
 }
 EntityMinigun::~EntityMinigun() {
     delete m_Minigun;
-}   
+}
+
+void EntityPatersonNavy::EventPickup(Character& picker_char) {
+    picker_char.GiveWeapon(m_PatersonNavy);
+    m_PatersonNavy = nullptr;
+    m_Alive = false;
+}
+
+EntityPatersonNavy::EntityPatersonNavy(GameWorld* world, Entity* dropper, PatersonNavy* paterson_navy, const Vec2d& start_pos)
+    : ItemEntity(world, ITEMTYPE_PATERSONNAVY, dropper, start_pos, Vec2d(72, 32)) {
+    m_PatersonNavy = paterson_navy ? paterson_navy : new PatersonNavy(nullptr);
+}
+
+EntityPatersonNavy::~EntityPatersonNavy() {
+    delete m_PatersonNavy;
+}

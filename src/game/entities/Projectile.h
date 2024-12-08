@@ -26,6 +26,7 @@ public:
     static LoadedTexture sTextureShotgun;
     static LoadedTexture sTextureSniper;
     static LoadedTexture sTextureMinigun;
+    static LoadedSound sMetalImpactSounds[2];
 
     Projectile(GameWorld* world,
                Entity* shooter,

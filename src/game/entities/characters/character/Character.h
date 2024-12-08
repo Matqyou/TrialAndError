@@ -118,6 +118,7 @@ public:
     static LoadedTexture sTextureShotgun;
     static LoadedTexture sTextureBurst;
     static LoadedTexture sTextureSniper;
+    static LoadedTexture sTexturePatersonNavy;
     static LoadedTexture sTexturesMinigun[4];
     static LoadedTexture sTextureErrorDisorianted;
     static LoadedTexture sTextureErrorSpiky;

@@ -13,6 +13,10 @@ LoadedTexture Projectile::sTextureBurst("entity.projectile.burst");
 LoadedTexture Projectile::sTextureShotgun("entity.projectile.shotgun");
 LoadedTexture Projectile::sTextureSniper("entity.projectile.sniper");
 LoadedTexture Projectile::sTextureMinigun("entity.projectile.minigun");
+LoadedSound Projectile::sMetalImpactSounds[2] = {
+    LoadedSound("entity.projectile.impact.metal.1"),
+    LoadedSound("entity.projectile.impact.metal.2"),
+};
 
 Projectile::Projectile(GameWorld* world,
                        Entity* shooter,
@@ -114,8 +118,10 @@ void Projectile::TickCollision() {
 void Projectile::TickWallCollision() {
     // Deletes the bullet if it hits the border
     if (m_Core.Pos.x < 0 || m_Core.Pos.x > m_World->GetWidth() ||
-        m_Core.Pos.y < 0 || m_Core.Pos.y > m_World->GetHeight())
+        m_Core.Pos.y < 0 || m_Core.Pos.y > m_World->GetHeight()) {
+        sMetalImpactSounds[rand() % 2].GetSound()->PlaySound();
         m_Alive = false;
+    }
 }
 
 void Projectile::Tick() {

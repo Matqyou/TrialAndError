@@ -9,6 +9,7 @@ LoadedTexture ItemEntity::sTextureGlock("entity.items.glock");
 LoadedTexture ItemEntity::sTextureShotgun("entity.items.shotgun");
 LoadedTexture ItemEntity::sTextureBurst("entity.items.burst");
 LoadedTexture ItemEntity::sTextureSniper("entity.items.sniper");
+LoadedTexture ItemEntity::sTexturePatersonNavy("entity.items.paterson_navy");
 LoadedTexture ItemEntity::sTexturesMinigun[4] = {
     LoadedTexture("entity.items.minigun1"),
     LoadedTexture("entity.items.minigun2"),
@@ -36,6 +37,10 @@ void ItemEntity::SetTexture(ItemType item_type) {
         }
         case ITEMTYPE_MINIGUN: {
             m_Texture = sTexturesMinigun[0].GetTexture(); // TODO depend on rotation
+            break;
+        }
+        case ITEMTYPE_PATERSONNAVY: {
+            m_Texture = sTexturePatersonNavy.GetTexture();
             break;
         }
     }

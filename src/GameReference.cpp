@@ -71,7 +71,7 @@ bool GameReference::InitializeMix() {
 bool GameReference::InitializeAudio() {
     if (!m_InitializedAudio) {
         m_InitializedAudio = !Mix_OpenAudio(44100 * 2, MIX_DEFAULT_FORMAT, 2, 1024 * 4);
-        Mix_AllocateChannels(16);
+        Mix_AllocateChannels(64);
         if (!m_InitializedAudio) std::printf("Warning while opening audio %s\n", Mix_GetError());
     }
 
@@ -260,6 +260,7 @@ void GameReference::TestEnvironment() {
     new EntityBurst(m_GameWorld, nullptr, nullptr, Vec2d(300, WeaponsY));
     new EntityMinigun(m_GameWorld, nullptr, nullptr, Vec2d(400, WeaponsY));
     new EntitySniper(m_GameWorld, nullptr, nullptr, Vec2d(500, WeaponsY));
+    new EntityPatersonNavy(m_GameWorld, nullptr, nullptr, Vec2d(600, WeaponsY));
 
     auto Player1 = new Player(m_GameWorld, "Keyboard");
     auto Char1 = new Character(m_GameWorld,

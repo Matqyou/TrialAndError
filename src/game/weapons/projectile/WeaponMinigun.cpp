@@ -26,7 +26,7 @@ WeaponMinigun::WeaponMinigun(Character* owner)
                        true) {
     m_BaseRecoilForce = 3.2;
     m_RecoilForce = m_BaseRecoilForce;
-    m_Damage = 4.0;
+    m_Damage = 16.0;
 
     m_MinimumFireRate = 7.5;
     m_FullRate = 10.0;
