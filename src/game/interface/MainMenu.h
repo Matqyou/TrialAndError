@@ -4,6 +4,7 @@
 
 #include "../../GameReference.h"
 #include <SDL.h>
+#include <chrono>
 
 class MainMenu {
 private:
@@ -18,6 +19,8 @@ private:
     SDL_Rect m_ExitButtonRect;
 
     std::vector<std::tuple<Vec2d, Vec2d, double>> m_Stars;
+    std::chrono::steady_clock::time_point m_Opened;
+    bool m_Intro;
 
 public:
     MainMenu(GameReference* game_window);
