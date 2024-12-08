@@ -236,6 +236,7 @@ void GameReference::Event(const SDL_Event& event) {
 
 void GameReference::TestEnvironment() {
     m_GameWorld = new GameWorld(this, 50, 30);
+    m_GameWorld->SetTestingMode(true); // stop waves
     m_Controllers = new GameControllers();
 
     m_Draw->SetWorld(m_GameWorld);
@@ -251,13 +252,14 @@ void GameReference::TestEnvironment() {
         new Error(m_GameWorld, Vec2d(50 + 50 * x, m_GameWorld->GetHeight() - 50), ErrorType(x));
 
     for (int x = 0 ; x < NUM_AMMO_TYPES; x++)
-        new AmmoBox(m_GameWorld, AmmoType(x), Vec2d(50 + 50 * x, m_GameWorld->GetHeight() - 100), 50);
+        new AmmoBox(m_GameWorld, AmmoType(x), Vec2d(50 + 50 * x, m_GameWorld->GetHeight() - 100), 1000);
 
-    new EntityGlock(m_GameWorld, nullptr, nullptr, Vec2d(800, 200));
-    new EntityShotgun(m_GameWorld, nullptr, nullptr, Vec2d(900, 200));
-    new EntityBurst(m_GameWorld, nullptr, nullptr, Vec2d(1000, 200));
-    new EntityMinigun(m_GameWorld, nullptr, nullptr, Vec2d(1100, 200));
-    new EntitySniper(m_GameWorld, nullptr, nullptr, Vec2d(1200, 200));
+    double WeaponsY = m_GameWorld->GetHeight() - 150;
+    new EntityGlock(m_GameWorld, nullptr, nullptr, Vec2d(100, WeaponsY));
+    new EntityShotgun(m_GameWorld, nullptr, nullptr, Vec2d(200, WeaponsY));
+    new EntityBurst(m_GameWorld, nullptr, nullptr, Vec2d(300, WeaponsY));
+    new EntityMinigun(m_GameWorld, nullptr, nullptr, Vec2d(400, WeaponsY));
+    new EntitySniper(m_GameWorld, nullptr, nullptr, Vec2d(500, WeaponsY));
 
     auto Player1 = new Player(m_GameWorld, "Keyboard");
     auto Char1 = new Character(m_GameWorld,

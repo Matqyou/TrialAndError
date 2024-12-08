@@ -20,7 +20,9 @@ double ProjectileWeapon::GenerateRandomProjectileSpeed() const {
 
 ProjectileWeapon::ProjectileWeapon(DirectionalEntity* owner,
                                    WeaponType type,
-                                   Sound* reload_sound,
+                                   Sound* reload_sound, // Has default
+                                   Vec2d* hold_position, // Has default
+                                   std::pair<Vec2d, Vec2d>* hand_positions, // Has default
                                    int tick_cooldown,
                                    int ammo_capacity,
                                    int total_ammo_capacity,
@@ -47,7 +49,11 @@ ProjectileWeapon::ProjectileWeapon(DirectionalEntity* owner,
     m_FullRandomProjectileSpeed = 0;
     m_Parent = nullptr;
 
+    // Defaults
     m_ReloadSound = reload_sound == nullptr ? Assets::Get()->GetSound("weapon.default.reload") : reload_sound;
+    m_HoldPosition = hold_position == nullptr ? Vec2d(5.0, 0.0) : *hold_position;
+    m_LeftHandPosition = hand_positions == nullptr ? Vec2d(0, -10.0) : hand_positions->first;
+    m_RightHandPosition = hand_positions == nullptr ? Vec2d(0, 10.0) : hand_positions->second;
 }
 
 void ProjectileWeapon::TickTrigger() {

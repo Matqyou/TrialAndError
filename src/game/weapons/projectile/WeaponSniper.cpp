@@ -6,12 +6,23 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
-LoadedSound WeaponSniper::sShootSound("weapon.sniper.shoot");
+LoadedSound WeaponSniper::sShootSound("weapon.shotgun.shoot2");
 LoadedSound WeaponSniper::sClickSound("weapon.sniper.fail_reload");
 LoadedSound WeaponSniper::sReloadSound("weapon.sniper.reload");
+Vec2d WeaponSniper::sHoldPosition(1.0, 0.0);
+std::pair<Vec2d, Vec2d> WeaponSniper::sHandPositions = {{ 80.0, -3.0 }, { 20.0, 2.0 }};
 
 WeaponSniper::WeaponSniper(DirectionalEntity* parent)
-    : ProjectileWeapon(parent, WEAPON_SNIPER, sReloadSound.GetSound(), 50, 1, 16, 100.0, false) {
+ : ProjectileWeapon(parent,
+                       WEAPON_SNIPER,
+                       sReloadSound.GetSound(),
+                       &sHoldPosition,
+                       &sHandPositions,
+                       50,
+                       8,
+                       16,
+                       100.0,
+                       false) {
     m_BaseRecoilForce = 12.0;
     m_RecoilForce = m_BaseRecoilForce;
     m_Damage = 70;

@@ -77,4 +77,5 @@ public:
                                 double angle,
                                 SDL_FPoint* center,
                                 SDL_RendererFlip flip);
+    void RenderDebugPointCamera(double x, double y);
 };

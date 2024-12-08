@@ -6,6 +6,7 @@
 
 #include "../../../../technical stuff/Colors.h"
 #include "../../../../client/Assets.h"
+#include "../../../../technical stuff/Vec2.h"
 
 class Character;
 class Hands {
@@ -14,19 +15,18 @@ private:
     SDL_Color m_Color;
     unsigned long long m_LastFisted;
     unsigned long long m_LastFistedL, m_LastFistedR;
-    const double m_HandSpacing;
     const double m_FistingAnimationDuration;
     double m_FistingRadius, m_BaseFistingRadius;
 
-    double m_xLeft, m_yLeft;
-    double m_xRight, m_yRight;
+    Vec2d m_LeftHand;
+    Vec2d m_RightHand;
     double m_Size, m_Size2;
 
     static LoadedTexture sFistTexture;
     static LoadedSound sPunchSound;
 
 public:
-    Hands(Character* parent, double hand_spacing, double fist_animation_duration);
+    Hands(Character* parent, double fist_animation_duration);
     ~Hands();
 
     // Getting

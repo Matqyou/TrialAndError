@@ -38,6 +38,9 @@ protected:
     DirectionalEntity* m_Parent;
     WeaponType m_Type;
     Sound* m_ReloadSound;
+    Vec2d m_HoldPosition;
+    Vec2d m_LeftHandPosition;
+    Vec2d m_RightHandPosition;
 
     // Ticking
     virtual void TickTrigger();
@@ -52,6 +55,8 @@ public:
     ProjectileWeapon(DirectionalEntity* parent,
                      WeaponType type,
                      Sound* reload_sound,
+                     Vec2d* hold_position,
+                     std::pair<Vec2d, Vec2d>* hand_positions,
                      int tick_cooldown,
                      int ammo_capacity,
                      int total_ammo_capacity,
@@ -67,6 +72,9 @@ public:
     [[nodiscard]] unsigned int AmmoCap() const { return m_AmmoCapacity; }
     [[nodiscard]] unsigned long long TickCooldown() const { return m_TickCooldown; }
     [[nodiscard]] unsigned long long LastShot() const { return m_LastShotAt; }
+    [[nodiscard]] Vec2d GetHoldPosition() const { return m_HoldPosition; }
+    [[nodiscard]] Vec2d GetLeftHand() const { return m_LeftHandPosition; }
+    [[nodiscard]] Vec2d GetRightHand() const { return m_RightHandPosition; }
 
     // Generating
     [[nodiscard]] unsigned int NeededTrueAmmo() const;

@@ -29,6 +29,8 @@ private:
     Entity* m_First, * m_Last;
     unsigned long long m_CurrentTick;
 
+    bool m_TestingMode; // Waves paused
+
     // Cool scrolling background                                        cap
     Texture* m_Background;
     int m_BackgroundW{ }, m_BackgroundH{ };
@@ -79,6 +81,7 @@ public:
     void DestroyPlayerByController(GameController* DeletedController) const;
     void DestroyCharacterByController(GameController* DeletedController) const;
     void ToggleShowNames();
+    void SetTestingMode(bool testing_mode) { m_TestingMode = testing_mode; }
 
     // Managing
     Player* AddPlayer(Player* player);

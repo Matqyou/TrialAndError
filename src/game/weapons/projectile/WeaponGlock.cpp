@@ -9,9 +9,19 @@
 LoadedSound WeaponGlock::sShootSound("weapon.glock.shoot2");
 LoadedSound WeaponGlock::sClickSound("weapon.glock.fail_reload");
 LoadedSound WeaponGlock::sReloadSound("weapon.glock.reload");
+Vec2d WeaponGlock::sHoldPosition(10.0, 0.0);
+std::pair<Vec2d, Vec2d> WeaponGlock::sHandPositions = {{ 5.0, -5.0 }, { 10.0, 2.0 }};
 
 WeaponGlock::WeaponGlock(DirectionalEntity* parent)
-    : ProjectileWeapon(parent, WEAPON_GLOCK, sReloadSound.GetSound(), 10, 15, 15 * 3, 35.0, false) {
+    : ProjectileWeapon(parent,
+                       WEAPON_GLOCK,
+                       sReloadSound.GetSound(),
+                       &sHoldPosition,
+                       &sHandPositions,
+                       10,
+                       15,
+                       15 * 3,
+                       35.0, false) {
     m_BaseRecoilForce = 3.0;
     m_RecoilForce = m_BaseRecoilForce;
     m_Damage = 7.5;

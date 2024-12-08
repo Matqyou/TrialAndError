@@ -10,9 +10,8 @@
 LoadedTexture Hands::sFistTexture("entity.character.fist");
 LoadedSound Hands::sPunchSound("entity.character.punch");
 
-Hands::Hands(Character* parent, double hand_spacing, double fist_animation_duration)
-    : m_HandSpacing(hand_spacing / 180.0 * M_PI),
-      m_FistingAnimationDuration(fist_animation_duration) {
+Hands::Hands(Character* parent, double fist_animation_duration)
+ : m_FistingAnimationDuration(fist_animation_duration) {
     m_Parent = parent;
 
     m_LastFisted = 0;
@@ -22,10 +21,8 @@ Hands::Hands(Character* parent, double hand_spacing, double fist_animation_durat
     auto& ParentCore = m_Parent->GetDirectionalCore();
     m_BaseFistingRadius = ParentCore.sizeRatio / 2.5;
     m_FistingRadius = ParentCore.sizeRatio / 2.5;
-    m_xLeft = ParentCore.Size.x /2.0;
-    m_yLeft = ParentCore.Size.y /2.0;
-    m_xRight = ParentCore.Size.x /2.0;
-    m_yRight = ParentCore.Size.y /2.0;
+    m_LeftHand = Vec2d(ParentCore.Size.x / 2.0, -ParentCore.Size.y / 3.0);
+    m_RightHand = Vec2d(ParentCore.Size.x / 2.0, ParentCore.Size.y / 3.0);
     m_Size = ParentCore.sizeRatio * 0.36 *2;
     m_Size2 = m_Size / 2.0;
 }
@@ -61,16 +58,12 @@ void Hands::Tick() {
         double XHands, YHands;
         if (m_LastFistedR < m_LastFistedL) {
             m_LastFistedR = CurrentTick;
-            XHands = ParentCore.Pos.x + std::cos(m_HandSpacing + Radians) * m_xRight
-                + m_Parent->GetInput().m_LookingX * m_FistingRadius;
-            YHands = ParentCore.Pos.y + std::sin(m_HandSpacing + Radians) * m_yRight
-                + m_Parent->GetInput().m_LookingY * m_FistingRadius;
+            XHands = ParentCore.Pos.x + std::cos(Radians) * m_RightHand.x + m_Parent->GetInput().m_LookingX * m_FistingRadius;
+            YHands = ParentCore.Pos.y + std::sin(Radians) * m_RightHand.y + m_Parent->GetInput().m_LookingY * m_FistingRadius;
         } else {
             m_LastFistedL = CurrentTick;
-            XHands = ParentCore.Pos.x + std::cos(-m_HandSpacing + Radians) * m_xLeft
-                + m_Parent->GetInput().m_LookingX * m_FistingRadius;
-            YHands = ParentCore.Pos.y + std::sin(-m_HandSpacing + Radians) * m_yLeft
-                + m_Parent->GetInput().m_LookingY * m_FistingRadius;
+            XHands = ParentCore.Pos.x + std::cos(Radians) * m_LeftHand.x + m_Parent->GetInput().m_LookingX * m_FistingRadius;
+            YHands = ParentCore.Pos.y + std::sin(Radians) * m_LeftHand.y + m_Parent->GetInput().m_LookingY * m_FistingRadius;
         }
 
         auto Ent = World->FirstEntity();
@@ -81,10 +74,8 @@ void Hands::Tick() {
                 continue;
 
             EntityCore& EntCore = Ent->GetCore();
-            double XClosest =
-                std::max(EntCore.Pos.x - EntCore.Size.x / 2.0, std::min(EntCore.Pos.x + EntCore.Size.x / 2.0, XHands));
-            double YClosest =
-                std::max(EntCore.Pos.y - EntCore.Size.y / 2.0, std::min(EntCore.Pos.y + EntCore.Size.y / 2.0, YHands));
+            double XClosest = std::max(EntCore.Pos.x - EntCore.Size.x / 2.0, std::min(EntCore.Pos.x + EntCore.Size.x / 2.0, XHands));
+            double YClosest = std::max(EntCore.Pos.y - EntCore.Size.y / 2.0, std::min(EntCore.Pos.y + EntCore.Size.y / 2.0, YHands));
             double Distance = std::sqrt(std::pow(XClosest - XHands, 2) + std::pow(YClosest - YHands, 2));
             if (Distance > m_FistingRadius)
                 continue;
@@ -97,15 +88,15 @@ void Hands::Tick() {
             if (Ent->GetType() != CHARACTER_ENTITY)
                 continue;
 
-            Ent->Accelerate(Vec2d(m_Parent->GetInput().m_LookingX, m_Parent->GetInput().m_LookingY) * 5.0);
+            auto BoostDirection = Vec2d(m_Parent->GetInput().m_LookingX, m_Parent->GetInput().m_LookingY);
+            Ent->Accelerate(BoostDirection * 5.0);
 
-            int Damage = (m_Parent->GetBaseDamage() * m_Parent->GetDamageAmp());
-            if (!m_Parent->GetPlayer()){
+            double Damage = m_Parent->GetBaseDamage() * m_Parent->GetDamageAmp();
+            if (!m_Parent->GetPlayer()) {
                 ((Character*)Ent)->Damage(Damage, m_Parent);
                 continue;
             }
-            if (((CharacterNPC*)Ent)->IsBoss())
-            {
+            if (((CharacterNPC*)Ent)->IsBoss()) {
                 Damage = Damage * m_Parent->GetPlayer()->GetBossDamageAmp();
             }
             ((Character*)Ent)->Damage(Damage, m_Parent);
@@ -120,8 +111,8 @@ void Hands::Draw() {
     Drawing* Render = World->GameWindow()->Render();
 
     // TODO: Make different hand positions for different weapons (interesting)
-    if (m_Parent->GetCurrentWeapon()) // state
-        return;
+//    if (m_Parent->GetCurrentWeapon()) // state
+//        return;
 
     auto CurrentTick = World->GetTick();
     double XDirection = m_Parent->GetDirectionalCore().Direction.x;
@@ -137,10 +128,23 @@ void Hands::Draw() {
     FistingKoefficientL = (1.0 - FistingKoefficientL) * m_FistingRadius;
     FistingKoefficientR = (1.0 - FistingKoefficientR) * m_FistingRadius;
 
-    double XOffLeft = std::cos(-m_HandSpacing + Radians) * m_xLeft + XDirection * FistingKoefficientL;
-    double YOffLeft = std::sin(-m_HandSpacing + Radians) * m_yLeft+ YDirection * FistingKoefficientL;
-    double XOffRight = std::cos(m_HandSpacing + Radians) * m_xRight + XDirection * FistingKoefficientR;
-    double YOffRight = std::sin(m_HandSpacing + Radians) * m_yRight + YDirection * FistingKoefficientR;
+    Vec2d LeftHand, RightHand;
+    auto CurrentWeapon = m_Parent->GetCurrentWeapon();
+    if (CurrentWeapon != nullptr) {
+        LeftHand = CurrentWeapon->GetHoldPosition() + CurrentWeapon->GetLeftHand();
+        RightHand = CurrentWeapon->GetHoldPosition() + CurrentWeapon->GetRightHand();
+    } else {
+        LeftHand = m_LeftHand;
+        RightHand = m_RightHand;
+    }
+    LeftHand.Rotate(Radians);
+    RightHand.Rotate(Radians);
+
+    // Punching related stuff
+    double XOffLeft = LeftHand.x + XDirection * FistingKoefficientL;
+    double YOffLeft = LeftHand.y + YDirection * FistingKoefficientL;
+    double XOffRight = RightHand.x + XDirection * FistingKoefficientR;
+    double YOffRight = RightHand.y + YDirection * FistingKoefficientR;
 
     SDL_FRect HandRectLeft = { float(ParentCore.Pos.x - m_Size2 + XOffLeft),
                                float(ParentCore.Pos.y - m_Size2 + YOffLeft),
@@ -152,4 +156,7 @@ void Hands::Draw() {
     sFistTexture.GetTexture()->SetColorMod(m_Color.r, m_Color.g, m_Color.b);
     Render->RenderTextureExFCamera(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE);
     Render->RenderTextureExFCamera(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE);
+
+    Render->SetColor(255, 0, 0, 255);
+    Render->RenderDebugPointCamera(ParentCore.Pos.x, ParentCore.Pos.y);
 }

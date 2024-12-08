@@ -20,6 +20,8 @@ public:
     static LoadedSound sShootSound;
     static LoadedSound sClickSound;
     static LoadedSound sReloadSound;
+    static Vec2d sHoldPosition;
+    static std::pair<Vec2d, Vec2d> sHandPositions;
 
     explicit WeaponBurst(Character* owner);
 

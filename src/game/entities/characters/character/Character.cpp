@@ -36,10 +36,10 @@ LoadedTexture Character::sTextureShotgun("weapons.shotgun");
 LoadedTexture Character::sTextureBurst("weapons.burst");
 LoadedTexture Character::sTextureSniper("weapons.sniper");
 LoadedTexture Character::sTexturesMinigun[4] = {
-    LoadedTexture("weapons.minigun1"),
-    LoadedTexture("weapons.minigun2"),
-    LoadedTexture("weapons.minigun3"),
-    LoadedTexture("weapons.minigun4"),
+    LoadedTexture("weapons.minigun.1"),
+    LoadedTexture("weapons.minigun.2"),
+    LoadedTexture("weapons.minigun.3"),
+    LoadedTexture("weapons.minigun.4"),
 };
 LoadedTexture Character::sTextureErrorDisorianted("icons.disoriented");
 LoadedTexture Character::sTextureErrorSpiky("icons.cactus");
@@ -86,7 +86,7 @@ Character::Character(GameWorld* world,
                         true,
                         max_health),
       m_BaseAcceleration(0.45),
-      m_Hands(this, 40.0, 10.0),
+      m_Hands(this, 10.0),
       m_Hook(this),
       m_HealthBar(world->GameWindow(), &m_HealthComponent, 75, 15, 2, 2),
       m_Input(),
@@ -486,6 +486,11 @@ void Character::EventDeath() {
         } else if (i == WEAPON_MINIGUN) {
             NewWeapon = new EntityMinigun(m_World, this, (WeaponMinigun*)m_Weapons[WEAPON_MINIGUN], m_Core.Pos);
             m_Weapons[WEAPON_MINIGUN] = nullptr;
+        } else if (i == WEAPON_SNIPER) {
+            NewWeapon = new EntitySniper(m_World, this, (WeaponSniper*)m_Weapons[WEAPON_SNIPER], m_Core.Pos);
+            m_Weapons[WEAPON_SNIPER] = nullptr;
+        } else {
+            throw std::runtime_error("Unhandled weapon drop on death (TODO)");
         }
 
         NewWeapon->Accelerate(m_DirectionalCore.Direction * 5);
@@ -945,12 +950,13 @@ void Character::DrawCharacter() {
 
     sCharacterTexture.GetTexture()->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
 
-    double Angle = m_Core.Vel.Atan2() / M_PI * 180.0;
+    Vec2d PointingVector = m_DirectionalCore.Direction * 3.0 + m_Core.Vel / 3.0;
+    double PointingAngle = PointingVector.Atan2() / M_PI * 180.0;
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     Render->RenderTextureExFCamera(sCharacterTexture.GetTexture()->SDLTexture(),
                                    nullptr,
                                    DrawRect,
-                                   Angle - 90.0,
+                                   PointingAngle - 90.0,
                                    nullptr,
                                    flip);
 }
@@ -1026,8 +1032,8 @@ void Character::DrawHealthbar() {
 void Character::DrawHands() {
     Drawing* Render = m_World->GameWindow()->Render();
 
-    double XLook = m_Input.m_LookingX * 5.0;
-    double YLook = m_Input.m_LookingY * 5.0;
+    m_Hands.SetColor(m_HandColor);
+    m_Hands.Draw();
 
     if (m_CurrentWeapon) {
         Texture* WeaponTexture;
@@ -1055,14 +1061,16 @@ void Character::DrawHands() {
             }
         }
 
-        SDL_Rect WeaponRect = { 0, 0,
-                                WeaponTexture->GetWidth(),
-                                WeaponTexture->GetHeight() };
+        double Radians = m_DirectionalCore.Direction.Atan2();
+        Vec2d HoldPosition = m_CurrentWeapon->GetHoldPosition();
+        HoldPosition.Rotate(Radians);
+
+        SDL_FRect WeaponRect = { 0, 0, (float)WeaponTexture->GetWidth(), (float)WeaponTexture->GetHeight() };
         WeaponRect.w *= 4;
         WeaponRect.h *= 4;
-        WeaponRect.x = int(XLook + m_Core.Pos.x);
-        WeaponRect.y = int(YLook + m_Core.Pos.y - float(WeaponRect.h) / 2.0);
-        SDL_Point WeaponPivot = { 0, int(double(WeaponRect.h) / 2.0 * Render->GetZoom()) };
+        WeaponRect.x = float(m_Core.Pos.x + HoldPosition.x);
+        WeaponRect.y = float(m_Core.Pos.y + HoldPosition.y - float(WeaponRect.h) / 2.0);
+        SDL_FPoint WeaponPivot = { 0, float(double(WeaponRect.h) / 2.0 * Render->GetZoom()) };
 
         // Laser sight
         if (m_CurrentWeapon->WepType() == WeaponType::WEAPON_SNIPER) {
@@ -1073,17 +1081,13 @@ void Character::DrawHands() {
 
         // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
         // and not the center of the player
-        double Angle = m_DirectionalCore.Direction.Atan2() / M_PI * 180.0;
-        Render->RenderTextureExCamera(WeaponTexture->SDLTexture(),
+        Render->RenderTextureExFCamera(WeaponTexture->SDLTexture(),
                                       nullptr,
                                       WeaponRect,
-                                      Angle,
+                                      Radians / M_PI * 180.0,
                                       &WeaponPivot,
                                       SDL_FLIP_VERTICAL);
     }
-
-    m_Hands.SetColor(m_HandColor);
-    m_Hands.Draw();
 }
 
 void Character::DrawNameplate() {
@@ -1123,16 +1127,14 @@ void Character::DrawNameplate() {
 // TODO when switching guns ammo text renders again, to prevent this save each ammo count texture on the gun
 void Character::DrawAmmoCounter() {
     Drawing* Render = m_World->GameWindow()->Render();
+
     char msg[64];
     std::snprintf(msg, sizeof(msg), "%u/%u", m_CurrentWeapon->GetMagAmmo(), m_CurrentWeapon->GetTrueAmmo());
     m_AmmoCount->SetText(msg);
-    if (m_CurrentWeapon->GetMagAmmo() == 0)
-        m_AmmoCount->SetColor({ 255, 0, 0 });
-    else {
-        m_AmmoCount->SetColor({ 255, 255, 255 });
-    }
-    Texture* AmmoTexture = m_AmmoCount->RequestUpdate();
+    if (m_CurrentWeapon->GetMagAmmo() == 0) m_AmmoCount->SetColor({ 255, 0, 0 });
+    else m_AmmoCount->SetColor({ 255, 255, 255 });
 
+    Texture* AmmoTexture = m_AmmoCount->RequestUpdate();
     int AmmoTextureW = AmmoTexture->GetWidth();
     int AmmoTextureH = AmmoTexture->GetHeight();
     SDL_Rect AmmoRect = { int(m_Core.Pos.x - AmmoTextureW / 2.0),
@@ -1274,8 +1276,9 @@ void Character::Draw() {
     m_NameplateColor = m_HandColor;
 
     DrawHook();
-    DrawHands();
+    DrawHands(); // originally here
     DrawCharacter();
+//    DrawHands(); //
     DrawHealthbar();
     DrawNameplate();
     DrawErrorIcons();

@@ -10,9 +10,20 @@
 LoadedSound WeaponMinigun::sShootSound("weapon.minigun.shoot");
 LoadedSound WeaponMinigun::sClickSound("weapon.minigun.fail_reload");
 LoadedSound WeaponMinigun::sReloadSound("weapon.minigun.reload");
+Vec2d WeaponMinigun::sHoldPosition(10.0, 0.0);
+std::pair<Vec2d, Vec2d> WeaponMinigun::sHandPositions = {{ 10.0, -15.0 }, { 17.0, 13.0 }};
 
 WeaponMinigun::WeaponMinigun(Character* owner)
-    : ProjectileWeapon(owner, WEAPON_MINIGUN, sReloadSound.GetSound(), 14, 64, 64 * 3, 35.0, true) {
+    : ProjectileWeapon(owner,
+                       WEAPON_MINIGUN,
+                       sReloadSound.GetSound(),
+                       &sHoldPosition,
+                       &sHandPositions,
+                       14,
+                       255,
+                       255 * 2,
+                       35.0,
+                       true) {
     m_BaseRecoilForce = 3.2;
     m_RecoilForce = m_BaseRecoilForce;
     m_Damage = 4.0;

@@ -21,6 +21,8 @@ GameWorld::GameWorld(GameReference *game_window, int width, int height)
     m_GameOver = false;
     m_CurrentTick = 0;
 
+    m_TestingMode = false;
+
     m_First = nullptr;
     m_Last = nullptr;
     memset(m_FirstType, 0, sizeof(m_FirstType));
@@ -335,7 +337,7 @@ void GameWorld::TickCamera()
 
 void GameWorld::TickSpawner()
 {
-    if (m_CurrentTick - m_LastWave < m_TimeBetweenWaves)
+    if (m_TestingMode || m_CurrentTick - m_LastWave < m_TimeBetweenWaves)
         return;
 
     m_LastWave = m_CurrentTick;

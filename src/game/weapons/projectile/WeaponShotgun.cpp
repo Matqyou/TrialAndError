@@ -10,9 +10,20 @@
 LoadedSound WeaponShotgun::sShootSound("weapon.shotgun.shoot2");
 LoadedSound WeaponShotgun::sClickSound("weapon.shotgun.fail_reload");
 LoadedSound WeaponShotgun::sReloadSound("weapon.shotgun.reload");
+Vec2d WeaponShotgun::sHoldPosition(5.0, 0.0);
+std::pair<Vec2d, Vec2d> WeaponShotgun::sHandPositions = {{ 60.0, -3.0 }, { 20.0, 2.0 }};
 
 WeaponShotgun::WeaponShotgun(Character* owner)
-    : ProjectileWeapon(owner, WEAPON_SHOTGUN, sReloadSound.GetSound(), 42, 8, 8 * 3, 35.0, false) {
+    : ProjectileWeapon(owner,
+                       WEAPON_SHOTGUN,
+                       sReloadSound.GetSound(),
+                       &sHoldPosition,
+                       &sHandPositions,
+                       42,
+                       8,
+                       8 * 3,
+                       35.0,
+                       false) {
     m_PelletCount = 6;
     m_BaseRecoilForce = 20.0;
     m_RecoilForce = m_BaseRecoilForce;

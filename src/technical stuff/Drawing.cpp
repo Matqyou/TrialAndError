@@ -118,8 +118,22 @@ void Drawing::RenderTextureExFCamera(SDL_Texture* texture,
     SDL_RenderCopyExF(m_Renderer, texture, srcrect, &MovedRect, angle, center, flip);
 }
 
+void Drawing::RenderDebugPointCamera(double x, double y) {
+    int centerX = int(TranslateX(x));
+    int centerY = int(TranslateY(y));
+    int radius = 3;
+
+    for (int y = -radius; y <= radius; ++y) {
+        int dx = static_cast<int>(std::sqrt(radius * radius - y * y)); // Horizontal distance for this vertical offset
+        int startX = centerX - dx;
+        int endX = centerX + dx;
+
+        // Draw a horizontal line for the current row
+        SDL_RenderDrawLine(m_Renderer, startX, centerY + y, endX, centerY + y);
+    }
+}
+
 void Drawing::RenderTextureFullscreen(SDL_Texture* texture, SDL_Rect* srcrect) {
-    
     SDL_RenderCopy(m_Renderer, texture, srcrect, nullptr);
 }
 
