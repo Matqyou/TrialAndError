@@ -50,7 +50,6 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
     switch (event.type)
     {
     case SDL_QUIT:
-        Assets::Get()->GetSound("ui.quit")->PlaySound();
         m_GameWindow->Deinitialize(true); // close everything except sound
         while (Mix_Playing(-1)) {} // wait until last sound is done playing
         delete m_GameWindow;
@@ -77,7 +76,6 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
             if (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
                 y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h)
             {
-                Assets::Get()->GetSound("ui.quit")->PlaySound();
                 m_GameWindow->Deinitialize(true);
                 while (Mix_Playing(-1)) {} // wait until last sound is done playing
                 delete m_GameWindow;
@@ -95,18 +93,11 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
         if ((x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
              y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h) ||
             (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
-             y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h))
-        {
+             y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h)) {
             hovering = true;
         }
-        if (hovering)
-        {
-            SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND));
-        }
-        else
-        {
-            SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
-        }
+        if (hovering) { SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND)); }
+        else { SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW)); }
     }
         break;
     case SDL_WINDOWEVENT:
@@ -116,8 +107,8 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
             m_ExitButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) + 121, 360, 80};
             m_GameWindow->Render()->Clear();
             m_GameWindow->Render()->UpdateWindow();
+            break;
         }
-        break;
     }
 }
 

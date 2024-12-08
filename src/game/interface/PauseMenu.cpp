@@ -32,7 +32,6 @@ void PauseMenu::HandleEvent(const SDL_Event &event)
     switch (event.type)
     {
     case SDL_QUIT:
-        Assets::Get()->GetSound("ui.quit")->PlaySound();
         m_GameWindow->Deinitialize(true);
         while (Mix_Playing(-1)) {} // wait until last sound is done playing
         delete m_GameWindow;

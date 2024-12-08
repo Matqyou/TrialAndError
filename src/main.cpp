@@ -34,6 +34,8 @@
 #include <cstdlib>
 
 GameReference *GameWindow;
+LoadedSound sConnectedSound("ui.pitch.mid");
+LoadedSound sDisconnectedSound("ui.pitch.low");
 
 bool Initialize() {
     srand(time(nullptr));
@@ -70,14 +72,13 @@ int main() {
 
     MainMenu mainMenu(GameWindow);
     mainMenu.Show();
-    bool Running = true;
 
     PauseMenu pauseMenu(GameWindow->World(), &mainMenu);
     LevelUpMenu* activeLevelUpMenu = nullptr;
     std::queue<LevelUpMenu*> levelUpMenuQueue;
     bool pauseMenuOpen = false;
     bool levelUpMenuOpen = false;
-    while (Running) {
+    while (true) {
         pauseMenuOpen = pauseMenu.Paused();
 
         if (!levelUpMenuOpen) {
@@ -117,12 +118,8 @@ int main() {
 
             switch (CurrentEvent.type) {
                 case SDL_QUIT:
-                    Assets::Get()->GetSound("ui.quit")->PlaySound();
-                    GameWindow->Deinitialize(true); // close everything except sound
-
-                    while (Mix_Playing(-1)) {} // wait until last sound is done playing
-                    delete GameWindow;
-                    return 0;
+                    GameWindow->Deinitialize(true);
+                    return 0; // This should happen in every quit scenario, but menus didn't think about that
 
                 case SDL_KEYDOWN: {
                     SDL_Scancode ScancodeKey = CurrentEvent.key.keysym.scancode;
@@ -150,7 +147,7 @@ int main() {
 
                     NewChar->GiveWeapon(new WeaponGlock(nullptr));
                     NewChar->SetGameController(CurrentController);
-                    Assets::Get()->GetSound("ui.pitch.high")->PlaySound();
+                    sConnectedSound.GetSound()->PlaySound();
                     break;
                 }
                 case SDL_CONTROLLERDEVICEREMOVED: {
@@ -158,7 +155,7 @@ int main() {
                     GameController* DeletedController = GameWindow->Controllers()->CloseController(InstanceID);
                     GameWindow->World()->DestroyPlayerByController(DeletedController);
                     GameWindow->World()->DestroyCharacterByController(DeletedController);
-                    Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
+                    sDisconnectedSound.GetSound()->PlaySound();
                     break;
                 }
             }
@@ -191,12 +188,12 @@ int main() {
         Render->UpdateWindow();
 
         if (GameWindow->World()->GetDelay() && (levelUpMenuOpen)) {
-//            SDL_Delay(1000); // Delay for 1000 milliseconds (1 second)
-            SDL_Event event;
-            while (SDL_PollEvent(&event)) {
-                // Discard events
-            }
-
+////            SDL_Delay(1000); // Delay for 1000 milliseconds (1 second)
+//            SDL_Event event;
+//            while (SDL_PollEvent(&event)) {
+//                // Discard events
+//            }
+//
             GameWindow->World()->SetDelay(false); // Reset the delay flag after the delay
         }
 

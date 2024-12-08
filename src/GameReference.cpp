@@ -8,6 +8,8 @@
 #include "game/entities/item/weapons/EntityGuns.h"
 #include "game/entities/Projectile.h"
 
+LoadedSound GameReference::sQuitSound("ui.quit");
+
 GameReference::GameReference() {
     m_Window = nullptr;
     m_Renderer = nullptr;
@@ -101,6 +103,12 @@ bool GameReference::InitializeTTF() {
     return true;
 }
 
+void GameReference::WaitForSoundToFinish() {
+    while (Mix_Playing(-1)) {
+        SDL_Delay(10);
+    }
+}
+
 bool GameReference::Initialize() {
     SDL_version Version;
     SDL_GetVersion(&Version);
@@ -155,10 +163,10 @@ bool GameReference::Initialize() {
     return true;
 }
 
-void GameReference::Deinitialize(bool keep_sound) {
+void GameReference::Deinitialize(bool play_quit_sound) {
     std::cout << FStringColors(
-        "&8---------------------------- &fDeinitializing(keep_sound = %s) &8----------------------------",
-        keep_sound ? "true" : "false") << std::endl;
+        "&8---------------------------- &fDeinitializing(play_quit_sound = %s) &8----------------------------",
+        play_quit_sound ? "true" : "false") << std::endl;
     Assets::PauseMusic();
     delete m_GameWorld;
     m_GameWorld = nullptr;
@@ -191,24 +199,31 @@ void GameReference::Deinitialize(bool keep_sound) {
         std::cout << FStringColors("[Game] &8Closed Images") << std::endl;
     }
 
-    if (!keep_sound) { // TODO: Check this out -_- looks very sus
-        Assets::deinitialize();
-        if (m_InitializedAudio) {
-            m_InitializedAudio = false;
-            Mix_CloseAudio();
-            std::cout << FStringColors("[Game] &8Closed Audio") << std::endl;
-        }
-        if (m_InitializedMix) {
-            m_InitializedMix = false;
-            Mix_Quit();
-            std::cout << FStringColors("[Game] &8Closed Mixer") << std::endl;
-        }
-        if (m_InitializedSDL) {
-            m_InitializedSDL = false;
-            SDL_Quit();
-            std::cout << FStringColors("[Game] &8Closed SDL") << std::endl;
-        }
+    if (play_quit_sound) { // TODO: Check this out -_- looks very sus
+        sQuitSound.GetSound()->PlaySound();
+        WaitForSoundToFinish();
+        delete this;
+        return;
     }
+
+    Assets::deinitialize();
+    if (m_InitializedAudio) {
+        m_InitializedAudio = false;
+        Mix_CloseAudio();
+        std::cout << FStringColors("[Game] &8Closed Audio") << std::endl;
+    }
+    if (m_InitializedMix) {
+        m_InitializedMix = false;
+        Mix_Quit();
+        std::cout << FStringColors("[Game] &8Closed Mixer") << std::endl;
+    }
+    if (m_InitializedSDL) {
+        m_InitializedSDL = false;
+        SDL_Quit();
+        std::cout << FStringColors("[Game] &8Closed SDL") << std::endl;
+    }
+
+    exit(0);
 }
 
 void GameReference::Event(const SDL_Event& event) {

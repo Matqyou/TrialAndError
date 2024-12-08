@@ -36,6 +36,8 @@ private:
     bool m_InitializedImages;
     bool m_InitializedTTF;
 
+    static LoadedSound sQuitSound;
+
     // Manipulating
     void UpdateDimensions(int width, int height);
     bool InitializeSDL();
@@ -43,6 +45,9 @@ private:
     bool InitializeAudio();
     bool InitializeImages();
     bool InitializeTTF();
+
+    // Waiting
+    void WaitForSoundToFinish();
 
 public:
     GameReference();
@@ -65,7 +70,7 @@ public:
 
     // Manipulating
     bool Initialize();
-    void Deinitialize(bool keep_sound);
+    void Deinitialize(bool play_quit_sound);
     void TestEnvironment();
 
     // Listening
