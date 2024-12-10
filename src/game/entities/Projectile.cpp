@@ -13,6 +13,7 @@ LoadedTexture Projectile::sTextureBurst("entity.projectile.burst");
 LoadedTexture Projectile::sTextureShotgun("entity.projectile.shotgun");
 LoadedTexture Projectile::sTextureSniper("entity.projectile.sniper");
 LoadedTexture Projectile::sTextureMinigun("entity.projectile.minigun");
+LoadedTexture Projectile::sTextureSpark("entity.projectile.spark");
 LoadedSound Projectile::sMetalImpactSounds[2] = {
     LoadedSound("entity.projectile.impact.metal.1"),
     LoadedSound("entity.projectile.impact.metal.2"),
@@ -101,7 +102,7 @@ void Projectile::TickCollision() {
                 if (Entity->GetType() == CHARACTER_ENTITY) {
                     auto ShootableCharacter = (Character*)Entity;
                     ShootableCharacter->Damage(m_Damage, m_Shooter);
-                    ShootableCharacter->Accelerate(m_Core.Vel * 0.01 * m_Damage);
+                    ShootableCharacter->Accelerate(direction * 0.5 * m_Damage);
                 } else if (Entity->GetType() == CRATE_ENTITY) {
                     auto ShootableCrate = (Crate*)Entity;
                     ShootableCrate->Damage(m_Damage, m_Shooter);
@@ -120,6 +121,15 @@ void Projectile::TickWallCollision() {
     if (m_Core.Pos.x < 0 || m_Core.Pos.x > m_World->GetWidth() ||
         m_Core.Pos.y < 0 || m_Core.Pos.y > m_World->GetHeight()) {
         sMetalImpactSounds[rand() % 2].GetSound()->PlaySound();
+
+        if (m_Core.Pos.x < 0 || m_Core.Pos.x > m_World->GetWidth()) { m_Core.Vel.x *= -1; }
+        if (m_Core.Pos.y < 0 || m_Core.Pos.y > m_World->GetHeight()) { m_Core.Vel.y *= -1; }
+        for (int i = 0; i < 6; i++) {
+            auto vel = Vec2d(m_Core.Vel.x * (0.15 + 0.1 * (double)(rand()) / RAND_MAX) + 0.05 * (double)(rand()) / RAND_MAX,
+                             m_Core.Vel.y * (0.15 + 0.1 * (double)(rand()) / RAND_MAX) + 0.05 * (double)(rand()) / RAND_MAX);
+            m_World->GetParticles()->PlayParticle(Particle(sTextureSpark.GetTexture(), m_Core.Pos, Vec2d(3.0, 5.0), vel, 0.98, 0.0, 0.0, 1.0, 20));
+        }
+
         m_Alive = false;
     }
 }
@@ -133,7 +143,7 @@ void Projectile::Tick() {
 
 void Projectile::Draw() {
     Drawing* Render = m_World->GameWindow()->Render();
-    double Angle = std::atan2(m_Core.Vel.y, m_Core.Vel.x) / M_PI * 180.0 + 90.0;
+    double Angle = std::atan2(m_Core.Vel.y, m_Core.Vel.x) / M_PI * 180.0 - 90.0;
     SDL_Rect BulletRect = { int(m_Core.Pos.x - m_Core.Size.x / 2.0),
                             int(m_Core.Pos.y - m_Core.Size.y / 2.0),
                             int(m_Core.Size.x),

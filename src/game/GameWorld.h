@@ -9,6 +9,7 @@
 #include "indicators/TextSurface.h"
 #include "collision/TileMap.h"
 #include "../Protocol.h"
+#include "../client/Particles.h"
 
 class Player;
 class Entity;
@@ -18,6 +19,7 @@ class GameWorld {
 private:
     GameReference* m_GameWindow;
     TileMap* m_Tiles;
+    Particles* m_Particles;
     double m_Width, m_Height;
     double m_ShowNamesVisibility;
     bool m_ShowNames;
@@ -53,6 +55,7 @@ public:
 
     // Getting
     [[nodiscard]] GameReference* GameWindow() const { return m_GameWindow; }
+    [[nodiscard]] Particles* GetParticles() const { return m_Particles; };
     [[nodiscard]] double GetWidth() const { return m_Width; }
     [[nodiscard]] double GetHeight() const { return m_Height; }
     [[nodiscard]] double GetNamesShown() const { return m_ShowNamesVisibility < 0.1 ? 0.0 : m_ShowNamesVisibility; }

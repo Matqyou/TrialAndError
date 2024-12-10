@@ -12,6 +12,7 @@
 GameWorld::GameWorld(GameReference *game_window, int width, int height)
 {
     m_GameWindow = game_window;
+    m_Particles = new Particles(this);
     m_Tiles = new TileMap(game_window->Render(), 32, width, height);
     m_Width = m_Tiles->TotalWidth();
     m_Height = m_Tiles->TotalHeight();
@@ -47,6 +48,7 @@ GameWorld::GameWorld(GameReference *game_window, int width, int height)
 GameWorld::~GameWorld()
 {
     delete m_Tiles;
+    delete m_Particles;
 
     Entity *CurrentEntity = m_Last;
     while (CurrentEntity)
@@ -435,6 +437,7 @@ void GameWorld::Tick()
     TickSpawner();
     TickEntities();
     TickDestroy();
+    m_Particles->Tick();
     TickCamera();
 
     m_CurrentTick++;
@@ -454,6 +457,7 @@ void GameWorld::Draw()
         Render->SetColor(255, 0, 0, 255);
         Render->DrawRectCamera(DrawRect);
 
+        m_Particles->Draw();
         for (auto Current : m_FirstType)
             for (; Current; Current = Current->NextType())
                 Current->Draw();

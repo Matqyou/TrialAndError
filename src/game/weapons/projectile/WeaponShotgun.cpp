@@ -27,7 +27,7 @@ WeaponShotgun::WeaponShotgun(Character* owner)
     m_PelletCount = 6;
     m_BaseRecoilForce = 20.0;
     m_RecoilForce = m_BaseRecoilForce;
-    m_Damage = 6;
+    m_Damage = 8;
 
     SetSpread(10.0, 3);
     SetRandomProjectileSpeed(13.0, 0.5, 1);

@@ -50,6 +50,7 @@ LoadedTexture Character::sTextureErrorHealersParadise("icons.healing");
 LoadedTexture Character::sTextureErrorRanged("icons.ranged");
 LoadedTexture Character::sTextureErrorSlowDown("icons.slow");
 LoadedTexture Character::sTextureErrorDangerousRecoil("icons.golden_apple");
+LoadedTexture Character::BLOOD("entity.character.blood");
 
 // Link sounds
 LoadedSound Character::sHitSounds[3] = {
@@ -473,6 +474,18 @@ void Character::AmmoPickup(AmmoBox* ammo_box) {
 }
 
 void Character::EventDeath() {
+    // Play a toned down version particle effect :)
+    BLOOD.GetTexture()->SetColorMod(255, 0, 0); //
+    auto particles = m_World->GetParticles();
+    for (int i = 0; i < 50; i++) {
+        Vec2d vel = { m_Core.Vel.x * (double)(rand()) / RAND_MAX + 2.0 * ((double)(rand()) / RAND_MAX * 2.0 - 1.0),
+                      m_Core.Vel.y * (double)(rand()) / RAND_MAX + 2.0 * ((double)(rand()) / RAND_MAX * 2.0 - 1.0) };
+
+        double size = 5.0 + (double)(rand()) / RAND_MAX * 10.0;
+        double orientation = (double)(rand()) / RAND_MAX * 360.0;
+        particles->PlayParticle(Particle(BLOOD.GetTexture(), m_Core.Pos, Vec2d(size, size), vel, 0.95, orientation, 20, 0.98, 200));
+    }
+
     for (int i = 0; i < NUM_WEAPONS; i++) {
         if (!m_Weapons[i])
             continue;

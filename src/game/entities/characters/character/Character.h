@@ -128,6 +128,7 @@ public:
     static LoadedTexture sTextureErrorRanged;
     static LoadedTexture sTextureErrorSlowDown;
     static LoadedTexture sTextureErrorDangerousRecoil;
+    static LoadedTexture BLOOD;
     static LoadedSound sHitSounds[3];
     static LoadedSound sInvincibleHitSound;
     static LoadedSound sDeathSound;

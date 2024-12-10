@@ -39,8 +39,6 @@ void GameReference::UpdateDimensions(int width, int height) {
     m_Height = height;
     m_Width2 = width / 2.0;
     m_Height2 = height / 2.0;
-
-    
 }
 
 bool GameReference::InitializeSDL() {

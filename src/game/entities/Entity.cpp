@@ -167,6 +167,7 @@ const char* Entity::toString() const {
 // Add some velocity to this characters
 void Entity::Accelerate(const Vec2d& direction) {
     m_Core.Vel += direction;
+    std::cout << FStringColors("Accelerate %f, %f", m_Core.Vel.x, m_Core.Vel.y) << std::endl;
 }
 
 void Entity::Tick() {

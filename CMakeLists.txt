@@ -103,7 +103,9 @@ set(PROJECT_FILES
         "src/game/interface/LevelUpMenu.cpp"
         "src/game/interface/LevelUpMenu.h"
         src/game/weapons/projectile/PatersonNavy.cpp
-        src/game/weapons/projectile/PatersonNavy.h)
+        src/game/weapons/projectile/PatersonNavy.h
+        src/client/Particles.cpp
+        src/client/Particles.h)
 
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
 
