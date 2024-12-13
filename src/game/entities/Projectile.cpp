@@ -13,7 +13,7 @@ LoadedTexture Projectile::sTextureBurst("entity.projectile.burst");
 LoadedTexture Projectile::sTextureShotgun("entity.projectile.shotgun");
 LoadedTexture Projectile::sTextureSniper("entity.projectile.sniper");
 LoadedTexture Projectile::sTextureMinigun("entity.projectile.minigun");
-LoadedTexture Projectile::sTextureSpark("entity.projectile.spark");
+LoadedTexture Projectile::sTextureSpark("particle.spark");
 LoadedSound Projectile::sMetalImpactSounds[2] = {
     LoadedSound("entity.projectile.impact.metal.1"),
     LoadedSound("entity.projectile.impact.metal.2"),
@@ -99,18 +99,26 @@ void Projectile::TickCollision() {
             bool Collides = Entity->PointCollides(current_position);
             if (IsShooter && !Collides) { m_StillCollidesShooter = false; }
             else if (Collides && (!IsShooter || !m_StillCollidesShooter)) {
+                double victim_health;
                 if (Entity->GetType() == CHARACTER_ENTITY) {
                     auto ShootableCharacter = (Character*)Entity;
+                    victim_health = ShootableCharacter->HealthComponent().m_Health;
                     ShootableCharacter->Damage(m_Damage, m_Shooter);
                     ShootableCharacter->Accelerate(direction * 0.5 * m_Damage);
                 } else if (Entity->GetType() == CRATE_ENTITY) {
                     auto ShootableCrate = (Crate*)Entity;
+                    victim_health = ShootableCrate->HealthComponent().m_Health;
                     ShootableCrate->Damage(m_Damage, m_Shooter);
+                } else {
+                    throw std::runtime_error("Unhandled projectile impact with entity that has health");
                 }
 
-                // The projectile has served its purpose (clear immediately on impact)
-                m_Alive = false;
-                break;
+                // The projectile has served its purpose (clear immediately all damage has been depleted)
+                m_Damage -= victim_health;
+                if (m_Damage <= 0.0) {
+                    m_Alive = false;
+                    break;
+                }
             }
         }
     }

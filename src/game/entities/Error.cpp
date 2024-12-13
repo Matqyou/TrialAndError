@@ -3,6 +3,7 @@
 //
 
 #include "Error.h"
+#include "characters/character/Character.h"
 #include <random>
 #include <string>
 
@@ -14,6 +15,7 @@ LoadedTexture Error::sTextureErrorHealersParadise("entity.error.healer");
 LoadedTexture Error::sTextureErrorRanged("entity.error.ranged");
 LoadedTexture Error::sTextureErrorSlowDown("entity.error.slow");
 LoadedTexture Error::sTextureErrorDangerousRecoil("entity.error.golden_apple");
+LoadedTexture Error::sTextureMagicParticle("particle.magic");
 LoadedSound Error::ms_PickupSounds[7] = {
     LoadedSound("entity.error.pickup"),
     LoadedSound("entity.error.pickup"),
@@ -60,40 +62,40 @@ void Error::TickPickup(double x, double y) {
         ms_PickupSounds[rand() % 7].GetSound()->PlaySound();
 
         if (m_Type == DISORIANTED) {
-            if (Char->IsNPC()) { Char->ReverseMovement(); }
+            if (Char->IsNPC()) { Char->GetErrorStatuses().Disoriented.Activate(); }
             else {
                 auto Plr = m_World->FirstCharacter();
                 for (; Plr; Plr = (Character*)(Plr->NextType())) {
                     if (!Plr->IsNPC()) continue;
-                    Plr->ReverseMovement();
+                    Plr->GetErrorStatuses().Disoriented.Activate();
                 }
             }
         } else if (m_Type == CONFUSING_HP) {
             auto Plr = m_World->FirstCharacter();
             for (; Plr; Plr = (Character*)(Plr->NextType()))
-                Plr->ConfuseHP();
-        } else if (m_Type == INVINCIBLE) { Char->MakeInvincible(); }
-        else if (m_Type == SPIKY) { Char->MakeSpiky(); }
+                Plr->GetErrorStatuses().ConfusingHealth.Activate();
+        } else if (m_Type == INVINCIBLE) { Char->GetErrorStatuses().Invincible.Activate(); }
+        else if (m_Type == SPIKY) { Char->GetErrorStatuses().Spiky.Activate(); }
         else if (m_Type == HEALERS_PARADISE) {
-            if (Char->IsNPC()) { Char->MakeHealer(); }
+            if (Char->IsNPC()) { Char->GetErrorStatuses().HealersParadise.Activate(); }
             else {
                 auto Plr = m_World->FirstCharacter();
                 for (; Plr; Plr = (Character*)(Plr->NextType())) {
                     if (Plr->IsNPC()) continue;
-                    Plr->MakeHealer();
+                    Plr->GetErrorStatuses().HealersParadise.Activate();
                 }
             }
-        } else if (m_Type == RANGED) { Char->MakeRanged(); }
+        } else if (m_Type == RANGED) { Char->GetErrorStatuses().RangedFists.Activate(); }
         else if (m_Type == SLOW_DOWN) {
-            if (Char->IsNPC()) { Char->SlowDown(); }
+            if (Char->IsNPC()) { Char->GetErrorStatuses().Slowdown.Activate(); }
             else {
                 auto Plr = m_World->FirstCharacter();
                 for (; Plr; Plr = (Character*)(Plr->NextType())) {
                     if (!Plr->IsNPC()) continue;
-                    Plr->SlowDown();
+                    Plr->GetErrorStatuses().Slowdown.Activate();
                 }
             }
-        } else if (m_Type == DANGEROUS_RECOIL) { Char->ActivateDangerousRecoil(); }
+        } else if (m_Type == DANGEROUS_RECOIL) { Char->GetErrorStatuses().DangerousRecoil.Activate(); }
         m_Alive = false;
     }
 }
@@ -101,6 +103,19 @@ void Error::TickPickup(double x, double y) {
 void Error::Tick() {
     TickPickup(m_Core.Pos.x, m_Core.Pos.y);
     TickWalls();
+
+    if (m_World->GetTick() % (30 + rand() % 30) != 0)
+        return;
+
+    m_World->GetParticles()->PlayParticle(Particle(sTextureMagicParticle.GetTexture(),
+                                                   m_Core.Pos,
+                                                   Vec2d(5.0, 5.0),
+                                                   Vec2d((double)(rand() % 10 - 5) / 10.0, -1.0),
+                                                   1.0,
+                                                   0.0,
+                                                   0.0,
+                                                   1.0,
+                                                   60));
 }
 
 void Error::Draw() {

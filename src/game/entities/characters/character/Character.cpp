@@ -42,15 +42,7 @@ LoadedTexture Character::sTexturesMinigun[4] = {
     LoadedTexture("weapons.minigun.3"),
     LoadedTexture("weapons.minigun.4"),
 };
-LoadedTexture Character::sTextureErrorDisorianted("icons.disoriented");
-LoadedTexture Character::sTextureErrorSpiky("icons.cactus");
-LoadedTexture Character::sTextureErrorConfusingHP("icons.confused");
-LoadedTexture Character::sTextureErrorInvincible("icons.invincible");
-LoadedTexture Character::sTextureErrorHealersParadise("icons.healing");
-LoadedTexture Character::sTextureErrorRanged("icons.ranged");
-LoadedTexture Character::sTextureErrorSlowDown("icons.slow");
-LoadedTexture Character::sTextureErrorDangerousRecoil("icons.golden_apple");
-LoadedTexture Character::BLOOD("entity.character.blood");
+LoadedTexture Character::sTextureBlood("particle.blood");
 
 // Link sounds
 LoadedSound Character::sHitSounds[3] = {
@@ -92,7 +84,8 @@ Character::Character(GameWorld* world,
       m_Hook(this),
       m_HealthBar(world->GameWindow(), &m_HealthComponent, 75, 15, 2, 2),
       m_Input(),
-      m_LastInput() {
+      m_LastInput(),
+      m_ErrorStatuses(world, this) {
     m_Player = player;
     m_ColorHue = m_Player ? 60.0 - double(m_Player->GetIndex() * 30) : 0.0;
 
@@ -103,49 +96,6 @@ Character::Character(GameWorld* world,
         m_BaseDamage = m_Player->GetBaseDamage();
         m_DamageAmp = m_Player->GetDamageAmp();
     }
-
-    // Initialises all timers as 0
-    m_IsReverseTimer = 0;
-    m_ConfusingHPTimer = 0;
-    m_InvincibleTimer = 0;
-    m_SpikyTimer = 0;
-    m_HealersParadiseTimer = 0;
-    m_RangedTimer = 0;
-    m_IsSlowTimer = 0;
-    m_DangerousRecoilTimer = 0;
-
-    // Initialises all ERROR abilities to be false
-    IsReversed = false;
-    ConfusingHP = false;
-    Ranged = false;
-    Invincible = false;
-    Spiky = false;
-    HealersParadise = false;
-    Ranged = false;
-    IsSlow = false;
-    m_DangerousRecoil = false;
-
-    // Initialises all MSG drawing of ERRORS to false
-    ReverseMSG = false;
-    ConfusingHPMSG = false;
-    InvincibleMSG = false;
-    SpikyMSG = false;
-    HealersMSG = false;
-    RangedMSG = false;
-    IsSlowMSG = false;
-    RecoilMSG = false;
-
-    // Yes yes, dont question my intelligence
-    DrawErrorIsReversed = { -1000 };
-    DrawErrorConfusingHP = { -1000 };
-    DrawErrorInvincible = { -1000 };
-    DrawErrorSpiky = { -1000 };
-    DrawErrorHealersParadise = { -1000 };
-    DrawErrorRanged = { -1000 };
-    DrawErrorIsSlow = { -1000 };
-    DrawErrorDangerousRecoil = { -1000 };
-    Displacement = 0;
-    // Sets the base displacement to 0, so when an error gets picked up, the icon spawns in the lowest spot
 
     m_CurrentWeapon = nullptr; // Start by holding nothing
     memset(m_Weapons, 0, sizeof(m_Weapons));
@@ -204,11 +154,10 @@ void Character::LevelupStats(unsigned int level) {
 }
 
 void Character::Damage(double damage, Entity* damager) {
-    if (!Invincible) {
-        if (HealersParadise) {
+    if (!m_ErrorStatuses.Invincible.IsActive()) {
+        if (m_ErrorStatuses.HealersParadise.IsActive()) {
             double HealBack = damage;
-            if (HealBack > 10)
-                HealBack = 10;
+            if (HealBack > 10) HealBack = 10;
             m_HealthComponent.ChangeHealthBy(+HealBack);
         }
 
@@ -229,134 +178,6 @@ void Character::Damage(double damage, Entity* damager) {
 
 void Character::Heal(double value) {
     m_HealthComponent.ChangeHealthBy(+value);
-};
-
-void Character::ReverseMovement() {
-    IsReversed = true;
-    ReverseMSG = true; // In addition to setting reversed to true itself, also sets MSG to be drawn
-    m_IsReverseTimer = 1500;
-}
-
-void Character::ConfuseHP() {
-    ConfusingHP = true;
-    ConfusingHPMSG = true;
-    m_ConfusingHPTimer = 1500;
-}
-
-void Character::MakeInvincible() {
-    Invincible = true;
-    InvincibleMSG = true;
-    m_InvincibleTimer = 1500;
-}
-
-void Character::MakeSpiky() {
-    Spiky = true;
-    SpikyMSG = true;
-    m_SpikyTimer = 3000;
-}
-
-void Character::MakeHealer() {
-    HealersParadise = true;
-    HealersMSG = true;
-    m_HealersParadiseTimer = 1500;
-}
-
-void Character::MakeRanged() {
-    Ranged = true;
-    RangedMSG = true;
-    m_RangedTimer = 3000;
-}
-
-void Character::SlowDown() {
-    IsSlow = true;
-    IsSlowMSG = true;
-    m_IsSlowTimer = 1500;
-}
-
-void Character::ActivateDangerousRecoil() {
-    m_DangerousRecoil = true;
-    RecoilMSG = true;
-    m_DangerousRecoilTimer = 3000;
-}
-
-void Character::TickErrorTimers() {
-    if (HealersParadise)
-        m_HealersParadiseTimer -= 1;
-    if (Spiky)
-        m_SpikyTimer -= 1;
-    if (Invincible)
-        m_InvincibleTimer -= 1;
-    if (ConfusingHP)
-        m_ConfusingHPTimer -= 1;
-    if (IsReversed)
-        m_IsReverseTimer -= 1;
-    if (Ranged)
-        m_RangedTimer -= 1;
-    if (IsSlow)
-        m_IsSlowTimer -= 1;
-    if (m_DangerousRecoil)
-        m_DangerousRecoilTimer -= 1;
-    if (HealersParadise || Spiky || Invincible || ConfusingHP || IsReversed || Ranged || IsSlow || m_DangerousRecoil) {
-        // Changes the MSG drawing to false if its above 2 seconds of active time
-        if (m_IsReverseTimer <= 1380)
-            ReverseMSG = false;
-        if (m_IsReverseTimer <= 0 && IsReversed) {
-            IsReversed = false;
-            Displacement = DrawErrorIsReversed.y;
-            DrawErrorIsReversed = { -1000 };
-        }
-        if (m_ConfusingHPTimer <= 1380)
-            ConfusingHPMSG = false;
-        if (m_ConfusingHPTimer <= 0 && ConfusingHP) {
-            ConfusingHP = false;
-            // Sets it so the next ERROR icon will be shown where the last one ended
-            Displacement = DrawErrorConfusingHP.y;
-            DrawErrorConfusingHP = { -1000 };
-        }
-        if (m_InvincibleTimer <= 1380)
-            InvincibleMSG = false;
-        if (m_InvincibleTimer <= 0 && Invincible) {
-            Invincible = false;
-            Displacement = DrawErrorInvincible.y;
-            DrawErrorInvincible = { -1000 };
-        }
-        if (m_SpikyTimer <= 2880)
-            SpikyMSG = false;
-        if (m_SpikyTimer <= 0 && Spiky) {
-            Spiky = false;
-            Displacement = DrawErrorSpiky.y;
-            DrawErrorSpiky = { -1000 };
-        }
-        if (m_HealersParadiseTimer <= 1380)
-            HealersMSG = false;
-        if (m_HealersParadiseTimer <= 0 && HealersParadise) {
-            HealersParadise = false;
-            Displacement = DrawErrorHealersParadise.y;
-            DrawErrorHealersParadise = { -1000 };
-        }
-        if (m_RangedTimer <= 2880)
-            RangedMSG = false;
-        if (m_RangedTimer <= 0 && Ranged) {
-            Ranged = false;
-            Displacement = DrawErrorRanged.y;
-            DrawErrorRanged = { -1000 };
-        }
-        if (m_IsSlowTimer <= 1380)
-            IsSlowMSG = false;
-        if (m_IsSlowTimer <= 0 && IsSlow) {
-            IsSlow = false;
-            Displacement = DrawErrorIsSlow.y;
-            DrawErrorIsSlow = { -1000 };
-        }
-        if (m_DangerousRecoilTimer <= 2880)
-            RecoilMSG = false;
-        if (m_DangerousRecoilTimer <= 0 && m_DangerousRecoil) {
-            m_DangerousRecoil = false;
-            Displacement = DrawErrorDangerousRecoil.y;
-            DrawErrorDangerousRecoil = { -1000 };
-        }
-    } else
-        Displacement = 0;
 }
 
 void Character::DropWeapon() {
@@ -475,7 +296,7 @@ void Character::AmmoPickup(AmmoBox* ammo_box) {
 
 void Character::EventDeath() {
     // Play a toned down version particle effect :)
-    BLOOD.GetTexture()->SetColorMod(255, 0, 0); //
+    sTextureBlood.GetTexture()->SetColorMod(255, 0, 0); //
     auto particles = m_World->GetParticles();
     for (int i = 0; i < 50; i++) {
         Vec2d vel = { m_Core.Vel.x * (double)(rand()) / RAND_MAX + 2.0 * ((double)(rand()) / RAND_MAX * 2.0 - 1.0),
@@ -483,7 +304,7 @@ void Character::EventDeath() {
 
         double size = 5.0 + (double)(rand()) / RAND_MAX * 10.0;
         double orientation = (double)(rand()) / RAND_MAX * 360.0;
-        particles->PlayParticle(Particle(BLOOD.GetTexture(), m_Core.Pos, Vec2d(size, size), vel, 0.95, orientation, 20, 0.98, 200));
+        particles->PlayParticle(Particle(sTextureBlood.GetTexture(), m_Core.Pos, Vec2d(size, size), vel, 0.95, orientation, 20, 0.98, 200));
     }
 
     for (int i = 0; i < NUM_WEAPONS; i++) {
@@ -653,8 +474,8 @@ void Character::TickProcessInputs() {
         // TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
 
         double Acceleration = (m_Input.m_Sneaking ? m_BaseAcceleration / 3 : m_BaseAcceleration) *
-            (IsReversed ? -1 : 1) *
-            (IsSlow ? 0.5 : 1) *
+            (m_ErrorStatuses.Disoriented.IsActive() ? -1 : 1) *
+            (m_ErrorStatuses.Slowdown.IsActive() ? 0.5 : 1) *
             (m_CurrentWeapon ? 0.9 : 1.0);
 
         // Accelerate in that direction
@@ -662,9 +483,9 @@ void Character::TickProcessInputs() {
     }
 
     if (m_Input.m_LookingLength >= 0.6) {
-        m_DirectionalCore.Direction = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY) * (IsReversed ? -1 : 1);
+        m_DirectionalCore.Direction = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY) * (m_ErrorStatuses.Disoriented.IsActive() ? -1 : 1);
     } else if (m_Input.m_GoingLength >= 0.2) {
-        m_DirectionalCore.Direction = Vec2d(m_Input.m_GoingX, m_Input.m_GoingY) * (IsReversed ? -1 : 1);
+        m_DirectionalCore.Direction = Vec2d(m_Input.m_GoingX, m_Input.m_GoingY) * (m_ErrorStatuses.Disoriented.IsActive() ? -1 : 1);
     }
 
     if (m_Input.m_NextItem ^ m_Input.m_PrevItem
@@ -719,7 +540,7 @@ void Character::TickCollision() {
         m_Core.Accelerate(XPush, YPush);
         EntCore.Accelerate(-XPush, -YPush);
 
-        if (Spiky && m_NPC != Char->IsNPC())
+        if (m_ErrorStatuses.Spiky.IsActive() && m_NPC != Char->IsNPC())
             Char->Damage(3, this);
     }
 
@@ -758,209 +579,213 @@ void Character::TickCurrentWeapon() {
 }
 // Function to draw icons for error pickup
 void Character::DrawErrorIcons() {
-    SDL_FRect DrawRectError = { float(m_Core.Pos.x) + float(m_Core.Size.x / 2.0) + 10,
-                                float(m_Core.Pos.y) + float(m_Core.Size.y / 2.0),
-                                float(20),
-                                float(20) };
-
-    Drawing* Render = m_World->GameWindow()->Render();
-    // Goes through all active ERRORS
-    if (IsReversed) {
-        if (DrawErrorIsReversed.x == -1000) {                                         // If is the first time drawing it
-            DrawErrorIsReversed = DrawRectError;  // Need this so the .x value isnt -1000 after this
-            DrawErrorIsReversed.y = Displacement; // Saves the current displacement value in the .y position
-            Displacement -= 20;                   // Changes the displacement by -20 so the next one spawns above it
-        } else {                                             // When its not the first time, but repeat drawing of the same instance of ERROR
-            DrawRectError.y += DrawErrorIsReversed.y; // Changes the y by the displacement when picked up
-            double Percentage = float(m_IsReverseTimer) / 1500;
-            SDL_Rect SourceRect = { 0, 0,
-                                    sTextureErrorDisorianted.GetTexture()->GetWidth(),
-                                    sTextureErrorDisorianted.GetTexture()->GetHeight() };
-            int NewSourceH = int(SourceRect.h * Percentage);
-            SourceRect.y = SourceRect.h - NewSourceH;
-            SourceRect.h = NewSourceH;
-
-            SDL_Rect
-                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
-            int NewDrawH = int(DrawRect.h * Percentage);
-            DrawRect.y += DrawRect.h - NewDrawH;
-            DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(sTextureErrorDisorianted.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
-            DrawRectError.y -= DrawErrorIsReversed.y; // Changes it back
-            // Then i do that for EVERY SINGLE ERROR!!
-        }
-    }
-    if (ConfusingHP) {
-        if (DrawErrorConfusingHP.x == -1000) {
-            DrawErrorConfusingHP = DrawRectError;
-            DrawErrorConfusingHP.y = Displacement;
-            Displacement -= 20;
-        } else {
-            DrawRectError.y += DrawErrorConfusingHP.y; // Changes the y by the displacement when picked up
-            double Percentage = float(m_ConfusingHPTimer) / 1500;
-            SDL_Rect SourceRect = { 0, 0,
-                                    sTextureErrorConfusingHP.GetTexture()->GetWidth(),
-                                    sTextureErrorConfusingHP.GetTexture()->GetHeight() };
-            int NewSourceH = int(SourceRect.h * Percentage);
-            SourceRect.y = SourceRect.h - NewSourceH;
-            SourceRect.h = NewSourceH;
-
-            SDL_Rect
-                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
-            int NewDrawH = int(DrawRect.h * Percentage);
-            DrawRect.y += DrawRect.h - NewDrawH;
-            DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(sTextureErrorConfusingHP.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
-            DrawRectError.y -= DrawErrorConfusingHP.y;
-        }
-    }
-    if (Invincible) {
-        if (DrawErrorInvincible.x == -1000) {
-            DrawErrorInvincible = DrawRectError;
-            DrawErrorInvincible.y = Displacement;
-            Displacement -= 20;
-        } else {
-            DrawRectError.y += DrawErrorInvincible.y;
-            double Percentage = float(m_InvincibleTimer) / 1500;
-            SDL_Rect SourceRect = { 0, 0,
-                                    sTextureErrorInvincible.GetTexture()->GetWidth(),
-                                    sTextureErrorInvincible.GetTexture()->GetHeight() };
-            int NewSourceH = int(SourceRect.h * Percentage);
-            SourceRect.y = SourceRect.h - NewSourceH;
-            SourceRect.h = NewSourceH;
-
-            SDL_Rect
-                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
-            int NewDrawH = int(DrawRect.h * Percentage);
-            DrawRect.y += DrawRect.h - NewDrawH;
-            DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(sTextureErrorInvincible.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
-            DrawRectError.y -= DrawErrorInvincible.y;
-        }
-    }
-
-    if (Spiky) {
-        if (DrawErrorSpiky.x == -1000) {
-            DrawErrorSpiky = DrawRectError;
-            DrawErrorSpiky.y = Displacement;
-            Displacement -= 20;
-        } else {
-            DrawRectError.y += DrawErrorSpiky.y;
-            double Percentage = float(m_SpikyTimer) / 3000;
-            SDL_Rect SourceRect = { 0, 0,
-                                    sTextureErrorSpiky.GetTexture()->GetWidth(),
-                                    sTextureErrorSpiky.GetTexture()->GetHeight() };
-            int NewSourceH = int(SourceRect.h * Percentage);
-            SourceRect.y = SourceRect.h - NewSourceH;
-            SourceRect.h = NewSourceH;
-
-            SDL_Rect
-                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
-            int NewDrawH = int(DrawRect.h * Percentage);
-            DrawRect.y += DrawRect.h - NewDrawH;
-            DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(sTextureErrorSpiky.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
-            DrawRectError.y -= DrawErrorSpiky.y;
-        }
-    }
-
-    if (HealersParadise) {
-        if (DrawErrorHealersParadise.x == -1000) {
-            DrawErrorHealersParadise = DrawRectError;
-            DrawErrorHealersParadise.y = Displacement;
-            Displacement -= 20;
-        } else {
-            DrawRectError.y += DrawErrorHealersParadise.y;
-            double Percentage = float(m_HealersParadiseTimer) / 1500;
-            SDL_Rect SourceRect = { 0, 0,
-                                    sTextureErrorHealersParadise.GetTexture()->GetWidth(),
-                                    sTextureErrorHealersParadise.GetTexture()->GetHeight() };
-            int NewSourceH = int(SourceRect.h * Percentage);
-            SourceRect.y = SourceRect.h - NewSourceH;
-            SourceRect.h = NewSourceH;
-
-            SDL_Rect
-                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
-            int NewDrawH = int(DrawRect.h * Percentage);
-            DrawRect.y += DrawRect.h - NewDrawH;
-            DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(sTextureErrorHealersParadise.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
-            DrawRectError.y -= DrawErrorHealersParadise.y;
-        }
-    }
-    if (Ranged) {
-        if (DrawErrorRanged.x == -1000) {
-            DrawErrorRanged = DrawRectError;
-            DrawErrorRanged.y = Displacement;
-            Displacement -= 20;
-        } else {
-            DrawRectError.y += DrawErrorRanged.y;
-            double Percentage = float(m_RangedTimer) / 3000;
-            SDL_Rect SourceRect = { 0, 0,
-                                    sTextureErrorRanged.GetTexture()->GetWidth(),
-                                    sTextureErrorRanged.GetTexture()->GetHeight() };
-            int NewSourceH = int(SourceRect.h * Percentage);
-            SourceRect.y = SourceRect.h - NewSourceH;
-            SourceRect.h = NewSourceH;
-
-            SDL_Rect
-                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
-            int NewDrawH = int(DrawRect.h * Percentage);
-            DrawRect.y += DrawRect.h - NewDrawH;
-            DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(sTextureErrorRanged.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
-            DrawRectError.y -= DrawErrorRanged.y;
-        }
-    }
-    if (m_DangerousRecoil) {
-        if (DrawErrorDangerousRecoil.x == -1000) {
-            DrawErrorDangerousRecoil = DrawRectError;
-            DrawErrorDangerousRecoil.y = Displacement;
-            Displacement -= 20;
-        } else {
-            DrawRectError.y += DrawErrorDangerousRecoil.y;
-            double Percentage = float(m_DangerousRecoilTimer) / 3000;
-            SDL_Rect SourceRect = { 0, 0,
-                                    sTextureErrorDangerousRecoil.GetTexture()->GetWidth(),
-                                    sTextureErrorDangerousRecoil.GetTexture()->GetHeight() };
-            int NewSourceH = int(SourceRect.h * Percentage);
-            SourceRect.y = SourceRect.h - NewSourceH;
-            SourceRect.h = NewSourceH;
-
-            SDL_Rect
-                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
-            int NewDrawH = int(DrawRect.h * Percentage);
-            DrawRect.y += DrawRect.h - NewDrawH;
-            DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(sTextureErrorDangerousRecoil.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
-            DrawRectError.y -= DrawErrorDangerousRecoil.y;
-        }
-    }
-    if (IsSlow) {
-        if (DrawErrorIsSlow.x == -1000) {
-            DrawErrorIsSlow = DrawRectError;
-            DrawErrorIsSlow.y = Displacement;
-            Displacement -= 20;
-        } else {
-            DrawRectError.y += DrawErrorIsSlow.y;
-            double Percentage = float(m_IsSlowTimer) / 1500;
-            SDL_Rect SourceRect = { 0, 0,
-                                    sTextureErrorSlowDown.GetTexture()->GetWidth(),
-                                    sTextureErrorSlowDown.GetTexture()->GetHeight() };
-            int NewSourceH = int(SourceRect.h * Percentage);
-            SourceRect.y = SourceRect.h - NewSourceH;
-            SourceRect.h = NewSourceH;
-
-            SDL_Rect
-                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
-            int NewDrawH = int(DrawRect.h * Percentage);
-            DrawRect.y += DrawRect.h - NewDrawH;
-            DrawRect.h = NewDrawH;
-            Render->RenderTextureCamera(sTextureErrorSlowDown.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
-            DrawRectError.y -= DrawErrorIsSlow.y;
-        }
-    }
+    m_ErrorStatuses.Draw();
 }
+
+//
+//    SDL_FRect DrawRectError = { float(m_Core.Pos.x) + float(m_Core.Size.x / 2.0) + 10,
+//                                float(m_Core.Pos.y) + float(m_Core.Size.y / 2.0),
+//                                float(20),
+//                                float(20) };
+//
+//    Drawing* Render = m_World->GameWindow()->Render();
+//    // Goes through all active ERRORS
+//    if (IsReversed) {
+//        if (DrawErrorIsReversed.x == -1000) {                                         // If is the first time drawing it
+//            DrawErrorIsReversed = DrawRectError;  // Need this so the .x value isnt -1000 after this
+//            DrawErrorIsReversed.y = Displacement; // Saves the current displacement value in the .y position
+//            Displacement -= 20;                   // Changes the displacement by -20 so the next one spawns above it
+//        } else {                                             // When its not the first time, but repeat drawing of the same instance of ERROR
+//            DrawRectError.y += DrawErrorIsReversed.y; // Changes the y by the displacement when picked up
+//            double Percentage = float(m_IsReverseTimer) / 1500;
+//            SDL_Rect SourceRect = { 0, 0,
+//                                    sTextureErrorDisorianted.GetTexture()->GetWidth(),
+//                                    sTextureErrorDisorianted.GetTexture()->GetHeight() };
+//            int NewSourceH = int(SourceRect.h * Percentage);
+//            SourceRect.y = SourceRect.h - NewSourceH;
+//            SourceRect.h = NewSourceH;
+//
+//            SDL_Rect
+//                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
+//            int NewDrawH = int(DrawRect.h * Percentage);
+//            DrawRect.y += DrawRect.h - NewDrawH;
+//            DrawRect.h = NewDrawH;
+//            Render->RenderTextureCamera(sTextureErrorDisorianted.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
+//            DrawRectError.y -= DrawErrorIsReversed.y; // Changes it back
+//            // Then i do that for EVERY SINGLE ERROR!!
+//        }
+//    }
+//    if (ConfusingHP) {
+//        if (DrawErrorConfusingHP.x == -1000) {
+//            DrawErrorConfusingHP = DrawRectError;
+//            DrawErrorConfusingHP.y = Displacement;
+//            Displacement -= 20;
+//        } else {
+//            DrawRectError.y += DrawErrorConfusingHP.y; // Changes the y by the displacement when picked up
+//            double Percentage = float(m_ConfusingHPTimer) / 1500;
+//            SDL_Rect SourceRect = { 0, 0,
+//                                    sTextureErrorConfusingHP.GetTexture()->GetWidth(),
+//                                    sTextureErrorConfusingHP.GetTexture()->GetHeight() };
+//            int NewSourceH = int(SourceRect.h * Percentage);
+//            SourceRect.y = SourceRect.h - NewSourceH;
+//            SourceRect.h = NewSourceH;
+//
+//            SDL_Rect
+//                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
+//            int NewDrawH = int(DrawRect.h * Percentage);
+//            DrawRect.y += DrawRect.h - NewDrawH;
+//            DrawRect.h = NewDrawH;
+//            Render->RenderTextureCamera(sTextureErrorConfusingHP.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
+//            DrawRectError.y -= DrawErrorConfusingHP.y;
+//        }
+//    }
+//    if (Invincible) {
+//        if (DrawErrorInvincible.x == -1000) {
+//            DrawErrorInvincible = DrawRectError;
+//            DrawErrorInvincible.y = Displacement;
+//            Displacement -= 20;
+//        } else {
+//            DrawRectError.y += DrawErrorInvincible.y;
+//            double Percentage = float(m_InvincibleTimer) / 1500;
+//            SDL_Rect SourceRect = { 0, 0,
+//                                    sTextureErrorInvincible.GetTexture()->GetWidth(),
+//                                    sTextureErrorInvincible.GetTexture()->GetHeight() };
+//            int NewSourceH = int(SourceRect.h * Percentage);
+//            SourceRect.y = SourceRect.h - NewSourceH;
+//            SourceRect.h = NewSourceH;
+//
+//            SDL_Rect
+//                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
+//            int NewDrawH = int(DrawRect.h * Percentage);
+//            DrawRect.y += DrawRect.h - NewDrawH;
+//            DrawRect.h = NewDrawH;
+//            Render->RenderTextureCamera(sTextureErrorInvincible.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
+//            DrawRectError.y -= DrawErrorInvincible.y;
+//        }
+//    }
+//
+//    if (Spiky) {
+//        if (DrawErrorSpiky.x == -1000) {
+//            DrawErrorSpiky = DrawRectError;
+//            DrawErrorSpiky.y = Displacement;
+//            Displacement -= 20;
+//        } else {
+//            DrawRectError.y += DrawErrorSpiky.y;
+//            double Percentage = float(m_SpikyTimer) / 3000;
+//            SDL_Rect SourceRect = { 0, 0,
+//                                    sTextureErrorSpiky.GetTexture()->GetWidth(),
+//                                    sTextureErrorSpiky.GetTexture()->GetHeight() };
+//            int NewSourceH = int(SourceRect.h * Percentage);
+//            SourceRect.y = SourceRect.h - NewSourceH;
+//            SourceRect.h = NewSourceH;
+//
+//            SDL_Rect
+//                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
+//            int NewDrawH = int(DrawRect.h * Percentage);
+//            DrawRect.y += DrawRect.h - NewDrawH;
+//            DrawRect.h = NewDrawH;
+//            Render->RenderTextureCamera(sTextureErrorSpiky.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
+//            DrawRectError.y -= DrawErrorSpiky.y;
+//        }
+//    }
+//
+//    if (HealersParadise) {
+//        if (DrawErrorHealersParadise.x == -1000) {
+//            DrawErrorHealersParadise = DrawRectError;
+//            DrawErrorHealersParadise.y = Displacement;
+//            Displacement -= 20;
+//        } else {
+//            DrawRectError.y += DrawErrorHealersParadise.y;
+//            double Percentage = float(m_HealersParadiseTimer) / 1500;
+//            SDL_Rect SourceRect = { 0, 0,
+//                                    sTextureErrorHealersParadise.GetTexture()->GetWidth(),
+//                                    sTextureErrorHealersParadise.GetTexture()->GetHeight() };
+//            int NewSourceH = int(SourceRect.h * Percentage);
+//            SourceRect.y = SourceRect.h - NewSourceH;
+//            SourceRect.h = NewSourceH;
+//
+//            SDL_Rect
+//                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
+//            int NewDrawH = int(DrawRect.h * Percentage);
+//            DrawRect.y += DrawRect.h - NewDrawH;
+//            DrawRect.h = NewDrawH;
+//            Render->RenderTextureCamera(sTextureErrorHealersParadise.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
+//            DrawRectError.y -= DrawErrorHealersParadise.y;
+//        }
+//    }
+//    if (Ranged) {
+//        if (DrawErrorRanged.x == -1000) {
+//            DrawErrorRanged = DrawRectError;
+//            DrawErrorRanged.y = Displacement;
+//            Displacement -= 20;
+//        } else {
+//            DrawRectError.y += DrawErrorRanged.y;
+//            double Percentage = float(m_RangedTimer) / 3000;
+//            SDL_Rect SourceRect = { 0, 0,
+//                                    sTextureErrorRanged.GetTexture()->GetWidth(),
+//                                    sTextureErrorRanged.GetTexture()->GetHeight() };
+//            int NewSourceH = int(SourceRect.h * Percentage);
+//            SourceRect.y = SourceRect.h - NewSourceH;
+//            SourceRect.h = NewSourceH;
+//
+//            SDL_Rect
+//                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
+//            int NewDrawH = int(DrawRect.h * Percentage);
+//            DrawRect.y += DrawRect.h - NewDrawH;
+//            DrawRect.h = NewDrawH;
+//            Render->RenderTextureCamera(sTextureErrorRanged.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
+//            DrawRectError.y -= DrawErrorRanged.y;
+//        }
+//    }
+//    if (m_DangerousRecoil) {
+//        if (DrawErrorDangerousRecoil.x == -1000) {
+//            DrawErrorDangerousRecoil = DrawRectError;
+//            DrawErrorDangerousRecoil.y = Displacement;
+//            Displacement -= 20;
+//        } else {
+//            DrawRectError.y += DrawErrorDangerousRecoil.y;
+//            double Percentage = float(m_DangerousRecoilTimer) / 3000;
+//            SDL_Rect SourceRect = { 0, 0,
+//                                    sTextureErrorDangerousRecoil.GetTexture()->GetWidth(),
+//                                    sTextureErrorDangerousRecoil.GetTexture()->GetHeight() };
+//            int NewSourceH = int(SourceRect.h * Percentage);
+//            SourceRect.y = SourceRect.h - NewSourceH;
+//            SourceRect.h = NewSourceH;
+//
+//            SDL_Rect
+//                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
+//            int NewDrawH = int(DrawRect.h * Percentage);
+//            DrawRect.y += DrawRect.h - NewDrawH;
+//            DrawRect.h = NewDrawH;
+//            Render->RenderTextureCamera(sTextureErrorDangerousRecoil.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
+//            DrawRectError.y -= DrawErrorDangerousRecoil.y;
+//        }
+//    }
+//    if (IsSlow) {
+//        if (DrawErrorIsSlow.x == -1000) {
+//            DrawErrorIsSlow = DrawRectError;
+//            DrawErrorIsSlow.y = Displacement;
+//            Displacement -= 20;
+//        } else {
+//            DrawRectError.y += DrawErrorIsSlow.y;
+//            double Percentage = float(m_IsSlowTimer) / 1500;
+//            SDL_Rect SourceRect = { 0, 0,
+//                                    sTextureErrorSlowDown.GetTexture()->GetWidth(),
+//                                    sTextureErrorSlowDown.GetTexture()->GetHeight() };
+//            int NewSourceH = int(SourceRect.h * Percentage);
+//            SourceRect.y = SourceRect.h - NewSourceH;
+//            SourceRect.h = NewSourceH;
+//
+//            SDL_Rect
+//                DrawRect = { int(DrawRectError.x), int(DrawRectError.y), int(DrawRectError.w), int(DrawRectError.h) };
+//            int NewDrawH = int(DrawRect.h * Percentage);
+//            DrawRect.y += DrawRect.h - NewDrawH;
+//            DrawRect.h = NewDrawH;
+//            Render->RenderTextureCamera(sTextureErrorSlowDown.GetTexture()->SDLTexture(), &SourceRect, DrawRect);
+//            DrawRectError.y -= DrawErrorIsSlow.y;
+//        }
+//    }
+//}
 
 void Character::DrawCharacter() {
     Drawing* Render = m_World->GameWindow()->Render();
@@ -1004,7 +829,7 @@ void Character::DrawHealthbar() {
         return;
 
     m_HealthBar.SetColor(m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a);
-    Texture* HealthPlate = ConfusingHP ? m_HealthBar.GetTexture() : m_HealthBar.UpdateTexture();
+    Texture* HealthPlate = m_ErrorStatuses.ConfusingHealth.IsActive() ? m_HealthBar.GetTexture() : m_HealthBar.UpdateTexture();
 
     int HealthBarW = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
     int HealthBarH = HealthPlate->GetHeight();
@@ -1014,7 +839,7 @@ void Character::DrawHealthbar() {
 
     if (m_HealthInt->GetFlaggedForUpdate()) {
         std::string HealthText;
-        if (!ConfusingHP)
+        if (!m_ErrorStatuses.ConfusingHealth.IsActive())
             HealthText = FString("%i/%i", int(m_HealthComponent.m_Health), int(m_HealthComponent.m_MaxHealth));
         else
             HealthText = FString("%i/%i", int(rand() % 999), int(rand() % 999));
@@ -1171,40 +996,40 @@ void Character::DrawAmmoCounter() {
 
 void Character::DrawErrorName() {
     Drawing* Render = m_World->GameWindow()->Render();
-    char msg[64];
-    // Changes the "msg" to whatever Error has been picked up( not else if's cuz then it wouldnt update on new pickup
-    // aka, this is so it overrides the last msg too)
-    if (ReverseMSG)
-        std::snprintf(msg, sizeof(msg), "ERROR activated \"Reverse Movement\"");
-    else if (ConfusingHPMSG)
-        std::snprintf(msg, sizeof(msg), "ERROR activated \"Confusing HP\"");
-    else if (InvincibleMSG)
-        std::snprintf(msg, sizeof(msg), "ERROR activated \"Invincible\"");
-    else if (SpikyMSG)
-        std::snprintf(msg, sizeof(msg), "ERROR activated \"Spiky\"");
-    else if (HealersMSG)
-        std::snprintf(msg, sizeof(msg), "ERROR activated \"Healers paradise\"");
-    else if (RangedMSG)
-        std::snprintf(msg, sizeof(msg), "ERROR activated \"Ranged\"");
-    else if (IsSlowMSG)
-        std::snprintf(msg, sizeof(msg), "ERROR activated \"Slow down\"");
-    else if (RecoilMSG)
-        std::snprintf(msg, sizeof(msg), "ERROR activated \"Dangerous recoil\"");
-
-    m_ErrorText = new TextSurface(m_World->GameWindow()->Assetz(),
-                                  m_World->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
-                                  msg, { 255, 255, 255 });
-    m_ErrorText->SetText(msg);
-    Texture* ErrorTexture = m_ErrorText->RequestUpdate();
-
-    int Text_h = ErrorTexture->GetWidth();
-    int Text_w = ErrorTexture->GetHeight();
-    double Zoom = Render->GetZoom();
-    SDL_Rect ErrorRect = { int(m_Core.Pos.x - 100 - (Text_w / Zoom)),
-                           int(m_Core.Pos.y - 50),
-                           int(Text_h / Zoom),
-                           int(Text_w / Zoom) };
-    Render->RenderTextureCamera(ErrorTexture->SDLTexture(), nullptr, ErrorRect);
+//    char msg[64];
+//    // Changes the "msg" to whatever Error has been picked up( not else if's cuz then it wouldnt update on new pickup
+//    // aka, this is so it overrides the last msg too)
+//    if (ReverseMSG)
+//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Reverse Movement\"");
+//    else if (ConfusingHPMSG)
+//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Confusing HP\"");
+//    else if (InvincibleMSG)
+//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Invincible\"");
+//    else if (SpikyMSG)
+//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Spiky\"");
+//    else if (HealersMSG)
+//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Healers paradise\"");
+//    else if (RangedMSG)
+//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Ranged\"");
+//    else if (IsSlowMSG)
+//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Slow down\"");
+//    else if (RecoilMSG)
+//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Dangerous recoil\"");
+//
+//    m_ErrorText = new TextSurface(m_World->GameWindow()->Assetz(),
+//                                  m_World->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
+//                                  msg, { 255, 255, 255 });
+//    m_ErrorText->SetText(msg);
+//    Texture* ErrorTexture = m_ErrorText->RequestUpdate();
+//
+//    int Text_h = ErrorTexture->GetWidth();
+//    int Text_w = ErrorTexture->GetHeight();
+//    double Zoom = Render->GetZoom();
+//    SDL_Rect ErrorRect = { int(m_Core.Pos.x - 100 - (Text_w / Zoom)),
+//                           int(m_Core.Pos.y - 50),
+//                           int(Text_h / Zoom),
+//                           int(Text_w / Zoom) };
+//    Render->RenderTextureCamera(ErrorTexture->SDLTexture(), nullptr, ErrorRect);
 }
 
 void Character::Event(const SDL_Event& currentEvent) {
@@ -1253,7 +1078,8 @@ void Character::Tick() {
     TickHook();          // Move hook and or player etc.
     TickCurrentWeapon(); // Shoot accelerate reload etc.
     m_Hands.Tick();
-    TickErrorTimers(); // Ticks timer for errors
+    m_ErrorStatuses.Tick();
+//    TickErrorTimers(); // Ticks timer for errors
     // Need every characters to get here..
     // then we apply the accelerations of all
     // hooks and continue with the code below v v v
@@ -1285,7 +1111,7 @@ void Character::Tick() {
     if (!m_HealthComponent.IsAlive()) {
         // Extra life
         if (m_Player && m_Player->GetExtraLifeStatus()) {
-            m_Player->GetCharacter()->MakeInvincible();
+            m_Player->GetCharacter()->GetErrorStatuses().Invincible.Activate();
             return;
         }
 
@@ -1316,8 +1142,6 @@ void Character::Draw() {
 
     // Only draws the Error names, if the timers havent been going down for any more than 2 seconds
     // 1000(Most Error activity time)-120(2 seconds)
-    if (m_IsReverseTimer > 1380 || m_ConfusingHPTimer > 1380 || m_InvincibleTimer > 1380 || m_SpikyTimer > 2880 ||
-        m_HealersParadiseTimer > 1380 || m_RangedTimer > 2880 || m_DangerousRecoilTimer > 2880
-        || m_IsSlowTimer > 1380)
+    if (m_ErrorStatuses.AnyActive(2.0))
         DrawErrorName();
 }

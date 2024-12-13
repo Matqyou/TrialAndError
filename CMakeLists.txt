@@ -102,10 +102,37 @@ set(PROJECT_FILES
         "src/game/interface/SettingsMenu.h"
         "src/game/interface/LevelUpMenu.cpp"
         "src/game/interface/LevelUpMenu.h"
-        src/game/weapons/projectile/PatersonNavy.cpp
-        src/game/weapons/projectile/PatersonNavy.h
-        src/client/Particles.cpp
-        src/client/Particles.h)
+        "src/game/weapons/projectile/PatersonNavy.cpp"
+        "src/game/weapons/projectile/PatersonNavy.h"
+        "src/client/Particles.cpp"
+        "src/client/Particles.h"
+        "src/game/error/base/ErrorStatusEffect.cpp"
+        "src/game/error/base/ErrorStatusEffect.h"
+        "src/game/error/effect/ErrorHealersParadise.h"
+        "src/game/error/effect/ErrorHealersParadise.cpp"
+        "src/game/error/effect/ErrorDisoriented.h"
+        "src/game/error/effect/ErrorDisoriented.cpp"
+        "src/game/error/effect/ErrorInvincible.h"
+        "src/game/error/effect/ErrorInvincible.cpp"
+        "src/game/error/effect/ErrorDangerousRecoil.h"
+        "src/game/error/effect/ErrorDangerousRecoil.cpp"
+        "src/game/error/effect/ErrorSpiky.h"
+        "src/game/error/effect/ErrorSpiky.cpp"
+        "src/game/error/effect/ErrorBulletFrenzy.h"
+        "src/game/error/effect/ErrorBulletFrenzy.cpp"
+        "src/game/error/effect/ErrorConfusingHealth.h"
+        "src/game/error/effect/ErrorConfusingHealth.cpp"
+        "src/game/error/effect/ErrorTeleport.h"
+        "src/game/error/effect/ErrorTeleport.cpp"
+        "src/game/error/effect/ErrorSlowdown.h"
+        "src/game/error/effect/ErrorSlowdown.cpp"
+        "src/game/error/effect/ErrorCantHear.h"
+        "src/game/error/effect/ErrorCantHear.cpp"
+        "src/game/error/effect/ErrorRangedFists.h"
+        "src/game/error/effect/ErrorRangedFists.cpp"
+        src/game/error/ErrorStatuses.cpp
+        src/game/error/ErrorStatuses.h
+)
 
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
 

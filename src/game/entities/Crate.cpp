@@ -4,6 +4,7 @@
 #include "characters/character/Character.h"
 #include "Crate.h"
 #include <iostream>
+
 LoadedSound Crate::sHitSound[] = {
     LoadedSound("entity.crate.broken.1"),
     LoadedSound("entity.crate.broken.2"),
@@ -65,7 +66,7 @@ void Crate::Damage(double value, Entity* damager) {
 
 void Crate::Heal(double value) {
     m_HealthComponent.ChangeHealthBy(+value);
-};
+}
 
 void Crate::Tick() {
     TickWalls();

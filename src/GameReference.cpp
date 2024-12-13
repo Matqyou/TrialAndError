@@ -7,6 +7,8 @@
 #include "game/entities/Crate.h"
 #include "game/entities/item/weapons/EntityGuns.h"
 #include "game/entities/Projectile.h"
+#include "game/entities/Error.h"
+#include "game/entities/characters/character/Character.h"
 
 LoadedSound GameReference::sQuitSound("ui.quit");
 
@@ -156,6 +158,9 @@ bool GameReference::Initialize() {
     if (!m_Random) m_Random = new Randomizer();
     if (!m_Draw) m_Draw = new Drawing(this);
     if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager();
+
+    m_Draw->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+
     std::cout << FStringColors("&8------------------------------------------------------------------------") << std::endl;
     std::cout << std::endl;
     return true;

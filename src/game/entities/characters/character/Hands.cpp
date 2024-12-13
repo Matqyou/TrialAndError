@@ -36,9 +36,9 @@ void Hands::SetColor(SDL_Color& color) {
 }
 
 void Hands::Tick() {
-    if (!m_Parent->Ranged)
+    if (!m_Parent->GetErrorStatuses().RangedFists.IsActive())
         m_FistingRadius = m_BaseFistingRadius;
-    else if (m_Parent->Ranged && m_FistingRadius != m_BaseFistingRadius + 100)
+    else if (m_Parent->GetErrorStatuses().RangedFists.IsActive() && m_FistingRadius != m_BaseFistingRadius + 100)
         m_FistingRadius = m_BaseFistingRadius + 100;
 
     if (m_Parent->GetCurrentWeapon())
@@ -110,23 +110,18 @@ void Hands::Draw() {
     auto& ParentCore = m_Parent->GetDirectionalCore();
     Drawing* Render = World->GameWindow()->Render();
 
-    // TODO: Make different hand positions for different weapons (interesting)
-//    if (m_Parent->GetCurrentWeapon()) // state
-//        return;
-
     auto CurrentTick = World->GetTick();
-    double XDirection = m_Parent->GetDirectionalCore().Direction.x;
-    double YDirection = m_Parent->GetDirectionalCore().Direction.y;
-    double Radians = std::atan2(YDirection, XDirection); // Y, X
+    auto direction = m_Parent->GetDirectionalCore().Direction;
+    double Radians = direction.Atan2();
     double Angle = Radians / M_PI * 180.0;
 
-    double FistingKoefficientL = double(CurrentTick - m_LastFistedL) / double(m_FistingAnimationDuration);
-    double FistingKoefficientR = double(CurrentTick - m_LastFistedR) / double(m_FistingAnimationDuration);
-    if (FistingKoefficientL > 1.0) FistingKoefficientL = 1.0;
-    if (FistingKoefficientR > 1.0) FistingKoefficientR = 1.0;
+    double fisting_coefficient_left = double(CurrentTick - m_LastFistedL) / double(m_FistingAnimationDuration);
+    double fisting_coefficient_right = double(CurrentTick - m_LastFistedR) / double(m_FistingAnimationDuration);
+    if (fisting_coefficient_left > 1.0) fisting_coefficient_left = 1.0;
+    if (fisting_coefficient_right > 1.0) fisting_coefficient_right = 1.0;
 
-    FistingKoefficientL = (1.0 - FistingKoefficientL) * m_FistingRadius;
-    FistingKoefficientR = (1.0 - FistingKoefficientR) * m_FistingRadius;
+    fisting_coefficient_left = (1.0 - fisting_coefficient_left) * m_FistingRadius;
+    fisting_coefficient_right = (1.0 - fisting_coefficient_right) * m_FistingRadius;
 
     Vec2d LeftHand, RightHand;
     auto CurrentWeapon = m_Parent->GetCurrentWeapon();
@@ -141,16 +136,14 @@ void Hands::Draw() {
     RightHand.Rotate(Radians);
 
     // Punching related stuff
-    double XOffLeft = LeftHand.x + XDirection * FistingKoefficientL;
-    double YOffLeft = LeftHand.y + YDirection * FistingKoefficientL;
-    double XOffRight = RightHand.x + XDirection * FistingKoefficientR;
-    double YOffRight = RightHand.y + YDirection * FistingKoefficientR;
+    auto offset_left = LeftHand + direction * fisting_coefficient_left;
+    auto offset_right = RightHand + direction * fisting_coefficient_right;
 
-    SDL_FRect HandRectLeft = { float(ParentCore.Pos.x - m_Size2 + XOffLeft),
-                               float(ParentCore.Pos.y - m_Size2 + YOffLeft),
+    SDL_FRect HandRectLeft = { float(ParentCore.Pos.x - m_Size2 + offset_left.x),
+                               float(ParentCore.Pos.y - m_Size2 + offset_left.y),
                                float(m_Size), float(m_Size) };
-    SDL_FRect HandRectRight = { float(ParentCore.Pos.x - m_Size2 + XOffRight),
-                                float(ParentCore.Pos.y - m_Size2 + YOffRight),
+    SDL_FRect HandRectRight = { float(ParentCore.Pos.x - m_Size2 + offset_right.x),
+                                float(ParentCore.Pos.y - m_Size2 + offset_right.y),
                                 float(m_Size), float(m_Size) };
 
     sFistTexture.GetTexture()->SetColorMod(m_Color.r, m_Color.g, m_Color.b);

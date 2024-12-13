@@ -51,7 +51,7 @@ void WeaponMinigun::Tick() {
 
     // TODO: recoil force shouldn't change every tick (make like an event function, call when timer starts and ends to update recoil force)
     // Do this for the remaining weapons aswell
-    if (!((Character*)m_Parent)->HasDangerousRecoil()) m_RecoilForce = m_BaseRecoilForce;
+    if (!((Character*)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive()) m_RecoilForce = m_BaseRecoilForce;
     else if (m_RecoilForce != m_BaseRecoilForce * 3) m_RecoilForce = m_BaseRecoilForce * 3;
     TickTrigger();
 

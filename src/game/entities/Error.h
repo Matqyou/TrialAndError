@@ -6,7 +6,6 @@
 
 #include "Entity.h"
 #include "../weapons/projectile/ProjectileWeapon.h"
-#include "characters/character/Character.h"
 
 enum ErrorType {
     HEALERS_PARADISE,
@@ -39,6 +38,7 @@ public:
     static LoadedTexture sTextureErrorRanged;
     static LoadedTexture sTextureErrorSlowDown;
     static LoadedTexture sTextureErrorDangerousRecoil;
+    static LoadedTexture sTextureMagicParticle;
     static LoadedSound ms_PickupSounds[7];
 
     Error(GameWorld* world, const Vec2d& start_pos, int typeID);

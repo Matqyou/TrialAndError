@@ -18,6 +18,7 @@
 #include "Hook.h"
 #include "Hands.h"
 #include "../../../../client/Assets.h"
+#include "../../../error/ErrorStatuses.h"
 
 struct CharacterInput {
     bool m_Shooting;
@@ -56,11 +57,9 @@ protected:
     double m_ColorHue;
     int m_SelectedWeaponIndex;
     GameController* m_GameController;
-    bool m_Movement[NUM_CONTROLS]{ };
+    bool m_Movement[NUM_CONTROLS];
     bool m_NPC;
     CharacterInput m_Input, m_LastInput;
-    bool IsReversed, ConfusingHP, Invincible, Spiky, HealersParadise, Ranged, IsSlow, m_DangerousRecoil;
-    bool ReverseMSG, ConfusingHPMSG, InvincibleMSG, SpikyMSG, HealersMSG, RangedMSG, IsSlowMSG, RecoilMSG;
     Hands m_Hands;
     ProjectileWeapon* m_Weapons[NUM_WEAPONS];
     ProjectileWeapon* m_CurrentWeapon;
@@ -73,22 +72,18 @@ protected:
     double m_DamageAmp;
     Hook m_Hook;
     int m_HitTicks;
-    int m_IsReverseTimer, m_ConfusingHPTimer, m_InvincibleTimer, m_SpikyTimer, m_HealersParadiseTimer, m_RangedTimer;
     int m_BaseDamage;
-    int m_IsSlowTimer, m_DangerousRecoilTimer;
-    float Displacement;
     HealthBar m_HealthBar;
+    ErrorStatuses m_ErrorStatuses;
 
     SDL_Color m_CharacterColor;
     SDL_Color m_HookColor;
     SDL_Color m_HealthbarColor;
     SDL_Color m_HandColor;
     SDL_Color m_NameplateColor;
-    SDL_Color m_HealthRed; // TODO: why
+    SDL_Color m_HealthRed;
     SDL_Color m_HealthBlack;
 
-    SDL_FRect DrawErrorIsReversed, DrawErrorConfusingHP, DrawErrorInvincible, DrawErrorSpiky, DrawErrorHealersParadise;
-    SDL_FRect DrawErrorRanged, DrawErrorIsSlow, DrawErrorDangerousRecoil;
     // This is how i did le spawning of icons to be displaced, big brain me yes yes
     // TODO: Texture instance class with SDL_FRect or SDL_Rect
 
@@ -102,7 +97,6 @@ protected:
     void TickHook();
     void TickCollision();
     void TickCurrentWeapon();
-    void TickErrorTimers();
     void DrawAmmoCounter();
     void DrawErrorIcons();
     void DrawCharacter();
@@ -120,15 +114,7 @@ public:
     static LoadedTexture sTextureSniper;
     static LoadedTexture sTexturePatersonNavy;
     static LoadedTexture sTexturesMinigun[4];
-    static LoadedTexture sTextureErrorDisorianted;
-    static LoadedTexture sTextureErrorSpiky;
-    static LoadedTexture sTextureErrorConfusingHP;
-    static LoadedTexture sTextureErrorInvincible;
-    static LoadedTexture sTextureErrorHealersParadise;
-    static LoadedTexture sTextureErrorRanged;
-    static LoadedTexture sTextureErrorSlowDown;
-    static LoadedTexture sTextureErrorDangerousRecoil;
-    static LoadedTexture BLOOD;
+    static LoadedTexture sTextureBlood;
     static LoadedSound sHitSounds[3];
     static LoadedSound sInvincibleHitSound;
     static LoadedSound sDeathSound;
@@ -153,28 +139,20 @@ public:
     [[nodiscard]] ProjectileWeapon* GetCurrentWeapon() const { return m_CurrentWeapon; }
     [[nodiscard]] CharacterInput& GetInput() { return m_Input; }
     [[nodiscard]] CharacterInput& GetLastInput() { return m_LastInput; }
+    [[nodiscard]] ErrorStatuses& GetErrorStatuses() { return m_ErrorStatuses; }
     [[nodiscard]] bool IsNPC() const { return m_NPC; }
-    [[nodiscard]] bool HasDangerousRecoil() const { return m_DangerousRecoil; }
-    [[nodiscard]] int GetBaseDamage() const { if(m_Player)return m_Player->GetBaseDamage(); else return m_BaseDamage; }
-    [[nodiscard]] double GetDamageAmp() const {if(m_Player)return m_Player->GetDamageAmp(); else return m_DamageAmp; }
+    [[nodiscard]] int GetBaseDamage() const { if (m_Player)return m_Player->GetBaseDamage(); else return m_BaseDamage; }
+    [[nodiscard]] double GetDamageAmp() const { if (m_Player)return m_Player->GetDamageAmp(); else return m_DamageAmp; }
 
     // Setting
     void SetGameController(GameController* game_controller) { m_GameController = game_controller; }
     void RemoveCombat();
     void GiveWeapon(ProjectileWeapon* proj_weapon);
     void AmmoPickup(AmmoBox* ammo_box);
-    void Damage(double damage, Entity* damager) ;
-    void Heal(double value) ;
+    void Damage(double damage, Entity* damager);
+    void Heal(double value);
     void DropWeapon();
     void SwitchWeapon(WeaponType type);
-    void ReverseMovement();
-    void ConfuseHP();
-    void MakeInvincible();
-    void MakeSpiky();
-    void MakeHealer();
-    void MakeRanged();
-    void SlowDown();
-    void ActivateDangerousRecoil();
 
     void LevelupStats(unsigned int level);
 
@@ -182,4 +160,5 @@ public:
     void Event(const SDL_Event& currentEvent);
     void Tick() override;
     void Draw() override;
+
 };
