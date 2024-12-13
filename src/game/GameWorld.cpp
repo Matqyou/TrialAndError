@@ -454,7 +454,7 @@ void GameWorld::Draw()
         Render->RenderTextureCamera(m_Background->SDLTexture(), nullptr, DestinationRect);
 
         SDL_Rect DrawRect = {0, 0, int(m_Width), int(m_Height)};
-        Render->SetColor(255, 0, 0, 255);
+        Render->SetColor(100, 100, 100, 255);
         Render->DrawRectCamera(DrawRect);
 
         m_Particles->Draw();

@@ -122,12 +122,29 @@ void Projectile::TickWallCollision() {
         m_Core.Pos.y < 0 || m_Core.Pos.y > m_World->GetHeight()) {
         sMetalImpactSounds[rand() % 2].GetSound()->PlaySound();
 
-        if (m_Core.Pos.x < 0 || m_Core.Pos.x > m_World->GetWidth()) { m_Core.Vel.x *= -1; }
-        if (m_Core.Pos.y < 0 || m_Core.Pos.y > m_World->GetHeight()) { m_Core.Vel.y *= -1; }
+        if (m_Core.Pos.x < 0) {
+            m_Core.Pos.x = 0;
+            m_Core.Vel.x *= -1;
+        }
+        if (m_Core.Pos.x > m_World->GetWidth()) {
+            m_Core.Pos.x = m_World->GetWidth();
+            m_Core.Vel.x *= -1;
+        }
+        if (m_Core.Pos.y < 0) {
+            m_Core.Pos.y = 0;
+            m_Core.Vel.y *= -1;
+        }
+        if (m_Core.Pos.y > m_World->GetHeight()) {
+            m_Core.Pos.y = m_World->GetHeight();
+            m_Core.Vel.y *= -1;
+        }
         for (int i = 0; i < 6; i++) {
-            auto vel = Vec2d(m_Core.Vel.x * (0.15 + 0.1 * (double)(rand()) / RAND_MAX) + 0.05 * (double)(rand()) / RAND_MAX,
-                             m_Core.Vel.y * (0.15 + 0.1 * (double)(rand()) / RAND_MAX) + 0.05 * (double)(rand()) / RAND_MAX);
-            m_World->GetParticles()->PlayParticle(Particle(sTextureSpark.GetTexture(), m_Core.Pos, Vec2d(3.0, 5.0), vel, 0.98, 0.0, 0.0, 1.0, 20));
+            auto vel = Vec2d(m_Core.Vel.x * (0.1 + 0.17 * (double)(rand()) / RAND_MAX) + 0.05 * (double)(rand()) / RAND_MAX,
+                             m_Core.Vel.y * (0.1 + 0.17 * (double)(rand()) / RAND_MAX) + 0.05 * (double)(rand()) / RAND_MAX);
+            auto orientation = vel.Atan2() / M_PI * 180.0;
+            auto lifetime = (unsigned long long)(6 + rand() % 25);
+            auto size = Vec2d(m_Core.Vel.Length() * 0.25 + ((double)(rand() % 100) / 100.0), 3.0);
+            m_World->GetParticles()->PlayParticle(Particle(sTextureSpark.GetTexture(), m_Core.Pos, size, vel, 0.98, orientation, 0.0, 1.0, lifetime));
         }
 
         m_Alive = false;
