@@ -11,13 +11,12 @@ CharacterNPC::CharacterNPC(GameWorld *world,
                            const Vec2d &start_vel,
                            NPCType ai_type,
                            bool is_boss)
-    : Character(world,
+ : Character(world,
                 nullptr,
                 max_health,
                 start_pos,
-                start_vel)
-{
-    m_NPC = true;
+                start_vel,
+                true) {
     m_LastAttacker = nullptr;
     m_AIType = ai_type;
     m_IsBoss = is_boss;

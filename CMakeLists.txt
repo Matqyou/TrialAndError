@@ -132,6 +132,8 @@ set(PROJECT_FILES
         "src/game/error/effect/ErrorRangedFists.cpp"
         src/game/error/ErrorStatuses.cpp
         src/game/error/ErrorStatuses.h
+        src/game/interface/Interface.cpp
+        src/game/interface/Interface.h
 )
 
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})

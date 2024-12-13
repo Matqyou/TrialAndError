@@ -18,6 +18,7 @@ GameReference::GameReference() {
     m_GLContext = nullptr;
     m_Timer = nullptr;
     m_Random = nullptr;
+    m_Interface = nullptr;
     m_Draw = nullptr;
     m_AssetsHandler = nullptr;
     m_Width = 0;
@@ -157,6 +158,7 @@ bool GameReference::Initialize() {
     if (!m_Timer) m_Timer = new Clock(60);
     if (!m_Random) m_Random = new Randomizer();
     if (!m_Draw) m_Draw = new Drawing(this);
+    if (!m_Interface) m_Interface = new Interface(this);
     if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager();
 
     m_Draw->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
@@ -270,7 +272,8 @@ void GameReference::TestEnvironment() {
                                Player1,
                                100.0,
                                Vec2d(32 * 17.5, 32 * 17.5),
-                               Vec2d(10, 10));
+                               Vec2d(10, 10),
+                               false);
     Player1->GainXP(300);
     // Char1->GiveWeapon(new WeaponGlock(nullptr));
 }

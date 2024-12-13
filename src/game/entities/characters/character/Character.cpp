@@ -69,7 +69,8 @@ Character::Character(GameWorld* world,
                      Player* player,
                      double max_health,
                      const Vec2d& start_pos,
-                     const Vec2d& start_vel)
+                     const Vec2d& start_vel,
+                     bool is_npc)
     : DirectionalEntity(world,
                         CHARACTER_ENTITY,
                         start_pos,
@@ -85,7 +86,7 @@ Character::Character(GameWorld* world,
       m_HealthBar(world->GameWindow(), &m_HealthComponent, 75, 15, 2, 2),
       m_Input(),
       m_LastInput(),
-      m_ErrorStatuses(world, this) {
+      m_ErrorStatuses(world->GameWindow()->GetInterface(), this, !is_npc) {
     m_Player = player;
     m_ColorHue = m_Player ? 60.0 - double(m_Player->GetIndex() * 30) : 0.0;
 
@@ -109,7 +110,7 @@ Character::Character(GameWorld* world,
     m_GameController = nullptr;
     memset(m_Movement, 0, sizeof(m_Movement));
 
-    m_NPC = false;
+    m_NPC = is_npc;
 
     TTF_Font* MainFont = m_World->GameWindow()->Assetz()->TextHandler()->GetMainFont();
     m_AmmoCount = new TextSurface(m_World->GameWindow()->Assetz(),

@@ -14,6 +14,7 @@
 #include "technical stuff/AssetsManager.h"
 #include "game/GameWorld.h"
 #include "technical stuff/GameControllers.h"
+#include "game/interface/Interface.h"
 
 class GameReference {
 private:
@@ -24,6 +25,7 @@ private:
     Drawing* m_Draw;
     Randomizer* m_Random;
     AssetsManager* m_AssetsHandler;
+    Interface* m_Interface;
 
     GameWorld* m_GameWorld;
     GameControllers* m_Controllers;
@@ -60,6 +62,7 @@ public:
     [[nodiscard]] Clock* Timer() const { return m_Timer; }
     [[nodiscard]] Randomizer* Random() const { return m_Random; }
     [[nodiscard]] Drawing* Render() const { return m_Draw; }
+    [[nodiscard]] Interface* GetInterface() const { return m_Interface; }
     [[nodiscard]] AssetsManager* Assetz() const { return m_AssetsHandler; }
     [[nodiscard]] GameWorld* World() const { return m_GameWorld; }
     [[nodiscard]] GameControllers* Controllers() const { return m_Controllers; }

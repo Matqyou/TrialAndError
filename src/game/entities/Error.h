@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Entity.h"
-#include "../weapons/projectile/ProjectileWeapon.h"
 
 enum ErrorType {
     HEALERS_PARADISE,
@@ -46,4 +45,5 @@ public:
     // Ticking
     void Tick() override;
     void Draw() override;
+
 };

@@ -15,6 +15,7 @@
 #include "effect/ErrorSlowdown.h"
 #include "effect/ErrorSpiky.h"
 #include "effect/ErrorTeleport.h"
+#include "../interface/Interface.h"
 
 struct ErrorFrame {
     Vec2i Pos;
@@ -25,45 +26,27 @@ struct ErrorFrames {
     std::vector<ErrorFrame> Frames;
 
     ErrorFrames() = default;
-    void CreateFrames(std::vector<ErrorStatusEffect*>& group) {
-        auto num_elements = (int)group.size();
-        const int columns = 2;
-        const int rows = (int)(ceil((double)num_elements / columns));
-        const int spacing = 1;
-        const int frame_size = 20;
-        const int iterate_size = frame_size + spacing;
-
-        const int container_width = spacing + iterate_size * columns;
-        const int container_height = spacing + iterate_size * rows;
-        const int container_height2 = container_height / 2;
-
-        int index = 0;
-        for (auto effect : group) {
-            int x = index % columns;
-            int y = index / columns;
-
-            ErrorFrame new_frame;
-            new_frame.Pos = Vec2i(spacing + x * iterate_size, spacing + y * iterate_size - container_height2);
-            new_frame.Size = Vec2i(frame_size, frame_size);
-            Frames.push_back(new_frame);
-
-            index++;
-        }
-    }
+    void CreateFrames(std::vector<ErrorStatusEffect*>& group);
+    void CreateFramesUI(std::vector<ErrorStatusEffect*>& group);
 
 };
 
-class ErrorStatuses {
+class ErrorStatuses : public InterfaceElement {
 private:
-    GameWorld* m_World;
     Character* m_Parent;
     Drawing* m_Drawing;
+    bool m_Gui; // temp
 
     std::vector<ErrorStatusEffect*> m_Effects;
     ErrorFrames m_Frames;
 
     static LoadedTexture sTextureErrorFrame;
     static LoadedTexture sTextureErrorBackground;
+
+    static LoadedTexture sTextureFrame;
+
+    void Draw1(); // temp
+    void Draw2(); // temp
 
 public:
     ErrorBulletFrenzy BulletFrenzy;
@@ -78,10 +61,9 @@ public:
     ErrorSpiky Spiky;
     ErrorTeleport Teleport;
 
-    ErrorStatuses(GameWorld* world, Character* parent);
+    ErrorStatuses(Interface* interface, Character* parent, bool gui);
 
     // Getting
-    [[nodiscard]] GameWorld* World() const { return m_World; }
     [[nodiscard]] std::vector<ErrorStatusEffect*>& Group() { return m_Effects; }
 
     // Generating
@@ -89,6 +71,6 @@ public:
 
     // Ticking
     void Tick();
-    void Draw();
+    void Draw() override;
 
 };

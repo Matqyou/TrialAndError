@@ -10,6 +10,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#undef interface
 #undef PlaySound
 #undef ERROR
 #endif
@@ -143,7 +144,8 @@ int main() {
                                                  NewPlayer,
                                                  100.0,
                                                  Vec2d(32 * 17.5, 32 * 17.5),
-                                                 Vec2d(10, 10));
+                                                 Vec2d(10, 10),
+                                                 false);
 
                     NewChar->GiveWeapon(new WeaponGlock(nullptr));
                     NewChar->SetGameController(CurrentController);
@@ -167,6 +169,7 @@ int main() {
 
         // Drawing
         GameWindow->World()->Draw();
+        GameWindow->GetInterface()->DrawBackground();
         Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
         // Render the pause menu if open
@@ -185,6 +188,7 @@ int main() {
             }
         }
 
+        GameWindow->GetInterface()->DrawForeground();
         Render->UpdateWindow();
 
         if (GameWindow->World()->GetDelay() && (levelUpMenuOpen)) {
