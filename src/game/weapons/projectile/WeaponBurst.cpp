@@ -7,6 +7,7 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
+LoadedTexture WeaponBurst::sTextureWeapon("weapons.burst");
 LoadedTexture WeaponBurst::sTextureProjectile("entity.projectile.burst");
 LoadedSound WeaponBurst::sShootSound("weapon.burst.shoot");
 LoadedSound WeaponBurst::sClickSound("weapon.burst.fail_reload");
@@ -17,6 +18,7 @@ std::pair<Vec2d, Vec2d> WeaponBurst::sHandPositions = {{ 60.0, -3.0 }, { 20.0, 2
 WeaponBurst::WeaponBurst(Character* owner)
     : ProjectileWeapon(owner,
                        WEAPON_BURST,
+                       sTextureWeapon.GetTexture(),
                        sReloadSound.GetSound(),
                        &sHoldPosition,
                        &sHandPositions,
@@ -64,9 +66,9 @@ void WeaponBurst::Tick() {
                                ShooterCore.Pos,
                                ProjectileVelocity);
 
-                double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
-                double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
-                m_Parent->Accelerate(Vec2d(RecoilX, RecoilY));
+                double recoil = ((Character*)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ? m_RecoilForce * 3.0 : m_RecoilForce;
+                Vec2d recoil_acceleration = ShooterCore.Direction * -recoil;
+                m_Parent->Accelerate(recoil_acceleration);
             } else {
                 sClickSound.GetSound()->PlaySound();
             }

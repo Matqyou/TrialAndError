@@ -30,5 +30,5 @@ public:
 
     // Generating
     [[nodiscard]] Texture* Render(TTF_Font* font, const char* text, SDL_Color color);
-    [[nodiscard]] TTF_Font* LoadFont(const char* filepath, int ptsize);
+    TTF_Font* LoadFont(const char* filepath, int ptsize);
 };

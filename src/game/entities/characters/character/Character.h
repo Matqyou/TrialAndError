@@ -84,9 +84,6 @@ protected:
     SDL_Color m_HealthRed;
     SDL_Color m_HealthBlack;
 
-    // This is how i did le spawning of icons to be displaced, big brain me yes yes
-    // TODO: Texture instance class with SDL_FRect or SDL_Rect
-
     // Listening & Ticking
     virtual void EventDeath();
     void TickKeyboardControls();
@@ -108,12 +105,12 @@ protected:
 
 public:
     static LoadedTexture sCharacterTexture;
-    static LoadedTexture sTextureGlock;
-    static LoadedTexture sTextureShotgun;
-    static LoadedTexture sTextureBurst;
-    static LoadedTexture sTextureSniper;
-    static LoadedTexture sTexturePatersonNavy;
-    static LoadedTexture sTexturesMinigun[4];
+//    static LoadedTexture sTextureGlock;
+//    static LoadedTexture sTextureShotgun;
+//    static LoadedTexture sTextureBurst;
+//    static LoadedTexture sTextureSniper;
+//    static LoadedTexture sTexturePatersonNavy;
+//    static LoadedTexture sTexturesMinigun[4];
     static LoadedTexture sTextureBlood;
     static LoadedSound sHitSounds[3];
     static LoadedSound sInvincibleHitSound;

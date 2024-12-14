@@ -19,6 +19,7 @@ private:
     double m_Rotation;
 
 public:
+    static LoadedTexture sTextureWeapon[4];
     static LoadedTexture sTextureProjectile;
     static LoadedSound sShootSound;
     static LoadedSound sClickSound;

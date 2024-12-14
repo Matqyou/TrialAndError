@@ -62,7 +62,7 @@ int main() {
         exit(1);
     }
 
-    GameWindow->TestEnvironment();
+//    GameWindow->TestEnvironment();
 
     Clock* Timer = GameWindow->Timer();
     Drawing* Render = GameWindow->Render();

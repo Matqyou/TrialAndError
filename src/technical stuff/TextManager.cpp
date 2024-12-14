@@ -123,10 +123,11 @@ Texture* TextManager::Render(TTF_Font* font, const char* text, SDL_Color color) 
 TTF_Font* TextManager::LoadFont(const char* filepath, int ptsize) {
     TTF_Font* NewFont = TTF_OpenFont(filepath, ptsize);
     if (!NewFont) {
-        std::printf("TTF: There was an error while loading font %s", TTF_GetError());
+        std::cout << FStringColors("[Fonts] &cError while loading font '%s'(%i) %s", filepath, ptsize, TTF_GetError()) << std::endl;
         return nullptr;
     }
 
+    std::cout << FStringColors("[Fonts] &5Loaded font '%s'(%i) index %i", filepath, ptsize, m_Fonts.size()) << std::endl;
     m_Fonts.push_back(NewFont);
     return NewFont;
 }

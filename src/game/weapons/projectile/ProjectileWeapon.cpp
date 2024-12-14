@@ -20,6 +20,7 @@ double ProjectileWeapon::GenerateRandomProjectileSpeed() const {
 
 ProjectileWeapon::ProjectileWeapon(DirectionalEntity* owner,
                                    WeaponType type,
+                                   Texture* texture,
                                    Sound* reload_sound, // Has default
                                    Vec2d* hold_position, // Has default
                                    std::pair<Vec2d, Vec2d>* hand_positions, // Has default
@@ -30,6 +31,7 @@ ProjectileWeapon::ProjectileWeapon(DirectionalEntity* owner,
                                    bool automatic) {
     m_Parent = owner;
     m_Type = type;
+    m_Texture = texture;
     m_LastShotAt = 0;
     m_TickCooldown = tick_cooldown;
     m_AmmoCapacity = ammo_capacity;

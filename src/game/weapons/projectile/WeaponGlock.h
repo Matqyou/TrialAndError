@@ -13,6 +13,7 @@ private:
     double m_Damage;
 
 public:
+    static LoadedTexture sTextureWeapon;
     static LoadedTexture sTextureProjectile;
     static LoadedSound sShootSound;
     static LoadedSound sClickSound;

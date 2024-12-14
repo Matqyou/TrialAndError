@@ -17,6 +17,7 @@ private:
     int m_BurstShotsLeft;
 
 public:
+    static LoadedTexture sTextureWeapon;
     static LoadedTexture sTextureProjectile;
     static LoadedSound sShootSound;
     static LoadedSound sClickSound;

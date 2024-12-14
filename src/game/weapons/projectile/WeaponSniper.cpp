@@ -6,6 +6,7 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
+LoadedTexture WeaponSniper::sTextureWeapon("weapons.sniper");
 LoadedTexture WeaponSniper::sTextureProjectile("entity.projectile.sniper");
 LoadedSound WeaponSniper::sShootSound("weapon.shotgun.shoot2");
 LoadedSound WeaponSniper::sClickSound("weapon.sniper.fail_reload");
@@ -16,6 +17,7 @@ std::pair<Vec2d, Vec2d> WeaponSniper::sHandPositions = {{ 80.0, -3.0 }, { 20.0, 
 WeaponSniper::WeaponSniper(DirectionalEntity* parent)
  : ProjectileWeapon(parent,
                        WEAPON_SNIPER,
+                    sTextureWeapon.GetTexture(),
                        sReloadSound.GetSound(),
                        &sHoldPosition,
                        &sHandPositions,

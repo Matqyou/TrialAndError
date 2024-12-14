@@ -161,7 +161,8 @@ bool GameReference::Initialize() {
     if (!m_Interface) m_Interface = new Interface(this);
     if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager();
 
-    m_Draw->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+//    m_Draw->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+    m_AssetsHandler->TextHandler()->LoadFont("assets/fonts/Minecraft.ttf", 10);
 
     std::cout << FStringColors("&8------------------------------------------------------------------------") << std::endl;
     std::cout << std::endl;
@@ -204,7 +205,7 @@ void GameReference::Deinitialize(bool play_quit_sound) {
         std::cout << FStringColors("[Game] &8Closed Images") << std::endl;
     }
 
-    if (play_quit_sound) { // TODO: Check this out -_- looks very sus
+    if (play_quit_sound) {
         sQuitSound.GetSound()->PlaySound();
         WaitForSoundToFinish();
         delete this;
@@ -240,6 +241,7 @@ void GameReference::Event(const SDL_Event& event) {
 }
 
 void GameReference::TestEnvironment() {
+    delete m_GameWorld;
     m_GameWorld = new GameWorld(this, 50, 30);
     m_GameWorld->SetTestingMode(true); // stop waves
     m_Controllers = new GameControllers();

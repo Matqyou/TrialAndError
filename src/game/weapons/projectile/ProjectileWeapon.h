@@ -38,6 +38,7 @@ protected:
 
     DirectionalEntity* m_Parent;
     WeaponType m_Type;
+    Texture* m_Texture;
     Sound* m_ReloadSound;
     Vec2d m_HoldPosition;
     Vec2d m_LeftHandPosition;
@@ -55,6 +56,7 @@ public:
 
     ProjectileWeapon(DirectionalEntity* parent,
                      WeaponType type,
+                     Texture* texture,
                      Sound* reload_sound,
                      Vec2d* hold_position,
                      std::pair<Vec2d, Vec2d>* hand_positions,
@@ -66,6 +68,7 @@ public:
 
     // Getting
     [[nodiscard]] WeaponType WepType() const { return m_Type; }
+    [[nodiscard]] Texture* GetTexture() const { return m_Texture; }
     [[nodiscard]] bool IsAutomatic() const { return m_Automatic; }
     [[nodiscard]] unsigned int GetMagAmmo() const { return m_Ammo; }
     [[nodiscard]] unsigned int GetTrueAmmo() const { return m_TrueAmmo; }
@@ -86,6 +89,7 @@ public:
     void SetRandomProjectileSpeed(double delta_speed, double delta_percentage_negative, int delta_decimal_places);
 
     // Manipulating
+    void SetTexture(Texture* texture) { m_Texture = texture; }
     unsigned int AddMagAmmo(unsigned int count);
     unsigned int AddTrueAmmo(unsigned int count);
     virtual void Reload();

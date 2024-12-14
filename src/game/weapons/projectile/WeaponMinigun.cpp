@@ -7,6 +7,12 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
+LoadedTexture WeaponMinigun::sTextureWeapon[4] = {
+    LoadedTexture("weapons.minigun.1"),
+    LoadedTexture("weapons.minigun.2"),
+    LoadedTexture("weapons.minigun.3"),
+    LoadedTexture("weapons.minigun.4"),
+};
 LoadedTexture WeaponMinigun::sTextureProjectile("entity.projectile.minigun");
 LoadedSound WeaponMinigun::sShootSound("weapon.minigun.shoot");
 LoadedSound WeaponMinigun::sClickSound("weapon.minigun.fail_reload");
@@ -17,6 +23,7 @@ std::pair<Vec2d, Vec2d> WeaponMinigun::sHandPositions = {{ 10.0, -15.0 }, { 17.0
 WeaponMinigun::WeaponMinigun(Character* owner)
     : ProjectileWeapon(owner,
                        WEAPON_MINIGUN,
+                       sTextureWeapon[0].GetTexture(),
                        sReloadSound.GetSound(),
                        &sHoldPosition,
                        &sHandPositions,
@@ -50,6 +57,7 @@ void WeaponMinigun::Tick() {
         return;
     }
 
+    SetTexture(sTextureWeapon[int(std::fmod(m_Rotation, 100.0) / 25.0)].GetTexture());
     TickTrigger();
 
     if (!m_Parent) return;

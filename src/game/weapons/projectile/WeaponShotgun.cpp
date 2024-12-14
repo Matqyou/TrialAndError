@@ -7,6 +7,7 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
+LoadedTexture WeaponShotgun::sTextureWeapon("weapons.shotgun");
 LoadedTexture WeaponShotgun::sTextureProjectile("entity.projectile.shotgun");
 LoadedSound WeaponShotgun::sShootSound("weapon.shotgun.shoot2");
 LoadedSound WeaponShotgun::sClickSound("weapon.shotgun.fail_reload");
@@ -17,6 +18,7 @@ std::pair<Vec2d, Vec2d> WeaponShotgun::sHandPositions = {{ 60.0, -3.0 }, { 20.0,
 WeaponShotgun::WeaponShotgun(Character* owner)
     : ProjectileWeapon(owner,
                        WEAPON_SHOTGUN,
+                       sTextureWeapon.GetTexture(),
                        sReloadSound.GetSound(),
                        &sHoldPosition,
                        &sHandPositions,

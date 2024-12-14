@@ -31,17 +31,6 @@ CharacterInput::CharacterInput() {
 
 // Link textures
 LoadedTexture Character::sCharacterTexture("entity.character.body");
-LoadedTexture Character::sTextureGlock("weapons.glock");
-LoadedTexture Character::sTextureShotgun("weapons.shotgun");
-LoadedTexture Character::sTextureBurst("weapons.burst");
-LoadedTexture Character::sTextureSniper("weapons.sniper");
-LoadedTexture Character::sTexturePatersonNavy("weapons.paterson_navy");
-LoadedTexture Character::sTexturesMinigun[4] = {
-    LoadedTexture("weapons.minigun.1"),
-    LoadedTexture("weapons.minigun.2"),
-    LoadedTexture("weapons.minigun.3"),
-    LoadedTexture("weapons.minigun.4"),
-};
 LoadedTexture Character::sTextureBlood("particle.blood");
 
 // Link sounds
@@ -570,14 +559,12 @@ void Character::TickCurrentWeapon() {
         auto CurrentAmmo = m_CurrentWeapon->GetMagAmmo();
         if (TempAmmo != CurrentAmmo) {
             m_AmmoCount->FlagForUpdate();
-            if (!CurrentAmmo && TempAmmo) {
-                m_AmmoCount->SetColor({ 255, 0, 0 });
-            } else {
-                m_AmmoCount->SetColor({ 255, 255, 255 });
-            }
+            if (!CurrentAmmo && TempAmmo) { m_AmmoCount->SetColor({ 255, 0, 0 }); }
+            else { m_AmmoCount->SetColor({ 255, 255, 255 }); }
         }
     }
 }
+
 // Function to draw icons for error pickup
 void Character::DrawErrorIcons() {
     m_ErrorStatuses.Draw();
@@ -621,10 +608,11 @@ void Character::DrawHealthbar() {
     Drawing* Render = m_World->GameWindow()->Render();
 
     // Render health bar
-    if (m_HealthComponent.IsFullHealth())
-        return;
+//    if (m_HealthComponent.IsFullHealth())
+//        return;
 
     m_HealthBar.SetColor(m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a);
+    std::cout << FStringColors("Color(%i, %i, %i, %i)", m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a) << std::endl;
     Texture* HealthPlate = m_ErrorStatuses.ConfusingHealth.IsActive() ? m_HealthBar.GetTexture() : m_HealthBar.UpdateTexture();
 
     int HealthBarW = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
@@ -656,18 +644,18 @@ void Character::DrawHealthbar() {
     Render->RenderTextureCamera(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
 
     // Draw level indicator
-    TTF_Font* SmallFont = m_World->GameWindow()->Assetz()->TextHandler()->LoadFont("assets/fonts/Minecraft.ttf",
-                                                                                   10); // Load a smaller font
-    std::string LevelText = FString("LVL %i",
-                                    m_Player->GetLevel());                                                  // Use the level value directly
+    TTF_Font* SmallFont = m_World->GameWindow()->Assetz()->TextHandler()->GetFont(1);
+    std::string LevelText = FString("LVL %i", m_Player->GetLevel()); // Use the level value directly
     TextSurface LevelSurface(m_World->GameWindow()->Assetz(), SmallFont, LevelText, { 255, 255, 255 });
     Texture* LevelTexture = LevelSurface.RequestUpdate();
     int LevelTextureW = LevelTexture->GetWidth();
     int LevelTextureH = LevelTexture->GetHeight();
-    SDL_Rect LevelRect =
-        { int(m_Core.Pos.x - HealthBarW / 2.0) - LevelTextureW + 5, // Position to the left of the health bar
-          int(m_Core.Pos.y + m_Core.Size.y / 2.0) + 3,
-          LevelTextureW, LevelTextureH };
+    SDL_Rect LevelRect = {
+        int(m_Core.Pos.x - HealthBarW / 2.0) - LevelTextureW + 5, // Position to the left of the health bar
+      int(m_Core.Pos.y + m_Core.Size.y / 2.0) + 3,
+      LevelTextureW,
+      LevelTextureH
+    };
 
     Render->RenderTextureCamera(LevelTexture->SDLTexture(), nullptr, LevelRect);
 }
@@ -679,40 +667,12 @@ void Character::DrawHands() {
     m_Hands.Draw();
 
     if (m_CurrentWeapon) {
-        Texture* WeaponTexture;
-        switch (m_CurrentWeapon->WepType()) {
-            case WEAPON_GLOCK: {
-                WeaponTexture = sTextureGlock.GetTexture();
-                break;
-            }
-            case WEAPON_BURST: {
-                WeaponTexture = sTextureBurst.GetTexture();
-                break;
-            }
-            case WEAPON_SHOTGUN: {
-                WeaponTexture = sTextureShotgun.GetTexture();
-                break;
-            }
-            case WEAPON_SNIPER: {
-                WeaponTexture = sTextureSniper.GetTexture();
-                break;
-            }
-            case WEAPON_MINIGUN: {
-                int Phase = int(std::fmod(((WeaponMinigun*)m_Weapons[WEAPON_MINIGUN])->Rotation(), 100.0) / 25.0);
-                WeaponTexture = sTexturesMinigun[Phase].GetTexture();
-                break;
-            }
-            case WEAPON_PATERSONNAVY: {
-                WeaponTexture = sTexturePatersonNavy.GetTexture();
-                break;
-            }
-        }
-
+        const Texture* texture = m_CurrentWeapon->GetTexture();
         double Radians = m_DirectionalCore.Direction.Atan2();
         Vec2d HoldPosition = m_CurrentWeapon->GetHoldPosition();
         HoldPosition.Rotate(Radians);
 
-        SDL_FRect WeaponRect = { 0, 0, (float)WeaponTexture->GetWidth(), (float)WeaponTexture->GetHeight() };
+        SDL_FRect WeaponRect = { 0, 0, (float)texture->GetWidth(), (float)texture->GetHeight() };
         WeaponRect.w *= 4;
         WeaponRect.h *= 4;
         WeaponRect.x = float(m_Core.Pos.x + HoldPosition.x);
@@ -754,9 +714,7 @@ void Character::DrawHands() {
             Render->LineCamera(m_Core.Pos.x, m_Core.Pos.y, current_position.x, current_position.y);
         }
 
-        // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
-        // and not the center of the player
-        Render->RenderTextureExFCamera(WeaponTexture->SDLTexture(),
+        Render->RenderTextureExFCamera(texture->SDLTexture(),
                                       nullptr,
                                       WeaponRect,
                                       Radians / M_PI * 180.0,

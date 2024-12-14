@@ -72,6 +72,7 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
                 menuOpen = false;
                 Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
+                m_GameWindow->TestEnvironment();
             }
             if (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
                 y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h)

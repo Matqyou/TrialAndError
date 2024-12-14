@@ -12,6 +12,7 @@ class Projectile : public Entity {
 private:
     Texture* m_Texture;
     Entity* m_Shooter;
+    WeaponType m_Type;
     double m_Damage;
     bool m_StillCollidesShooter;
 

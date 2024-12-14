@@ -31,6 +31,7 @@ Projectile::Projectile(GameWorld* world,
              false) {
     m_Texture = projectile_texture;
     m_Shooter = shooter;
+    m_Type = weapon_type;
     m_Damage = damage;
     m_StillCollidesShooter = true;
 }
@@ -53,7 +54,7 @@ void Projectile::TickCollision() {
         if (!m_Alive)
             break;
 
-        Vec2d current_position = CurrentPosition + direction * (double)i;
+        Vec2d current_position = LastPosition + direction * (double)i;
 
         // Check if position collides any of the players
         auto Entity = m_World->FirstEntity();

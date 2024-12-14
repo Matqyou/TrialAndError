@@ -6,6 +6,7 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
+LoadedTexture WeaponGlock::sTextureWeapon("weapons.glock");
 LoadedTexture WeaponGlock::sTextureProjectile("entity.projectile.glock");
 LoadedSound WeaponGlock::sShootSound("weapon.glock.shoot2");
 LoadedSound WeaponGlock::sClickSound("weapon.glock.fail_reload");
@@ -16,6 +17,7 @@ std::pair<Vec2d, Vec2d> WeaponGlock::sHandPositions = {{ 5.0, -5.0 }, { 10.0, 2.
 WeaponGlock::WeaponGlock(DirectionalEntity* parent)
     : ProjectileWeapon(parent,
                        WEAPON_GLOCK,
+                       sTextureWeapon.GetTexture(),
                        sReloadSound.GetSound(),
                        &sHoldPosition,
                        &sHandPositions,
