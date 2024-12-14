@@ -926,9 +926,37 @@ void Character::DrawHands() {
 
         // Laser sight
         if (m_CurrentWeapon->WepType() == WeaponType::WEAPON_SNIPER) {
-            Vec2d end_position = m_Core.Pos + m_DirectionalCore.Direction * 3000; // Todo make it collide with stuff
+            auto direction = m_DirectionalCore.Direction;
+            Vec2d current_position = m_Core.Pos;
+            for (int i = 0; i < 10000; i++) {
+                current_position += direction;
+
+                // Check against walls
+                if (current_position.x < 0 ||
+                    current_position.y < 0 ||
+                        current_position.x > m_World->GetWidth() ||
+                        current_position.y > m_World->GetHeight()) {
+                    break;
+                }
+
+                // Check against entities
+                bool found = false;
+                auto entity = m_World->FirstEntity();
+                for (; entity != nullptr; entity = entity->Next()) {
+                    if (entity == this || !entity->HasHealthComponent())
+                        continue;
+
+                    double distance = DistanceVec2(current_position, entity->GetCore().Pos);
+                    if (distance <= entity->GetCore().sizeRatio) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) break;
+            }
             Render->SetColor(255, 0, 0, 255);
-            Render->LineCamera(m_Core.Pos.x, m_Core.Pos.y, end_position.x, end_position.y);
+            Render->LineCamera(m_Core.Pos.x, m_Core.Pos.y, current_position.x, current_position.y);
         }
 
         // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
