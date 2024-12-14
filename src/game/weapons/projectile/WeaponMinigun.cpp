@@ -7,6 +7,7 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
+LoadedTexture WeaponMinigun::sTextureProjectile("entity.projectile.minigun");
 LoadedSound WeaponMinigun::sShootSound("weapon.minigun.shoot");
 LoadedSound WeaponMinigun::sClickSound("weapon.minigun.fail_reload");
 LoadedSound WeaponMinigun::sReloadSound("weapon.minigun.reload");
@@ -49,10 +50,6 @@ void WeaponMinigun::Tick() {
         return;
     }
 
-    // TODO: recoil force shouldn't change every tick (make like an event function, call when timer starts and ends to update recoil force)
-    // Do this for the remaining weapons aswell
-    if (!((Character*)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive()) m_RecoilForce = m_BaseRecoilForce;
-    else if (m_RecoilForce != m_BaseRecoilForce * 3) m_RecoilForce = m_BaseRecoilForce * 3;
     TickTrigger();
 
     if (!m_Parent) return;
@@ -75,12 +72,14 @@ void WeaponMinigun::Tick() {
                 new Projectile(World,
                                m_Parent,
                                WEAPON_MINIGUN,
+                               sTextureProjectile.GetTexture(),
                                m_Damage,
                                ShooterCore.Pos,
                                ProjectileVelocity);
 
-                Vec2d Recoil = ShooterCore.Direction * -m_RecoilForce;
-                m_Parent->Accelerate(Recoil);
+                double recoil = ((Character*)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ? m_RecoilForce * 3.0 : m_RecoilForce;
+                Vec2d recoil_acceleration = ShooterCore.Direction * -recoil;
+                m_Parent->Accelerate(recoil_acceleration);
             } else {
                 sClickSound.GetSound()->PlaySound();
             }

@@ -21,17 +21,13 @@ private:
 
 
 public:
-    static LoadedTexture sTextureGlock;
-    static LoadedTexture sTextureBurst;
-    static LoadedTexture sTextureShotgun;
-    static LoadedTexture sTextureSniper;
-    static LoadedTexture sTextureMinigun;
     static LoadedTexture sTextureSpark;
     static LoadedSound sMetalImpactSounds[2];
 
     Projectile(GameWorld* world,
                Entity* shooter,
                WeaponType weapon_type,
+               Texture* projectile_texture,
                double damage,
                const Vec2d& start_pos,
                const Vec2d& start_vel);

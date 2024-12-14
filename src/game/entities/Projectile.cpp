@@ -8,11 +8,6 @@
 #include "Crate.h"
 #include "characters/character/Character.h"
 
-LoadedTexture Projectile::sTextureGlock("entity.projectile.glock");
-LoadedTexture Projectile::sTextureBurst("entity.projectile.burst");
-LoadedTexture Projectile::sTextureShotgun("entity.projectile.shotgun");
-LoadedTexture Projectile::sTextureSniper("entity.projectile.sniper");
-LoadedTexture Projectile::sTextureMinigun("entity.projectile.minigun");
 LoadedTexture Projectile::sTextureSpark("particle.spark");
 LoadedSound Projectile::sMetalImpactSounds[2] = {
     LoadedSound("entity.projectile.impact.metal.1"),
@@ -22,6 +17,7 @@ LoadedSound Projectile::sMetalImpactSounds[2] = {
 Projectile::Projectile(GameWorld* world,
                        Entity* shooter,
                        WeaponType weapon_type,
+                       Texture* projectile_texture,
                        double damage,
                        const Vec2d& start_pos,
                        const Vec2d& start_vel)
@@ -33,28 +29,7 @@ Projectile::Projectile(GameWorld* world,
              start_vel,
              1.0,
              false) {
-    switch (weapon_type) {
-        case WEAPON_GLOCK: {
-            m_Texture = sTextureGlock.GetTexture();
-            break;
-        }
-        case WEAPON_BURST: {
-            m_Texture = sTextureBurst.GetTexture();
-            break;
-        }
-        case WEAPON_SHOTGUN: {
-            m_Texture = sTextureShotgun.GetTexture();
-            break;
-        }
-        case WEAPON_MINIGUN: {
-            m_Texture = sTextureMinigun.GetTexture();
-            break;
-        }
-        case WEAPON_SNIPER: {
-            m_Texture = sTextureSniper.GetTexture();
-            break;
-        }
-    }
+    m_Texture = projectile_texture;
     m_Shooter = shooter;
     m_Damage = damage;
     m_StillCollidesShooter = true;

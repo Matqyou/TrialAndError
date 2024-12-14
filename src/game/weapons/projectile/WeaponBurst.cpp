@@ -7,6 +7,7 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
+LoadedTexture WeaponBurst::sTextureProjectile("entity.projectile.burst");
 LoadedSound WeaponBurst::sShootSound("weapon.burst.shoot");
 LoadedSound WeaponBurst::sClickSound("weapon.burst.fail_reload");
 LoadedSound WeaponBurst::sReloadSound("weapon.burst.reload");
@@ -34,27 +35,6 @@ WeaponBurst::WeaponBurst(Character* owner)
     m_BurstTick = 0;
     m_BurstShotsLeft = 0;
 }
-//void WeaponBurst::Draw(){
-//    GameWorld* World = m_owner->World();
-//    Drawing* Render = World->GameWindow()->Render();
-//
-//    auto ShooterCore = m_owner->GetCore();
-//    auto ShooterInput = m_owner->GetInput();
-//    double XLook = ShooterCore->m_x + ShooterInput.m_LookingX * 50.0;
-//    double YLook = ShooterCore->m_y + ShooterInput.m_LookingY * 50.0;
-//    double Angle = std::atan2(ShooterInput.m_LookingY * 50.0, ShooterInput.m_LookingX * 50.0) / M_PI * 180.0;
-//    SDL_RendererFlip flip;
-//    if(Angle > 90 || Angle < -90){
-//        flip = SDL_FLIP_VERTICAL;
-//    }
-//    else flip = SDL_FLIP_VERTICAL;
-//    SDL_FRect GunRect = {float(ShooterCore->m_x), float(ShooterCore->m_y),15 ,100 };
-//    // TODO Seperate this into gun classes id say and give gun class a different texture and make bullets spawn from the gun
-//    // and not the center of the player
-//    SDL_FPoint GunPoint = {float(0), float(0)};
-//    if(m_owner->GetCurrentWeapon())Render->RenderTextureExFCamera(Character::ms_TextureError->SDLTexture(),nullptr, GunRect, Angle-90,&GunPoint, flip);
-//
-//}
 
 void WeaponBurst::Tick() {
     if (m_Parent->GetType() != CHARACTER_ENTITY) {
@@ -62,10 +42,6 @@ void WeaponBurst::Tick() {
         return;
     }
 
-    // TODO: recoil force shouldn't change every tick (make like an event function, call when timer starts and ends to update recoil force)
-    // Do this for the remaining weapons aswell
-    if (!((Character*)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive()) m_RecoilForce = m_BaseRecoilForce;
-    else if (m_RecoilForce != m_BaseRecoilForce * 3) m_RecoilForce = m_BaseRecoilForce * 3;
     TickTrigger();
 
     if (m_Parent) {
@@ -83,6 +59,7 @@ void WeaponBurst::Tick() {
                 new Projectile(World,
                                m_Parent,
                                WEAPON_BURST,
+                               sTextureProjectile.GetTexture(),
                                m_Damage,
                                ShooterCore.Pos,
                                ProjectileVelocity);
@@ -111,13 +88,14 @@ void WeaponBurst::Tick() {
                 new Projectile(World,
                                m_Parent,
                                WEAPON_BURST,
+                               sTextureProjectile.GetTexture(),
                                m_Damage,
                                ShooterCore.Pos,
                                ProjectileVelocity);
 
-                double RecoilX = ShooterCore.Direction.x * -m_RecoilForce;
-                double RecoilY = ShooterCore.Direction.y * -m_RecoilForce;
-                m_Parent->Accelerate(Vec2d(RecoilX, RecoilY));
+                double recoil = ((Character*)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ? m_RecoilForce * 3.0 : m_RecoilForce;
+                Vec2d recoil_acceleration = ShooterCore.Direction * -recoil;
+                m_Parent->Accelerate(recoil_acceleration);
             } else {
                 sClickSound.GetSound()->PlaySound();
             }

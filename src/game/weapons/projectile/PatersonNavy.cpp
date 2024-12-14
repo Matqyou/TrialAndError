@@ -6,6 +6,7 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
+LoadedTexture PatersonNavy::sTextureProjectile("entity.projectile.paterson_navy");
 LoadedSound PatersonNavy::sShootSound("weapon.paterson_navy.shoot");
 LoadedSound PatersonNavy::sClickSound("weapon.paterson_navy.fail_reload");
 LoadedSound PatersonNavy::sReloadSound("weapon.paterson_navy.reload");
@@ -33,10 +34,6 @@ void PatersonNavy::Tick() {
         return;
     }
 
-    // TODO: recoil force shouldn't change every tick (make like an event function, call when timer starts and ends to update recoil force)
-    // Do this for the remaining weapons aswell
-    if (!((Character*)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive()) m_RecoilForce = m_BaseRecoilForce;
-    else if (m_RecoilForce != m_BaseRecoilForce * 3) m_RecoilForce = m_BaseRecoilForce * 3;
     TickTrigger();
 
     if (m_Parent && m_Triggered) { // If want to trigger without an owner, need to save world somewhere
@@ -56,12 +53,14 @@ void PatersonNavy::Tick() {
             new Projectile(World,
                            m_Parent,
                            WEAPON_GLOCK,
+                           sTextureProjectile.GetTexture(),
                            m_Damage,
                            ShooterCore.Pos,
                            ProjectileVelocity);
 
-            Vec2d Recoil = ShooterCore.Direction * -m_RecoilForce;
-            m_Parent->Accelerate(Recoil);
+            double recoil = ((Character*)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ? m_RecoilForce * 3.0 : m_RecoilForce;
+            Vec2d recoil_acceleration = ShooterCore.Direction * -recoil;
+            m_Parent->Accelerate(recoil_acceleration);
         } else {
             sClickSound.GetSound()->PlaySound();
         }

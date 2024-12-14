@@ -6,6 +6,7 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
+LoadedTexture WeaponGlock::sTextureProjectile("entity.projectile.glock");
 LoadedSound WeaponGlock::sShootSound("weapon.glock.shoot2");
 LoadedSound WeaponGlock::sClickSound("weapon.glock.fail_reload");
 LoadedSound WeaponGlock::sReloadSound("weapon.glock.reload");
@@ -22,8 +23,7 @@ WeaponGlock::WeaponGlock(DirectionalEntity* parent)
                        15,
                        15 * 3,
                        35.0, false) {
-    m_BaseRecoilForce = 3.0;
-    m_RecoilForce = m_BaseRecoilForce;
+    m_RecoilForce = 3.0;
     m_Damage = 7.5;
 }
 
@@ -33,10 +33,6 @@ void WeaponGlock::Tick() {
         return;
     }
 
-    // TODO: recoil force shouldn't change every tick (make like an event function, call when timer starts and ends to update recoil force)
-    // Do this for the remaining weapons aswell
-    if (!((Character*)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive()) m_RecoilForce = m_BaseRecoilForce;
-    else if (m_RecoilForce != m_BaseRecoilForce * 3) m_RecoilForce = m_BaseRecoilForce * 3;
     TickTrigger();
 
     if (m_Parent && m_Triggered) { // If want to trigger without an owner, need to save world somewhere
@@ -56,12 +52,14 @@ void WeaponGlock::Tick() {
             new Projectile(World,
                            m_Parent,
                            WEAPON_GLOCK,
+                           sTextureProjectile.GetTexture(),
                            m_Damage,
                            ShooterCore.Pos,
                            ProjectileVelocity);
 
-            Vec2d Recoil = ShooterCore.Direction * -m_RecoilForce;
-            m_Parent->Accelerate(Recoil);
+            double recoil = ((Character*)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ? m_RecoilForce * 3.0 : m_RecoilForce;
+            Vec2d recoil_acceleration = ShooterCore.Direction * -recoil;
+            m_Parent->Accelerate(recoil_acceleration);
         } else {
             sClickSound.GetSound()->PlaySound();
         }

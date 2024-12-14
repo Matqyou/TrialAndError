@@ -9,10 +9,11 @@
 
 class WeaponGlock : public ProjectileWeapon {
 private:
-    double m_RecoilForce, m_BaseRecoilForce;
+    double m_RecoilForce;
     double m_Damage;
 
 public:
+    static LoadedTexture sTextureProjectile;
     static LoadedSound sShootSound;
     static LoadedSound sClickSound;
     static LoadedSound sReloadSound;
