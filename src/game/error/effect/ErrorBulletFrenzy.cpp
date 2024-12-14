@@ -7,9 +7,10 @@
 LoadedTexture ErrorBulletFrenzy::sTextureBulletFrenzy("icons.bullet_frenzy");
 
 ErrorBulletFrenzy::ErrorBulletFrenzy(ErrorStatuses* parent)
- : ErrorStatusEffect(ErrorType::BULLET_FRENZY,
+ : ErrorStatusEffect(parent,
+                     ErrorType::BULLET_FRENZY,
+                     "Bullet frenzy",
                      sTextureBulletFrenzy.GetTexture(),
-                     parent,
                      3000) {
 
 }

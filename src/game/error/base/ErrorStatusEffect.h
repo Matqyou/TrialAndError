@@ -11,6 +11,7 @@ class ErrorStatusEffect {
 private:
     ErrorStatuses* m_Parent;
     ErrorType m_Type;
+    const char* m_Name;
     Texture* m_Texture;
     Entity* m_Effectee;
     unsigned long long m_EffectDuration;
@@ -19,10 +20,11 @@ private:
     bool m_Active;
 
 public:
-    ErrorStatusEffect(ErrorType type, Texture* texture, ErrorStatuses* parent, unsigned long long effect_duration);
+    ErrorStatusEffect(ErrorStatuses* parent, ErrorType type, const char* name, Texture* texture, unsigned long long effect_duration);
 
     // Getting
     [[nodiscard]] ErrorType GetType() const { return m_Type; }
+    [[nodiscard]] const char* Name() const { return m_Name; }
     [[nodiscard]] Texture* GetTexture() const { return m_Texture; }
     [[nodiscard]] Entity* GetEffectee() const { return m_Effectee; }
     [[nodiscard]] unsigned long long GetActivatedTimestamp() const { return m_ActivatedTimestamp; }

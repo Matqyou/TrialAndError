@@ -7,9 +7,10 @@
 LoadedTexture ErrorDisoriented::sTextureDisoriented("icons.disoriented");
 
 ErrorDisoriented::ErrorDisoriented(ErrorStatuses* parent)
-    : ErrorStatusEffect(ErrorType::DISORIANTED,
+    : ErrorStatusEffect(parent,
+                        ErrorType::DISORIANTED,
+                        "Disoriented",
                         sTextureDisoriented.GetTexture(),
-                        parent,
                         1500) {
 
 }

@@ -7,9 +7,10 @@
 LoadedTexture ErrorSlowdown::sTextureSlowdown("icons.slowdown");
 
 ErrorSlowdown::ErrorSlowdown(ErrorStatuses* parent)
- : ErrorStatusEffect(ErrorType::SLOW_DOWN,
+ : ErrorStatusEffect(parent,
+                     ErrorType::SLOW_DOWN,
+                     "Slowdown",
                      sTextureSlowdown.GetTexture(),
-                     parent,
                      1500) {
 
 }

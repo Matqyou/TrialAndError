@@ -7,9 +7,10 @@
 LoadedTexture ErrorSpiky::sTextureSpiky("icons.spiky");
 
 ErrorSpiky::ErrorSpiky(ErrorStatuses* parent)
- : ErrorStatusEffect(ErrorType::SPIKY,
+ : ErrorStatusEffect(parent,
+                     ErrorType::SPIKY,
+                     "Spiky",
                      sTextureSpiky.GetTexture(),
-                     parent,
                      3000) {
 
 }

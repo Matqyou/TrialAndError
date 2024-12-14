@@ -33,5 +33,5 @@ SDL_Color HSLtoRGB(const ColorHSL& color_hsl) {
     else if (Hue >= 240 && Hue < 300) { r = X, g = 0, b = C; }
     else { r = C, g = 0, b = X; }
 
-    return { (Uint8)((r + m) * 255), (Uint8)((g + m) * 255), (Uint8)((b + m) * 255) };
+    return { (Uint8)((r + m) * 255), (Uint8)((g + m) * 255), (Uint8)((b + m) * 255), 255 };
 }

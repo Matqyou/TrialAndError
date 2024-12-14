@@ -7,9 +7,10 @@
 LoadedTexture ErrorDangerousRecoil::sTextureDangerousRecoil("icons.dangerous_recoil");
 
 ErrorDangerousRecoil::ErrorDangerousRecoil(ErrorStatuses* parent)
-    : ErrorStatusEffect(ErrorType::DANGEROUS_RECOIL,
+    : ErrorStatusEffect(parent,
+                        ErrorType::DANGEROUS_RECOIL,
+                        "Dangerous Recoil",
                         sTextureDangerousRecoil.GetTexture(),
-                        parent,
                         3000) {
 
 }

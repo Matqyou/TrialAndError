@@ -41,8 +41,7 @@ void ErrorFrames::CreateFramesUI(std::vector<ErrorStatusEffect*>& group) {
     const int frame_size = 64;
     const int iterate_size = frame_size + spacing;
 
-    const int container_width = spacing + iterate_size * num_elements;
-    const int container_height = spacing + iterate_size;
+
 
     int index = -1;
     for (auto effect : group) {
@@ -71,10 +70,18 @@ ErrorStatuses::ErrorStatuses(Interface* interface, Character* parent, bool gui)
     m_Parent = parent;
     m_Gui = gui;
 
+    m_LastActivatedEffect = nullptr;
     m_Drawing = interface->GameWindow()->Render();
 
     if (gui) m_Frames.CreateFramesUI(m_Effects);
     else m_Frames.CreateFrames(m_Effects);
+}
+
+bool ErrorStatuses::AnyActive() {
+    for (auto effect : m_Effects)
+        if (effect->IsActive())
+            return true;
+    return false;
 }
 
 bool ErrorStatuses::AnyActive(double from_seconds_ago) {
@@ -104,11 +111,11 @@ void ErrorStatuses::Tick() {
 }
 
 void ErrorStatuses::Draw() {
-    if (!m_Gui) Draw1();
-    else Draw2();
+    if (!m_Gui) DrawIngame();
+    else DrawAsGUI();
 }
 
-void ErrorStatuses::Draw1() {
+void ErrorStatuses::DrawIngame() {
     if (m_Parent == nullptr)
         return;
 
@@ -154,7 +161,7 @@ void ErrorStatuses::Draw1() {
     }
 }
 
-void ErrorStatuses::Draw2() {
+void ErrorStatuses::DrawAsGUI() {
     if (m_Parent == nullptr)
         return;
 

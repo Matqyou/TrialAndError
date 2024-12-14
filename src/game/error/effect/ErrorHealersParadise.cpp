@@ -7,9 +7,10 @@
 LoadedTexture ErrorHealersParadise::sTextureHealersParadise("icons.healers_paradise");
 
 ErrorHealersParadise::ErrorHealersParadise(ErrorStatuses* parent)
-  : ErrorStatusEffect(ErrorType::HEALERS_PARADISE,
+  : ErrorStatusEffect(parent,
+                      ErrorType::HEALERS_PARADISE,
+                      "Healers Paradise",
                       sTextureHealersParadise.GetTexture(),
-                      parent,
                       1500) {
 
 }

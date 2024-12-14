@@ -5,12 +5,14 @@
 #include "ErrorStatusEffect.h"
 #include "../ErrorStatuses.h"
 
-ErrorStatusEffect::ErrorStatusEffect(ErrorType type,
+ErrorStatusEffect::ErrorStatusEffect(ErrorStatuses* parent,
+                                     ErrorType type,
+                                     const char* name,
                                      Texture* texture,
-                                     ErrorStatuses* parent,
                                      unsigned long long effect_duration) {
     m_Parent = parent;
     m_Type = type;
+    m_Name = name;
     m_Texture = texture;
     m_Effectee = nullptr;
     m_EffectDuration = effect_duration;
@@ -22,6 +24,7 @@ ErrorStatusEffect::ErrorStatusEffect(ErrorType type,
 }
 
 void ErrorStatusEffect::Activate() {
+    m_Parent->SetLastActivated(this);
     if (m_EffectDuration == 0)
         return;
 

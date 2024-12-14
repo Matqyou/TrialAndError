@@ -7,9 +7,10 @@
 LoadedTexture ErrorInvincible::sTextureInvincible("icons.invincible");
 
 ErrorInvincible::ErrorInvincible(ErrorStatuses* parent)
- : ErrorStatusEffect(ErrorType::INVINCIBLE,
+ : ErrorStatusEffect(parent,
+                     ErrorType::INVINCIBLE,
+                     "Invincible",
                      sTextureInvincible.GetTexture(),
-                     parent,
                      1500) {
 
 }

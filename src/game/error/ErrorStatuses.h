@@ -37,6 +37,7 @@ private:
     Drawing* m_Drawing;
     bool m_Gui; // temp
 
+    ErrorStatusEffect* m_LastActivatedEffect;
     std::vector<ErrorStatusEffect*> m_Effects;
     ErrorFrames m_Frames;
 
@@ -45,8 +46,8 @@ private:
 
     static LoadedTexture sTextureFrame;
 
-    void Draw1(); // temp
-    void Draw2(); // temp
+    void DrawIngame(); // temp
+    void DrawAsGUI(); // temp
 
 public:
     ErrorBulletFrenzy BulletFrenzy;
@@ -64,10 +65,15 @@ public:
     ErrorStatuses(Interface* interface, Character* parent, bool gui);
 
     // Getting
+    [[nodiscard]] ErrorStatusEffect* GetLastActivated() { return m_LastActivatedEffect; }
     [[nodiscard]] std::vector<ErrorStatusEffect*>& Group() { return m_Effects; }
 
     // Generating
+    bool AnyActive();
     bool AnyActive(double from_seconds_ago);
+
+    // Setting
+    void SetLastActivated(ErrorStatusEffect* effect) { m_LastActivatedEffect = effect; }
 
     // Ticking
     void Tick();

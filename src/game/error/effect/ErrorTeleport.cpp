@@ -7,9 +7,10 @@
 LoadedTexture ErrorTeleport::sTextureTeleport("icons.teleport");
 
 ErrorTeleport::ErrorTeleport(ErrorStatuses* parent)
-    : ErrorStatusEffect(ErrorType::TELEPORT,
+    : ErrorStatusEffect(parent,
+                        ErrorType::TELEPORT,
+                        "Teleportation",
                         sTextureTeleport.GetTexture(),
-                        parent,
                         3000) {
 
 }

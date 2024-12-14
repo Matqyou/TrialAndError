@@ -123,6 +123,9 @@ Character::Character(GameWorld* world,
     m_HealthRed = { 255, 0, 0, 255 };
     m_HealthBlack = { 0, 0, 0, 255 };
 
+    m_ErrorText = new TextSurface(m_World->GameWindow()->Assetz(),
+                                  m_World->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
+                                  "m_ErrorText", { 255, 255, 255 });
     // TODO: make vector of weapons instead of array
 }
 
@@ -608,11 +611,10 @@ void Character::DrawHealthbar() {
     Drawing* Render = m_World->GameWindow()->Render();
 
     // Render health bar
-//    if (m_HealthComponent.IsFullHealth())
-//        return;
+    if (m_HealthComponent.IsFullHealth())
+        return;
 
     m_HealthBar.SetColor(m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a);
-    std::cout << FStringColors("Color(%i, %i, %i, %i)", m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a) << std::endl;
     Texture* HealthPlate = m_ErrorStatuses.ConfusingHealth.IsActive() ? m_HealthBar.GetTexture() : m_HealthBar.UpdateTexture();
 
     int HealthBarW = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
@@ -757,7 +759,6 @@ void Character::DrawNameplate() {
     Render->RenderTextureCamera(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
 }
 
-// TODO when switching guns ammo text renders again, to prevent this save each ammo count texture on the gun
 void Character::DrawAmmoCounter() {
     Drawing* Render = m_World->GameWindow()->Render();
 
@@ -777,41 +778,25 @@ void Character::DrawAmmoCounter() {
 }
 
 void Character::DrawErrorName() {
+    if (!m_ErrorStatuses.AnyActive(2.0))
+        return;
+
     Drawing* Render = m_World->GameWindow()->Render();
-//    char msg[64];
-//    // Changes the "msg" to whatever Error has been picked up( not else if's cuz then it wouldnt update on new pickup
-//    // aka, this is so it overrides the last msg too)
-//    if (ReverseMSG)
-//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Reverse Movement\"");
-//    else if (ConfusingHPMSG)
-//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Confusing HP\"");
-//    else if (InvincibleMSG)
-//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Invincible\"");
-//    else if (SpikyMSG)
-//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Spiky\"");
-//    else if (HealersMSG)
-//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Healers paradise\"");
-//    else if (RangedMSG)
-//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Ranged\"");
-//    else if (IsSlowMSG)
-//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Slow down\"");
-//    else if (RecoilMSG)
-//        std::snprintf(msg, sizeof(msg), "ERROR activated \"Dangerous recoil\"");
-//
-//    m_ErrorText = new TextSurface(m_World->GameWindow()->Assetz(),
-//                                  m_World->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
-//                                  msg, { 255, 255, 255 });
-//    m_ErrorText->SetText(msg);
-//    Texture* ErrorTexture = m_ErrorText->RequestUpdate();
-//
-//    int Text_h = ErrorTexture->GetWidth();
-//    int Text_w = ErrorTexture->GetHeight();
-//    double Zoom = Render->GetZoom();
-//    SDL_Rect ErrorRect = { int(m_Core.Pos.x - 100 - (Text_w / Zoom)),
-//                           int(m_Core.Pos.y - 50),
-//                           int(Text_h / Zoom),
-//                           int(Text_w / Zoom) };
-//    Render->RenderTextureCamera(ErrorTexture->SDLTexture(), nullptr, ErrorRect);
+    auto error_message = FString("Error %s activated", m_ErrorStatuses.GetLastActivated()->Name());
+
+    if (m_ErrorText->GetText() != error_message) {
+        m_ErrorText->SetText(error_message);
+        m_ErrorText->FlagForUpdate();
+    }
+
+    Texture* ErrorTexture = m_ErrorText->RequestUpdate();
+    int Text_w = ErrorTexture->GetWidth();
+    int Text_h = ErrorTexture->GetHeight();
+    SDL_Rect ErrorRect = { int(m_Core.Pos.x - (double)Text_w / 2.0),
+                           int(m_Core.Pos.y - 50.0),
+                           int(Text_w),
+                           int(Text_h) };
+    Render->RenderTextureCamera(ErrorTexture->SDLTexture(), nullptr, ErrorRect);
 }
 
 void Character::Event(const SDL_Event& currentEvent) {
@@ -912,9 +897,8 @@ void Character::Draw() {
     m_NameplateColor = m_HandColor;
 
     DrawHook();
-    DrawHands(); // originally here
+    DrawHands();
     DrawCharacter();
-//    DrawHands(); //
     DrawHealthbar();
     DrawNameplate();
     DrawErrorIcons();
@@ -922,8 +906,5 @@ void Character::Draw() {
     if (m_CurrentWeapon)
         DrawAmmoCounter();
 
-    // Only draws the Error names, if the timers havent been going down for any more than 2 seconds
-    // 1000(Most Error activity time)-120(2 seconds)
-    if (m_ErrorStatuses.AnyActive(2.0))
-        DrawErrorName();
+    DrawErrorName();
 }

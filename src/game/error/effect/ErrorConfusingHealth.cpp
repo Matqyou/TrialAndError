@@ -7,9 +7,10 @@
 LoadedTexture ErrorConfusingHealth::sTextureConfusingHealth("icons.confusing_health");
 
 ErrorConfusingHealth::ErrorConfusingHealth(ErrorStatuses* parent)
- : ErrorStatusEffect(ErrorType::CONFUSING_HP,
+ : ErrorStatusEffect(parent,
+                     ErrorType::CONFUSING_HP,
+                     "Confusing Health",
                      sTextureConfusingHealth.GetTexture(),
-                     parent,
                      1500) {
 
 }

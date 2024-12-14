@@ -7,9 +7,10 @@
 LoadedTexture ErrorRangedFists::sTextureRangedFists("icons.ranged_fists");
 
 ErrorRangedFists::ErrorRangedFists(ErrorStatuses* parent)
-    : ErrorStatusEffect(ErrorType::RANGED,
+    : ErrorStatusEffect(parent,
+                        ErrorType::RANGED,
+                        "Ranged Fists",
                         sTextureRangedFists.GetTexture(),
-                        parent,
                         3000) {
 
 }

@@ -7,9 +7,10 @@
 LoadedTexture ErrorCantHear::sTextureCantHear("icons.cant_hear");
 
 ErrorCantHear::ErrorCantHear(ErrorStatuses* parent)
- : ErrorStatusEffect(ErrorType::I_CANT_HEAR,
+ : ErrorStatusEffect(parent,
+                     ErrorType::I_CANT_HEAR,
+                     "I Can't Hear",
                      sTextureCantHear.GetTexture(),
-                     parent,
                      3000) {
 
 }
