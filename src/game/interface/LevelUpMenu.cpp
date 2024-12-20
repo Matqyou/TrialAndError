@@ -215,8 +215,9 @@ void LevelUpMenu::Render()
         m_ErrorIconRect.w = int(rect.w * 0.4);
         m_ErrorIconRect.h = int(rect.h * 0.225);
         // Draw powerup texture
-        render->RenderTexture(texture->SDLTexture(), nullptr, m_ErrorIconRect);
 
+        render->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+        render->RenderTexture(texture->SDLTexture(), nullptr, m_ErrorIconRect);
         // Draw description below the powerup
         SDL_Rect descriptionRect = {rect.x + int(rect.w / 4), int((rect.y + rect.h) / 1.9), rect.w - int(rect.w / 2.25), rect.h - int(rect.h / 1.35)};
         render->SetColor(0, 0, 0, 255);

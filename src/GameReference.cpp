@@ -150,6 +150,7 @@ bool GameReference::Initialize() {
             return false;
         }
     }
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
     m_GLContext = SDL_GL_CreateContext(m_Window);
 
