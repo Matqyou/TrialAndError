@@ -14,18 +14,9 @@ Less important
 
 # Mim
 ### Tasks:
-- Making textures for both the "Error" drops and the icons for when you pick em up
-- Making more gun textures
-- Seperate gun drawing into their classes instead of Character class
+- More levelup selection options
+- Make it so levelup after 5 of the same type, the player can then select the permanent error version
+- Levelup menu, main menu and powerup icon textures
 - Making weapons shoot from the tip of the gun instead of the center of the player itself
 - etc. 
 ---
-
-# Ze
-### Tasks:
-- Help
-- Make a guide for game
-- Add a lot of music
-- try to do the menu and fail 😑
-- make a display for player connection
-- etc.
