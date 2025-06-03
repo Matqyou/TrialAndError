@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\TrialAndError.dir/objects.a
+C:\msys64\ucrt64\bin\ar.exe qc CMakeFiles\TrialAndError.dir/objects.a @CMakeFiles\TrialAndError.dir\objects1.rsp
+C:\msys64\ucrt64\bin\g++.exe -g -static -Wl,--whole-archive CMakeFiles\TrialAndError.dir/objects.a -Wl,--no-whole-archive -o TrialAndError\TrialAndError.exe -Wl,--out-implib,libTrialAndError.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\TrialAndError.dir\linkLibs.rsp

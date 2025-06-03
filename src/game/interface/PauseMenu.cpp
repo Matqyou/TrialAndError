@@ -2,11 +2,10 @@
 
 #include "PauseMenu.h"
 
-PauseMenu::PauseMenu(GameWorld *GameWorld, MainMenu *mainMenu)
-    : m_GameWorld(GameWorld), m_MainMenu(mainMenu)
+PauseMenu::PauseMenu(GameWorld *GameWorld) : m_GameWorld(GameWorld)
 {
     AssetsManager *assetsHandler = m_GameWorld->GameWindow()->Assetz();
-    Assets* decals = Assets::Get();
+    Assets *decals = Assets::Get();
 
     m_GameWindow = m_GameWorld->GameWindow();
     m_TextureResume = decals->GetTexture("interface.resume");
@@ -33,7 +32,9 @@ void PauseMenu::HandleEvent(const SDL_Event &event)
     {
     case SDL_QUIT:
         m_GameWindow->Deinitialize(true);
-        while (Mix_Playing(-1)) {} // wait until last sound is done playing
+        while (Mix_Playing(-1))
+        {
+        } // wait until last sound is done playing
         delete m_GameWindow;
         break;
     case SDL_MOUSEBUTTONDOWN:
@@ -53,34 +54,35 @@ void PauseMenu::HandleEvent(const SDL_Event &event)
                      y >= m_BackToMenuButtonRect.y && y < m_BackToMenuButtonRect.y + m_BackToMenuButtonRect.h)
             {
                 Assets::Get()->GetSound("ui.pitch.mid")->PlaySound();
-                m_GameWorld->SetPaused(true);
                 m_Paused = false;
-                m_MainMenu->Show(); // Open the main menu
+                delete m_GameWorld;
+                m_GameWorld = nullptr;
+                m_GameWindow->Menu()->Show();
             }
         }
         break;
-        case SDL_MOUSEMOTION:
+    case SDL_MOUSEMOTION:
+    {
+        int x = event.motion.x;
+        int y = event.motion.y;
+        bool hovering = false;
+        if ((x >= m_ResumeButtonRect.x && x < m_ResumeButtonRect.x + m_ResumeButtonRect.w &&
+             y >= m_ResumeButtonRect.y && y < m_ResumeButtonRect.y + m_ResumeButtonRect.h) ||
+            (x >= m_BackToMenuButtonRect.x && x < m_BackToMenuButtonRect.x + m_BackToMenuButtonRect.w &&
+             y >= m_BackToMenuButtonRect.y && y < m_BackToMenuButtonRect.y + m_BackToMenuButtonRect.h))
         {
-            int x = event.motion.x;
-            int y = event.motion.y;
-            bool hovering = false;
-            if ((x >= m_ResumeButtonRect.x && x < m_ResumeButtonRect.x + m_ResumeButtonRect.w &&
-                 y >= m_ResumeButtonRect.y && y < m_ResumeButtonRect.y + m_ResumeButtonRect.h) ||
-                (x >= m_BackToMenuButtonRect.x && x < m_BackToMenuButtonRect.x + m_BackToMenuButtonRect.w &&
-                 y >= m_BackToMenuButtonRect.y && y < m_BackToMenuButtonRect.y + m_BackToMenuButtonRect.h))
-            {
-                hovering = true;
-            }
-            if (hovering)
-            {
-                SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND));
-            }
-            else
-            {
-                SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
-            }
+            hovering = true;
         }
-        break;
+        if (hovering)
+        {
+            SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND));
+        }
+        else
+        {
+            SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
+        }
+    }
+    break;
     case SDL_WINDOWEVENT:
         if (event.window.event == SDL_WINDOWEVENT_RESIZED)
         {
@@ -97,7 +99,6 @@ void PauseMenu::HandleEvent(const SDL_Event &event)
             Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
             m_Paused = false;
             m_GameWorld->SetPaused(false);
-           
         }
         break;
     }

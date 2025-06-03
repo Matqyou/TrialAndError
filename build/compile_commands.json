@@ -1,0 +1,320 @@
+[
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\main.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\main.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/main.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/main.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\technical_stuff\\Clock.cpp.obj -c \"C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\technical stuff\\Clock.cpp\"",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/technical stuff/Clock.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/technical_stuff/Clock.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\technical_stuff\\Colors.cpp.obj -c \"C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\technical stuff\\Colors.cpp\"",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/technical stuff/Colors.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/technical_stuff/Colors.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\entities\\characters\\character\\Character.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\entities\\characters\\character\\Character.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/entities/characters/character/Character.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/entities/characters/character/Character.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\entities\\Entity.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\entities\\Entity.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/entities/Entity.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/entities/Entity.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\technical_stuff\\TextManager.cpp.obj -c \"C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\technical stuff\\TextManager.cpp\"",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/technical stuff/TextManager.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/technical_stuff/TextManager.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\technical_stuff\\GameControllers.cpp.obj -c \"C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\technical stuff\\GameControllers.cpp\"",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/technical stuff/GameControllers.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/technical_stuff/GameControllers.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\GameReference.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\GameReference.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/GameReference.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/GameReference.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\GameWorld.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\GameWorld.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/GameWorld.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/GameWorld.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\entities\\Projectile.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\entities\\Projectile.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/entities/Projectile.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/entities/Projectile.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\technical_stuff\\Drawing.cpp.obj -c \"C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\technical stuff\\Drawing.cpp\"",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/technical stuff/Drawing.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/technical_stuff/Drawing.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\weapons\\projectile\\ProjectileWeapon.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\weapons\\projectile\\ProjectileWeapon.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/weapons/projectile/ProjectileWeapon.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/weapons/projectile/ProjectileWeapon.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\weapons\\projectile\\WeaponGlock.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\weapons\\projectile\\WeaponGlock.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/weapons/projectile/WeaponGlock.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/weapons/projectile/WeaponGlock.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\weapons\\projectile\\WeaponShotgun.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\weapons\\projectile\\WeaponShotgun.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/weapons/projectile/WeaponShotgun.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/weapons/projectile/WeaponShotgun.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\weapons\\projectile\\WeaponBurst.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\weapons\\projectile\\WeaponBurst.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/weapons/projectile/WeaponBurst.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/weapons/projectile/WeaponBurst.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\weapons\\projectile\\WeaponMinigun.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\weapons\\projectile\\WeaponMinigun.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/weapons/projectile/WeaponMinigun.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/weapons/projectile/WeaponMinigun.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\indicators\\HealthBar.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\indicators\\HealthBar.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/indicators/HealthBar.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/indicators/HealthBar.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\entities\\characters\\character\\Hook.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\entities\\characters\\character\\Hook.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/entities/characters/character/Hook.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/entities/characters/character/Hook.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\technical_stuff\\AssetsManager.cpp.obj -c \"C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\technical stuff\\AssetsManager.cpp\"",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/technical stuff/AssetsManager.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/technical_stuff/AssetsManager.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\indicators\\TextSurface.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\indicators\\TextSurface.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/indicators/TextSurface.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/indicators/TextSurface.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\collision\\TileMap.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\collision\\TileMap.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/collision/TileMap.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/collision/TileMap.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\entities\\AmmoBox.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\entities\\AmmoBox.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/entities/AmmoBox.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/entities/AmmoBox.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\Player.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\Player.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/Player.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/Player.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\entities\\Crate.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\entities\\Crate.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/entities/Crate.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/entities/Crate.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\entities\\Error.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\entities\\Error.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/entities/Error.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/entities/Error.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\entities\\characters\\character\\Hands.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\entities\\characters\\character\\Hands.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/entities/characters/character/Hands.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/entities/characters/character/Hands.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\entities\\characters\\CharacterNPC.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\entities\\characters\\CharacterNPC.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/entities/characters/CharacterNPC.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/entities/characters/CharacterNPC.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\entities\\item\\ItemEntity.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\entities\\item\\ItemEntity.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/entities/item/ItemEntity.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/entities/item/ItemEntity.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\technical_stuff\\Randomizer.cpp.obj -c \"C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\technical stuff\\Randomizer.cpp\"",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/technical stuff/Randomizer.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/technical_stuff/Randomizer.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\entities\\item\\weapons\\EntityGuns.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\entities\\item\\weapons\\EntityGuns.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/entities/item/weapons/EntityGuns.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/entities/item/weapons/EntityGuns.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\weapons\\projectile\\WeaponSniper.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\weapons\\projectile\\WeaponSniper.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/weapons/projectile/WeaponSniper.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/weapons/projectile/WeaponSniper.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\client\\Assets.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\client\\Assets.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/client/Assets.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/client/Assets.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\interface\\MainMenu.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\interface\\MainMenu.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/interface/MainMenu.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/interface/MainMenu.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\interface\\GameSelectMenu.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\interface\\GameSelectMenu.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/interface/GameSelectMenu.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/interface/GameSelectMenu.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\interface\\PauseMenu.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\interface\\PauseMenu.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/interface/PauseMenu.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/interface/PauseMenu.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\interface\\SettingsMenu.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\interface\\SettingsMenu.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/interface/SettingsMenu.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/interface/SettingsMenu.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\interface\\LevelUpMenu.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\interface\\LevelUpMenu.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/interface/LevelUpMenu.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/interface/LevelUpMenu.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\weapons\\projectile\\PatersonNavy.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\weapons\\projectile\\PatersonNavy.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/weapons/projectile/PatersonNavy.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/weapons/projectile/PatersonNavy.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\client\\Particles.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\client\\Particles.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/client/Particles.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/client/Particles.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\base\\ErrorStatusEffect.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\base\\ErrorStatusEffect.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/base/ErrorStatusEffect.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/base/ErrorStatusEffect.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\effect\\ErrorHealersParadise.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\effect\\ErrorHealersParadise.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/effect/ErrorHealersParadise.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/effect/ErrorHealersParadise.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\effect\\ErrorDisoriented.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\effect\\ErrorDisoriented.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/effect/ErrorDisoriented.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/effect/ErrorDisoriented.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\effect\\ErrorInvincible.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\effect\\ErrorInvincible.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/effect/ErrorInvincible.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/effect/ErrorInvincible.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\effect\\ErrorDangerousRecoil.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\effect\\ErrorDangerousRecoil.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/effect/ErrorDangerousRecoil.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/effect/ErrorDangerousRecoil.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\effect\\ErrorSpiky.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\effect\\ErrorSpiky.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/effect/ErrorSpiky.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/effect/ErrorSpiky.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\effect\\ErrorBulletFrenzy.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\effect\\ErrorBulletFrenzy.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/effect/ErrorBulletFrenzy.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/effect/ErrorBulletFrenzy.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\effect\\ErrorConfusingHealth.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\effect\\ErrorConfusingHealth.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/effect/ErrorConfusingHealth.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/effect/ErrorConfusingHealth.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\effect\\ErrorTeleport.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\effect\\ErrorTeleport.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/effect/ErrorTeleport.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/effect/ErrorTeleport.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\effect\\ErrorSlowdown.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\effect\\ErrorSlowdown.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/effect/ErrorSlowdown.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/effect/ErrorSlowdown.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\effect\\ErrorCantHear.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\effect\\ErrorCantHear.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/effect/ErrorCantHear.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/effect/ErrorCantHear.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\effect\\ErrorRangedFists.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\effect\\ErrorRangedFists.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/effect/ErrorRangedFists.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/effect/ErrorRangedFists.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\error\\ErrorStatuses.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\error\\ErrorStatuses.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/error/ErrorStatuses.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/error/ErrorStatuses.cpp.obj"
+},
+{
+  "directory": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/TrialAndError.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\TrialAndError.dir\\src\\game\\interface\\Interface.cpp.obj -c C:\\Users\\Mim\\Dators\\Unlimited_bacon_but_no_games\\TrialAndError\\src\\game\\interface\\Interface.cpp",
+  "file": "C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/src/game/interface/Interface.cpp",
+  "output": "CMakeFiles/TrialAndError.dir/src/game/interface/Interface.cpp.obj"
+}
+]

@@ -62,7 +62,7 @@ int main() {
         exit(1);
     }
 
-//    GameWindow->TestEnvironment();
+    // GameWindow->TestEnvironment();
 
     Clock* Timer = GameWindow->Timer();
     Drawing* Render = GameWindow->Render();
@@ -73,14 +73,14 @@ int main() {
 
     MainMenu mainMenu(GameWindow);
     mainMenu.Show();
-
-    PauseMenu pauseMenu(GameWindow->World(), &mainMenu);
+    PauseMenu* PauseMenu;
     LevelUpMenu* activeLevelUpMenu = nullptr;
     std::queue<LevelUpMenu*> levelUpMenuQueue;
     bool pauseMenuOpen = false;
     bool levelUpMenuOpen = false;
     while (true) {
-        pauseMenuOpen = pauseMenu.Paused();
+        PauseMenu = GameWindow->World()->Menu();
+        pauseMenuOpen = PauseMenu->Paused();
 
         if (!levelUpMenuOpen) {
             for (auto player = GameWindow->World()->FirstPlayer(); player != nullptr; player = player->Next()) {
@@ -112,7 +112,7 @@ int main() {
             GameWindow->Controllers()->Event(CurrentEvent);
 
             if (pauseMenuOpen)
-                pauseMenu.HandleEvent(CurrentEvent);
+                PauseMenu->HandleEvent(CurrentEvent);
 
             if (levelUpMenuOpen)
                 activeLevelUpMenu->HandleEvent(CurrentEvent);
@@ -125,7 +125,7 @@ int main() {
                 case SDL_KEYDOWN: {
                     SDL_Scancode ScancodeKey = CurrentEvent.key.keysym.scancode;
                     if (ScancodeKey == SDL_SCANCODE_ESCAPE) {
-                        pauseMenu.Show();
+                        PauseMenu->Show();
                     } else if (ScancodeKey == SDL_SCANCODE_Z) {
                         new CharacterNPC(GameWindow->World(),
                                          50.0,
@@ -174,7 +174,7 @@ int main() {
 
         // Render the pause menu if open
         if (pauseMenuOpen) {
-            pauseMenu.Render();
+            PauseMenu->Render();
         }
 
         // Render one of the levelupmenus in queue if any
