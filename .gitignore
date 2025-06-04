@@ -2,37 +2,12 @@
 cmake-build-debug
 cmake-build-release
 cmake-build-relwithdebinfo
+
 # Build directories
-
 /build/*
-build/*
-build-*/
 out/
-lib/
-bin/assets/*
-# CMake files
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-Makefile
-CTestTestfile.cmake
-CPack*
-install_manifest.txt
-
-# Compiled object files, libraries, executables
-*.o
-*.obj
-*.so
-*.a
-*.lib
-*.exe
-*.out
+bin/*
 
 # IDE files
-*.user
-*.workspace
-*.sln
-*.vcxproj*
 .idea/
 .vscode/
-*.code-workspace
