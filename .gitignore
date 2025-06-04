@@ -8,9 +8,8 @@ cmake-build-relwithdebinfo
 build/*
 build-*/
 out/
-bin/
 lib/
-
+bin/assets/*
 # CMake files
 CMakeCache.txt
 CMakeFiles/
@@ -37,14 +36,3 @@ install_manifest.txt
 .idea/
 .vscode/
 *.code-workspace
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Logs and temporary files
-*.log
-*.tmp
-*.swp
-*.bak
