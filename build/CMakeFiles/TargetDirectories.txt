@@ -1,3 +1,0 @@
-C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build/CMakeFiles/TrialAndError.dir
-C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build/CMakeFiles/edit_cache.dir
-C:/Users/Mim/Dators/Unlimited_bacon_but_no_games/TrialAndError/build/CMakeFiles/rebuild_cache.dir
