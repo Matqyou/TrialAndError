@@ -2,3 +2,50 @@
 cmake-build-debug
 cmake-build-release
 cmake-build-relwithdebinfo
+# Build directories
+
+/build/*
+build/*
+build-*/
+out/
+bin/
+lib/
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
+CPack*
+install_manifest.txt
+
+# Compiled object files, libraries, executables
+*.o
+*.obj
+*.so
+*.a
+*.lib
+*.dll
+*.exe
+*.out
+
+# IDE files
+*.user
+*.workspace
+*.sln
+*.vcxproj*
+.idea/
+.vscode/
+*.code-workspace
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.bak
