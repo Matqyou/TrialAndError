@@ -6,7 +6,7 @@ cmake-build-relwithdebinfo
 # Build directories
 /build/*
 out/
-bin/*
+bin/assets/*
 
 # IDE files
 .idea/
