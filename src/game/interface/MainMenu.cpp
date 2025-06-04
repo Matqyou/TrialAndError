@@ -1,6 +1,7 @@
 // src/game/interface/MainMenu.cpp
 
 #include "MainMenu.h"
+#include "./GameModeMenu.h"
 
 LoadedMusic MainMenu::sElevatorMusic("intro");
 LoadedTexture MainMenu::sMenuTexture("interface.menu");
@@ -72,7 +73,7 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
                 menuOpen = false;
                 Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
-                m_GameWindow->TestEnvironment();
+                m_GameWindow->GameSelectMenu()->Show();
             }
             if (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
                 y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h)

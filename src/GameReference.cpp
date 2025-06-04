@@ -9,13 +9,17 @@
 #include "game/entities/Projectile.h"
 #include "game/entities/Error.h"
 #include "game/entities/characters/character/Character.h"
+#include "game/interface/GameModeMenu.h"
 
 LoadedSound GameReference::sQuitSound("ui.quit");
 
 GameReference::GameReference()
 {
     m_MainMenu = nullptr;
+    m_GameWorld = nullptr;
+    m_GameModeMenu = new GameModeMenu(this);
     m_Window = nullptr;
+    m_Controllers = nullptr;
     m_Renderer = nullptr;
     m_GLContext = nullptr;
     m_Timer = nullptr;

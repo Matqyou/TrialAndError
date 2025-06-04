@@ -18,6 +18,8 @@
 #include "game/interface/MainMenu.h"
 
 class MainMenu;
+class GameModeMenu;
+
 class GameReference
 {
 private:
@@ -31,6 +33,7 @@ private:
     Interface *m_Interface;
 
     MainMenu *m_MainMenu;
+    GameModeMenu *m_GameModeMenu;
     GameWorld *m_GameWorld;
     GameControllers *m_Controllers;
 
@@ -69,6 +72,7 @@ public:
     [[nodiscard]] Interface *GetInterface() const { return m_Interface; }
     [[nodiscard]] AssetsManager *Assetz() const { return m_AssetsHandler; }
     [[nodiscard]] MainMenu *Menu() const { return m_MainMenu; }
+    [[nodiscard]] GameModeMenu *GameSelectMenu() const { return m_GameModeMenu; }
     [[nodiscard]] GameWorld *World() const { return m_GameWorld; }
     [[nodiscard]] GameControllers *Controllers() const { return m_Controllers; }
     [[nodiscard]] int GetWidth() const { return m_Width; }
