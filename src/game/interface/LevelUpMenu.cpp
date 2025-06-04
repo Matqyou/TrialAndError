@@ -10,7 +10,7 @@ LevelUpMenu::LevelUpMenu(GameWorld *gameWorld, Player *Player)
     m_Player = Player;
     m_GameWindow = m_GameWorld->GameWindow();
     AssetsManager *assetsHandler = m_GameWindow->Assetz();
-    Assets* decals = Assets::Get();
+    Assets *decals = Assets::Get();
 
     m_Font = TTF_OpenFont("assets/fonts/Minecraft.ttf", 24); // Adjust the path and size as needed
     if (!m_Font)
@@ -77,7 +77,9 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event)
     {
     case SDL_QUIT:
         m_GameWindow->Deinitialize(true);
-        while (Mix_Playing(-1)) {} // wait until last sound is done playing
+        while (Mix_Playing(-1))
+        {
+        } // wait until last sound is done playing
         delete m_GameWindow;
         break;
     case SDL_MOUSEBUTTONDOWN:
@@ -128,9 +130,11 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event)
                     default:
                         break;
                     }
-//                    m_Player->GetCharacter(); // Example method to increase health
+                    // m_Player->GetCharacter(); // Example method to increase health
                     m_Paused = false;
-                    break;
+                    m_GameWorld->SetPaused(false);
+                    m_GameWorld->CheckLevelUps();
+                    return;
                 }
             }
         }
@@ -186,6 +190,8 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event)
         {
             Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
             m_Paused = false;
+            m_GameWorld->SetPaused(false);
+            m_GameWorld->CheckLevelUps();
         }
         break;
     }

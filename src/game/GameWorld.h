@@ -17,11 +17,14 @@ class Entity;
 class Character;
 class Crate;
 class PauseMenu;
+class LevelUpMenu;
+
 class GameWorld
 {
 private:
     GameReference *m_GameWindow;
     PauseMenu *m_PauseMenu;
+    LevelUpMenu *m_LevelUpMenu;
     TileMap *m_Tiles;
     Particles *m_Particles;
     double m_Width, m_Height;
@@ -60,6 +63,7 @@ public:
     // Getting
     [[nodiscard]] GameReference *GameWindow() const { return m_GameWindow; }
     [[nodiscard]] PauseMenu *Menu() const { return m_PauseMenu; }
+    [[nodiscard]] LevelUpMenu *LvlMenu() const { return m_LevelUpMenu; }
     [[nodiscard]] Particles *GetParticles() const { return m_Particles; };
     [[nodiscard]] double GetWidth() const { return m_Width; }
     [[nodiscard]] double GetHeight() const { return m_Height; }
@@ -83,6 +87,7 @@ public:
     void EnemiesKilled();
     void AlliesGone();
     void EnemyKilled(Player *player, Character *enemy);
+    void CheckLevelUps();
 
     // Manipulating
     void AddScore(unsigned int score);

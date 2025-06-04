@@ -38,7 +38,8 @@ GameReference *GameWindow;
 LoadedSound sConnectedSound("ui.pitch.mid");
 LoadedSound sDisconnectedSound("ui.pitch.low");
 
-bool Initialize() {
+bool Initialize()
+{
     srand(time(nullptr));
 
     GameWindow = new GameReference();
@@ -49,7 +50,8 @@ bool Initialize() {
     return true;
 }
 
-int main() {
+int main()
+{
 #ifdef _WIN32
 #ifdef NDEBUG
     FreeConsole();
@@ -57,109 +59,101 @@ int main() {
 #endif
 
     system("");
-    if (!Initialize()) {
+    if (!Initialize())
+    {
         std::printf("Terminating..");
         exit(1);
     }
 
     // GameWindow->TestEnvironment();
 
-    Clock* Timer = GameWindow->Timer();
-    Drawing* Render = GameWindow->Render();
-    Assets* assets = Assets::Get();
+    Clock *Timer = GameWindow->Timer();
+    Drawing *Render = GameWindow->Render();
+    Assets *assets = Assets::Get();
 
-    Texture* Vignette = assets->GetTexture("backgrounds.vignette");
+    Texture *Vignette = assets->GetTexture("backgrounds.vignette");
     Vignette->SetAlphaMod(200);
 
     MainMenu mainMenu(GameWindow);
     mainMenu.Show();
-    PauseMenu* PauseMenu;
-    LevelUpMenu* activeLevelUpMenu = nullptr;
-    std::queue<LevelUpMenu*> levelUpMenuQueue;
-    bool pauseMenuOpen = false;
-    bool levelUpMenuOpen = false;
-    while (true) {
+
+    PauseMenu *PauseMenu;
+
+    while (true)
+    {
         PauseMenu = GameWindow->World()->Menu();
-        pauseMenuOpen = PauseMenu->Paused();
-
-        if (!levelUpMenuOpen) {
-            for (auto player = GameWindow->World()->FirstPlayer(); player != nullptr; player = player->Next()) {
-                std::queue<LevelUpMenu*> playerQueue = player->GetLevelUpMenuQueue();
-                while (!playerQueue.empty()) {
-                    levelUpMenuQueue.push(playerQueue.front());
-                    playerQueue.pop();
-                    player->SetLevelUpMenuQueue(playerQueue);
-                }
-                playerQueue = std::queue<LevelUpMenu*>();
-            }
-
-            if (!levelUpMenuQueue.empty()) {
-                activeLevelUpMenu = levelUpMenuQueue.front();
-                activeLevelUpMenu->Show();
-                levelUpMenuOpen = activeLevelUpMenu->Paused();
-            } else {
-                activeLevelUpMenu = nullptr;
-                levelUpMenuOpen = false;
-            }
-        }
-
-        levelUpMenuOpen = (activeLevelUpMenu != nullptr) && activeLevelUpMenu->Paused();
+        bool pauseMenuOpen = PauseMenu->Paused();
+            
         // Input and events
         SDL_Event CurrentEvent;
-        while (SDL_PollEvent(&CurrentEvent)) {
+        while (SDL_PollEvent(&CurrentEvent))
+        {
             GameWindow->Event(CurrentEvent);
             GameWindow->World()->Event(CurrentEvent);
             GameWindow->Controllers()->Event(CurrentEvent);
 
             if (pauseMenuOpen)
+            {
                 PauseMenu->HandleEvent(CurrentEvent);
+                break;
+            }
 
-            if (levelUpMenuOpen)
-                activeLevelUpMenu->HandleEvent(CurrentEvent);
+            if (GameWindow->World()->LvlMenu()!= nullptr)
+            {
+                GameWindow->World()->LvlMenu()->HandleEvent(CurrentEvent);
+                break;
+            }
 
-            switch (CurrentEvent.type) {
-                case SDL_QUIT:
-                    GameWindow->Deinitialize(true);
-                    return 0; // This should happen in every quit scenario, but menus didn't think about that
+            switch (CurrentEvent.type)
+            {
+            case SDL_QUIT:
+                GameWindow->Deinitialize(true);
+                return 0; // This should happen in every quit scenario, but menus didn't think about that
 
-                case SDL_KEYDOWN: {
-                    SDL_Scancode ScancodeKey = CurrentEvent.key.keysym.scancode;
-                    if (ScancodeKey == SDL_SCANCODE_ESCAPE) {
-                        PauseMenu->Show();
-                    } else if (ScancodeKey == SDL_SCANCODE_Z) {
-                        new CharacterNPC(GameWindow->World(),
-                                         50.0,
-                                         Vec2d(32 * 30, 32),
-                                         Vec2d(0, 10),
-                                         NPC_TURRET,
-                                         true);
-                    }
+            case SDL_KEYDOWN:
+            {
+                SDL_Scancode ScancodeKey = CurrentEvent.key.keysym.scancode;
+                if (ScancodeKey == SDL_SCANCODE_ESCAPE)
+                {
+                    PauseMenu->Show();
                 }
-                    break;
-                case SDL_CONTROLLERDEVICEADDED: {
-                    int DeviceID = CurrentEvent.cdevice.which;
-                    GameController* CurrentController = GameWindow->Controllers()->OpenController(DeviceID);
-                    auto NewPlayer = new Player(GameWindow->World(), "Controller");
-                    auto NewChar = new Character(GameWindow->World(),
-                                                 NewPlayer,
-                                                 100.0,
-                                                 Vec2d(32 * 17.5, 32 * 17.5),
-                                                 Vec2d(10, 10),
-                                                 false);
+                else if (ScancodeKey == SDL_SCANCODE_Z)
+                {
+                    new CharacterNPC(GameWindow->World(),
+                                     50.0,
+                                     Vec2d(32 * 30, 32),
+                                     Vec2d(0, 10),
+                                     NPC_TURRET,
+                                     true);
+                }
+            }
+            break;
+            case SDL_CONTROLLERDEVICEADDED:
+            {
+                int DeviceID = CurrentEvent.cdevice.which;
+                GameController *CurrentController = GameWindow->Controllers()->OpenController(DeviceID);
+                auto NewPlayer = new Player(GameWindow->World(), "Controller");
+                auto NewChar = new Character(GameWindow->World(),
+                                             NewPlayer,
+                                             100.0,
+                                             Vec2d(32 * 17.5, 32 * 17.5),
+                                             Vec2d(10, 10),
+                                             false);
 
-                    NewChar->GiveWeapon(new WeaponGlock(nullptr));
-                    NewChar->SetGameController(CurrentController);
-                    sConnectedSound.GetSound()->PlaySound();
-                    break;
-                }
-                case SDL_CONTROLLERDEVICEREMOVED: {
-                    int InstanceID = CurrentEvent.cdevice.which;
-                    GameController* DeletedController = GameWindow->Controllers()->CloseController(InstanceID);
-                    GameWindow->World()->DestroyPlayerByController(DeletedController);
-                    GameWindow->World()->DestroyCharacterByController(DeletedController);
-                    sDisconnectedSound.GetSound()->PlaySound();
-                    break;
-                }
+                NewChar->GiveWeapon(new WeaponGlock(nullptr));
+                NewChar->SetGameController(CurrentController);
+                sConnectedSound.GetSound()->PlaySound();
+                break;
+            }
+            case SDL_CONTROLLERDEVICEREMOVED:
+            {
+                int InstanceID = CurrentEvent.cdevice.which;
+                GameController *DeletedController = GameWindow->Controllers()->CloseController(InstanceID);
+                GameWindow->World()->DestroyPlayerByController(DeletedController);
+                GameWindow->World()->DestroyCharacterByController(DeletedController);
+                sDisconnectedSound.GetSound()->PlaySound();
+                break;
+            }
             }
         }
 
@@ -173,31 +167,31 @@ int main() {
         Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
         // Render the pause menu if open
-        if (pauseMenuOpen) {
+        if (pauseMenuOpen)
+        {
             PauseMenu->Render();
         }
 
         // Render one of the levelupmenus in queue if any
-        if (levelUpMenuOpen) {
-            activeLevelUpMenu->Render();
-            if (!activeLevelUpMenu->Paused()) {
-                levelUpMenuQueue.pop();
-                if (levelUpMenuQueue.empty()) {
-                    GameWindow->World()->SetPaused(false);
-                }
-            }
+        if (GameWindow->World()->LvlMenu()!= nullptr)
+        {
+            GameWindow->World()->LvlMenu()->Render();
+        }
+        else{
+            GameWindow->World()->CheckLevelUps();
         }
 
         GameWindow->GetInterface()->DrawForeground();
         Render->UpdateWindow();
 
-        if (GameWindow->World()->GetDelay() && (levelUpMenuOpen)) {
-////            SDL_Delay(1000); // Delay for 1000 milliseconds (1 second)
-//            SDL_Event event;
-//            while (SDL_PollEvent(&event)) {
-//                // Discard events
-//            }
-//
+        if (GameWindow->World()->GetDelay() && (GameWindow->World()->LvlMenu()!=nullptr))
+        {
+            ////            SDL_Delay(1000); // Delay for 1000 milliseconds (1 second)
+            //            SDL_Event event;
+            //            while (SDL_PollEvent(&event)) {
+            //                // Discard events
+            //            }
+            //
             GameWindow->World()->SetDelay(false); // Reset the delay flag after the delay
         }
 

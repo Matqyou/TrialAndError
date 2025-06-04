@@ -95,10 +95,10 @@ void PauseMenu::HandleEvent(const SDL_Event &event)
         SDL_Scancode ScancodeKey = event.key.keysym.scancode;
         if (ScancodeKey == SDL_SCANCODE_ESCAPE)
         {
-            std::cout << "Escape key pressed" << std::endl;
             Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
             m_Paused = false;
             m_GameWorld->SetPaused(false);
+            return;
         }
         break;
     }
