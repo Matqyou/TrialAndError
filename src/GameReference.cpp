@@ -10,6 +10,7 @@
 #include "game/entities/Error.h"
 #include "game/entities/characters/character/Character.h"
 #include "game/interface/GameModeMenu.h"
+#include "game/interface/ClassSelectMenu.h"
 
 LoadedSound GameReference::sQuitSound("ui.quit");
 
@@ -42,6 +43,17 @@ GameReference::~GameReference()
 {
     Deinitialize(false);
     delete m_AssetsHandler;
+}
+
+void GameReference::AddPlayerClassMenu()
+{
+    ClassSelectMenu *menu = new ClassSelectMenu(this);
+    m_ClassSelectMenus.push_back(menu);
+}
+
+void GameReference::RemovePlayerClassMenu()
+{
+    m_ClassSelectMenus.pop_back();
 }
 
 void GameReference::UpdateDimensions(int width, int height)
@@ -196,11 +208,13 @@ bool GameReference::Initialize()
         m_Interface = new Interface(this);
     if (!m_AssetsHandler)
         m_AssetsHandler = new AssetsManager();
-    if(!m_MainMenu)
+    if (!m_MainMenu)
         m_MainMenu = new MainMenu(this);
-    if(!m_GameModeMenu)
+    if (!m_GameModeMenu)
         m_GameModeMenu = new GameModeMenu(this);
-        
+    if (!m_Controllers)
+        m_Controllers = new GameControllers();
+
     //    m_Draw->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
     m_AssetsHandler->TextHandler()->LoadFont("assets/fonts/Minecraft.ttf", 10);
 
@@ -293,11 +307,16 @@ void GameReference::Event(const SDL_Event &event)
     UpdateDimensions(event.window.data1, event.window.data2);
 }
 
+void GameReference::AddPendingClass(PlayerClass *playerClass)
+{
+    m_PendingPlayerClasses.push_back(playerClass);
+    m_ClassSelectMenus.pop_back();
+}
+
 void GameReference::InitializeSandbox(PlayerClass *primaryClass)
 {
     m_GameWorld = new GameWorld(this, 50, 30);
     m_GameWorld->SetTestingMode(true); // stop waves
-    m_Controllers = new GameControllers();
     m_Draw->SetWorld(m_GameWorld);
     Character::ms_BotNamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
                                                  m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
@@ -331,19 +350,32 @@ void GameReference::InitializeSandbox(PlayerClass *primaryClass)
     Player1->GainXP(300);
 }
 
-void GameReference::InitializeInfinite(PlayerClass *primaryClass)
+void GameReference::InitializeInfinite()
 {
     m_GameWorld = new GameWorld(this, 50, 30);
-    m_Controllers = new GameControllers();
     m_Draw->SetWorld(m_GameWorld);
-    Character::ms_BotNamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
-                                                 m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
-                                                 "Bot User", {255, 150, 150, 255});
-    auto Player1 = new Player(m_GameWorld, "Keyboard", primaryClass);
-    auto Char1 = new Character(m_GameWorld,
-                               Player1,
-                               100.0,
-                               Vec2d(32 * 17.5, 32 * 17.5),
-                               Vec2d(10, 10),
-                               false);
+    Character::ms_BotNamePlate = new TextSurface(
+        m_GameWorld->GameWindow()->Assetz(),
+        m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
+        "Bot User", {255, 150, 150, 255});
+
+    const auto &connectedControllers = Controllers()->GetConnectedControllers();
+
+    for (size_t i = 0; i < m_PendingPlayerClasses.size(); ++i)
+    {
+        std::string name = (i == 0) ? "Keyboard" : "Controller";
+        auto player = new Player(m_GameWorld, name, m_PendingPlayerClasses[i]);
+        auto character = new Character(m_GameWorld,
+                                       player,
+                                       100.0,
+                                       Vec2d(32 * 17.5, 32 * 17.5),
+                                       Vec2d(10, 10),
+                                       false);
+
+        if (i > 0 && connectedControllers.size() >= i)
+        {
+            character->SetGameController(connectedControllers[i - 1]);
+        }
+    }
+    m_PendingPlayerClasses.clear();
 }

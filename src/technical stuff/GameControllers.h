@@ -7,9 +7,10 @@
 #include <SDL.h>
 #include <vector>
 
-class GameController {
+class GameController
+{
 private:
-    SDL_GameController* m_Device;
+    SDL_GameController *m_Device;
     int m_InstanceID;
 
     double m_Axis[SDL_CONTROLLER_AXIS_MAX];
@@ -28,30 +29,33 @@ public:
     [[nodiscard]] bool GetLastButton(int button) const { return m_LastButtons[button]; }
 
     // Generating
-    void GetJoystick1(double& get_x, double& get_y);
-    void GetJoystick2(double& get_x, double& get_y);
+    void GetJoystick1(double &get_x, double &get_y);
+    void GetJoystick2(double &get_x, double &get_y);
 
     // Manipulate
     bool Vibrate(int low_frequency_rumble, int high_frequency_rumble, int duration_ms);
 
     // Listening & Ticking
-    void Event(const SDL_Event& event);
+    void Event(const SDL_Event &event);
     void TickReset();
 };
 
-class GameControllers {
+class GameControllers
+{
 private:
-    std::vector<GameController*> m_Controllers;
+    std::vector<GameController *> m_Controllers;
 
 public:
     GameControllers();
     ~GameControllers();
 
     // Manipulating & Generating
-    [[nodiscard]] GameController* OpenController(int device_id);
-    GameController* CloseController(int instance_id);
+    [[nodiscard]] GameController *OpenController(int device_id);
+    [[nodiscard]] std::vector<GameController *> &GetConnectedControllers() { return m_Controllers; }
+
+    GameController *CloseController(int instance_id);
 
     // Listening & Ticking
-    void Event(const SDL_Event& event);
+    void Event(const SDL_Event &event);
     void TickReset();
 };

@@ -14,7 +14,7 @@ Player::Player(GameWorld *game_world, const std::string &username, PlayerClass *
       m_Prev(nullptr),
       m_Next(nullptr),
       m_levelUpMenuQueue(),
-      m_Class(primaryClass)
+      m_Class(primaryClass ? primaryClass : PlayerClass::FromString("Human"))
 {
     m_BossDamageAmp = 1;
     m_BaseDamage = 10;

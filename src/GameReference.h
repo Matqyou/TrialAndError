@@ -7,6 +7,7 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
+#include <vector>
 #include "technical stuff/Vec2.h"
 #include "technical stuff/Clock.h"
 #include "technical stuff/Drawing.h"
@@ -20,6 +21,7 @@
 class MainMenu;
 class GameModeMenu;
 class PlayerClass;
+class ClassSelectMenu;
 
 class GameReference
 {
@@ -35,8 +37,12 @@ private:
 
     MainMenu *m_MainMenu;
     GameModeMenu *m_GameModeMenu;
+    std::vector<ClassSelectMenu *> m_ClassSelectMenus;
     GameWorld *m_GameWorld;
     GameControllers *m_Controllers;
+
+    std::vector<PlayerClass*> m_PendingPlayerClasses;
+
 
     int m_Width, m_Height;
     double m_Width2, m_Height2;
@@ -73,6 +79,7 @@ public:
     [[nodiscard]] Interface *GetInterface() const { return m_Interface; }
     [[nodiscard]] AssetsManager *Assetz() const { return m_AssetsHandler; }
     [[nodiscard]] MainMenu *Menu() const { return m_MainMenu; }
+    [[nodiscard]] const std::vector<ClassSelectMenu *> &GetClassMenus() const { return m_ClassSelectMenus; }
     [[nodiscard]] GameModeMenu *GameSelectMenu() const { return m_GameModeMenu; }
     [[nodiscard]] GameWorld *World() const { return m_GameWorld; }
     [[nodiscard]] GameControllers *Controllers() const { return m_Controllers; }
@@ -85,8 +92,12 @@ public:
     bool Initialize();
     void Deinitialize(bool play_quit_sound);
 
+    void AddPlayerClassMenu();
+    void AddPendingClass(PlayerClass* playerClass);
+    void RemovePlayerClassMenu();
+
     void InitializeSandbox(PlayerClass *primaryClass = nullptr);
-    void InitializeInfinite(PlayerClass *primaryClass = nullptr);
+    void InitializeInfinite();
     void InitializeLevelMode(int level);
 
     // Listening

@@ -61,6 +61,7 @@ GameControllers::GameControllers() {
 GameControllers::~GameControllers() {
     for (GameController* Controller : m_Controllers)
         delete Controller;
+    m_Controllers.clear();
 }
 
 GameController* GameControllers::OpenController(int device_id) {

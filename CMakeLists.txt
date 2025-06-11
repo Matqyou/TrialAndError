@@ -96,6 +96,8 @@ set(PROJECT_FILES
         "src/game/interface/MainMenu.h"
         "src/game/interface/GameModeMenu.cpp"
         "src/game/interface/GameModeMenu.h"
+        "src/game/interface/ClassSelectMenu.cpp"
+        "src/game/interface/ClassSelectMenu.h"
         "src/game/interface/PauseMenu.cpp"
         "src/game/interface/PauseMenu.h"
         "src/game/interface/SettingsMenu.cpp"

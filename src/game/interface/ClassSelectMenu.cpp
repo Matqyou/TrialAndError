@@ -1,18 +1,17 @@
 // src/game/interface/GameModeMenu.cpp
 
-#include "GameModeMenu.h"
-#include "../classes/PlayerClass.h"
 #include "ClassSelectMenu.h"
+#include "../classes/PlayerClass.h"
 
-LoadedTexture GameModeMenu::sMenuTexture("interface.menu");
-LoadedTexture GameModeMenu::sTextureTitle("ui.gamemodemenu.title");
-LoadedTexture GameModeMenu::sTextureClassButton1("ui.gamemodemenu.humanclassbutton");
-LoadedTexture GameModeMenu::sTextureClassButton2("ui.gamemodemenu.zombieclassbutton");
-LoadedTexture GameModeMenu::sTextureClassButton3("ui.gamemodemenu.cyborgclassbutton");
-LoadedTexture GameModeMenu::sTextureClassButton4("ui.gamemodemenu.vampireclassbutton");
-LoadedTexture GameModeMenu::sTextureBack("ui.gamemodemenu.backbutton");
+LoadedTexture ClassSelectMenu::sMenuTexture("interface.menu");
+LoadedTexture ClassSelectMenu::sTextureTitle("ui.classselectmenu.title");
+LoadedTexture ClassSelectMenu::sTextureClassButton1("ui.gamemodemenu.humanclassbutton");
+LoadedTexture ClassSelectMenu::sTextureClassButton2("ui.gamemodemenu.zombieclassbutton");
+LoadedTexture ClassSelectMenu::sTextureClassButton3("ui.gamemodemenu.cyborgclassbutton");
+LoadedTexture ClassSelectMenu::sTextureClassButton4("ui.gamemodemenu.vampireclassbutton");
+LoadedTexture ClassSelectMenu::sTextureBack("ui.gamemodemenu.backbutton");
 
-GameModeMenu::GameModeMenu(GameReference *game_window)
+ClassSelectMenu::ClassSelectMenu(GameReference *game_window)
     : m_GameWindow(game_window)
 {
     int screenW = m_GameWindow->GetWidth();
@@ -49,11 +48,11 @@ GameModeMenu::GameModeMenu(GameReference *game_window)
         buttonHeight * 2};
 }
 
-GameModeMenu::~GameModeMenu()
+ClassSelectMenu::~ClassSelectMenu()
 {
 }
 
-void GameModeMenu::Show()
+void ClassSelectMenu::Show()
 {
     bool running = true;
     bool menuOpen = true;
@@ -74,7 +73,7 @@ void GameModeMenu::Show()
     m_GameWindow->Render()->Clear();
 }
 
-void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen)
+void ClassSelectMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen)
 {
     switch (event.type)
     {
@@ -100,9 +99,12 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
                 menuOpen = false;
                 Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
-                for (ClassSelectMenu *menu : m_GameWindow->GetClassMenus())
+
+                m_GameWindow->AddPendingClass(PlayerClass::FromString("human"));
+
+                if (m_GameWindow->GetClassMenus().empty())
                 {
-                    menu->Show();
+                    m_GameWindow->InitializeInfinite();
                 }
             }
             else if (x >= m_ClassButtonRect2.x && x < m_ClassButtonRect2.x + m_ClassButtonRect2.w &&
@@ -111,9 +113,11 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
                 menuOpen = false;
                 Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
-                for (ClassSelectMenu *menu : m_GameWindow->GetClassMenus())
+                m_GameWindow->AddPendingClass(PlayerClass::FromString("zombie"));
+
+                if (m_GameWindow->GetClassMenus().empty())
                 {
-                    menu->Show();
+                    m_GameWindow->InitializeInfinite();
                 }
             }
             else if (x >= m_ClassButtonRect3.x && x < m_ClassButtonRect3.x + m_ClassButtonRect3.w &&
@@ -122,9 +126,11 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
                 menuOpen = false;
                 Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
-                for (ClassSelectMenu *menu : m_GameWindow->GetClassMenus())
+                m_GameWindow->AddPendingClass(PlayerClass::FromString("cyborg"));
+
+                if (m_GameWindow->GetClassMenus().empty())
                 {
-                    menu->Show();
+                    m_GameWindow->InitializeInfinite();
                 }
             }
             else if (x >= m_ClassButtonRect4.x && x < m_ClassButtonRect4.x + m_ClassButtonRect4.w &&
@@ -133,9 +139,11 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
                 menuOpen = false;
                 Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
-                for (ClassSelectMenu *menu : m_GameWindow->GetClassMenus())
+                m_GameWindow->AddPendingClass(PlayerClass::FromString("vampire"));
+
+                if (m_GameWindow->GetClassMenus().empty())
                 {
-                    menu->Show();
+                    m_GameWindow->InitializeInfinite();
                 }
             }
             else if (x >= m_BackButtonRect.x && x < m_BackButtonRect.x + m_BackButtonRect.w &&
@@ -165,25 +173,6 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
                      y >= m_BackButtonRect.y && y < m_BackButtonRect.y + m_BackButtonRect.h);
 
         SDL_SetCursor(SDL_CreateSystemCursor(hovering ? SDL_SYSTEM_CURSOR_HAND : SDL_SYSTEM_CURSOR_ARROW));
-    }
-    break;
-    case SDL_CONTROLLERDEVICEADDED:
-    {
-        int DeviceID = event.cdevice.which;
-        GameController *CurrentController = m_GameWindow->Controllers()->OpenController(DeviceID);
-        m_GameWindow->AddPlayerClassMenu();
-    }
-    break;
-
-    case SDL_CONTROLLERDEVICEREMOVED:
-    {
-        int DeviceID = event.cdevice.which;
-        if (m_GameWindow->Controllers()->GetConnectedControllers().empty())
-        {
-            break;
-        }
-        GameController *DeletedController = m_GameWindow->Controllers()->CloseController(DeviceID);
-        m_GameWindow->RemovePlayerClassMenu();
     }
     break;
 
@@ -230,7 +219,7 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
     }
 }
 
-void GameModeMenu::Tick()
+void ClassSelectMenu::Tick()
 {
     for (int i = 0; i < 3; i++)
     {
@@ -267,7 +256,7 @@ void GameModeMenu::Tick()
     }
 }
 
-void GameModeMenu::Render()
+void ClassSelectMenu::Render()
 {
     Drawing *render = m_GameWindow->Render();
     SDL_Renderer *renderer = m_GameWindow->Renderer();

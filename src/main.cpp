@@ -71,6 +71,7 @@ int main()
     Texture *Vignette = assets->GetTexture("backgrounds.vignette");
     Vignette->SetAlphaMod(200);
 
+    GameWindow->AddPlayerClassMenu();
     MainMenu mainMenu(GameWindow);
     mainMenu.Show();
 
@@ -80,7 +81,7 @@ int main()
     {
         PauseMenu = GameWindow->World()->Menu();
         bool pauseMenuOpen = PauseMenu->Paused();
-            
+
         // Input and events
         SDL_Event CurrentEvent;
         while (SDL_PollEvent(&CurrentEvent))
@@ -95,7 +96,7 @@ int main()
                 break;
             }
 
-            if (GameWindow->World()->LvlMenu()!= nullptr)
+            if (GameWindow->World()->LvlMenu() != nullptr)
             {
                 GameWindow->World()->LvlMenu()->HandleEvent(CurrentEvent);
                 break;
@@ -125,32 +126,6 @@ int main()
                 }
             }
             break;
-            case SDL_CONTROLLERDEVICEADDED:
-            {
-                int DeviceID = CurrentEvent.cdevice.which;
-                GameController *CurrentController = GameWindow->Controllers()->OpenController(DeviceID);
-                auto NewPlayer = new Player(GameWindow->World(), "Controller");
-                auto NewChar = new Character(GameWindow->World(),
-                                             NewPlayer,
-                                             100.0,
-                                             Vec2d(32 * 17.5, 32 * 17.5),
-                                             Vec2d(10, 10),
-                                             false);
-
-                NewChar->GiveWeapon(new WeaponGlock(nullptr));
-                NewChar->SetGameController(CurrentController);
-                sConnectedSound.GetSound()->PlaySound();
-                break;
-            }
-            case SDL_CONTROLLERDEVICEREMOVED:
-            {
-                int InstanceID = CurrentEvent.cdevice.which;
-                GameController *DeletedController = GameWindow->Controllers()->CloseController(InstanceID);
-                GameWindow->World()->DestroyPlayerByController(DeletedController);
-                GameWindow->World()->DestroyCharacterByController(DeletedController);
-                sDisconnectedSound.GetSound()->PlaySound();
-                break;
-            }
             }
         }
 
@@ -170,18 +145,19 @@ int main()
         }
 
         // Render one of the levelupmenus in queue if any
-        if (GameWindow->World()->LvlMenu()!= nullptr)
+        if (GameWindow->World()->LvlMenu() != nullptr)
         {
             GameWindow->World()->LvlMenu()->Render();
         }
-        else{
+        else
+        {
             GameWindow->World()->CheckLevelUps();
         }
 
         GameWindow->GetInterface()->DrawForeground();
         Render->UpdateWindow();
 
-        if (GameWindow->World()->GetDelay() && (GameWindow->World()->LvlMenu()!=nullptr))
+        if (GameWindow->World()->GetDelay() && (GameWindow->World()->LvlMenu() != nullptr))
         {
             ////            SDL_Delay(1000); // Delay for 1000 milliseconds (1 second)
             //            SDL_Event event;
