@@ -32,7 +32,8 @@ LevelUpMenu::LevelUpMenu(GameWorld *gameWorld, Player *Player)
 
     m_ErrorIconRect = {0, 0, int(m_GameWindow->GetWidth2() * 0.4), int(m_GameWindow->GetHeight2() * 0.4)};
     m_ErrorOutlineRect = {0, 0, int(m_GameWindow->GetWidth2() / 2.2), int(m_GameWindow->GetHeight2() / 0.6)};
-    m_powerupTextures = {m_TextureAllStats, m_TextureBombs, m_TextureBossDamage, m_TextureDoubleDamage, m_TextureExplosiveAmmo, m_TextureSpeed, m_TextureSpiky, m_TextureHealth, m_TextureInfiniteGlockAmmo};
+    m_powerupTextures = {m_TextureAllStats, m_TextureBossDamage, m_TextureSpeed, m_TextureSpiky, m_TextureHealth};
+    m_specialPowerupTextures = {m_TextureBombs, m_TextureBossDamage, m_TextureDoubleDamage, m_TextureExplosiveAmmo, m_TextureInfiniteGlockAmmo};
     srand(static_cast<unsigned int>(time(nullptr)));
 }
 
@@ -42,7 +43,6 @@ LevelUpMenu::~LevelUpMenu()
     {
         TTF_CloseFont(m_Font);
     }
-    // Clean up textures if necessary
 }
 
 void LevelUpMenu::Show()
@@ -54,15 +54,38 @@ void LevelUpMenu::Show()
 
     m_Paused = true;
 
-    // Randomly select 3 powerups
-    while (m_selectedIndices.size() < 3)
+    std::vector<Texture*> eligiblePowerups;
+    std::vector<std::string> powerupKeys = {
+        "AllStats", "BossDamage", "Speed", "Spiky", "Health"
+    };
+
+    for (size_t i = 0; i < m_powerupTextures.size(); ++i)
     {
-        int index = rand() % m_powerupTextures.size();
-        if (std::find(m_selectedIndices.begin(), m_selectedIndices.end(), index) == m_selectedIndices.end())
+        const std::string& key = powerupKeys[i];
+        int count = m_Player->GetPowerupUpgradeCount(key);
+
+        if (count == 10)
         {
-            m_selectedIndices.push_back(index);
+            eligiblePowerups.push_back(m_specialPowerupTextures[i]);
+        }
+        else
+        {
+            eligiblePowerups.push_back(m_powerupTextures[i]);
         }
     }
+
+    // Randomly select 3 unique indices from eligible list
+    std::vector<int> selected;
+    while (selected.size() < 3 && selected.size() < eligiblePowerups.size())
+    {
+        int index = rand() % eligiblePowerups.size();
+        if (std::find(selected.begin(), selected.end(), index) == selected.end())
+        {
+            selected.push_back(index);
+        }
+    }
+
+    m_selectedIndices = selected;
 }
 
 void LevelUpMenu::HandleEvent(const SDL_Event &event)
@@ -79,7 +102,7 @@ void LevelUpMenu::HandleEvent(const SDL_Event &event)
         m_GameWindow->Deinitialize(true);
         while (Mix_Playing(-1))
         {
-        } // wait until last sound is done playing
+        }
         delete m_GameWindow;
         break;
     case SDL_MOUSEBUTTONDOWN:
@@ -245,17 +268,20 @@ void LevelUpMenu::Render()
     render->UpdateWindow();
 }
 
+// TODO seperate these between the ones that are applied after max and ones that are shown before
 // Powerup effect functions
 void LevelUpMenu::ApplyAllStats()
 {
     // Implement the effect of the AllStats powerup
     std::cout << "AllStats powerup applied" << std::endl;
+    m_Player->AddPowerupUpgrade("AllStats");
 }
 
 void LevelUpMenu::ApplyBombs()
 {
     // Implement the effect of the Bombs powerup
     std::cout << "Bombs powerup applied" << std::endl;
+    m_Player->AddPowerupUpgrade("Bombs");
 }
 
 void LevelUpMenu::ApplyDoubleDamage()
@@ -270,6 +296,7 @@ void LevelUpMenu::ApplyBossDamage()
     // Implement the effect of the BossDamage powerup
     std::cout << "BossDamage powerup applied" << std::endl;
     m_Player->IncreaseBossDamageAmp(0.2);
+    m_Player->AddPowerupUpgrade("BossDamage");
 }
 
 void LevelUpMenu::ApplyExplosiveAmmo()
@@ -296,6 +323,7 @@ void LevelUpMenu::ApplySpiky()
 {
     // Implement the effect of the Spiky powerup
     std::cout << "Spiky powerup applied" << std::endl;
+    m_Player->AddPowerupUpgrade("Spiky");
 }
 
 void LevelUpMenu::ApplyHealth()
@@ -303,6 +331,7 @@ void LevelUpMenu::ApplyHealth()
     // Implement the effect of the Health powerup
     std::cout << "Health powerup applied" << std::endl;
     m_Player->IncreaseMaxHealthAmp(1.1);
+    m_Player->AddPowerupUpgrade("Health");
 }
 
 void LevelUpMenu::ApplyInfiniteGlockAmmo()

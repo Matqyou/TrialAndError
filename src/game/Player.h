@@ -6,7 +6,9 @@
 
 #include "GameWorld.h"
 #include "./interface/LevelUpMenu.h"
+#include "./classes/PlayerClass.h"
 #include <string>
+#include <unordered_map>
 #include <queue>
 
 enum
@@ -23,6 +25,8 @@ private:
     friend class GameWorld;
     GameWorld *m_GameWorld;
     Character *m_Character;
+    PlayerClass *m_Class;
+    PlayerClass *m_SecondaryClass;
     LevelUpMenu *m_LevelUpMenu;
     std::string m_Username;
     unsigned int m_Index;
@@ -34,10 +38,11 @@ private:
     bool m_ExtraLife;
     TextSurface *m_NamePlate;
     std::queue<LevelUpMenu *> m_levelUpMenuQueue;
+    std::unordered_map<std::string, int> m_UpgradeCounts;
     Player *m_Prev, *m_Next;
 
 public:
-    Player(GameWorld *game_world, const std::string &username);
+    Player(GameWorld *game_world, const std::string &username, PlayerClass *primaryClass = nullptr);
     ~Player();
 
     // Getting
@@ -71,4 +76,8 @@ public:
     // XP and Leveling
     void GainXP(unsigned int amount);
     void LevelUp();
+
+    void AddPowerupUpgrade(const std::string &name);
+
+    int GetPowerupUpgradeCount(const std::string &name);
 };

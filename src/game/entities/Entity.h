@@ -53,7 +53,7 @@ public:
     void SetMaxHealth(double value);
     void HealFully();
     void LimitHealthToMax();
-    void UpdateDamager(Entity *damager);
+    virtual void UpdateDamager(Entity *damager);
 
     // Ticking
     void TickUpdateLastHealth();

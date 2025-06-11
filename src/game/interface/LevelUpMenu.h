@@ -30,10 +30,11 @@ private:
     Player *m_Player;
     std::vector<Texture *>
         m_powerupTextures;
+    std::vector<Texture *>
+        m_specialPowerupTextures;
     std::vector<int> m_selectedIndices;
     SDL_Rect m_ErrorIconRect;
     SDL_Rect m_ErrorOutlineRect;
-
 
     // Powerup effect functions
     void ApplyAllStats();
@@ -46,7 +47,6 @@ private:
     void ApplySpiky();
     void ApplyHealth();
     void ApplyInfiniteGlockAmmo();
-
 
 public:
     LevelUpMenu(GameWorld *gameWorld, Player *player);

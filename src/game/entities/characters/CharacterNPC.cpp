@@ -11,12 +11,13 @@ CharacterNPC::CharacterNPC(GameWorld *world,
                            const Vec2d &start_vel,
                            NPCType ai_type,
                            bool is_boss)
- : Character(world,
+    : Character(world,
                 nullptr,
                 max_health,
                 start_pos,
                 start_vel,
-                true) {
+                true)
+{
     m_LastAttacker = nullptr;
     m_AIType = ai_type;
     m_IsBoss = is_boss;
@@ -31,10 +32,11 @@ void CharacterNPC::EventDeath()
 
     m_World->AddScore(m_IsBoss ? 20 * 5 : 20);
 
-    Player *killer = m_LastAttacker; // Use m_Player directly
-    if (killer)
+    Character *killer = (Character*)m_HealthComponent.GetDamager();
+    Player *KillerPlayer = killer->GetPlayer();
+    if (KillerPlayer)
     {
-        m_World->EnemyKilled(killer, this);
+        m_World->EnemyKilled(KillerPlayer, this);
     }
 
     if (rand() % 100 <= 20)
@@ -55,6 +57,7 @@ void CharacterNPC::EventDeath()
             Char->RemoveCombat();
     }
 }
+
 void CharacterNPC::UpdateAttacker(Player *attacker)
 {
     m_LastAttacker = attacker;
@@ -144,6 +147,7 @@ void CharacterNPC::TickControls()
     }
 }
 
-const char* CharacterNPC::toString() const {
+const char *CharacterNPC::toString() const
+{
     return "CharacterNPC";
 }
