@@ -131,7 +131,8 @@ Character::Character(GameWorld* world,
 
 Character::~Character() {
     delete m_CoordinatePlate;
-
+    delete m_ErrorText;
+    
     Character* Char = m_World->FirstCharacter();
     for (; Char; Char = (Character*)Char->NextType()) {
         Hook* TargetHook = Char->GetHook();

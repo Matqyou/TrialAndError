@@ -15,20 +15,24 @@
 #include "game/GameWorld.h"
 #include "technical stuff/GameControllers.h"
 #include "game/interface/Interface.h"
+#include "game/interface/MainMenu.h"
 
-class GameReference {
+class MainMenu;
+class GameReference
+{
 private:
-    SDL_Window* m_Window;
-    SDL_Renderer* m_Renderer;
+    SDL_Window *m_Window;
+    SDL_Renderer *m_Renderer;
     SDL_GLContext m_GLContext;
-    Clock* m_Timer;
-    Drawing* m_Draw;
-    Randomizer* m_Random;
-    AssetsManager* m_AssetsHandler;
-    Interface* m_Interface;
+    Clock *m_Timer;
+    Drawing *m_Draw;
+    Randomizer *m_Random;
+    AssetsManager *m_AssetsHandler;
+    Interface *m_Interface;
 
-    GameWorld* m_GameWorld;
-    GameControllers* m_Controllers;
+    MainMenu *m_MainMenu;
+    GameWorld *m_GameWorld;
+    GameControllers *m_Controllers;
 
     int m_Width, m_Height;
     double m_Width2, m_Height2;
@@ -56,16 +60,17 @@ public:
     ~GameReference();
 
     // Getting
-    [[nodiscard]] SDL_Window* Window() const { return m_Window; }
-    [[nodiscard]] SDL_Renderer* Renderer() const { return m_Renderer; }
-    [[nodiscard]] SDL_GLContext& GlContext() { return m_GLContext; }
-    [[nodiscard]] Clock* Timer() const { return m_Timer; }
-    [[nodiscard]] Randomizer* Random() const { return m_Random; }
-    [[nodiscard]] Drawing* Render() const { return m_Draw; }
-    [[nodiscard]] Interface* GetInterface() const { return m_Interface; }
-    [[nodiscard]] AssetsManager* Assetz() const { return m_AssetsHandler; }
-    [[nodiscard]] GameWorld* World() const { return m_GameWorld; }
-    [[nodiscard]] GameControllers* Controllers() const { return m_Controllers; }
+    [[nodiscard]] SDL_Window *Window() const { return m_Window; }
+    [[nodiscard]] SDL_Renderer *Renderer() const { return m_Renderer; }
+    [[nodiscard]] SDL_GLContext &GlContext() { return m_GLContext; }
+    [[nodiscard]] Clock *Timer() const { return m_Timer; }
+    [[nodiscard]] Randomizer *Random() const { return m_Random; }
+    [[nodiscard]] Drawing *Render() const { return m_Draw; }
+    [[nodiscard]] Interface *GetInterface() const { return m_Interface; }
+    [[nodiscard]] AssetsManager *Assetz() const { return m_AssetsHandler; }
+    [[nodiscard]] MainMenu *Menu() const { return m_MainMenu; }
+    [[nodiscard]] GameWorld *World() const { return m_GameWorld; }
+    [[nodiscard]] GameControllers *Controllers() const { return m_Controllers; }
     [[nodiscard]] int GetWidth() const { return m_Width; }
     [[nodiscard]] int GetHeight() const { return m_Height; }
     [[nodiscard]] double GetWidth2() const { return m_Width2; }
@@ -77,5 +82,5 @@ public:
     void TestEnvironment();
 
     // Listening
-    void Event(const SDL_Event& event);
+    void Event(const SDL_Event &event);
 };

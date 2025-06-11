@@ -12,7 +12,9 @@
 
 LoadedSound GameReference::sQuitSound("ui.quit");
 
-GameReference::GameReference() {
+GameReference::GameReference()
+{
+    m_MainMenu = nullptr;
     m_Window = nullptr;
     m_Renderer = nullptr;
     m_GLContext = nullptr;
@@ -32,22 +34,27 @@ GameReference::GameReference() {
     m_InitializedTTF = false;
 }
 
-GameReference::~GameReference() {
+GameReference::~GameReference()
+{
     Deinitialize(false);
     delete m_AssetsHandler;
 }
 
-void GameReference::UpdateDimensions(int width, int height) {
+void GameReference::UpdateDimensions(int width, int height)
+{
     m_Width = width;
     m_Height = height;
     m_Width2 = width / 2.0;
     m_Height2 = height / 2.0;
 }
 
-bool GameReference::InitializeSDL() {
-    if (!m_InitializedSDL) {
+bool GameReference::InitializeSDL()
+{
+    if (!m_InitializedSDL)
+    {
         m_InitializedSDL = !SDL_Init(SDL_INIT_EVERYTHING);
-        if (!m_InitializedSDL) {
+        if (!m_InitializedSDL)
+        {
             std::printf("Error while initializing main %s\n", SDL_GetError());
             return false;
         }
@@ -56,11 +63,14 @@ bool GameReference::InitializeSDL() {
     return true;
 }
 
-bool GameReference::InitializeMix() {
-    if (!m_InitializedMix) {
+bool GameReference::InitializeMix()
+{
+    if (!m_InitializedMix)
+    {
         int MixFlags = MIX_INIT_MP3 | MIX_INIT_OGG;
         m_InitializedMix = Mix_Init(MixFlags) == MixFlags;
-        if (!m_InitializedMix) {
+        if (!m_InitializedMix)
+        {
             std::printf("Error while initializing Mix %s\n", Mix_GetError());
             return false;
         }
@@ -69,21 +79,27 @@ bool GameReference::InitializeMix() {
     return true;
 }
 
-bool GameReference::InitializeAudio() {
-    if (!m_InitializedAudio) {
+bool GameReference::InitializeAudio()
+{
+    if (!m_InitializedAudio)
+    {
         m_InitializedAudio = !Mix_OpenAudio(44100 * 2, MIX_DEFAULT_FORMAT, 2, 1024 * 4);
         Mix_AllocateChannels(64);
-        if (!m_InitializedAudio) std::printf("Warning while opening audio %s\n", Mix_GetError());
+        if (!m_InitializedAudio)
+            std::printf("Warning while opening audio %s\n", Mix_GetError());
     }
 
     return true;
 }
 
-bool GameReference::InitializeImages() {
-    if (!m_InitializedImages) {
+bool GameReference::InitializeImages()
+{
+    if (!m_InitializedImages)
+    {
         int ImageFlags = IMG_INIT_PNG | IMG_INIT_JPG;
         m_InitializedImages = IMG_Init(ImageFlags) == ImageFlags;
-        if (!m_InitializedImages) {
+        if (!m_InitializedImages)
+        {
             std::printf("Error while initializing Image %s\n", IMG_GetError());
             return false;
         }
@@ -92,10 +108,13 @@ bool GameReference::InitializeImages() {
     return true;
 }
 
-bool GameReference::InitializeTTF() {
-    if (!m_InitializedTTF) {
+bool GameReference::InitializeTTF()
+{
+    if (!m_InitializedTTF)
+    {
         m_InitializedTTF = !TTF_Init();
-        if (!m_InitializedTTF) {
+        if (!m_InitializedTTF)
+        {
             std::printf("Error while initializing TTF %s\n", TTF_GetError());
             return false;
         }
@@ -104,13 +123,16 @@ bool GameReference::InitializeTTF() {
     return true;
 }
 
-void GameReference::WaitForSoundToFinish() {
-    while (Mix_Playing(-1)) {
+void GameReference::WaitForSoundToFinish()
+{
+    while (Mix_Playing(-1))
+    {
         SDL_Delay(10);
     }
 }
 
-bool GameReference::Initialize() {
+bool GameReference::Initialize()
+{
     SDL_version Version;
     SDL_GetVersion(&Version);
     auto image_version = IMG_Linked_Version();
@@ -129,7 +151,8 @@ bool GameReference::Initialize() {
         !InitializeTTF())
         return false;
 
-    if (!m_Window) {
+    if (!m_Window)
+    {
         UpdateDimensions(1280, 720);
         m_Window = SDL_CreateWindow("TrialAndError",
                                     SDL_WINDOWPOS_CENTERED,
@@ -137,15 +160,18 @@ bool GameReference::Initialize() {
                                     m_Width,
                                     m_Height,
                                     SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
-        if (!m_Window) {
+        if (!m_Window)
+        {
             std::printf("Error while creating the window %s\n", SDL_GetError());
             return false;
         }
     }
 
-    if (!m_Renderer) {
+    if (!m_Renderer)
+    {
         m_Renderer = SDL_CreateRenderer(m_Window, -1, 0);
-        if (!m_Renderer) {
+        if (!m_Renderer)
+        {
             std::printf("Error while creating the renderer %s\n", SDL_GetError());
             return false;
         }
@@ -156,13 +182,20 @@ bool GameReference::Initialize() {
 
     Assets::initialize(m_Renderer, m_InitializedAudio);
 
-    if (!m_Timer) m_Timer = new Clock(60);
-    if (!m_Random) m_Random = new Randomizer();
-    if (!m_Draw) m_Draw = new Drawing(this);
-    if (!m_Interface) m_Interface = new Interface(this);
-    if (!m_AssetsHandler) m_AssetsHandler = new AssetsManager();
-
-//    m_Draw->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+    if (!m_Timer)
+        m_Timer = new Clock(60);
+    if (!m_Random)
+        m_Random = new Randomizer();
+    if (!m_Draw)
+        m_Draw = new Drawing(this);
+    if (!m_Interface)
+        m_Interface = new Interface(this);
+    if (!m_AssetsHandler)
+        m_AssetsHandler = new AssetsManager();
+    if(!m_MainMenu){
+        m_MainMenu = new MainMenu(this);
+    }
+    //    m_Draw->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
     m_AssetsHandler->TextHandler()->LoadFont("assets/fonts/Minecraft.ttf", 10);
 
     std::cout << FStringColors("&8------------------------------------------------------------------------") << std::endl;
@@ -170,13 +203,17 @@ bool GameReference::Initialize() {
     return true;
 }
 
-void GameReference::Deinitialize(bool play_quit_sound) {
+void GameReference::Deinitialize(bool play_quit_sound)
+{
     std::cout << FStringColors(
-        "&8---------------------------- &fDeinitializing(play_quit_sound = %s) &8----------------------------",
-        play_quit_sound ? "true" : "false") << std::endl;
+                     "&8---------------------------- &fDeinitializing(play_quit_sound = %s) &8----------------------------",
+                     play_quit_sound ? "true" : "false")
+              << std::endl;
     Assets::PauseMusic();
     delete m_GameWorld;
     m_GameWorld = nullptr;
+    delete m_MainMenu;
+    m_MainMenu = nullptr;
     delete m_Controllers;
     m_Controllers = nullptr;
     m_AssetsHandler->DeinitializeImages();
@@ -186,27 +223,32 @@ void GameReference::Deinitialize(bool play_quit_sound) {
     m_Random = nullptr;
     delete m_Timer;
     m_Timer = nullptr;
-    if (m_Renderer) SDL_DestroyRenderer(m_Renderer);
-    if (m_Window) SDL_DestroyWindow(m_Window);
+    if (m_Renderer)
+        SDL_DestroyRenderer(m_Renderer);
+    if (m_Window)
+        SDL_DestroyWindow(m_Window);
 
     m_Draw = nullptr;
     m_Timer = nullptr;
     m_Renderer = nullptr;
     m_Window = nullptr;
 
-    if (m_InitializedTTF) {
+    if (m_InitializedTTF)
+    {
         m_InitializedTTF = false;
         TTF_Quit();
         std::cout << FStringColors("[Game] &8Closed TTF") << std::endl;
     }
 
-    if (m_InitializedImages) {
+    if (m_InitializedImages)
+    {
         m_InitializedImages = false;
         IMG_Quit();
         std::cout << FStringColors("[Game] &8Closed Images") << std::endl;
     }
 
-    if (play_quit_sound) {
+    if (play_quit_sound)
+    {
         sQuitSound.GetSound()->PlaySound();
         WaitForSoundToFinish();
         delete this;
@@ -214,17 +256,20 @@ void GameReference::Deinitialize(bool play_quit_sound) {
     }
 
     Assets::deinitialize();
-    if (m_InitializedAudio) {
+    if (m_InitializedAudio)
+    {
         m_InitializedAudio = false;
         Mix_CloseAudio();
         std::cout << FStringColors("[Game] &8Closed Audio") << std::endl;
     }
-    if (m_InitializedMix) {
+    if (m_InitializedMix)
+    {
         m_InitializedMix = false;
         Mix_Quit();
         std::cout << FStringColors("[Game] &8Closed Mixer") << std::endl;
     }
-    if (m_InitializedSDL) {
+    if (m_InitializedSDL)
+    {
         m_InitializedSDL = false;
         SDL_Quit();
         std::cout << FStringColors("[Game] &8Closed SDL") << std::endl;
@@ -233,7 +278,8 @@ void GameReference::Deinitialize(bool play_quit_sound) {
     exit(0);
 }
 
-void GameReference::Event(const SDL_Event& event) {
+void GameReference::Event(const SDL_Event &event)
+{
     if (event.type != SDL_WINDOWEVENT ||
         event.window.event != SDL_WINDOWEVENT_SIZE_CHANGED)
         return;
@@ -241,25 +287,24 @@ void GameReference::Event(const SDL_Event& event) {
     UpdateDimensions(event.window.data1, event.window.data2);
 }
 
-void GameReference::TestEnvironment() {
-    delete m_GameWorld;
+void GameReference::TestEnvironment()
+{
     m_GameWorld = new GameWorld(this, 50, 30);
     m_GameWorld->SetTestingMode(true); // stop waves
     m_Controllers = new GameControllers();
-
     m_Draw->SetWorld(m_GameWorld);
     Character::ms_BotNamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
                                                  m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
-                                                 "Bot User", { 255, 150, 150, 255 });
+                                                 "Bot User", {255, 150, 150, 255});
 
     for (int y = 0; y < 5; y++)
         for (int x = 0; x < 5; x++)
             new Crate(m_GameWorld, Vec2d(200 + 50 * x, 200 + 50 * y), DropType(rand() % 2));
 
-    for (int x = 0 ; x < NUM_ERROR_TYPES; x++)
+    for (int x = 0; x < NUM_ERROR_TYPES; x++)
         new Error(m_GameWorld, Vec2d(50 + 50 * x, m_GameWorld->GetHeight() - 50), ErrorType(x));
 
-    for (int x = 0 ; x < NUM_AMMO_TYPES; x++)
+    for (int x = 0; x < NUM_AMMO_TYPES; x++)
         new AmmoBox(m_GameWorld, AmmoType(x), Vec2d(50 + 50 * x, m_GameWorld->GetHeight() - 100), 1000);
 
     double WeaponsY = m_GameWorld->GetHeight() - 150;

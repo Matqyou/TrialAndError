@@ -31,7 +31,7 @@ TileMap::TileMap(Drawing* render, int tilesize, int width, int height)
 
 TileMap::~TileMap() {
     ClearTilemap();
-    delete m_Map;
+    delete[] m_Map;
 }
 
 void TileMap::ClearTilemap() {
