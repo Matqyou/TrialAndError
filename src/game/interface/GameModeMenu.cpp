@@ -1,18 +1,51 @@
 // src/game/interface/GameModeMenu.cpp
 
 #include "GameModeMenu.h"
+#include "../classes/PlayerClass.h"
 
 LoadedTexture GameModeMenu::sMenuTexture("interface.menu");
-LoadedTexture GameModeMenu::sTextureTitle("ui.main.title");
-LoadedTexture GameModeMenu::sTexturePlay("ui.main.playbutton");
-LoadedTexture GameModeMenu::sTextureExit("ui.main.exit");
+LoadedTexture GameModeMenu::sTextureTitle("ui.gamemodemenu.title");
+LoadedTexture GameModeMenu::sTextureClassButton1("ui.gamemodemenu.humanclassbutton");
+LoadedTexture GameModeMenu::sTextureClassButton2("ui.gamemodemenu.zombieclassbutton");
+LoadedTexture GameModeMenu::sTextureClassButton3("ui.gamemodemenu.cyborgclassbutton");
+LoadedTexture GameModeMenu::sTextureClassButton4("ui.gamemodemenu.vampireclassbutton");
+LoadedTexture GameModeMenu::sTextureBack("ui.gamemodemenu.backbutton");
 
 GameModeMenu::GameModeMenu(GameReference *game_window)
     : m_GameWindow(game_window)
 {
-    m_TitleRect = {int(m_GameWindow->GetWidth2()) - 250, 50, 500, 200};
-    m_PlayButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) - 40, 360, 80};
-    m_ExitButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) + 121, 360, 80};
+    int screenW = m_GameWindow->GetWidth();
+    int screenH = m_GameWindow->GetHeight();
+
+    int centerX = screenW / 2;
+    int centerY = screenH / 2;
+
+    int buttonWidth = screenW / 4;
+    int buttonHeight = screenH / 10;
+    int hSpacing = buttonWidth / 6;
+    int vSpacing = buttonHeight / 3;
+
+    int totalWidth = buttonWidth * 2 + hSpacing;
+    int totalHeight = buttonHeight * 2 + vSpacing;
+    int originX = centerX - totalWidth / 2;
+    int originY = centerY - totalHeight / 2;
+
+    m_ClassButtonRect1 = {originX, originY, buttonWidth, buttonHeight};
+    m_ClassButtonRect2 = {originX + buttonWidth + hSpacing, originY, buttonWidth, buttonHeight};
+    m_ClassButtonRect3 = {originX, originY + buttonHeight + vSpacing, buttonWidth, buttonHeight};
+    m_ClassButtonRect4 = {originX + buttonWidth + hSpacing, originY + buttonHeight + vSpacing, buttonWidth, buttonHeight};
+
+    m_BackButtonRect = {
+        centerX - buttonWidth / 2,
+        originY + 3 * (buttonHeight + vSpacing) - 20,
+        buttonWidth,
+        buttonHeight};
+
+    m_TitleRect = {
+        centerX - (buttonWidth * 2 / 3),
+        originY - 3 * buttonHeight,
+        buttonWidth * 4 / 3,
+        buttonHeight * 2};
 }
 
 GameModeMenu::~GameModeMenu()
@@ -45,69 +78,123 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
     switch (event.type)
     {
     case SDL_QUIT:
-        m_GameWindow->Deinitialize(true); // close everything except sound
+        m_GameWindow->Deinitialize(true);
         while (Mix_Playing(-1))
         {
-        } // wait until last sound is done playing
+        }
         delete m_GameWindow;
         exit(0);
-    case SDL_MOUSEBUTTONDOWN:
 
+    case SDL_MOUSEBUTTONDOWN:
         SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
+
         if (event.button.button == SDL_BUTTON_LEFT)
         {
             int x = event.button.x;
             int y = event.button.y;
-            if (x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
-                y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h)
+
+            if (x >= m_ClassButtonRect1.x && x < m_ClassButtonRect1.x + m_ClassButtonRect1.w &&
+                y >= m_ClassButtonRect1.y && y < m_ClassButtonRect1.y + m_ClassButtonRect1.h)
             {
                 menuOpen = false;
                 Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
-                m_GameWindow->TestEnvironment();
+                m_GameWindow->InitializeInfinite();
             }
-            if (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
-                y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h)
+            else if (x >= m_ClassButtonRect2.x && x < m_ClassButtonRect2.x + m_ClassButtonRect2.w &&
+                     y >= m_ClassButtonRect2.y && y < m_ClassButtonRect2.y + m_ClassButtonRect2.h)
             {
-                m_GameWindow->Deinitialize(true);
-                while (Mix_Playing(-1))
-                {
-                } // wait until last sound is done playing
-                delete m_GameWindow;
+                menuOpen = false;
+                Assets::PauseMusic();
+                Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
+                m_GameWindow->InitializeSandbox(PlayerClass::FromString("zombie"));
+            }
+            else if (x >= m_ClassButtonRect3.x && x < m_ClassButtonRect3.x + m_ClassButtonRect3.w &&
+                     y >= m_ClassButtonRect3.y && y < m_ClassButtonRect3.y + m_ClassButtonRect3.h)
+            {
+                menuOpen = false;
+                Assets::PauseMusic();
+                Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
+                m_GameWindow->InitializeInfinite(PlayerClass::FromString("cyborg"));
+            }
+            else if (x >= m_ClassButtonRect4.x && x < m_ClassButtonRect4.x + m_ClassButtonRect4.w &&
+                     y >= m_ClassButtonRect4.y && y < m_ClassButtonRect4.y + m_ClassButtonRect4.h)
+            {
+                menuOpen = false;
+                Assets::PauseMusic();
+                Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
+                m_GameWindow->InitializeInfinite(PlayerClass::FromString("vampire"));
+            }
+            else if (x >= m_BackButtonRect.x && x < m_BackButtonRect.x + m_BackButtonRect.w &&
+                     y >= m_BackButtonRect.y && y < m_BackButtonRect.y + m_BackButtonRect.h)
+            {
+                menuOpen = false;
+                m_GameWindow->Menu()->Show();
             }
         }
         break;
+
     case SDL_MOUSEMOTION:
     {
         int x = event.motion.x;
         int y = event.motion.y;
         bool hovering = false;
-        if ((x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
-             y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h) ||
-            (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
-             y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h))
-        {
-            hovering = true;
-        }
-        if (hovering)
-        {
-            SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND));
-        }
-        else
-        {
-            SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
-        }
+
+        hovering |= (x >= m_ClassButtonRect1.x && x < m_ClassButtonRect1.x + m_ClassButtonRect1.w &&
+                     y >= m_ClassButtonRect1.y && y < m_ClassButtonRect1.y + m_ClassButtonRect1.h);
+        hovering |= (x >= m_ClassButtonRect2.x && x < m_ClassButtonRect2.x + m_ClassButtonRect2.w &&
+                     y >= m_ClassButtonRect2.y && y < m_ClassButtonRect2.y + m_ClassButtonRect2.h);
+        hovering |= (x >= m_ClassButtonRect3.x && x < m_ClassButtonRect3.x + m_ClassButtonRect3.w &&
+                     y >= m_ClassButtonRect3.y && y < m_ClassButtonRect3.y + m_ClassButtonRect3.h);
+        hovering |= (x >= m_ClassButtonRect4.x && x < m_ClassButtonRect4.x + m_ClassButtonRect4.w &&
+                     y >= m_ClassButtonRect4.y && y < m_ClassButtonRect4.y + m_ClassButtonRect4.h);
+        hovering |= (x >= m_BackButtonRect.x && x < m_BackButtonRect.x + m_BackButtonRect.w &&
+                     y >= m_BackButtonRect.y && y < m_BackButtonRect.y + m_BackButtonRect.h);
+
+        SDL_SetCursor(SDL_CreateSystemCursor(hovering ? SDL_SYSTEM_CURSOR_HAND : SDL_SYSTEM_CURSOR_ARROW));
     }
     break;
+
     case SDL_WINDOWEVENT:
         if (event.window.event == SDL_WINDOWEVENT_RESIZED)
         {
-            m_PlayButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) - 40, 360, 80};
-            m_ExitButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) + 121, 360, 80};
+            int screenW = m_GameWindow->GetWidth();
+            int screenH = m_GameWindow->GetHeight();
+
+            int centerX = screenW / 2;
+            int centerY = screenH / 2;
+
+            int buttonWidth = screenW / 4;
+            int buttonHeight = screenH / 10;
+            int hSpacing = buttonWidth / 6;
+            int vSpacing = buttonHeight / 3;
+
+            int totalWidth = buttonWidth * 2 + hSpacing;
+            int totalHeight = buttonHeight * 2 + vSpacing;
+            int originX = centerX - totalWidth / 2;
+            int originY = centerY - totalHeight / 2;
+
+            m_ClassButtonRect1 = {originX, originY, buttonWidth, buttonHeight};
+            m_ClassButtonRect2 = {originX + buttonWidth + hSpacing, originY, buttonWidth, buttonHeight};
+            m_ClassButtonRect3 = {originX, originY + buttonHeight + vSpacing, buttonWidth, buttonHeight};
+            m_ClassButtonRect4 = {originX + buttonWidth + hSpacing, originY + buttonHeight + vSpacing, buttonWidth, buttonHeight};
+
+            m_BackButtonRect = {
+                centerX - buttonWidth / 2,
+                originY + 3 * (buttonHeight + vSpacing) - 20,
+                buttonWidth,
+                buttonHeight};
+
+            m_TitleRect = {
+                centerX - (buttonWidth * 2 / 3),
+                originY - 3 * buttonHeight,
+                buttonWidth * 4 / 3,
+                buttonHeight * 2};
+
             m_GameWindow->Render()->Clear();
             m_GameWindow->Render()->UpdateWindow();
-            break;
         }
+        break;
     }
 }
 
@@ -175,6 +262,9 @@ void GameModeMenu::Render()
     }
 
     render->RenderTexture(sTextureTitle.GetTexture()->SDLTexture(), nullptr, m_TitleRect);
-    render->RenderTexture(sTexturePlay.GetTexture()->SDLTexture(), nullptr, m_PlayButtonRect);
-    render->RenderTexture(sTextureExit.GetTexture()->SDLTexture(), nullptr, m_ExitButtonRect);
+    render->RenderTexture(sTextureClassButton1.GetTexture()->SDLTexture(), nullptr, m_ClassButtonRect1);
+    render->RenderTexture(sTextureClassButton2.GetTexture()->SDLTexture(), nullptr, m_ClassButtonRect2);
+    render->RenderTexture(sTextureClassButton3.GetTexture()->SDLTexture(), nullptr, m_ClassButtonRect3);
+    render->RenderTexture(sTextureClassButton4.GetTexture()->SDLTexture(), nullptr, m_ClassButtonRect4);
+    render->RenderTexture(sTextureBack.GetTexture()->SDLTexture(), nullptr, m_BackButtonRect);
 }

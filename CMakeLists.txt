@@ -134,6 +134,17 @@ set(PROJECT_FILES
         src/game/error/ErrorStatuses.h
         src/game/interface/Interface.cpp
         src/game/interface/Interface.h
+        src/game/classes/PlayerClass.cpp
+        src/game/classes/PlayerClass.h
+        src/game/classes/classTypes/CyborgClass.cpp
+        src/game/classes/classTypes/CyborgClass.h
+        src/game/classes/classTypes/HumanClass.cpp
+        src/game/classes/classTypes/HumanClass.h
+        src/game/classes/classTypes/ZombieClass.cpp
+        src/game/classes/classTypes/ZombieClass.h
+        src/game/classes/classTypes/VampireClass.cpp
+        src/game/classes/classTypes/VampireClass.h
+
 )
 
 add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})

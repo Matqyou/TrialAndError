@@ -64,9 +64,6 @@ int main()
         std::printf("Terminating..");
         exit(1);
     }
-
-    // GameWindow->TestEnvironment();
-
     Clock *Timer = GameWindow->Timer();
     Drawing *Render = GameWindow->Render();
     Assets *assets = Assets::Get();

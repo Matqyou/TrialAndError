@@ -19,6 +19,7 @@
 
 class MainMenu;
 class GameModeMenu;
+class PlayerClass;
 
 class GameReference
 {
@@ -83,7 +84,10 @@ public:
     // Manipulating
     bool Initialize();
     void Deinitialize(bool play_quit_sound);
-    void TestEnvironment();
+
+    void InitializeSandbox(PlayerClass *primaryClass = nullptr);
+    void InitializeInfinite(PlayerClass *primaryClass = nullptr);
+    void InitializeLevelMode(int level);
 
     // Listening
     void Event(const SDL_Event &event);

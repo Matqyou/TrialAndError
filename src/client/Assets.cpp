@@ -141,7 +141,6 @@ Assets::Assets(SDL_Renderer* renderer, bool sounds_enabled)
         std::string& key = std::get<0>(entry);
         std::string& file_path = std::get<1>(entry);
         std::string& extension = std::get<2>(entry);
-
         auto it = m_Textures.find(key);
         if (it != m_Textures.end()) {
             std::cout << FStringColors("[Assets] &8Duplicate texture '%s' for existing '%s'(%s)",

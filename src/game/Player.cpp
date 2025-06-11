@@ -5,22 +5,23 @@
 #include "Player.h"
 #include "entities/characters/character/Character.h"
 
-
-Player::Player(GameWorld *game_world, const std::string &username)
+Player::Player(GameWorld *game_world, const std::string &username, PlayerClass *primaryClass)
     : m_GameWorld(game_world),
       m_Character(nullptr),
       m_Username(),
       m_XP(0),
       m_Level(1),
       m_Prev(nullptr),
-      m_Next(nullptr)
+      m_Next(nullptr),
+      m_levelUpMenuQueue(),
+      m_Class(primaryClass)
 {
-    SetUsername(username);
     m_BossDamageAmp = 1;
     m_BaseDamage = 10;
     m_DamageAmp = 1;
     m_MaxHealthAmp = 1;
     m_ExtraLife = false;
+    SetUsername(username);
     m_LevelUpMenu = new LevelUpMenu(m_GameWorld, this);
     m_Index = -1;
     m_Index = m_GameWorld->GetNextPlayerIndex();
@@ -39,27 +40,36 @@ Player::~Player()
 void Player::GainXP(unsigned int amount)
 {
     m_XP += amount;
-    // Check if the player should level up
-    unsigned int xpForNextLevel = m_Level * 100; // Example XP requirement formula
-    while (m_XP >= xpForNextLevel)
+    unsigned int m_xpForNextLevel = m_Level * 100;
+    while (m_XP >= m_xpForNextLevel)
     {
-        m_XP -= xpForNextLevel;
+        m_XP -= m_xpForNextLevel;
+        m_xpForNextLevel = m_Level * 100;
         LevelUp();
-        xpForNextLevel = m_Level * 100;
     }
 }
 
 void Player::LevelUp()
 {
     m_Level++;
-    // Update player stats here
-    // Example: Increase health, damage, etc.
     if (m_Character)
     {
-        m_Character->LevelupStats(m_Level); // Example method to increase health
         m_levelUpMenuQueue.push(this->GetLevelUpMenu());
+        m_Class->LevelupStats(this);
+        m_Character->LevelupStats(m_Level);
     }
     m_BaseDamage += 1;
+}
+
+void Player::AddPowerupUpgrade(const std::string &name)
+{
+    m_UpgradeCounts[name]++;
+}
+
+int Player::GetPowerupUpgradeCount(const std::string &name)
+{
+    auto it = m_UpgradeCounts.find(name);
+    return it != m_UpgradeCounts.end() ? it->second : 0;
 }
 
 void Player::SetCharacter(Character *character)
@@ -81,6 +91,7 @@ void Player::SetUsername(const std::string &username)
     }
     else
     {
-        m_Username = username;
+        std::cout << FStringColors("[Player] &8Setting username to: &f") << m_Class->GetName() << std::endl;
+        m_Username = m_Class->GetName() + " - " + username;
     }
 }

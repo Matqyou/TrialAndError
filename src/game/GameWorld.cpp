@@ -71,7 +71,7 @@ void GameWorld::EnemyKilled(Player *player, Character *enemy)
     // }
 
     // Grant XP to the player
-    player->GainXP(50); // Example XP reward
+    player->GainXP(10); // Example XP reward
 }
 
 void GameWorld::CheckLevelUps()

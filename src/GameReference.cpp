@@ -17,7 +17,7 @@ GameReference::GameReference()
 {
     m_MainMenu = nullptr;
     m_GameWorld = nullptr;
-    m_GameModeMenu = new GameModeMenu(this);
+    m_GameModeMenu = nullptr;
     m_Window = nullptr;
     m_Controllers = nullptr;
     m_Renderer = nullptr;
@@ -196,9 +196,11 @@ bool GameReference::Initialize()
         m_Interface = new Interface(this);
     if (!m_AssetsHandler)
         m_AssetsHandler = new AssetsManager();
-    if(!m_MainMenu){
+    if(!m_MainMenu)
         m_MainMenu = new MainMenu(this);
-    }
+    if(!m_GameModeMenu)
+        m_GameModeMenu = new GameModeMenu(this);
+        
     //    m_Draw->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
     m_AssetsHandler->TextHandler()->LoadFont("assets/fonts/Minecraft.ttf", 10);
 
@@ -291,7 +293,7 @@ void GameReference::Event(const SDL_Event &event)
     UpdateDimensions(event.window.data1, event.window.data2);
 }
 
-void GameReference::TestEnvironment()
+void GameReference::InitializeSandbox(PlayerClass *primaryClass)
 {
     m_GameWorld = new GameWorld(this, 50, 30);
     m_GameWorld->SetTestingMode(true); // stop waves
@@ -319,7 +321,7 @@ void GameReference::TestEnvironment()
     new EntitySniper(m_GameWorld, nullptr, nullptr, Vec2d(500, WeaponsY));
     new EntityPatersonNavy(m_GameWorld, nullptr, nullptr, Vec2d(600, WeaponsY));
 
-    auto Player1 = new Player(m_GameWorld, "Keyboard");
+    auto Player1 = new Player(m_GameWorld, "Keyboard", primaryClass);
     auto Char1 = new Character(m_GameWorld,
                                Player1,
                                100.0,
@@ -327,5 +329,21 @@ void GameReference::TestEnvironment()
                                Vec2d(10, 10),
                                false);
     Player1->GainXP(300);
-    // Char1->GiveWeapon(new WeaponGlock(nullptr));
+}
+
+void GameReference::InitializeInfinite(PlayerClass *primaryClass)
+{
+    m_GameWorld = new GameWorld(this, 50, 30);
+    m_Controllers = new GameControllers();
+    m_Draw->SetWorld(m_GameWorld);
+    Character::ms_BotNamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
+                                                 m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
+                                                 "Bot User", {255, 150, 150, 255});
+    auto Player1 = new Player(m_GameWorld, "Keyboard", primaryClass);
+    auto Char1 = new Character(m_GameWorld,
+                               Player1,
+                               100.0,
+                               Vec2d(32 * 17.5, 32 * 17.5),
+                               Vec2d(10, 10),
+                               false);
 }
