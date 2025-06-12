@@ -6,6 +6,7 @@
 #include <SDL.h>
 #include <chrono>
 
+class GameModeMnu;
 class ClassSelectMenu
 {
 private:
@@ -30,8 +31,8 @@ public:
     ClassSelectMenu(GameReference *game_window);
     ~ClassSelectMenu();
 
-    void Show();
-    void HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen);
+    void Show(GameMode mode);
+    void HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen, GameMode mode);
     void Tick();
     void Render();
 };

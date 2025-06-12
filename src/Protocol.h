@@ -27,3 +27,12 @@ static const char* ENTITY_NAMES[NUM_ENTITY_TYPES] = {
     "Projectile",
     "Character"
 };
+
+enum class GameMode
+{
+    Solo,
+    PvP,
+    Sandbox,
+    Coop,
+    Levels
+};

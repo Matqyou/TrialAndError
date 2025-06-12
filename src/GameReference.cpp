@@ -313,7 +313,25 @@ void GameReference::AddPendingClass(PlayerClass *playerClass)
     m_ClassSelectMenus.pop_back();
 }
 
-void GameReference::InitializeSandbox(PlayerClass *primaryClass)
+void GameReference::StartGame(GameMode mode)
+{
+    if (mode == GameMode::Sandbox)
+    {
+        InitializeSandbox();
+    }
+    else if (mode == GameMode::Solo)
+    {
+        InitializeInfinite();
+    }
+    else if (mode == GameMode::Levels)
+    {
+        // Levels are not implemented yet
+    }
+
+    // ADD ANY FUTURE GAME MODES HERE
+}
+
+void GameReference::InitializeSandbox()
 {
     m_GameWorld = new GameWorld(this, 50, 30);
     m_GameWorld->SetTestingMode(true); // stop waves
@@ -340,7 +358,7 @@ void GameReference::InitializeSandbox(PlayerClass *primaryClass)
     new EntitySniper(m_GameWorld, nullptr, nullptr, Vec2d(500, WeaponsY));
     new EntityPatersonNavy(m_GameWorld, nullptr, nullptr, Vec2d(600, WeaponsY));
 
-    auto Player1 = new Player(m_GameWorld, "Keyboard", primaryClass);
+    auto Player1 = new Player(m_GameWorld, "Keyboard", m_PendingPlayerClasses[0]);
     auto Char1 = new Character(m_GameWorld,
                                Player1,
                                100.0,

@@ -22,6 +22,7 @@ class MainMenu;
 class GameModeMenu;
 class PlayerClass;
 class ClassSelectMenu;
+enum class GameMode;
 
 class GameReference
 {
@@ -96,7 +97,8 @@ public:
     void AddPendingClass(PlayerClass* playerClass);
     void RemovePlayerClassMenu();
 
-    void InitializeSandbox(PlayerClass *primaryClass = nullptr);
+    void StartGame(GameMode mode);
+    void InitializeSandbox();
     void InitializeInfinite();
     void InitializeLevelMode(int level);
 

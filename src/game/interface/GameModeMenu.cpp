@@ -6,10 +6,10 @@
 
 LoadedTexture GameModeMenu::sMenuTexture("interface.menu");
 LoadedTexture GameModeMenu::sTextureTitle("ui.gamemodemenu.title");
-LoadedTexture GameModeMenu::sTextureClassButton1("ui.gamemodemenu.humanclassbutton");
-LoadedTexture GameModeMenu::sTextureClassButton2("ui.gamemodemenu.zombieclassbutton");
-LoadedTexture GameModeMenu::sTextureClassButton3("ui.gamemodemenu.cyborgclassbutton");
-LoadedTexture GameModeMenu::sTextureClassButton4("ui.gamemodemenu.vampireclassbutton");
+LoadedTexture GameModeMenu::sTextureClassButton1("ui.gamemodemenu.solobutton");
+LoadedTexture GameModeMenu::sTextureClassButton2("ui.gamemodemenu.pvpbutton");
+LoadedTexture GameModeMenu::sTextureClassButton3("ui.gamemodemenu.sandboxbutton");
+LoadedTexture GameModeMenu::sTextureClassButton4("ui.gamemodemenu.co-opbutton");
 LoadedTexture GameModeMenu::sTextureBack("ui.gamemodemenu.backbutton");
 
 GameModeMenu::GameModeMenu(GameReference *game_window)
@@ -24,7 +24,7 @@ GameModeMenu::GameModeMenu(GameReference *game_window)
     int buttonWidth = screenW / 4;
     int buttonHeight = screenH / 10;
     int hSpacing = buttonWidth / 6;
-    int vSpacing = buttonHeight / 3;
+    int vSpacing = buttonHeight;
 
     int totalWidth = buttonWidth * 2 + hSpacing;
     int totalHeight = buttonHeight * 2 + vSpacing;
@@ -37,9 +37,9 @@ GameModeMenu::GameModeMenu(GameReference *game_window)
     m_ClassButtonRect4 = {originX + buttonWidth + hSpacing, originY + buttonHeight + vSpacing, buttonWidth, buttonHeight};
 
     m_BackButtonRect = {
-        centerX - buttonWidth / 2,
-        originY + 3 * (buttonHeight + vSpacing) - 20,
-        buttonWidth,
+        centerX - buttonHeight,
+        originY + 3 * (buttonHeight) + vSpacing,
+        buttonHeight * 2,
         buttonHeight};
 
     m_TitleRect = {
@@ -100,10 +100,7 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
                 menuOpen = false;
                 Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
-                for (ClassSelectMenu *menu : m_GameWindow->GetClassMenus())
-                {
-                    menu->Show();
-                }
+                m_GameWindow->GetClassMenus().front()->Show(GameMode::Solo);
             }
             else if (x >= m_ClassButtonRect2.x && x < m_ClassButtonRect2.x + m_ClassButtonRect2.w &&
                      y >= m_ClassButtonRect2.y && y < m_ClassButtonRect2.y + m_ClassButtonRect2.h)
@@ -111,10 +108,7 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
                 menuOpen = false;
                 Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
-                for (ClassSelectMenu *menu : m_GameWindow->GetClassMenus())
-                {
-                    menu->Show();
-                }
+                // PVP mode
             }
             else if (x >= m_ClassButtonRect3.x && x < m_ClassButtonRect3.x + m_ClassButtonRect3.w &&
                      y >= m_ClassButtonRect3.y && y < m_ClassButtonRect3.y + m_ClassButtonRect3.h)
@@ -122,10 +116,8 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
                 menuOpen = false;
                 Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
-                for (ClassSelectMenu *menu : m_GameWindow->GetClassMenus())
-                {
-                    menu->Show();
-                }
+                m_GameWindow->GetClassMenus().front()->Show(GameMode::Sandbox);
+                m_GameWindow->RemovePlayerClassMenu();
             }
             else if (x >= m_ClassButtonRect4.x && x < m_ClassButtonRect4.x + m_ClassButtonRect4.w &&
                      y >= m_ClassButtonRect4.y && y < m_ClassButtonRect4.y + m_ClassButtonRect4.h)
@@ -133,9 +125,10 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
                 menuOpen = false;
                 Assets::PauseMusic();
                 Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
+
                 for (ClassSelectMenu *menu : m_GameWindow->GetClassMenus())
                 {
-                    menu->Show();
+                    menu->Show(GameMode::Coop);
                 }
             }
             else if (x >= m_BackButtonRect.x && x < m_BackButtonRect.x + m_BackButtonRect.w &&
@@ -199,7 +192,7 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
             int buttonWidth = screenW / 4;
             int buttonHeight = screenH / 10;
             int hSpacing = buttonWidth / 6;
-            int vSpacing = buttonHeight / 3;
+            int vSpacing = buttonHeight;
 
             int totalWidth = buttonWidth * 2 + hSpacing;
             int totalHeight = buttonHeight * 2 + vSpacing;
@@ -212,9 +205,9 @@ void GameModeMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menu
             m_ClassButtonRect4 = {originX + buttonWidth + hSpacing, originY + buttonHeight + vSpacing, buttonWidth, buttonHeight};
 
             m_BackButtonRect = {
-                centerX - buttonWidth / 2,
-                originY + 3 * (buttonHeight + vSpacing) - 20,
-                buttonWidth,
+                centerX - buttonHeight,
+                originY + 3 * (buttonHeight) + vSpacing,
+                buttonHeight * 2,
                 buttonHeight};
 
             m_TitleRect = {

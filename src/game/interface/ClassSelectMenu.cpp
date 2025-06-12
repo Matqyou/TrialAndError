@@ -2,13 +2,16 @@
 
 #include "ClassSelectMenu.h"
 #include "../classes/PlayerClass.h"
+#include "GameModeMenu.h"
 
 LoadedTexture ClassSelectMenu::sMenuTexture("interface.menu");
 LoadedTexture ClassSelectMenu::sTextureTitle("ui.classselectmenu.title");
-LoadedTexture ClassSelectMenu::sTextureClassButton1("ui.gamemodemenu.humanclassbutton");
-LoadedTexture ClassSelectMenu::sTextureClassButton2("ui.gamemodemenu.zombieclassbutton");
-LoadedTexture ClassSelectMenu::sTextureClassButton3("ui.gamemodemenu.cyborgclassbutton");
-LoadedTexture ClassSelectMenu::sTextureClassButton4("ui.gamemodemenu.vampireclassbutton");
+
+// TODO Update the class buttons to be icons of the class and have text descriptions on hover
+LoadedTexture ClassSelectMenu::sTextureClassButton1("ui.classselectmenu.humanclassbutton");
+LoadedTexture ClassSelectMenu::sTextureClassButton2("ui.classselectmenu.zombieclassbutton");
+LoadedTexture ClassSelectMenu::sTextureClassButton3("ui.classselectmenu.cyborgclassbutton");
+LoadedTexture ClassSelectMenu::sTextureClassButton4("ui.classselectmenu.vampireclassbutton");
 LoadedTexture ClassSelectMenu::sTextureBack("ui.gamemodemenu.backbutton");
 
 ClassSelectMenu::ClassSelectMenu(GameReference *game_window)
@@ -23,7 +26,7 @@ ClassSelectMenu::ClassSelectMenu(GameReference *game_window)
     int buttonWidth = screenW / 4;
     int buttonHeight = screenH / 10;
     int hSpacing = buttonWidth / 6;
-    int vSpacing = buttonHeight / 3;
+    int vSpacing = buttonHeight;
 
     int totalWidth = buttonWidth * 2 + hSpacing;
     int totalHeight = buttonHeight * 2 + vSpacing;
@@ -36,9 +39,9 @@ ClassSelectMenu::ClassSelectMenu(GameReference *game_window)
     m_ClassButtonRect4 = {originX + buttonWidth + hSpacing, originY + buttonHeight + vSpacing, buttonWidth, buttonHeight};
 
     m_BackButtonRect = {
-        centerX - buttonWidth / 2,
-        originY + 3 * (buttonHeight + vSpacing) - 20,
-        buttonWidth,
+        centerX - buttonHeight,
+        originY + 3 * (buttonHeight) + vSpacing,
+        buttonHeight * 2,
         buttonHeight};
 
     m_TitleRect = {
@@ -52,7 +55,7 @@ ClassSelectMenu::~ClassSelectMenu()
 {
 }
 
-void ClassSelectMenu::Show()
+void ClassSelectMenu::Show(GameMode mode)
 {
     bool running = true;
     bool menuOpen = true;
@@ -66,14 +69,15 @@ void ClassSelectMenu::Show()
         while (SDL_PollEvent(&currentEvent))
         {
             m_GameWindow->Event(currentEvent);
-            HandleEvent(currentEvent, running, menuOpen);
+            HandleEvent(currentEvent, running, menuOpen, mode);
         }
         m_GameWindow->Render()->UpdateWindow();
     }
+
     m_GameWindow->Render()->Clear();
 }
 
-void ClassSelectMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen)
+void ClassSelectMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen, GameMode mode)
 {
     switch (event.type)
     {
@@ -150,7 +154,7 @@ void ClassSelectMenu::HandleEvent(const SDL_Event &event, bool &running, bool &m
                      y >= m_BackButtonRect.y && y < m_BackButtonRect.y + m_BackButtonRect.h)
             {
                 menuOpen = false;
-                m_GameWindow->Menu()->Show();
+                m_GameWindow->GameSelectMenu()->Show();
             }
         }
         break;
@@ -188,7 +192,7 @@ void ClassSelectMenu::HandleEvent(const SDL_Event &event, bool &running, bool &m
             int buttonWidth = screenW / 4;
             int buttonHeight = screenH / 10;
             int hSpacing = buttonWidth / 6;
-            int vSpacing = buttonHeight / 3;
+            int vSpacing = buttonHeight;
 
             int totalWidth = buttonWidth * 2 + hSpacing;
             int totalHeight = buttonHeight * 2 + vSpacing;
@@ -201,9 +205,9 @@ void ClassSelectMenu::HandleEvent(const SDL_Event &event, bool &running, bool &m
             m_ClassButtonRect4 = {originX + buttonWidth + hSpacing, originY + buttonHeight + vSpacing, buttonWidth, buttonHeight};
 
             m_BackButtonRect = {
-                centerX - buttonWidth / 2,
-                originY + 3 * (buttonHeight + vSpacing) - 20,
-                buttonWidth,
+                centerX - buttonHeight,
+                originY + 3 * (buttonHeight) + vSpacing,
+                buttonHeight * 2,
                 buttonHeight};
 
             m_TitleRect = {
