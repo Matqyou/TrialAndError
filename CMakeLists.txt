@@ -144,6 +144,12 @@ set(PROJECT_FILES
         src/client/game/classes/classTypes/ZombieClass.h
         src/client/game/classes/classTypes/VampireClass.cpp
         src/client/game/classes/classTypes/VampireClass.h
+        src/client/game/planetaryTrials/PlanetaryCharacter.cpp
+        src/client/game/planetaryTrials/PlanetaryCharacter.h
+        src/client/game/planetaryTrials/PlanetaryGameWorld.cpp
+        src/client/game/planetaryTrials/PlanetaryGameWorld.h
+        src/client/game/planetaryTrials/PlanetaryUtils.cpp
+        src/client/game/planetaryTrials/PlanetaryUtils.h
 
 )
 

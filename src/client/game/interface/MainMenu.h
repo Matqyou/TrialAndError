@@ -29,6 +29,7 @@ public:
 	~MainMenu();
 
 	void Show();
+	void InitialShow();
 	void HandleEvent(const SDL_Event& event, bool& running, bool& menuOpen);
 	void Tick();
 	void Render();

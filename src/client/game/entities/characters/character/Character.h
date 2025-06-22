@@ -47,64 +47,65 @@ public:
 		CHARACTER_MAX_NAME_LENGTH = 32
 	};
 
-protected:
-	friend class Player;
-	friend class GameWorld;
-	friend class ProjectileWeapon;
-	friend class Projectile; //
-	friend class Hands;
-	Player *m_Player;
-	TextSurface *m_CoordinatePlate;
-	TextSurface *m_AmmoCount;
-	TextSurface *m_HealthInt;
-	double m_ColorHue;
-	int m_SelectedWeaponIndex;
-	GameController *m_GameController;
-	bool m_Movement[NUM_CONTROLS];
-	bool m_NPC;
-	CharacterInput m_Input, m_LastInput;
-	Hands m_Hands;
-	ProjectileWeapon *m_Weapons[NUM_WEAPONS];
-	ProjectileWeapon *m_CurrentWeapon;
-	double m_ActiveRegeneration, m_PassiveRegeneration;
-	unsigned long long m_TicksOfCombatUntilRegeneration;
-	unsigned long long m_LastInCombat;
-	static const int ms_DefaultControls[NUM_CONTROLS];
+	protected:
+		friend class Player;
+		friend class GameWorld;
+		friend class ProjectileWeapon;
+		friend class Projectile; //
+		friend class Hands;
+		Player *m_Player;
+		Vec2d m_CameraTarget;
+		TextSurface *m_CoordinatePlate;
+		TextSurface *m_AmmoCount;
+		TextSurface *m_HealthInt;
+		double m_ColorHue;
+		int m_SelectedWeaponIndex;
+		GameController *m_GameController;
+		bool m_Movement[NUM_CONTROLS];
+		bool m_NPC;
+		CharacterInput m_Input, m_LastInput;
+		Hands m_Hands;
+		ProjectileWeapon *m_Weapons[NUM_WEAPONS];
+		ProjectileWeapon *m_CurrentWeapon;
+		double m_ActiveRegeneration, m_PassiveRegeneration;
+		unsigned long long m_TicksOfCombatUntilRegeneration;
+		unsigned long long m_LastInCombat;
+		static const int ms_DefaultControls[NUM_CONTROLS];
 
-	const double m_BaseAcceleration;
-	double m_DamageAmp;
-	Hook m_Hook;
-	int m_HitTicks;
-	int m_BaseDamage;
-	HealthBar m_HealthBar;
-	ErrorStatuses m_ErrorStatuses;
+		const double m_BaseAcceleration;
+		double m_DamageAmp;
+		Hook m_Hook;
+		int m_HitTicks;
+		int m_BaseDamage;
+		HealthBar m_HealthBar;
+		ErrorStatuses m_ErrorStatuses;
 
-	SDL_Color m_CharacterColor;
-	SDL_Color m_HookColor;
-	SDL_Color m_HealthbarColor;
-	SDL_Color m_HandColor;
-	SDL_Color m_NameplateColor;
-	SDL_Color m_HealthRed;
-	SDL_Color m_HealthBlack;
+		SDL_Color m_CharacterColor;
+		SDL_Color m_HookColor;
+		SDL_Color m_HealthbarColor;
+		SDL_Color m_HandColor;
+		SDL_Color m_NameplateColor;
+		SDL_Color m_HealthRed;
+		SDL_Color m_HealthBlack;
 
-	// Listening & Ticking
-	virtual void EventDeath();
-	void TickKeyboardControls();
-	void TickGameControllerControls();
-	void TickHealth();
-	virtual void TickControls();
-	void TickProcessInputs();
-	void TickHook();
-	void TickCollision();
-	void TickCurrentWeapon();
-	void DrawAmmoCounter();
-	void DrawErrorIcons();
-	void DrawCharacter();
-	void DrawHook();
-	void DrawHealthbar();
-	void DrawHands();
-	void DrawNameplate();
-	void DrawErrorName();
+		// Listening & Ticking
+		virtual void EventDeath();
+		virtual void TickKeyboardControls();
+		virtual void TickGameControllerControls();
+		void TickHealth();
+		virtual void TickControls();
+		void TickProcessInputs();
+		void TickHook();
+		void TickCollision();
+		void TickCurrentWeapon();
+		void DrawAmmoCounter();
+		void DrawErrorIcons();
+		void DrawCharacter();
+		void DrawHook();
+		void DrawHealthbar();
+		void DrawHands();
+		void DrawNameplate();
+		void DrawErrorName();
 
 public:
 	static LoadedTexture sCharacterTexture;
@@ -141,12 +142,14 @@ public:
 	[[nodiscard]] CharacterInput& GetInput() { return m_Input; }
 	[[nodiscard]] CharacterInput& GetLastInput() { return m_LastInput; }
 	[[nodiscard]] ErrorStatuses& GetErrorStatuses() { return m_ErrorStatuses; }
+	[[nodiscard]] Vec2d GetCameraTarget() const { return m_CameraTarget; }
 	[[nodiscard]] bool IsNPC() const { return m_NPC; }
 	[[nodiscard]] int GetBaseDamage() const { if (m_Player)return m_Player->GetBaseDamage(); else return m_BaseDamage; }
 	[[nodiscard]] double GetDamageAmp() const { if (m_Player)return m_Player->GetDamageAmp(); else return m_DamageAmp; }
 
 	// Setting
 	void SetGameController(GameController *game_controller) { m_GameController = game_controller; }
+	void SetCameraTarget(Vec2d cameraTarget) { m_CameraTarget = cameraTarget; }
 	void RemoveCombat();
 	void GiveWeapon(ProjectileWeapon *proj_weapon);
 	void AmmoPickup(AmmoBox *ammo_box);

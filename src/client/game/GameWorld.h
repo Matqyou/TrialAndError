@@ -11,6 +11,8 @@
 #include "shared/Protocol.h"
 #include "../ui/Particles.h"
 #include "./interface/PauseMenu.h"
+#include "shared/utility/Vec2.h"
+#include <chrono>
 
 class Player;
 class Entity;
@@ -21,7 +23,7 @@ class LevelUpMenu;
 
 class GameWorld
 {
-private:
+protected:
 	GameData *m_GameWindow;
 	PauseMenu *m_PauseMenu;
 	LevelUpMenu *m_LevelUpMenu;
@@ -34,15 +36,16 @@ private:
 	bool m_GameOver;
 	bool m_LevelUpDelay;
 	Player *m_FirstPlayer, *m_LastPlayer;
-	Entity *m_FirstType[NUM_ENTITY_TYPES]{ }, *m_LastType[NUM_ENTITY_TYPES]{ };
+	Entity *m_FirstType[NUM_ENTITY_TYPES]{}, *m_LastType[NUM_ENTITY_TYPES]{};
 	Entity *m_First, *m_Last;
 	unsigned long long m_CurrentTick;
+	std::vector<std::tuple<Vec2d, Vec2d, double>> m_Stars;
 
 	bool m_TestingMode; // Waves paused
 
 	// Cool scrolling background                                        cap
 	Texture *m_Background;
-	int m_BackgroundW{ }, m_BackgroundH{ };
+	int m_BackgroundW{}, m_BackgroundH{};
 
 	unsigned long long m_LastWave;
 	unsigned long long m_TimeBetweenWaves;
@@ -51,14 +54,15 @@ private:
 	unsigned int m_Score;
 	TextSurface *m_ScoreText;
 
-	void TickCamera();
-	void TickSpawner();
-	void TickEntities();
-	void TickDestroy();
+	virtual void TickCamera();
+	virtual void TickSpawner();
+	virtual void TickEntities();
+	virtual void TickDestroy();
+	virtual void TickBackground();
 
 public:
 	GameWorld(GameData *game_window, int width, int height);
-	~GameWorld();
+	virtual ~GameWorld();
 
 	// Getting
 	[[nodiscard]] GameData *GameWindow() const { return m_GameWindow; }
@@ -103,7 +107,7 @@ public:
 	void RemoveEntity(Entity *entity);
 
 	// Listening & Ticking
-	void Event(const SDL_Event& currentEvent);
-	void Tick();
-	void Draw();
+	virtual void Event(const SDL_Event &currentEvent);
+	virtual void Tick();
+	virtual void Draw();
 };

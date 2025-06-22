@@ -29,6 +29,27 @@ void MainMenu::Show()
 	bool running = true;
 	bool menuOpen = true;
 
+	while (menuOpen)
+	{
+		Tick();
+		Render();
+		SDL_ShowCursor(1);
+		SDL_Event currentEvent;
+		while (SDL_PollEvent(&currentEvent))
+		{
+			m_GameWindow->Event(currentEvent);
+			HandleEvent(currentEvent, running, menuOpen);
+		}
+		m_GameWindow->Render()->UpdateWindow();
+	}
+	m_GameWindow->Render()->Clear();
+}
+
+void MainMenu::InitialShow()
+{
+	bool running = true;
+	bool menuOpen = true;
+
 	sElevatorMusic.GetMusic()->PlayMusic(-1);
 	while (menuOpen)
 	{
@@ -45,6 +66,7 @@ void MainMenu::Show()
 	}
 	m_GameWindow->Render()->Clear();
 }
+
 
 void MainMenu::HandleEvent(const SDL_Event& event, bool& running, bool& menuOpen)
 {

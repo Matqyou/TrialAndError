@@ -44,7 +44,7 @@ GameWorld::GameWorld(GameData *game_window, int width, int height)
 	m_Score = 0;
 	m_ScoreText = new TextSurface(m_GameWindow->Assetz(),
 								  m_GameWindow->Assetz()->TextHandler()->GetMainFont(),
-								  "Score: 0", { 150, 150, 0 });
+								  "Score: 0", {150, 150, 0});
 }
 
 GameWorld::~GameWorld()
@@ -172,8 +172,8 @@ void GameWorld::RemovePlayer(Player *player)
 Entity *GameWorld::AddEntity(Entity *entity)
 {
 	EntityType Enttype = entity->GetType();
-	Entity *& FirstType = m_FirstType[Enttype];
-	Entity *& LastType = m_LastType[Enttype];
+	Entity *&FirstType = m_FirstType[Enttype];
+	Entity *&LastType = m_LastType[Enttype];
 
 	if (!FirstType)
 	{ // Then there also shouldn't be a last type
@@ -210,8 +210,8 @@ Entity *GameWorld::AddEntity(Entity *entity)
 void GameWorld::RemoveEntity(Entity *entity)
 {
 	EntityType Type = entity->GetType();
-	Entity *& FirstType = m_FirstType[Type];
-	Entity *& LastType = m_LastType[Type];
+	Entity *&FirstType = m_FirstType[Type];
+	Entity *&LastType = m_LastType[Type];
 
 	// Remove entity from list of same type
 	if (entity->m_PrevType)
@@ -268,7 +268,7 @@ void GameWorld::ToggleShowNames()
 		m_ShowNamesVisibility = 1.0;
 }
 
-void GameWorld::Event(const SDL_Event& currentEvent)
+void GameWorld::Event(const SDL_Event &currentEvent)
 {
 	if (m_Paused)
 		return;
@@ -314,7 +314,7 @@ void GameWorld::TickCamera()
 				continue;
 		}
 
-		EntityCore& Core = Char->GetCore();
+		EntityCore &Core = Char->GetCore();
 
 		if (FirstIteration)
 		{
@@ -446,6 +446,43 @@ void GameWorld::TickDestroy()
 	}
 }
 
+void GameWorld::TickBackground()
+{
+	for (int i = 0; i < 3; i++)
+	{
+		auto random_position = Vec2d(rand() % m_GameWindow->GetWidth(), rand() % m_GameWindow->GetHeight());
+		auto duration = 1500.0;
+		m_Stars.emplace_back(random_position, Vec2d(0.0, 0.0), duration);
+	}
+
+	Vec2i MousePosition;
+	SDL_GetMouseState(&MousePosition.x, &MousePosition.y);
+	auto MousePositionD = Vec2d(MousePosition.x, MousePosition.y);
+
+	for (int i = m_Stars.size() - 1; i >= 0; --i)
+	{
+		auto &[position, velocity, duration] = m_Stars[i];
+
+		auto direction = position - MousePositionD;
+		double distance = direction.Length();
+		velocity += direction.Normalize() / distance * 0.15;
+		velocity.x += (sin((position.x + position.y * 2) / 50)) * 0.0015;
+
+		velocity *= 0.98;
+
+		position.x += velocity.x;
+		position.y += velocity.y;
+		if (position.x > m_GameWindow->GetWidth())
+			position.x -= m_GameWindow->GetWidth();
+		if (position.y > m_GameWindow->GetHeight())
+			position.y -= m_GameWindow->GetHeight();
+
+		duration -= 1;
+		if (duration <= 0.0)
+			m_Stars.erase(m_Stars.begin() + i);
+	}
+}
+
 void GameWorld::Tick()
 {
 	if (m_Paused || m_GameOver)
@@ -459,23 +496,45 @@ void GameWorld::Tick()
 	TickDestroy();
 	m_Particles->Tick();
 	TickCamera();
+	TickBackground();
 
 	m_CurrentTick++;
 }
 
 void GameWorld::Draw()
 {
-	Drawing *Render = m_GameWindow->Render();
+	Drawing *render = m_GameWindow->Render();
+	SDL_Renderer *renderer = m_GameWindow->Renderer();
 
+	render->SetColor(0, 0, 50, 255);
+	render->Clear();
+
+	render->SetColor(200, 200, 200, 255);
+	for (int i = m_Stars.size() - 1; i >= 0; --i)
+	{
+		auto &[position, velocity, duration] = m_Stars[i];
+
+		auto size = (int)duration / 750.0;
+		for (int j = 0; j < size; j++)
+		{
+			for (int k = 0; k < size; k++)
+			{
+				int draw_x = (int)(position.x - size / 2 + j);
+				int draw_y = (int)(position.y - size / 2 + k);
+
+				SDL_RenderDrawPoint(renderer, draw_x, draw_y);
+			}
+		}
+	}
 	// Stop drawing when the game has been triggered as over
 	if (!m_GameOver)
 	{
-		SDL_Rect DestinationRect = { 0, 0, int(m_Width), int(m_Height) };
-		Render->RenderTextureCamera(m_Background->SDLTexture(), nullptr, DestinationRect);
+		SDL_Rect DestinationRect = {0, 0, int(m_Width), int(m_Height)};
+		render->RenderTextureCamera(m_Background->SDLTexture(), nullptr, DestinationRect);
 
-		SDL_Rect DrawRect = { 0, 0, int(m_Width), int(m_Height) };
-		Render->SetColor(100, 100, 100, 255);
-		Render->DrawRectCamera(DrawRect);
+		SDL_Rect DrawRect = {0, 0, int(m_Width), int(m_Height)};
+		render->SetColor(100, 100, 100, 255);
+		render->DrawRectCamera(DrawRect);
 
 		m_Particles->Draw();
 		for (auto Current : m_FirstType)
@@ -489,9 +548,9 @@ void GameWorld::Draw()
 	Texture *ScoreTexture = m_ScoreText->RequestUpdate();
 	int ScoreWidth = int(ScoreTexture->GetWidth() * 2.5);
 	int ScoreHeight = int(ScoreTexture->GetHeight() * 2.5);
-	SDL_Rect ScoreRect = { 0, int(m_GameWindow->GetHeight() - ScoreHeight), ScoreWidth, ScoreHeight };
+	SDL_Rect ScoreRect = {0, int(m_GameWindow->GetHeight() - ScoreHeight), ScoreWidth, ScoreHeight};
 	if (!m_GameOver)
-		Render->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
+		render->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
 	else
-		Render->RenderTextureFullscreen(ScoreTexture->SDLTexture(), nullptr);
+		render->RenderTextureFullscreen(ScoreTexture->SDLTexture(), nullptr);
 }

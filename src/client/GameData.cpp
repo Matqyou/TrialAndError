@@ -9,8 +9,10 @@
 #include "game/entities/Projectile.h"
 #include "game/entities/Error.h"
 #include "game/entities/characters/character/Character.h"
+#include "game/planetaryTrials/PlanetaryCharacter.h"
 #include "game/interface/GameModeMenu.h"
 #include "game/interface/ClassSelectMenu.h"
+#include "game/planetaryTrials/PlanetaryGameWorld.h"
 
 LoadedSound GameData::sQuitSound("ui.quit");
 
@@ -375,7 +377,7 @@ void GameData::InitializeSandbox()
 
 void GameData::InitializeInfinite()
 {
-	m_GameWorld = new GameWorld(this, 50, 30);
+	m_GameWorld = new PlanetaryGameWorld(this, 1000, 1000);
 	m_Draw->SetWorld(m_GameWorld);
 	Character::ms_BotNamePlate = new TextSurface(
 		m_GameWorld->GameWindow()->Assetz(),
@@ -388,13 +390,12 @@ void GameData::InitializeInfinite()
 	{
 		std::string name = (i == 0) ? "Keyboard" : "Controller";
 		auto player = new Player(m_GameWorld, name, m_PendingPlayerClasses[i]);
-		auto character = new Character(m_GameWorld,
+		auto character = new PlanetaryCharacter((PlanetaryGameWorld*)m_GameWorld,
 									   player,
 									   100.0,
 									   Vec2d(32 * 17.5, 32 * 17.5),
 									   Vec2d(10, 10),
 									   false);
-
 		if (i > 0 && connectedControllers.size() >= i)
 		{
 			character->SetGameController(connectedControllers[i - 1]);
