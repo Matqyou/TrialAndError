@@ -5,7 +5,7 @@
 #ifndef CUSTOMTHREEDEESDL_COLORS_H_
 #define CUSTOMTHREEDEESDL_COLORS_H_
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 struct ColorHSL
 {

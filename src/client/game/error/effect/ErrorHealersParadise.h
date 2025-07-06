@@ -9,7 +9,6 @@
 class ErrorHealersParadise : public ErrorStatusEffect
 {
 private:
-	static LoadedTexture sTextureHealersParadise;
 
 public:
 	explicit ErrorHealersParadise(ErrorStatuses *parent);

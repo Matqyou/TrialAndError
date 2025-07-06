@@ -23,9 +23,6 @@ private:
 	Vec2d m_RightHand;
 	double m_Size, m_Size2;
 
-	static LoadedTexture sFistTexture;
-	static LoadedSound sPunchSound;
-
 public:
 	Hands(Character *parent, double fist_animation_duration);
 	~Hands();

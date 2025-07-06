@@ -5,7 +5,7 @@
 #pragma once
 
 #include "shared/utility/Colors.h"
-#include "client/core/Drawing.h"
+#include "client/core/drawing/Drawing.h"
 
 class TileMap;
 struct Tile
@@ -16,13 +16,12 @@ struct Tile
 class TileMap
 {
 private:
-	Drawing *m_Render;
 	unsigned int m_Width, m_Height, m_Area;
 	unsigned int m_Tilesize;
 	Tile **m_Map;
 
 public:
-	TileMap(Drawing *render, int tilesize, int width, int height);
+	TileMap(int tilesize, int width, int height);
 	~TileMap();
 
 	// Getting

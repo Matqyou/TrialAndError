@@ -7,23 +7,23 @@
 #include <random>
 #include <string>
 
-LoadedTexture Error::sTextureErrorDisorianted("entity.error.disoriented");
-LoadedTexture Error::sTextureErrorSpiky("entity.error.cactus");
-LoadedTexture Error::sTextureErrorConfusingHP("entity.error.confused");
-LoadedTexture Error::sTextureErrorInvincible("entity.error.invincible");
-LoadedTexture Error::sTextureErrorHealersParadise("entity.error.healer");
-LoadedTexture Error::sTextureErrorRanged("entity.error.ranged");
-LoadedTexture Error::sTextureErrorSlowDown("entity.error.slow");
-LoadedTexture Error::sTextureErrorDangerousRecoil("entity.error.golden_apple");
-LoadedTexture Error::sTextureMagicParticle("particle.magic");
-LoadedSound Error::ms_PickupSounds[7] = {
-	LoadedSound("entity.error.pickup"),
-	LoadedSound("entity.error.pickup"),
-	LoadedSound("entity.error.pickup"),
-	LoadedSound("entity.error.pickup"),
-	LoadedSound("entity.error.pickup"),
-	LoadedSound("entity.error.pickup"),
-	LoadedSound("entity.error.pickup"),
+LinkTexture sTextureErrorDisorianted("entity.error.disoriented");
+LinkTexture sTextureErrorSpiky("entity.error.cactus");
+LinkTexture sTextureErrorConfusingHP("entity.error.confused");
+LinkTexture sTextureErrorInvincible("entity.error.invincible");
+LinkTexture sTextureErrorHealersParadise("entity.error.healer");
+LinkTexture sTextureErrorRanged("entity.error.ranged");
+LinkTexture sTextureErrorSlowDown("entity.error.slow");
+LinkTexture sTextureErrorDangerousRecoil("entity.error.golden_apple");
+LinkTexture sTextureMagicParticle("particle.magic");
+LinkSound ms_PickupSounds[7] = {
+	LinkSound("entity.error.pickup"),
+	LinkSound("entity.error.pickup"),
+	LinkSound("entity.error.pickup"),
+	LinkSound("entity.error.pickup"),
+	LinkSound("entity.error.pickup"),
+	LinkSound("entity.error.pickup"),
+	LinkSound("entity.error.pickup"),
 };
 
 Error::Error(GameWorld *world, const Vec2d& start_pos, int typeID)
@@ -145,13 +145,12 @@ void Error::Tick()
 
 void Error::Draw()
 {
-	Drawing *Render = m_World->GameWindow()->Render();
-
+	auto drawing = Application.GetDrawing();
 	SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
 						   float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
 						   float(m_Core.Size.x),
 						   float(m_Core.Size.y) };
 
-	Render->RenderTextureFCamera(m_Texture->SDLTexture(), nullptr, DrawRect);
+	drawing->RenderTexture(m_Texture->SDLTexture(), nullptr, DrawRect, GameReference.GetCamera());
 
 }

@@ -9,7 +9,6 @@
 class ErrorCantHear : public ErrorStatusEffect
 {
 private:
-	static LoadedTexture sTextureCantHear;
 
 public:
 	explicit ErrorCantHear(ErrorStatuses *parent);

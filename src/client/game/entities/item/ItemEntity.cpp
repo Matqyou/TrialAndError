@@ -5,16 +5,16 @@
 #include "ItemEntity.h"
 #include "../characters/character/Character.h"
 
-LoadedTexture ItemEntity::sTextureGlock("entity.items.glock");
-LoadedTexture ItemEntity::sTextureShotgun("entity.items.shotgun");
-LoadedTexture ItemEntity::sTextureBurst("entity.items.burst");
-LoadedTexture ItemEntity::sTextureSniper("entity.items.sniper");
-LoadedTexture ItemEntity::sTexturePatersonNavy("entity.items.paterson_navy");
-LoadedTexture ItemEntity::sTexturesMinigun[4] = {
-	LoadedTexture("entity.items.minigun1"),
-	LoadedTexture("entity.items.minigun2"),
-	LoadedTexture("entity.items.minigun3"),
-	LoadedTexture("entity.items.minigun4"),
+static LinkTexture sTextureGlock("entity.items.glock");
+static LinkTexture sTextureShotgun("entity.items.shotgun");
+static LinkTexture sTextureBurst("entity.items.burst");
+static LinkTexture sTextureSniper("entity.items.sniper");
+static LinkTexture sTexturePatersonNavy("entity.items.paterson_navy");
+static LinkTexture sTexturesMinigun[4] = {
+	LinkTexture("entity.items.minigun1"),
+	LinkTexture("entity.items.minigun2"),
+	LinkTexture("entity.items.minigun3"),
+	LinkTexture("entity.items.minigun4"),
 };
 
 void ItemEntity::SetTexture(ItemType item_type)
@@ -70,7 +70,7 @@ ItemEntity::ItemEntity(GameWorld *world,
 {
 	m_Dropper = dropper;
 	m_DroppedSince = m_World->GetTick();
-	m_PickupCooldown = (unsigned long long)(m_World->GameWindow()->Timer()->GetFramerate());
+	m_PickupCooldown = (unsigned long long)(Application.GetClock()->GetFramerate());
 	m_ItemType = item_type;
 	m_Texture = nullptr;
 	//m_PickupRadius = 25.0;
@@ -133,17 +133,14 @@ void ItemEntity::Draw()
 	if (m_Texture == nullptr)
 		return;
 
-	Drawing *Render = m_World->GameWindow()->Render();
+	auto drawing = Application.GetDrawing();
+	SDL_FRect DrawRect = {float(m_Core.Pos.x - m_Core.Size.x / 2.0),
+						  float(m_Core.Pos.y - m_Core.Size.y / 2.0),
+						  float(m_Core.Size.x),
+						  float(m_Core.Size.y) };
 
-	SDL_Rect DrawRect = { int(m_Core.Pos.x - m_Core.Size.x / 2.0),
-						  int(m_Core.Pos.y - m_Core.Size.y / 2.0),
-						  int(m_Core.Size.x),
-						  int(m_Core.Size.y) };
-
-	Render->RenderTextureExCamera(m_Texture->SDLTexture(),
-								  nullptr,
-								  DrawRect,
-								  m_Rotation / M_PI * 180.0,
-								  nullptr,
-								  SDL_FLIP_NONE);
+	drawing->RenderTextureRotated(m_Texture->SDLTexture(),
+								  nullptr, DrawRect,
+								  m_Rotation / M_PI * 180.0, nullptr,
+								  SDL_FLIP_NONE, GameReference.GetCamera());
 }

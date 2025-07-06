@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Entity.h"
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "AmmoBox.h"
 
 enum DropType
@@ -24,12 +24,6 @@ protected:
 	Texture *m_Texture;
 
 public:
-	static LoadedSound sHitSound[3];
-	static LoadedSound sBoxSound;
-	static LoadedTexture sBoxTexture;
-	static LoadedTexture sBreakingBox1Texture;
-	static LoadedTexture sBreakingBox2Texture;
-
 	Crate(GameWorld *world,
 		  const Vec2d& start_pos,
 		  DropType RandomDrop);

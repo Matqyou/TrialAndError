@@ -9,7 +9,6 @@
 class ErrorDisoriented : public ErrorStatusEffect
 {
 private:
-	static LoadedTexture sTextureDisoriented;
 
 public:
 	explicit ErrorDisoriented(ErrorStatuses *parent);

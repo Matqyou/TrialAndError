@@ -6,11 +6,11 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
-LoadedTexture WeaponGlock::sTextureWeapon("weapons.glock");
-LoadedTexture WeaponGlock::sTextureProjectile("entity.projectile.glock");
-LoadedSound WeaponGlock::sShootSound("weapon.glock.shoot2");
-LoadedSound WeaponGlock::sClickSound("weapon.glock.fail_reload");
-LoadedSound WeaponGlock::sReloadSound("weapon.glock.reload");
+static LinkTexture sTextureWeapon("weapons.glock");
+static LinkTexture sTextureProjectile("entity.projectile.glock");
+static LinkSound sShootSound("weapon.glock.shoot2");
+static LinkSound sClickSound("weapon.glock.fail_reload");
+static LinkSound sReloadSound("weapon.glock.reload");
 Vec2d WeaponGlock::sHoldPosition(10.0, 0.0);
 std::pair<Vec2d, Vec2d> WeaponGlock::sHandPositions = {{ 5.0, -5.0 }, { 10.0, 2.0 }};
 

@@ -4,7 +4,8 @@
 class VampireClass : public PlayerClass
 {
 public:
-	std::string GetName() const override { return "Vampire"; }
+	VampireClass();
+//	std::string GetName() const override { return "Vampire"; }
 
 	void ApplyPrimaryClassBonuses(Player *player) override;
 	void ApplySecondaryClassBonuses(Player *player) override;

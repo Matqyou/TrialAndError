@@ -4,13 +4,12 @@
 
 #pragma once
 
-#include "client/GameData.h"
+#include "client/game/ui/menus/pause/PauseMenu.h"
 #include "client/core/GameControllers.h"
+#include "client/game/ui/Particles.h"
 #include "indicators/TextSurface.h"
 #include "collision/TileMap.h"
-#include "shared/Protocol.h"
-#include "../ui/Particles.h"
-#include "./interface/PauseMenu.h"
+#include "client/Protocol.h"
 
 class Player;
 class Entity;
@@ -18,13 +17,9 @@ class Character;
 class Crate;
 class PauseMenu;
 class LevelUpMenu;
-
 class GameWorld
 {
 private:
-	GameData *m_GameWindow;
-	PauseMenu *m_PauseMenu;
-	LevelUpMenu *m_LevelUpMenu;
 	TileMap *m_Tiles;
 	Particles *m_Particles;
 	double m_Width, m_Height;
@@ -57,13 +52,12 @@ private:
 	void TickDestroy();
 
 public:
-	GameWorld(GameData *game_window, int width, int height);
+	GameWorld(int width, int height);
 	~GameWorld();
 
 	// Getting
-	[[nodiscard]] GameData *GameWindow() const { return m_GameWindow; }
-	[[nodiscard]] PauseMenu *Menu() const { return m_PauseMenu; }
-	[[nodiscard]] LevelUpMenu *LvlMenu() const { return m_LevelUpMenu; }
+//	[[nodiscard]] PauseMenu *Menu() const { return m_PauseMenu; }
+//	[[nodiscard]] LevelUpMenu *LvlMenu() const { return m_LevelUpMenu; }
 	[[nodiscard]] Particles *GetParticles() const { return m_Particles; };
 	[[nodiscard]] double GetWidth() const { return m_Width; }
 	[[nodiscard]] double GetHeight() const { return m_Height; }
@@ -91,8 +85,8 @@ public:
 
 	// Manipulating
 	void AddScore(unsigned int score);
-	void DestroyPlayerByController(GameController *DeletedController) const;
-	void DestroyCharacterByController(GameController *DeletedController) const;
+//	void DestroyPlayerByController(GameController *DeletedController) const;
+//	void DestroyCharacterByController(GameController *DeletedController) const;
 	void ToggleShowNames();
 	void SetTestingMode(bool testing_mode) { m_TestingMode = testing_mode; }
 
@@ -102,8 +96,9 @@ public:
 	void RemovePlayer(Player *player);
 	void RemoveEntity(Entity *entity);
 
-	// Listening & Ticking
-	void Event(const SDL_Event& currentEvent);
-	void Tick();
+	// Ticking
+	void HandleEvent(const SDL_Event& sdl_event);
+	void Tick(double elapsed_seconds);
 	void Draw();
+
 };

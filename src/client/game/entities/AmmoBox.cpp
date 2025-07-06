@@ -6,11 +6,11 @@
 #include <cmath>
 #include <iostream>
 
-LoadedTexture AmmoBox::sTextureGlock("entity.ammo_box.glock");
-LoadedTexture AmmoBox::sTextureShotgun("entity.ammo_box.shotgun");
-LoadedTexture AmmoBox::sTextureBurst("entity.ammo_box.burst");
-LoadedTexture AmmoBox::sTextureMinigun("entity.ammo_box.minigun");
-LoadedTexture AmmoBox::sTextureSniper("entity.ammo_box.sniper");
+LinkTexture sTextureGlock("entity.ammo_box.glock");
+LinkTexture sTextureShotgun("entity.ammo_box.shotgun");
+LinkTexture sTextureBurst("entity.ammo_box.burst");
+LinkTexture sTextureMinigun("entity.ammo_box.minigun");
+LinkTexture sTextureSniper("entity.ammo_box.sniper");
 // Sound* AmmoBox::ms_PickupSounds[7] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 AmmoBox::AmmoBox(GameWorld *world,
@@ -82,12 +82,11 @@ void AmmoBox::Tick()
 
 void AmmoBox::Draw()
 {
-	Drawing *Render = m_World->GameWindow()->Render();
-
+	auto drawing = Application.GetDrawing();
 	SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
 						   float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
 						   float(m_Core.Size.x),
 						   float(m_Core.Size.y) };
 
-	Render->RenderTextureFCamera(m_Texture->SDLTexture(), nullptr, DrawRect);
+	drawing->RenderTexture(m_Texture->SDLTexture(), nullptr, DrawRect, GameReference.GetCamera());
 }

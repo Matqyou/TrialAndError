@@ -3,6 +3,8 @@
 //
 
 #include "Entity.h"
+#include "client/game/GameReference.h"
+#include "client/core/Application.h"
 #include <format>
 
 void EntityCore::Accelerate(double x, double y)
@@ -200,14 +202,12 @@ void Entity::Tick()
 
 void Entity::Draw()
 {
-	Drawing *Render = m_World->GameWindow()->Render();
-
-	Render->SetColor(255, 255, 255, 255);
+	Drawing *drawing = Application.GetDrawing();
+	drawing->SetColor(255, 255, 255, 255);
 	SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2),
 						   float(m_Core.Pos.y) - float(m_Core.Size.y / 2),
-						   float(m_Core.Size.x),
-						   float(m_Core.Size.y) };
-	Render->FillRectFCamera(DrawRect);
+						   float(m_Core.Size.x), float(m_Core.Size.y) };
+	drawing->DrawRect(DrawRect, true, GameReference.GetCamera());
 }
 
 void DirectionalEntity::TickUpdateLastCore()

@@ -7,11 +7,11 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-LoadedTexture WeaponBurst::sTextureWeapon("weapons.burst");
-LoadedTexture WeaponBurst::sTextureProjectile("entity.projectile.burst");
-LoadedSound WeaponBurst::sShootSound("weapon.burst.shoot");
-LoadedSound WeaponBurst::sClickSound("weapon.burst.fail_reload");
-LoadedSound WeaponBurst::sReloadSound("weapon.burst.reload");
+static LinkTexture sTextureWeapon("weapons.burst");
+static LinkTexture sTextureProjectile("entity.projectile.burst");
+static LinkSound sShootSound("weapon.burst.shoot");
+static LinkSound sClickSound("weapon.burst.fail_reload");
+static LinkSound sReloadSound("weapon.burst.reload");
 Vec2d WeaponBurst::sHoldPosition(5.0, 0.0);
 std::pair<Vec2d, Vec2d> WeaponBurst::sHandPositions = {{ 60.0, -3.0 }, { 20.0, 2.0 }};
 

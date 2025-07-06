@@ -7,7 +7,7 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-LoadedSound ProjectileWeapon::sNoAmmoSound("weapon.no_ammo");
+static LinkSound sNoAmmoSound("weapon.no_ammo");
 
 double ProjectileWeapon::GenerateSpreadAngle() const
 {
@@ -55,7 +55,7 @@ ProjectileWeapon::ProjectileWeapon(DirectionalEntity *owner,
 	m_Parent = nullptr;
 
 	// Defaults
-	m_ReloadSound = reload_sound == nullptr ? Assets::Get()->GetSound("weapon.default.reload") : reload_sound;
+	m_ReloadSound = reload_sound == nullptr ? Assets.GetSound("weapon.default.reload") : reload_sound;
 	m_HoldPosition = hold_position == nullptr ? Vec2d(5.0, 0.0) : *hold_position;
 	m_LeftHandPosition = hand_positions == nullptr ? Vec2d(0, -10.0) : hand_positions->first;
 	m_RightHandPosition = hand_positions == nullptr ? Vec2d(0, 10.0) : hand_positions->second;

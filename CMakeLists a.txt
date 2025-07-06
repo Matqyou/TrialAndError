@@ -1,0 +1,364 @@
+cmake_minimum_required(VERSION 3.23)
+project(TrialAndError)
+
+# Set the C++ standard
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# Include FetchContent module
+include(FetchContent)
+
+# Set policy to suppress FetchContent_Populate warnings
+if(POLICY CMP0169)
+    cmake_policy(SET CMP0169 OLD)
+endif()
+
+# Configure SDL3 options before fetching
+set(SDL_SHARED OFF CACHE BOOL "Build SDL3 as static library")
+set(SDL_STATIC ON CACHE BOOL "Build SDL3 as static library")
+set(SDL_TEST OFF CACHE BOOL "Build SDL3 tests")
+set(SDL_DISABLE_INSTALL ON CACHE BOOL "Disable SDL3 installation")
+
+# Fetch SDL3 core
+FetchContent_Declare(
+        SDL3
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+        GIT_TAG release-3.2.12
+        GIT_SHALLOW TRUE
+        UPDATE_DISCONNECTED TRUE
+)
+
+# Make SDL3 available and wait for it to complete
+FetchContent_MakeAvailable(SDL3)
+
+# Create SDL3::SDL3 alias target if it doesn't exist
+if(NOT TARGET SDL3::SDL3)
+    if(TARGET SDL3-static)
+        add_library(SDL3::SDL3 ALIAS SDL3-static)
+        set(SDL3_TARGET_NAME "SDL3-static")
+    elseif(TARGET SDL3)
+        add_library(SDL3::SDL3 ALIAS SDL3)
+        set(SDL3_TARGET_NAME "SDL3")
+    endif()
+endif()
+
+# Set SDL3_DIR to help extensions find SDL3
+FetchContent_GetProperties(SDL3)
+set(SDL3_DIR "${sdl3_BINARY_DIR}" CACHE PATH "Path to SDL3 build directory")
+
+# Also set up the config path
+list(APPEND CMAKE_PREFIX_PATH "${sdl3_BINARY_DIR}")
+
+# Export SDL3 targets to make them findable
+export(TARGETS ${SDL3_TARGET_NAME} FILE "${CMAKE_BINARY_DIR}/_deps/sdl3-build/SDL3Config.cmake")
+
+# Create a minimal SDL3Config.cmake
+file(WRITE "${sdl3_BINARY_DIR}/SDL3Config.cmake" "
+include(CMakeFindDependencyMacro)
+include(\"\${CMAKE_CURRENT_LIST_DIR}/SDL3Targets.cmake\")
+set(SDL3_FOUND TRUE)
+set(SDL3_VERSION \"3.2.12\")
+if(TARGET SDL3-static)
+    set(SDL3_LIBRARIES SDL3-static)
+    if(NOT TARGET SDL3::SDL3)
+        add_library(SDL3::SDL3 ALIAS SDL3-static)
+    endif()
+elseif(TARGET SDL3)
+    set(SDL3_LIBRARIES SDL3)
+    if(NOT TARGET SDL3::SDL3)
+        add_library(SDL3::SDL3 ALIAS SDL3)
+    endif()
+endif()
+")
+
+# Copy the targets file to the SDL3 binary directory
+file(COPY "${CMAKE_BINARY_DIR}/SDL3Targets.cmake" DESTINATION "${sdl3_BINARY_DIR}")
+
+# Configure extension library options BEFORE declaring them
+set(SDL3IMAGE_INSTALL OFF CACHE BOOL "")
+set(SDL3IMAGE_DEPS_SHARED OFF CACHE BOOL "")
+set(SDL3IMAGE_VENDORED ON CACHE BOOL "")
+set(SDL3IMAGE_SAMPLES OFF CACHE BOOL "")
+set(SDL3IMAGE_TESTS OFF CACHE BOOL "")
+set(SDL3IMAGE_BUILD_SHARED_LIBS OFF CACHE BOOL "")
+
+set(SDL3MIXER_INSTALL OFF CACHE BOOL "")
+set(SDL3MIXER_DEPS_SHARED OFF CACHE BOOL "")
+set(SDL3MIXER_VENDORED ON CACHE BOOL "")
+set(SDL3MIXER_SAMPLES OFF CACHE BOOL "")
+set(SDL3MIXER_TESTS OFF CACHE BOOL "")
+set(SDL3MIXER_BUILD_SHARED_LIBS OFF CACHE BOOL "")
+
+set(SDL3TTF_INSTALL OFF CACHE BOOL "")
+set(SDL3TTF_DEPS_SHARED OFF CACHE BOOL "")
+set(SDL3TTF_VENDORED ON CACHE BOOL "")
+set(SDL3TTF_SAMPLES OFF CACHE BOOL "")
+set(SDL3TTF_TESTS OFF CACHE BOOL "")
+set(SDL3TTF_BUILD_SHARED_LIBS OFF CACHE BOOL "")
+
+# Disable external dependencies for extension libraries
+set(SDL3IMAGE_AVIF OFF CACHE BOOL "")
+set(SDL3IMAGE_JXL OFF CACHE BOOL "")
+set(SDL3IMAGE_TIF OFF CACHE BOOL "")
+set(SDL3IMAGE_WEBP OFF CACHE BOOL "")
+
+set(SDL3MIXER_OPUS OFF CACHE BOOL "")
+set(SDL3MIXER_FLAC OFF CACHE BOOL "")
+set(SDL3MIXER_MP3_MPG123 OFF CACHE BOOL "")
+set(SDL3MIXER_VORBIS OFF CACHE BOOL "")
+
+set(SDL3TTF_HARFBUZZ OFF CACHE BOOL "")
+set(SDL3TTF_FREETYPE_BUILTIN ON CACHE BOOL "")
+
+# Now declare extension libraries with explicit dependency on SDL3
+FetchContent_Declare(
+        SDL3_image
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
+        GIT_TAG main
+        GIT_SHALLOW TRUE
+        UPDATE_DISCONNECTED TRUE
+)
+
+FetchContent_Declare(
+        SDL3_mixer
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
+        GIT_TAG main
+        GIT_SHALLOW TRUE
+        UPDATE_DISCONNECTED TRUE
+)
+
+FetchContent_Declare(
+        SDL3_ttf
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
+        GIT_TAG main
+        GIT_SHALLOW TRUE
+        UPDATE_DISCONNECTED TRUE
+)
+
+# Make extension libraries available one by one with error handling
+message(STATUS "Configuring SDL3_image...")
+FetchContent_MakeAvailable(SDL3_image)
+
+message(STATUS "Configuring SDL3_mixer...")
+FetchContent_MakeAvailable(SDL3_mixer)
+
+message(STATUS "Configuring SDL3_ttf...")
+FetchContent_MakeAvailable(SDL3_ttf)
+
+# Set up your project files
+set(PROJECT_FILES
+        src/client/main.cpp
+        src/client/core/Clock.cpp
+        src/client/core/Clock.h
+        res/icon_resource.rc
+        src/shared/utility/Colors.cpp
+        src/shared/utility/Colors.h
+        src/client/game/entities/characters/character/Character.cpp
+        src/client/game/entities/characters/character/Character.h
+        src/client/game/entities/Entity.cpp
+        src/client/game/entities/Entity.h
+        src/client/core/TextManager.cpp
+        src/client/core/TextManager.h
+        src/client/core/GameControllers.cpp
+        src/client/core/GameControllers.h
+        src/client/game/GameData.cpp
+        src/client/game/GameData.h
+        src/client/game/GameWorld.cpp
+        src/client/game/GameWorld.h
+        src/client/game/entities/Projectile.cpp
+        src/client/game/entities/Projectile.h
+        src/client/core/drawing/Drawing.cpp
+        src/client/core/drawing/Drawing.h
+        src/client/game/weapons/projectile/ProjectileWeapon.cpp
+        src/client/game/weapons/projectile/ProjectileWeapon.h
+        src/client/game/weapons/projectile/WeaponGlock.cpp
+        src/client/game/weapons/projectile/WeaponGlock.h
+        src/client/game/weapons/projectile/WeaponShotgun.cpp
+        src/client/game/weapons/projectile/WeaponShotgun.h
+        src/client/game/weapons/projectile/WeaponBurst.cpp
+        src/client/game/weapons/projectile/WeaponBurst.h
+        src/client/game/weapons/projectile/WeaponMinigun.cpp
+        src/client/game/weapons/projectile/WeaponMinigun.h
+        src/client/game/indicators/HealthBar.cpp
+        src/client/game/indicators/HealthBar.h
+        src/client/game/entities/characters/character/Hook.cpp
+        src/client/game/entities/characters/character/Hook.h
+        src/client/core/AssetsManager.cpp
+        src/client/core/AssetsManager.h
+        src/client/game/indicators/TextSurface.cpp
+        src/client/game/indicators/TextSurface.h
+        src/client/game/collision/TileMap.cpp
+        src/client/game/collision/TileMap.h
+        src/client/game/entities/AmmoBox.cpp
+        src/client/game/entities/AmmoBox.h
+        src/client/game/Player.cpp
+        src/client/game/Player.h
+        src/client/game/entities/Crate.cpp
+        src/client/game/entities/Crate.h
+        src/client/game/entities/Error.cpp
+        src/client/game/entities/Error.h
+        src/client/game/entities/characters/character/Hands.cpp
+        src/client/game/entities/characters/character/Hands.h
+        src/client/game/entities/characters/CharacterNPC.cpp
+        src/client/game/entities/characters/CharacterNPC.h
+        src/client/game/entities/item/ItemEntity.cpp
+        src/client/game/entities/item/ItemEntity.h
+        src/client/Protocol.h
+        src/shared/utility/Vec2.h
+        src/shared/utility/Vec2.inl
+        src/shared/utility/Randomizer.cpp
+        src/shared/utility/Randomizer.h
+        src/client/game/entities/item/weapons/EntityGuns.cpp
+        src/client/game/entities/item/weapons/EntityGuns.h
+        src/client/game/weapons/projectile/WeaponSniper.cpp
+        src/client/game/weapons/projectile/WeaponSniper.h
+        src/client/core/Assets.h
+        src/client/core/Assets.cpp
+        src/client/game/ui/menus/main/MainMenu.cpp
+        src/client/game/ui/menus/main/MainMenu.h
+        src/client/game/ui/menus/class_select/GamemodeMenu.cpp
+        src/client/game/ui/menus/class_select/GamemodeMenu.h
+        src/client/game/ui/menus/class_select/ClassSelectMenu.cpp
+        src/client/game/ui/menus/class_select/ClassSelectMenu.h
+        src/client/game/ui/menus/pause/PauseMenu.cpp
+        src/client/game/ui/menus/pause/PauseMenu.h
+        src/client/game/ui/menus/level_up/LevelUpMenu.cpp
+        src/client/game/ui/menus/level_up/LevelUpMenu.h
+        src/client/game/weapons/projectile/PatersonNavy.cpp
+        src/client/game/weapons/projectile/PatersonNavy.h
+        src/client/game/ui/Particles.cpp
+        src/client/game/ui/Particles.h
+        src/client/game/error/base/ErrorStatusEffect.cpp
+        src/client/game/error/base/ErrorStatusEffect.h
+        src/client/game/error/effect/ErrorHealersParadise.h
+        src/client/game/error/effect/ErrorHealersParadise.cpp
+        src/client/game/error/effect/ErrorDisoriented.h
+        src/client/game/error/effect/ErrorDisoriented.cpp
+        src/client/game/error/effect/ErrorInvincible.h
+        src/client/game/error/effect/ErrorInvincible.cpp
+        src/client/game/error/effect/ErrorDangerousRecoil.h
+        src/client/game/error/effect/ErrorDangerousRecoil.cpp
+        src/client/game/error/effect/ErrorSpiky.h
+        src/client/game/error/effect/ErrorSpiky.cpp
+        src/client/game/error/effect/ErrorBulletFrenzy.h
+        src/client/game/error/effect/ErrorBulletFrenzy.cpp
+        src/client/game/error/effect/ErrorConfusingHealth.h
+        src/client/game/error/effect/ErrorConfusingHealth.cpp
+        src/client/game/error/effect/ErrorTeleport.h
+        src/client/game/error/effect/ErrorTeleport.cpp
+        src/client/game/error/effect/ErrorSlowdown.h
+        src/client/game/error/effect/ErrorSlowdown.cpp
+        src/client/game/error/effect/ErrorCantHear.h
+        src/client/game/error/effect/ErrorCantHear.cpp
+        src/client/game/error/effect/ErrorRangedFists.h
+        src/client/game/error/effect/ErrorRangedFists.cpp
+        src/client/game/error/ErrorStatuses.cpp
+        src/client/game/error/ErrorStatuses.h
+        src/client/game/ui/Interface.cpp
+        src/client/game/ui/Interface.h
+        src/client/game/classes/PlayerClass.cpp
+        src/client/game/classes/PlayerClass.h
+        src/client/game/classes/classTypes/CyborgClass.cpp
+        src/client/game/classes/classTypes/CyborgClass.h
+        src/client/game/classes/classTypes/HumanClass.cpp
+        src/client/game/classes/classTypes/HumanClass.h
+        src/client/game/classes/classTypes/ZombieClass.cpp
+        src/client/game/classes/classTypes/ZombieClass.h
+        src/client/game/classes/classTypes/VampireClass.cpp
+        src/client/game/classes/classTypes/VampireClass.h
+        src/client/core/texture/Texture.cpp
+        src/client/core/texture/Texture.h
+        src/client/core/drawing/Camera.cpp
+        src/client/core/drawing/Camera.h
+        src/client/core/Application.cpp
+        src/client/core/Application.h
+        src/shared/utility/Functions.cpp
+        src/shared/utility/Functions.h
+        src/client/game/ui/menus/FullscreenMenu.cpp
+        src/client/game/ui/menus/FullscreenMenu.h
+        src/client/game/ui/CommonUI.cpp
+        src/client/game/ui/CommonUI.h
+        src/client/game/ui/cursors/Cursors.cpp
+        src/client/game/ui/cursors/Cursors.h
+        src/shared/utility/Strings.cpp
+        src/shared/utility/Strings.h
+        src/shared/utility/Rectangles.h
+        src/shared/utility/Rectangles.inl
+        src/client/core/texture/visual/VisualTexture.cpp
+        src/client/core/texture/visual/VisualTexture.h
+        src/client/core/texture/visual/HitboxFile.cpp
+        src/client/core/texture/visual/HitboxFile.h
+)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
+
+add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
+
+target_include_directories(${PROJECT_NAME} PRIVATE src)
+
+# Debug: Check what targets were actually created
+get_property(all_targets DIRECTORY PROPERTY BUILDSYSTEM_TARGETS)
+message(STATUS "All available targets:")
+foreach(target ${all_targets})
+    if(target MATCHES "SDL3")
+        message(STATUS "  - ${target}")
+    endif()
+endforeach()
+
+# Function to find and link SDL3 extension libraries
+function(link_sdl3_extension target_name extension_name)
+    # Try different possible target names
+    set(possible_targets
+            "${extension_name}"
+            "${extension_name}-static"
+            "SDL3::${extension_name}"
+            "${extension_name}::${extension_name}"
+    )
+
+    foreach(possible_target ${possible_targets})
+        if(TARGET ${possible_target})
+            target_link_libraries(${target_name} ${possible_target})
+            message(STATUS "Successfully linked ${possible_target}")
+            return()
+        endif()
+    endforeach()
+
+    message(WARNING "Could not find target for ${extension_name} - continuing without it")
+endfunction()
+
+# Link SDL3 core
+if(TARGET SDL3::SDL3)
+    target_link_libraries(${PROJECT_NAME} SDL3::SDL3)
+elseif(TARGET SDL3-static)
+    target_link_libraries(${PROJECT_NAME} SDL3-static)
+elseif(TARGET SDL3)
+    target_link_libraries(${PROJECT_NAME} SDL3)
+endif()
+
+# Link extension libraries
+link_sdl3_extension(${PROJECT_NAME} SDL3_image)
+link_sdl3_extension(${PROJECT_NAME} SDL3_mixer)
+link_sdl3_extension(${PROJECT_NAME} SDL3_ttf)
+
+# Static linking options
+if(WIN32)
+    target_link_options(${PROJECT_NAME} PRIVATE "-static")
+endif()
+
+# File copying functionality
+file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
+function(copy_files SOURCE_DIR DEST_DIR)
+    file(GLOB items "${SOURCE_DIR}/*")
+    foreach (item ${items})
+        if (IS_DIRECTORY ${item})
+            get_filename_component(dirname ${item} NAME)
+            file(MAKE_DIRECTORY ${DEST_DIR}/${dirname})
+            copy_files(${item} ${DEST_DIR}/${dirname})
+        else ()
+            get_filename_component(filename ${item} NAME)
+            configure_file(${item} ${DEST_DIR}/${filename} COPYONLY)
+        endif ()
+    endforeach ()
+endfunction()
+
+copy_files(${CMAKE_CURRENT_SOURCE_DIR}/bin ${CMAKE_BINARY_DIR}/${PROJECT_NAME})

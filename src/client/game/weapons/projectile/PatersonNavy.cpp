@@ -6,11 +6,11 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
-LoadedTexture PatersonNavy::sTextureWeapon("weapons.paterson_navy");
-LoadedTexture PatersonNavy::sTextureProjectile("entity.projectile.paterson_navy");
-LoadedSound PatersonNavy::sShootSound("weapon.paterson_navy.shoot");
-LoadedSound PatersonNavy::sClickSound("weapon.paterson_navy.fail_reload");
-LoadedSound PatersonNavy::sReloadSound("weapon.paterson_navy.reload");
+static LinkTexture sTextureWeapon("weapons.paterson_navy");
+static LinkTexture sTextureProjectile("entity.projectile.paterson_navy");
+static LinkSound sShootSound("weapon.paterson_navy.shoot");
+static LinkSound sClickSound("weapon.paterson_navy.fail_reload");
+static LinkSound sReloadSound("weapon.paterson_navy.reload");
 Vec2d PatersonNavy::sHoldPosition(10.0, 0.0);
 std::pair<Vec2d, Vec2d> PatersonNavy::sHandPositions = {{ 5.0, -5.0 }, { 10.0, 2.0 }};
 

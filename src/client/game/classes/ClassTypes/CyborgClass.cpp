@@ -1,6 +1,12 @@
 #include "CyborgClass.h"
 #include "../../Player.h"
 
+CyborgClass::CyborgClass()
+	: PlayerClass(PLAYERCLASS_CYBORG)
+{
+
+}
+
 void CyborgClass::ApplyPrimaryClassBonuses(Player *player)
 {
 	player->SetExtraLife(true);         // One-time revive

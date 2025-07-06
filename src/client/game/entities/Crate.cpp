@@ -5,15 +5,15 @@
 #include "Crate.h"
 #include <iostream>
 
-LoadedSound Crate::sHitSound[] = {
-	LoadedSound("entity.crate.broken.1"),
-	LoadedSound("entity.crate.broken.2"),
-	LoadedSound("entity.crate.broken.3"),
+LinkSound sHitSound[] = {
+	LinkSound("entity.crate.broken.1"),
+	LinkSound("entity.crate.broken.2"),
+	LinkSound("entity.crate.broken.3"),
 };
-LoadedSound Crate::sBoxSound("entity.crate.hurt");
-LoadedTexture Crate::sBoxTexture("entity.crate");
-LoadedTexture Crate::sBreakingBox1Texture("entity.crate2");
-LoadedTexture Crate::sBreakingBox2Texture("entity.crate3");
+LinkSound sBoxSound("entity.crate.hurt");
+LinkTexture sBoxTexture("entity.crate");
+LinkTexture sBreakingBox1Texture("entity.crate2");
+LinkTexture sBreakingBox2Texture("entity.crate3");
 
 Crate::Crate(GameWorld *world,
 			 const Vec2d& start_pos,
@@ -33,8 +33,8 @@ Crate::Crate(GameWorld *world,
 	m_DropType = RandomDrop;
 	m_Texture = sBoxTexture.GetTexture();
 
-	auto Random = m_World->GameWindow()->Random();
-	float RandomFloat = Random->PercentageFloat();
+	auto randomizer = Application.GetRandomizer();
+	float RandomFloat = randomizer->PercentageFloat();
 	if (RandomFloat <= 1 / 8.0f) m_ErrorType = DISORIANTED;
 	else if (RandomFloat <= 2 / 8.0f)
 	{ m_ErrorType = SPIKY; }
@@ -89,7 +89,7 @@ void Crate::Tick()
 		sHitSound[rand() % 3].GetSound()->PlaySound();
 		if (m_DropType != ERROR)
 		{
-			auto Ammo_type = m_World->GameWindow()->Random()->UnsignedInt() % NUM_AMMO_TYPES;
+			auto Ammo_type = Application.GetRandomizer()->UnsignedInt() % NUM_AMMO_TYPES;
 			new AmmoBox(m_World, AmmoType(Ammo_type), m_Core.Pos, 20);
 		}
 		else
@@ -104,12 +104,11 @@ void Crate::Tick()
 void Crate::Draw()
 {
 
-	Drawing *Render = m_World->GameWindow()->Render();
-
+	auto drawing = Application.GetDrawing();
 	SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
 						   float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
 						   float(m_Core.Size.x),
 						   float(m_Core.Size.y) };
 
-	Render->RenderTextureFCamera(m_Texture->SDLTexture(), nullptr, DrawRect);
+	drawing->RenderTexture(m_Texture->SDLTexture(), nullptr, DrawRect, GameReference.GetCamera());
 }

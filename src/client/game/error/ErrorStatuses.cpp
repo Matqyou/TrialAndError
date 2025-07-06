@@ -3,11 +3,11 @@
 //
 
 #include "ErrorStatuses.h"
+#include "client/game/GameReference.h"
 
-LoadedTexture ErrorStatuses::sTextureErrorFrame("interface.ingame.error_frame");
-LoadedTexture ErrorStatuses::sTextureErrorBackground("interface.ingame.error_background");
-
-LoadedTexture ErrorStatuses::sTextureFrame("interface.frame");
+LinkTexture sTextureErrorFrame("interface.ingame.error_frame");
+LinkTexture sTextureErrorBackground("interface.ingame.error_background");
+LinkTexture sTextureFrame("interface.frame");
 
 void ErrorFrames::CreateFrames(std::vector<ErrorStatusEffect *>& group)
 {
@@ -74,7 +74,7 @@ ErrorStatuses::ErrorStatuses(Interface *interface, Character *parent, bool gui)
 	m_Gui = gui;
 
 	m_LastActivatedEffect = nullptr;
-	m_Drawing = interface->GameWindow()->Render();
+	m_Drawing = Application.GetDrawing();
 
 	if (gui) m_Frames.CreateFramesUI(m_Effects);
 	else m_Frames.CreateFrames(m_Effects);
@@ -90,10 +90,8 @@ bool ErrorStatuses::AnyActive()
 
 bool ErrorStatuses::AnyActive(double from_seconds_ago)
 {
-	GameData *game_window = m_Interface->GameWindow();
-
-	auto ticks_ago = (unsigned long long)(from_seconds_ago * game_window->Timer()->GetFramerate());
-	auto after_timestamp = game_window->World()->GetTick() - ticks_ago;
+	auto ticks_ago = (unsigned long long)(from_seconds_ago * Application.GetClock()->GetFramerate());
+	auto after_timestamp = GameReference.World()->GetTick() - ticks_ago;
 	for (auto effect : m_Effects)
 	{
 		if (!effect->IsActive())
@@ -113,7 +111,7 @@ void ErrorStatuses::Tick()
 		if (!effect->IsActive())
 			continue;
 
-		if (m_Interface->GameWindow()->World()->GetTick() >= effect->GetEndTimestamp())
+		if (GameReference.World()->GetTick() >= effect->GetEndTimestamp())
 			effect->Deactivate();
 	}
 }
@@ -129,7 +127,7 @@ void ErrorStatuses::DrawIngame()
 	if (m_Parent == nullptr)
 		return;
 
-	auto current_tick = m_Interface->GameWindow()->World()->GetTick();
+	auto current_tick = GameReference.World()->GetTick();
 	auto directional = (DirectionalEntity *)m_Parent;
 	auto
 		parent_offset = directional->GetDirectionalCore().Pos + Vec2d(directional->GetDirectionalCore().sizeRatio, 0.0);
@@ -146,11 +144,11 @@ void ErrorStatuses::DrawIngame()
 
 		auto& frame = *frames_it;
 		auto percentage = (double)(effect->GetEndTimestamp() - current_tick) / (double)effect->GetEffectDuration();
-		SDL_Rect source = {
+		SDL_FRect source = {
 			0,
 			0,
 			effect->GetTexture()->GetWidth(),
-			(int)(effect->GetTexture()->GetHeight() * percentage),
+			(float)(effect->GetTexture()->GetHeight() * percentage),
 		};
 		SDL_FRect frame_rect = {
 			(float)(parent_offset.x + frame.Pos.x + 5.0),
@@ -164,9 +162,9 @@ void ErrorStatuses::DrawIngame()
 			(float)(frame.Size.x),
 			(float)(frame.Size.y * percentage),
 		};
-		m_Drawing->RenderTextureFCamera(sTextureErrorBackground.GetTexture()->SDLTexture(), nullptr, frame_rect);
-		m_Drawing->RenderTextureFCamera(effect->GetTexture()->SDLTexture(), &source, effect_rect);
-		m_Drawing->RenderTextureFCamera(sTextureErrorFrame.GetTexture()->SDLTexture(), nullptr, frame_rect);
+		m_Drawing->RenderTexture(sTextureErrorBackground.GetTexture()->SDLTexture(), nullptr, frame_rect, GameReference.GetCamera());
+		m_Drawing->RenderTexture(effect->GetTexture()->SDLTexture(), &source, effect_rect, GameReference.GetCamera());
+		m_Drawing->RenderTexture(sTextureErrorFrame.GetTexture()->SDLTexture(), nullptr, frame_rect, GameReference.GetCamera());
 
 		frames_it++;
 	}
@@ -177,10 +175,9 @@ void ErrorStatuses::DrawAsGUI()
 	if (m_Parent == nullptr)
 		return;
 
-	GameData *game_window = m_Interface->GameWindow();
 
-	auto current_tick = game_window->World()->GetTick();
-	auto gui_offset = Vec2d(game_window->GetWidth(), 0.0);
+	auto current_tick = GameReference.World()->GetTick();
+	auto gui_offset = Vec2d(Application.GetWidth(), 0.0);
 
 	auto effects_it = m_Effects.begin();
 	auto frames_it = m_Frames.Frames.begin();
@@ -194,11 +191,10 @@ void ErrorStatuses::DrawAsGUI()
 
 		auto& frame = *frames_it;
 		auto percentage = (double)(effect->GetEndTimestamp() - current_tick) / (double)effect->GetEffectDuration();
-		SDL_Rect source = {
-			0,
-			0,
+		SDL_FRect source = {
+			0, 0,
 			effect->GetTexture()->GetWidth(),
-			(int)(effect->GetTexture()->GetHeight() * percentage),
+			(float)(effect->GetTexture()->GetHeight() * percentage),
 		};
 		SDL_FRect frame_rect = {
 			(float)(gui_offset.x + frame.Pos.x),
@@ -212,9 +208,9 @@ void ErrorStatuses::DrawAsGUI()
 			(float)(frame.Size.x),
 			(float)(frame.Size.y * percentage),
 		};
-		m_Drawing->RenderTextureF(sTextureErrorBackground.GetTexture()->SDLTexture(), nullptr, frame_rect);
-		m_Drawing->RenderTextureF(effect->GetTexture()->SDLTexture(), &source, effect_rect);
-		m_Drawing->RenderTextureF(sTextureErrorFrame.GetTexture()->SDLTexture(), nullptr, frame_rect);
+		m_Drawing->RenderTexture(sTextureErrorBackground.GetTexture()->SDLTexture(), nullptr, frame_rect, GameReference.GetCamera());
+		m_Drawing->RenderTexture(effect->GetTexture()->SDLTexture(), &source, effect_rect, GameReference.GetCamera());
+		m_Drawing->RenderTexture(sTextureErrorFrame.GetTexture()->SDLTexture(), nullptr, frame_rect, GameReference.GetCamera());
 
 		frames_it++;
 	}

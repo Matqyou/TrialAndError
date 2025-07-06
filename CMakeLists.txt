@@ -5,153 +5,73 @@ project(TrialAndError)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Include directories
-include_directories(deps/SDL2/include deps/SDL2_image/include deps/SDL2_mixer/include deps/SDL2_ttf/include)
-link_directories(deps/SDL2/lib/x64 deps/SDL2_image/lib/x64 deps/SDL2_mixer/lib/x64 deps/SDL2_ttf/lib/x64)
+# MinGW specific fixes
+if(MINGW)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-keep-inline-dllexport")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-keep-inline-dllexport")
+    # Add additional flags for template issues
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
+endif()
+
+# Configure SDL3 libraries before adding subdirectories
+set(SDL3IMAGE_DEPS_SHARED OFF CACHE BOOL "Use shared libraries for SDL3_image dependencies" FORCE)
+set(SDL3IMAGE_VENDORED ON CACHE BOOL "Use vendored libraries for SDL3_image" FORCE)
+
+set(SDL3MIXER_DEPS_SHARED OFF CACHE BOOL "Use shared libraries for SDL3_mixer dependencies" FORCE)
+set(SDL3MIXER_VENDORED ON CACHE BOOL "Use vendored libraries for SDL3_mixer" FORCE)
+
+# SDL3_ttf specific options - try multiple variable name variations
+set(SDLTTF_VENDORED ON CACHE BOOL "Use vendored libraries for SDL3_ttf" FORCE)
+
+# Try all possible variations of HarfBuzz disable flags
+set(SDL3TTF_HARFBUZZ OFF CACHE BOOL "Enable harfbuzz support" FORCE)
+set(SDL_TTF_HARFBUZZ OFF CACHE BOOL "Enable harfbuzz support" FORCE)
+set(SDLTTF_HARFBUZZ OFF CACHE BOOL "Enable harfbuzz support" FORCE)
+set(TTF_USE_HARFBUZZ OFF CACHE BOOL "Enable harfbuzz support" FORCE)
+
+# Try all possible variations of SVG disable flags
+set(SDL3TTF_SVG OFF CACHE BOOL "Enable SVG support" FORCE)
+set(SDL_TTF_SVG OFF CACHE BOOL "Enable SVG support" FORCE)
+set(SDLTTF_SVG OFF CACHE BOOL "Enable SVG support" FORCE)
+#set(SDLTTF_PLUTOSVG OFF CACHE BOOL "Enable SVG support" FORCE)
+
+# Disable external dependencies completely
+set(SDL3TTF_DEPS_SHARED OFF CACHE BOOL "Use shared libraries for dependencies" FORCE)
+set(SDL3TTF_INSTALL OFF CACHE BOOL "Install SDL3_ttf" FORCE)
+
+# Additional HarfBuzz disable flags
+set(HB_HAVE_FREETYPE OFF CACHE BOOL "Disable harfbuzz freetype" FORCE)
+set(HB_BUILD_SUBSET OFF CACHE BOOL "Disable harfbuzz subset" FORCE)
+set(HB_BUILD_UTILS OFF CACHE BOOL "Disable harfbuzz utils" FORCE)
+set(HB_BUILD_TESTS OFF CACHE BOOL "Disable harfbuzz tests" FORCE)
+
+# Try to disable all optional features in FreeType as well
+set(FT_DISABLE_HARFBUZZ ON CACHE BOOL "Disable harfbuzz in freetype" FORCE)
+
+# Add SDL3 submodules
+add_subdirectory(external/SDL3)
+add_subdirectory(external/SDL3_image)
+add_subdirectory(external/SDL3_mixer)
+add_subdirectory(external/SDL3_ttf)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
-# if (CMAKE_BUILD_TYPE STREQUAL "Release")
-#     set(BUILD_OPTIONS WIN32)
-# endif ()
-# if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-#     set(BUILD_OPTIONS)
-# endif ()
+file(GLOB_RECURSE PROJECT_FILES "src/*.cpp" "src/*.h" "src/*.inl" "res/icon_resource.rc")
 
-set(PROJECT_FILES
-        src/client/main.cpp
-        src/client/core/Clock.cpp
-        src/client/core/Clock.h
-        deps/icon_resource.rc
-        src/shared/utility/Colors.cpp
-        src/shared/utility/Colors.h
-        src/client/game/entities/characters/character/Character.cpp
-        src/client/game/entities/characters/character/Character.h
-        src/client/game/entities/Entity.cpp
-        src/client/game/entities/Entity.h
-        src/client/core/TextManager.cpp
-        src/client/core/TextManager.h
-        src/client/core/GameControllers.cpp
-        src/client/core/GameControllers.h
-        src/client/GameData.cpp
-        src/client/GameData.h
-        src/client/game/GameWorld.cpp
-        src/client/game/GameWorld.h
-        src/client/game/entities/Projectile.cpp
-        src/client/game/entities/Projectile.h
-        src/client/core/Drawing.cpp
-        src/client/core/Drawing.h
-        src/client/game/weapons/projectile/ProjectileWeapon.cpp
-        src/client/game/weapons/projectile/ProjectileWeapon.h
-        src/client/game/weapons/projectile/WeaponGlock.cpp
-        src/client/game/weapons/projectile/WeaponGlock.h
-        src/client/game/weapons/projectile/WeaponShotgun.cpp
-        src/client/game/weapons/projectile/WeaponShotgun.h
-        src/client/game/weapons/projectile/WeaponBurst.cpp
-        src/client/game/weapons/projectile/WeaponBurst.h
-        src/client/game/weapons/projectile/WeaponMinigun.cpp
-        src/client/game/weapons/projectile/WeaponMinigun.h
-        src/client/game/indicators/HealthBar.cpp
-        src/client/game/indicators/HealthBar.h
-        src/client/game/entities/characters/character/Hook.cpp
-        src/client/game/entities/characters/character/Hook.h
-        src/client/core/AssetsManager.cpp
-        src/client/core/AssetsManager.h
-        src/client/game/indicators/TextSurface.cpp
-        src/client/game/indicators/TextSurface.cpp
-        src/client/game/indicators/TextSurface.h
-        src/client/game/collision/TileMap.cpp
-        src/client/game/collision/TileMap.h
-        src/client/game/entities/AmmoBox.cpp
-        src/client/game/Player.cpp
-        src/client/game/Player.h
-        src/client/game/entities/Crate.cpp
-        src/client/game/entities/Crate.h
-        src/client/game/entities/Error.cpp
-        src/client/game/entities/Error.h
-        src/client/game/entities/characters/character/Hands.cpp
-        src/client/game/entities/characters/character/Hands.h
-        src/client/game/entities/characters/CharacterNPC.cpp
-        src/client/game/entities/characters/CharacterNPC.h
-        src/client/game/entities/item/ItemEntity.cpp
-        src/client/game/entities/item/ItemEntity.h
-        src/shared/Protocol.h
-        src/shared/utility/Vec2.h
-        src/shared/utility/Vec2.inl
-        src/shared/utility/Randomizer.cpp
-        src/shared/utility/Randomizer.h
-        src/client/game/entities/item/weapons/EntityGuns.cpp
-        src/client/game/entities/item/weapons/EntityGuns.h
-        src/client/game/entities/AmmoBox.h
-        src/client/game/entities/Crate.cpp
-        src/client/game/entities/Crate.h
-        src/client/game/entities/Error.cpp
-        src/client/game/entities/Error.h
-        src/client/game/weapons/projectile/WeaponSniper.cpp
-        src/client/game/weapons/projectile/WeaponSniper.h
-        src/client/core/Assets.h
-        src/client/core/Assets.cpp
-        src/client/game/weapons/projectile/WeaponSniper.h
-        src/client/game/interface/MainMenu.cpp
-        src/client/game/interface/MainMenu.h
-        src/client/game/interface/GameModeMenu.cpp
-        src/client/game/interface/GameModeMenu.h
-        src/client/game/interface/ClassSelectMenu.cpp
-        src/client/game/interface/ClassSelectMenu.h
-        src/client/game/interface/PauseMenu.cpp
-        src/client/game/interface/PauseMenu.h
-        src/client/game/interface/LevelUpMenu.cpp
-        src/client/game/interface/LevelUpMenu.h
-        src/client/game/weapons/projectile/PatersonNavy.cpp
-        src/client/game/weapons/projectile/PatersonNavy.h
-        src/client/ui/Particles.cpp
-        src/client/ui/Particles.h
-        src/client/game/error/base/ErrorStatusEffect.cpp
-        src/client/game/error/base/ErrorStatusEffect.h
-        src/client/game/error/effect/ErrorHealersParadise.h
-        src/client/game/error/effect/ErrorHealersParadise.cpp
-        src/client/game/error/effect/ErrorDisoriented.h
-        src/client/game/error/effect/ErrorDisoriented.cpp
-        src/client/game/error/effect/ErrorInvincible.h
-        src/client/game/error/effect/ErrorInvincible.cpp
-        src/client/game/error/effect/ErrorDangerousRecoil.h
-        src/client/game/error/effect/ErrorDangerousRecoil.cpp
-        src/client/game/error/effect/ErrorSpiky.h
-        src/client/game/error/effect/ErrorSpiky.cpp
-        src/client/game/error/effect/ErrorBulletFrenzy.h
-        src/client/game/error/effect/ErrorBulletFrenzy.cpp
-        src/client/game/error/effect/ErrorConfusingHealth.h
-        src/client/game/error/effect/ErrorConfusingHealth.cpp
-        src/client/game/error/effect/ErrorTeleport.h
-        src/client/game/error/effect/ErrorTeleport.cpp
-        src/client/game/error/effect/ErrorSlowdown.h
-        src/client/game/error/effect/ErrorSlowdown.cpp
-        src/client/game/error/effect/ErrorCantHear.h
-        src/client/game/error/effect/ErrorCantHear.cpp
-        src/client/game/error/effect/ErrorRangedFists.h
-        src/client/game/error/effect/ErrorRangedFists.cpp
-        src/client/game/error/ErrorStatuses.cpp
-        src/client/game/error/ErrorStatuses.h
-        src/client/game/interface/Interface.cpp
-        src/client/game/interface/Interface.h
-        src/client/game/classes/PlayerClass.cpp
-        src/client/game/classes/PlayerClass.h
-        src/client/game/classes/classTypes/CyborgClass.cpp
-        src/client/game/classes/classTypes/CyborgClass.h
-        src/client/game/classes/classTypes/HumanClass.cpp
-        src/client/game/classes/classTypes/HumanClass.h
-        src/client/game/classes/classTypes/ZombieClass.cpp
-        src/client/game/classes/classTypes/ZombieClass.h
-        src/client/game/classes/classTypes/VampireClass.cpp
-        src/client/game/classes/classTypes/VampireClass.h
-
-)
-
-add_executable(${PROJECT_NAME} ${BUILD_OPTIONS} ${PROJECT_FILES})
+add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
-target_link_libraries(${PROJECT_NAME} SDL2 SDL2main SDL2_image SDL2_mixer SDL2_ttf)
-target_link_options(${PROJECT_NAME} PRIVATE "-static")
+
+# Link SDL3 libraries from submodules
+target_link_libraries(${PROJECT_NAME}
+        SDL3::SDL3
+        SDL3_image::SDL3_image
+        SDL3_mixer::SDL3_mixer
+        SDL3_ttf::SDL3_ttf
+)
+
+# For static linking - try without this first, then add back if needed
+# target_link_options(${PROJECT_NAME} PRIVATE "-static")
 
 file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
@@ -170,4 +90,32 @@ function(copy_files SOURCE_DIR DEST_DIR)
 endfunction()
 
 copy_files(${CMAKE_CURRENT_SOURCE_DIR}/bin ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
-# Add automatic shortcut pls
+
+# Copy SDL3 DLLs to executable directory
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3::SDL3>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMENT "Copying SDL3.dll"
+)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3_image::SDL3_image>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMENT "Copying SDL3_image.dll"
+)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3_mixer::SDL3_mixer>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMENT "Copying SDL3_mixer.dll"
+)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMENT "Copying SDL3_ttf.dll"
+)

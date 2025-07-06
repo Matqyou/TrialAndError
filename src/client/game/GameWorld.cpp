@@ -3,19 +3,19 @@
 //
 
 #include "GameWorld.h"
-#include "Player.h"
-#include "entities/Entity.h"
 #include "entities/characters/character/Character.h"
 #include "entities/characters/CharacterNPC.h"
+#include "client/game/ui/CommonUI.h"
+#include "entities/Entity.h"
+#include "Player.h"
 #include <cmath>
 
-GameWorld::GameWorld(GameData *game_window, int width, int height)
+GameWorld::GameWorld(int width, int height)
 {
-	m_GameWindow = game_window;
-	m_PauseMenu = new PauseMenu(this);
-	m_LevelUpMenu = nullptr;
-	m_Particles = new Particles(this);
-	m_Tiles = new TileMap(game_window->Render(), 32, width, height);
+//	m_PauseMenu = new PauseMenu();
+//	m_LevelUpMenu = nullptr;
+	m_Particles = new Particles(); //
+	m_Tiles = new TileMap(32, width, height);
 	m_Width = m_Tiles->TotalWidth();
 	m_Height = m_Tiles->TotalHeight();
 	m_ShowNamesVisibility = 0.0;
@@ -33,7 +33,7 @@ GameWorld::GameWorld(GameData *game_window, int width, int height)
 	m_FirstPlayer = nullptr;
 	m_LastPlayer = nullptr;
 
-	m_Background = Assets::Get()->GetTexture("backgrounds.background_pattern");
+	m_Background = Assets.GetTexture("backgrounds.background_pattern");
 	m_BackgroundW = m_Background->GetWidth();
 	m_BackgroundH = m_Background->GetHeight();
 
@@ -42,9 +42,7 @@ GameWorld::GameWorld(GameData *game_window, int width, int height)
 	m_NumEnemiesPerWave = 1;
 	m_Round = 0;
 	m_Score = 0;
-	m_ScoreText = new TextSurface(m_GameWindow->Assetz(),
-								  m_GameWindow->Assetz()->TextHandler()->GetMainFont(),
-								  "Score: 0", { 150, 150, 0 });
+	m_ScoreText = new TextSurface(CommonUI::fontDefault, "Score: 0", { 150, 150, 0 });
 }
 
 GameWorld::~GameWorld()
@@ -76,21 +74,21 @@ void GameWorld::EnemyKilled(Player *player, Character *enemy)
 
 void GameWorld::CheckLevelUps()
 {
-	for (auto player = m_GameWindow->World()->FirstPlayer(); player != nullptr; player = player->Next())
-	{
-		std::queue<LevelUpMenu *> playerQueue = player->GetLevelUpMenuQueue();
-		if (!playerQueue.empty())
-		{
-			m_LevelUpMenu = (playerQueue.front());
-			playerQueue.pop();
-			player->SetLevelUpMenuQueue(playerQueue);
-		}
-		else
-			m_LevelUpMenu = nullptr;
-	}
-
-	if (m_LevelUpMenu != nullptr)
-		m_LevelUpMenu->Show();
+//	for (auto player = GameReference.World()->FirstPlayer(); player != nullptr; player = player->Next())
+//	{
+//		std::queue<LevelUpMenu *> playerQueue = player->GetLevelUpMenuQueue();
+//		if (!playerQueue.empty())
+//		{
+//			m_LevelUpMenu = (playerQueue.front());
+//			playerQueue.pop();
+//			player->SetLevelUpMenuQueue(playerQueue);
+//		}
+//		else
+//			m_LevelUpMenu = nullptr;
+//	}
+//
+//	if (m_LevelUpMenu != nullptr)
+//		m_LevelUpMenu->Show();
 }
 
 unsigned int GameWorld::GetNextPlayerIndex() const
@@ -234,32 +232,32 @@ void GameWorld::RemoveEntity(Entity *entity)
 		m_Last = entity->m_Prev;
 }
 
-void GameWorld::DestroyPlayerByController(GameController *DeletedController) const
-{
-	Player *Plr = m_FirstPlayer;
-	for (; Plr; Plr = Plr->m_Next)
-	{
-		Character *Char = Plr->GetCharacter();
-		if (Char->GetGameController() == DeletedController)
-		{
-			delete Plr;
-			return;
-		}
-	}
-}
+//void GameWorld::DestroyPlayerByController(GameController *DeletedController) const
+//{
+//	Player *Plr = m_FirstPlayer;
+//	for (; Plr; Plr = Plr->m_Next)
+//	{
+//		Character *Char = Plr->GetCharacter();
+//		if (Char->GetGameController() == DeletedController)
+//		{
+//			delete Plr;
+//			return;
+//		}
+//	}
+//}
 
-void GameWorld::DestroyCharacterByController(GameController *DeletedController) const
-{
-	Character *Char = FirstCharacter();
-	for (; Char; Char = (Character *)(Char->NextType()))
-	{
-		if (Char->GetGameController() == DeletedController)
-		{
-			delete Char;
-			return;
-		}
-	}
-}
+//void GameWorld::DestroyCharacterByController(GameController *DeletedController) const
+//{
+//	Character *Char = FirstCharacter();
+//	for (; Char; Char = (Character *)(Char->NextType()))
+//	{
+//		if (Char->GetGameController() == DeletedController)
+//		{
+//			delete Char;
+//			return;
+//		}
+//	}
+//}
 
 void GameWorld::ToggleShowNames()
 {
@@ -268,22 +266,22 @@ void GameWorld::ToggleShowNames()
 		m_ShowNamesVisibility = 1.0;
 }
 
-void GameWorld::Event(const SDL_Event& currentEvent)
+void GameWorld::HandleEvent(const SDL_Event& sdl_event)
 {
 	if (m_Paused)
 		return;
 
-	if (currentEvent.type == SDL_KEYDOWN)
+	if (sdl_event.type == SDL_EVENT_KEY_DOWN)
 	{
-		if (currentEvent.key.keysym.scancode == SDL_SCANCODE_SPACE)
+		if (sdl_event.key.scancode == SDL_SCANCODE_SPACE)
 			ToggleShowNames();
-		else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_O)
+		else if (sdl_event.key.scancode == SDL_SCANCODE_O)
 		{
 			m_Tiles->LoadTilemap("assets/tilemaps/test_level");
 			m_Width = m_Tiles->TotalWidth();
 			m_Height = m_Tiles->TotalHeight();
 		}
-		else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_P)
+		else if (sdl_event.key.scancode == SDL_SCANCODE_P)
 			m_Tiles->SaveTilemap("assets/tilemaps/test_level");
 	}
 
@@ -292,7 +290,7 @@ void GameWorld::Event(const SDL_Event& currentEvent)
 	for (; Current; Current = Next)
 	{
 		Next = (Character *)(Current->NextType());
-		Current->Event(currentEvent);
+		Current->Event(sdl_event);
 	}
 }
 
@@ -339,21 +337,21 @@ void GameWorld::TickCamera()
 
 	if (!FirstIteration)
 	{
-		double CameraX = (maxX + minX) / 2.0;
-		double CameraY = (maxY + minY) / 2.0;
-		double ZoomX = m_GameWindow->GetWidth() / (maxX - minX + 500);
-		double ZoomY = m_GameWindow->GetHeight() / (maxY - minY + 500);
+
+		float CameraX = ((float)maxX + (float)minX) / 2.0f;
+		float CameraY = ((float)maxY + (float)minY) / 2.0f;
+		double ZoomX = Application.GetWidth() / (maxX - minX + 500);
+		double ZoomY = Application.GetHeight() / (maxY - minY + 500);
 		double Zoom = std::min(ZoomX, ZoomY);
 
-		Drawing *Render = m_GameWindow->Render();
-		double OldCamX = Render->GetCameraX();
-		double OldCamY = Render->GetCameraY();
-		Render->SetCameraPos(OldCamX + 0.1 * (CameraX - OldCamX),
-							 OldCamY + 0.1 * (CameraY - OldCamY));
+		auto& camera = GameReference.GetCamera();
+		auto old_camera_pos = camera.GetPos();
+		auto new_camera_pos = Vec2f(old_camera_pos.x + 0.1f * (CameraX - old_camera_pos.x),
+									old_camera_pos.y + 0.1f * (CameraY - old_camera_pos.y));
+		camera.SetPos(new_camera_pos);
 
-		double OldZoom = Render->GetZoom();
-		double NewZoom = OldZoom + 0.1 * (Zoom - OldZoom);
-		Render->SetZoom(NewZoom > 1.0 ? 1.0 : NewZoom);
+		double old_camera_zoom = camera.GetZoom();
+		camera.SetZoom(old_camera_zoom + 0.1 * (Zoom - old_camera_zoom));
 	}
 }
 
@@ -365,7 +363,7 @@ void GameWorld::TickSpawner()
 	m_LastWave = m_CurrentTick;
 	m_Round += 1;
 	m_NumEnemiesPerWave = (unsigned int)(1.0 + std::pow(m_Round, 0.5) * 2);
-	m_TimeBetweenWaves = (unsigned long long)((m_Round * m_NumEnemiesPerWave) * m_GameWindow->Timer()->GetFramerate());
+	m_TimeBetweenWaves = (unsigned long long)((m_Round * m_NumEnemiesPerWave) * Application.GetClock()->GetFramerate());
 	m_Score += m_Round * 50;
 	char msg[64];
 	std::snprintf(msg, sizeof(msg), "Score: %i", m_Score);
@@ -446,7 +444,7 @@ void GameWorld::TickDestroy()
 	}
 }
 
-void GameWorld::Tick()
+void GameWorld::Tick(double elapsed_seconds)
 {
 	if (m_Paused || m_GameOver)
 		return;
@@ -465,17 +463,17 @@ void GameWorld::Tick()
 
 void GameWorld::Draw()
 {
-	Drawing *Render = m_GameWindow->Render();
+	auto drawing = Application.GetDrawing();
 
 	// Stop drawing when the game has been triggered as over
 	if (!m_GameOver)
 	{
-		SDL_Rect DestinationRect = { 0, 0, int(m_Width), int(m_Height) };
-		Render->RenderTextureCamera(m_Background->SDLTexture(), nullptr, DestinationRect);
+		SDL_FRect DestinationRect = { 0, 0, float(m_Width), float(m_Height) };
+		drawing->RenderTexture(m_Background->SDLTexture(), nullptr, DestinationRect, GameReference.GetCamera());
 
-		SDL_Rect DrawRect = { 0, 0, int(m_Width), int(m_Height) };
-		Render->SetColor(100, 100, 100, 255);
-		Render->DrawRectCamera(DrawRect);
+		SDL_FRect DrawRect = { 0, 0, float(m_Width), float(m_Height) };
+		drawing->SetColor(100, 100, 100, 255);
+		drawing->DrawRect(DrawRect, false, GameReference.GetCamera());
 
 		m_Particles->Draw();
 		for (auto Current : m_FirstType)
@@ -487,11 +485,11 @@ void GameWorld::Draw()
 
 	// Draw the score value
 	Texture *ScoreTexture = m_ScoreText->RequestUpdate();
-	int ScoreWidth = int(ScoreTexture->GetWidth() * 2.5);
-	int ScoreHeight = int(ScoreTexture->GetHeight() * 2.5);
-	SDL_Rect ScoreRect = { 0, int(m_GameWindow->GetHeight() - ScoreHeight), ScoreWidth, ScoreHeight };
+	float ScoreWidth = float(ScoreTexture->GetWidth() * 2.5);
+	float ScoreHeight = float(ScoreTexture->GetHeight() * 2.5);
+	SDL_FRect ScoreRect = { 0, (float)(Application.GetHeight()) - ScoreHeight, ScoreWidth, ScoreHeight };
 	if (!m_GameOver)
-		Render->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
+		drawing->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
 	else
-		Render->RenderTextureFullscreen(ScoreTexture->SDLTexture(), nullptr);
+		drawing->RenderTextureFullscreen(ScoreTexture->SDLTexture(), nullptr);
 }

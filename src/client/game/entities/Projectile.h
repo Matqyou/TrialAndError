@@ -6,7 +6,7 @@
 
 #include "../weapons/projectile/ProjectileWeapon.h"
 #include "Entity.h"
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 class Projectile : public Entity
 {
@@ -22,8 +22,8 @@ private:
 	void TickWallCollision();
 
 public:
-	static LoadedTexture sTextureSpark;
-	static LoadedSound sMetalImpactSounds[2];
+//	static LoadedTexture sTextureSpark;
+//	static LoadedSound sMetalImpactSounds[2];
 
 	Projectile(GameWorld *world,
 			   Entity *shooter,

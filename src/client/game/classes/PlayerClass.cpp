@@ -1,27 +1,31 @@
 #include "PlayerClass.h"
-#include "./ClassTypes/HumanClass.h"
-#include "./ClassTypes/CyborgClass.h"
-#include "./ClassTypes/ZombieClass.h"
-#include "./ClassTypes/VampireClass.h"
-
+#include "client/game/classes/ClassTypes/HumanClass.h"
+#include "client/game/classes/ClassTypes/CyborgClass.h"
+#include "client/game/classes/ClassTypes/ZombieClass.h"
+#include "client/game/classes/ClassTypes/VampireClass.h"
 #include <algorithm>
 
-PlayerClass *PlayerClass::FromString(const std::string& name)
+PlayerClass::PlayerClass(int player_class_type)
+	: class_type(player_class_type)
 {
-	std::string lower = name;
-	std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 
-	if (lower == "human")
-		return new HumanClass();
-	else if (lower == "cyborg")
-		return new CyborgClass();
-	else if (lower == "zombie")
-		return new ZombieClass();
-	else if (lower == "vampire")
-		return new VampireClass();
-	return CreateDefaultClass();
 }
-PlayerClass *PlayerClass::CreateDefaultClass()
+
+const char *PlayerClass::GetName() const
 {
-	return new HumanClass();
+	return ClassTypeNames[class_type];
+}
+
+PlayerClass *PlayerClass::CreateClass(int player_class_type)
+{
+	switch (player_class_type)
+	{
+		case PLAYERCLASS_HUMAN: return new HumanClass();
+		case PLAYERCLASS_CYBORG: return new CyborgClass();
+		case PLAYERCLASS_ZOMBIE: return new ZombieClass();
+		case PLAYERCLASS_VAMPIRE: return new VampireClass();
+
+		case NUM_PLAYERCLASSES:
+		default: return new HumanClass();
+	}
 }

@@ -7,8 +7,8 @@
 #include "../CharacterNPC.h"
 #include <cmath>
 
-LoadedTexture Hands::sFistTexture("entity.character.fist");
-LoadedSound Hands::sPunchSound("entity.character.punch");
+LinkTexture sFistTexture("entity.character.fist");
+LinkSound sPunchSound("entity.character.punch");
 
 Hands::Hands(Character *parent, double fist_animation_duration)
 	: m_FistingAnimationDuration(fist_animation_duration)
@@ -121,7 +121,7 @@ void Hands::Draw()
 {
 	GameWorld *World = m_Parent->World();
 	auto& ParentCore = m_Parent->GetDirectionalCore();
-	Drawing *Render = World->GameWindow()->Render();
+	auto drawing = Application.GetDrawing();
 
 	auto CurrentTick = World->GetTick();
 	auto direction = m_Parent->GetDirectionalCore().Direction;
@@ -163,9 +163,9 @@ void Hands::Draw()
 								float(m_Size), float(m_Size) };
 
 	sFistTexture.GetTexture()->SetColorMod(m_Color.r, m_Color.g, m_Color.b);
-	Render->RenderTextureExFCamera(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE);
-	Render->RenderTextureExFCamera(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE);
+	drawing->RenderTextureRotated(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE, GameReference.GetCamera());
+	drawing->RenderTextureRotated(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE, GameReference.GetCamera());
 
-	Render->SetColor(255, 0, 0, 255);
-	Render->RenderDebugPointCamera(ParentCore.Pos.x, ParentCore.Pos.y);
+//	Render->SetColor(255, 0, 0, 255);
+//	Render->RenderDebugPointCamera(ParentCore.Pos.x, ParentCore.Pos.y);
 }

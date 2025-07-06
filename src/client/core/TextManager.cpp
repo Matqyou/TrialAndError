@@ -124,9 +124,9 @@ TextManager::~TextManager()
 
 Texture *TextManager::Render(TTF_Font *font, const char *text, SDL_Color color)
 {
-	SDL_Surface *TempSurface = TTF_RenderText_Blended(font, text, color);
-	Texture *NewTexture = Assets::Get()->TextureFromSurface(TempSurface);
-	SDL_FreeSurface(TempSurface);
+	SDL_Surface *TempSurface = TTF_RenderText_Blended(font, text, strlen(text), color);
+	Texture *NewTexture = Assets.TextureFromSurface(TempSurface);
+	SDL_DestroySurface(TempSurface);
 	return NewTexture;
 }
 
@@ -135,7 +135,7 @@ TTF_Font *TextManager::LoadFont(const char *filepath, int ptsize)
 	TTF_Font *NewFont = TTF_OpenFont(filepath, ptsize);
 	if (!NewFont)
 	{
-		std::cout << FStringColors("[Fonts] &cError while loading font '%s'(%i) %s", filepath, ptsize, TTF_GetError())
+		std::cout << FStringColors("[Fonts] &cError while loading font '%s'(%i) %s", filepath, ptsize, SDL_GetError())
 				  << std::endl;
 		return nullptr;
 	}

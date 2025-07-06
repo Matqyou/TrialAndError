@@ -9,7 +9,6 @@
 class ErrorConfusingHealth : public ErrorStatusEffect
 {
 private:
-	static LoadedTexture sTextureConfusingHealth;
 
 public:
 	explicit ErrorConfusingHealth(ErrorStatuses *parent);

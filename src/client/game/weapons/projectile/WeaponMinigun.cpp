@@ -7,16 +7,16 @@
 #include "../../entities/Projectile.h"
 #include <cmath>
 
-LoadedTexture WeaponMinigun::sTextureWeapon[4] = {
-	LoadedTexture("weapons.minigun.1"),
-	LoadedTexture("weapons.minigun.2"),
-	LoadedTexture("weapons.minigun.3"),
-	LoadedTexture("weapons.minigun.4"),
+static LinkTexture sTextureWeapon[4] = {
+	LinkTexture("weapons.minigun.1"),
+	LinkTexture("weapons.minigun.2"),
+	LinkTexture("weapons.minigun.3"),
+	LinkTexture("weapons.minigun.4"),
 };
-LoadedTexture WeaponMinigun::sTextureProjectile("entity.projectile.minigun");
-LoadedSound WeaponMinigun::sShootSound("weapon.minigun.shoot");
-LoadedSound WeaponMinigun::sClickSound("weapon.minigun.fail_reload");
-LoadedSound WeaponMinigun::sReloadSound("weapon.minigun.reload");
+static LinkTexture sTextureProjectile("entity.projectile.minigun");
+static LinkSound sShootSound("weapon.minigun.shoot");
+static LinkSound sClickSound("weapon.minigun.fail_reload");
+static LinkSound sReloadSound("weapon.minigun.reload");
 Vec2d WeaponMinigun::sHoldPosition(10.0, 0.0);
 std::pair<Vec2d, Vec2d> WeaponMinigun::sHandPositions = {{ 10.0, -15.0 }, { 17.0, 13.0 }};
 

@@ -4,14 +4,12 @@
 
 #include "HealthBar.h"
 
-HealthBar::HealthBar(GameData *game_window,
-					 HasHealth *health_component,
+HealthBar::HealthBar(HasHealth *health_component,
 					 int width,
 					 int height,
 					 int spacing_w,
 					 int spacing_h)
 {
-	m_GameWindow = game_window;
 	m_HealthComponent = health_component;
 	m_Width = width;
 	m_Height = height;
@@ -25,10 +23,10 @@ HealthBar::HealthBar(GameData *game_window,
 	m_a = 0;
 	m_InnerWidth = m_Width - m_SpacingW * 2;
 	m_InnerHeight = m_Height - m_SpacingH * 2;
-	m_Texture = Assets::Get()->CreateTexture(SDL_PIXELFORMAT_RGBA8888,
-											 SDL_TEXTUREACCESS_TARGET,
-											 width,
-											 height);
+	m_Texture = Assets.CreateTexture(SDL_PIXELFORMAT_RGBA8888,
+									 SDL_TEXTUREACCESS_TARGET,
+									 width,
+									 height);
 
 	// HealthComponent validation (might not be the prettiest)
 #ifndef NDEBUG
@@ -58,15 +56,15 @@ Texture *HealthBar::UpdateTexture()
 	m_Ratio = *m_HealthReference / *m_MaxHealthReference;
 	int InnerWidth = (int)((double)(m_InnerWidth) * m_Ratio);
 
-	Drawing *Render = m_GameWindow->Render();
-	Render->SetRenderTarget(m_Texture);
-	Render->SetColor(255, 255, 255, 255);
-	Render->Clear();
+	auto drawing = Application.GetDrawing();
+	drawing->SetRenderTarget(m_Texture);
+	drawing->SetColor(255, 255, 255, 255);
+	drawing->Clear();
 
-	Render->SetColor(m_r, m_g, m_b, m_a);
-	SDL_Rect FillRect = { m_SpacingW, m_SpacingH, InnerWidth, m_InnerHeight };
-	Render->FillRect(FillRect);
-	Render->SetRenderTarget(nullptr);
+	drawing->SetColor(m_r, m_g, m_b, m_a);
+	SDL_FRect FillRect = { (float)m_SpacingW, (float)m_SpacingH, (float)InnerWidth, (float)m_InnerHeight };
+	drawing->DrawRect(FillRect, true);
+	drawing->SetRenderTarget(nullptr);
 
 	return m_Texture;
 }

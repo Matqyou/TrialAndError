@@ -4,7 +4,7 @@
 
 #include "ErrorInvincible.h"
 
-LoadedTexture ErrorInvincible::sTextureInvincible("icons.invincible");
+LinkTexture sTextureInvincible("icons.invincible");
 
 ErrorInvincible::ErrorInvincible(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,

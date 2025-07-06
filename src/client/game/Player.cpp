@@ -4,8 +4,9 @@
 
 #include "Player.h"
 #include "entities/characters/character/Character.h"
+#include "client/game/ui/CommonUI.h"
 
-Player::Player(GameWorld *game_world, const std::string& username, PlayerClass *primaryClass)
+Player::Player(GameWorld *game_world, const std::string& username, PlayerClass *player_class)
 	: m_GameWorld(game_world),
 	  m_Character(nullptr),
 	  m_Username(),
@@ -13,8 +14,7 @@ Player::Player(GameWorld *game_world, const std::string& username, PlayerClass *
 	  m_Level(1),
 	  m_Prev(nullptr),
 	  m_Next(nullptr),
-	  m_levelUpMenuQueue(),
-	  m_Class(primaryClass ? primaryClass : PlayerClass::FromString("Human"))
+	  m_Class(player_class ? player_class : PlayerClass::CreateClass(PLAYERCLASS_HUMAN))
 {
 	m_BossDamageAmp = 1;
 	m_BaseDamage = 10;
@@ -22,12 +22,9 @@ Player::Player(GameWorld *game_world, const std::string& username, PlayerClass *
 	m_MaxHealthAmp = 1;
 	m_ExtraLife = false;
 	SetUsername(username);
-	m_LevelUpMenu = new LevelUpMenu(m_GameWorld, this);
 	m_Index = -1;
 	m_Index = m_GameWorld->GetNextPlayerIndex();
-	m_NamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
-								  m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
-								  m_Username, { 255, 255, 255, 255 });
+	m_NamePlate = new TextSurface(CommonUI::fontDefault, m_Username, { 255, 255, 255, 255 });
 	m_GameWorld->AddPlayer(this);
 }
 
@@ -54,22 +51,25 @@ void Player::LevelUp()
 	m_Level++;
 	if (m_Character)
 	{
-		m_levelUpMenuQueue.push(this->GetLevelUpMenu());
+//		m_levelUpMenuQueue.push(this->GetLevelUpMenu());
 		m_Class->LevelupStats(this);
 		m_Character->LevelupStats(m_Level);
 	}
 	m_BaseDamage += 1;
 }
 
-void Player::AddPowerupUpgrade(const std::string& name)
+void Player::AddPowerupUpgrade(Powerup type, int times)
 {
-	m_UpgradeCounts[name]++;
+	// Cast to size_t because Powerup is an enum class
+	auto type_index = static_cast<size_t>(type);
+	m_UpgradeCounts[type_index] += times;
 }
 
-int Player::GetPowerupUpgradeCount(const std::string& name)
+int Player::GetPowerupUpgradeCount(Powerup type)
 {
-	auto it = m_UpgradeCounts.find(name);
-	return it != m_UpgradeCounts.end() ? it->second : 0;
+	// Cast to size_t because Powerup is an enum class
+	auto type_index = static_cast<size_t>(type);
+	return m_UpgradeCounts[type_index];
 }
 
 void Player::SetCharacter(Character *character)
@@ -92,6 +92,6 @@ void Player::SetUsername(const std::string& username)
 	else
 	{
 		std::cout << FStringColors("[Player] &8Setting username to: &f") << m_Class->GetName() << std::endl;
-		m_Username = m_Class->GetName() + " - " + username;
+		m_Username = Strings::FString("%s - %s", m_Class->GetName(), username.c_str());
 	}
 }

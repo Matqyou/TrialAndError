@@ -9,7 +9,6 @@
 class ErrorRangedFists : public ErrorStatusEffect
 {
 private:
-	static LoadedTexture sTextureRangedFists;
 
 public:
 	explicit ErrorRangedFists(ErrorStatuses *parent);

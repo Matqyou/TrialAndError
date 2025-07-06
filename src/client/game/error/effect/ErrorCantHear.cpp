@@ -4,7 +4,7 @@
 
 #include "ErrorCantHear.h"
 
-LoadedTexture ErrorCantHear::sTextureCantHear("icons.cant_hear");
+LinkTexture sTextureCantHear("icons.cant_hear");
 
 ErrorCantHear::ErrorCantHear(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,

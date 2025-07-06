@@ -7,6 +7,7 @@
 #include <iostream>
 #include "../../item/weapons/EntityGuns.h"
 #include "../../Projectile.h"
+#include "client/game/ui/CommonUI.h"
 #include <vector>
 
 #ifndef M_SQRT1_2
@@ -31,21 +32,21 @@ CharacterInput::CharacterInput()
 }
 
 // Link textures
-LoadedTexture Character::sCharacterTexture("entity.character.body");
-LoadedTexture Character::sTextureBlood("particle.blood");
+LinkTexture sCharacterTexture("entity.character.body");
+LinkTexture sTextureBlood("particle.blood");
 
 // Link sounds
-LoadedSound Character::sHitSounds[3] = {
-	LoadedSound("entity.character.hurt.1"),
-	LoadedSound("entity.character.hurt.2"),
-	LoadedSound("entity.character.hurt.3")
+LinkSound sHitSounds[3] = {
+	LinkSound("entity.character.hurt.1"),
+	LinkSound("entity.character.hurt.2"),
+	LinkSound("entity.character.hurt.3")
 };
-LoadedSound Character::sInvincibleHitSound("entity.character.hurt.invincible");
-LoadedSound Character::sDeathSound("entity.character.death");
-LoadedSound Character::sAmmoPickupSound("entity.ammo_box.pickup.6");
-LoadedSound Character::sItemSwitchSound("weapon.switch");
-LoadedSound Character::sThrowItemSound("weapon.throw");
-LoadedSound Character::sPickupItemSound("weapon.pickup");
+LinkSound sInvincibleHitSound("entity.character.hurt.invincible");
+LinkSound sDeathSound("entity.character.death");
+LinkSound sAmmoPickupSound("entity.ammo_box.pickup.6");
+LinkSound sItemSwitchSound("weapon.switch");
+LinkSound sThrowItemSound("weapon.throw");
+LinkSound sPickupItemSound("weapon.pickup");
 
 // Other
 TextSurface *Character::ms_BotNamePlate = nullptr;
@@ -73,10 +74,10 @@ Character::Character(GameWorld *world,
 	  m_BaseAcceleration(0.45),
 	  m_Hands(this, 10.0),
 	  m_Hook(this),
-	  m_HealthBar(world->GameWindow(), &m_HealthComponent, 75, 15, 2, 2),
+	  m_HealthBar(&m_HealthComponent, 75, 15, 2, 2),
 	  m_Input(),
 	  m_LastInput(),
-	  m_ErrorStatuses(world->GameWindow()->GetInterface(), this, !is_npc)
+	  m_ErrorStatuses(GameReference.GetInterface(), this, !is_npc)
 {
 	m_Player = player;
 	m_ColorHue = m_Player ? 60.0 - double(m_Player->GetIndex() * 30) : 0.0;
@@ -95,27 +96,21 @@ Character::Character(GameWorld *world,
 
 	m_PassiveRegeneration = 0.03; // health per tick when in combat
 	m_ActiveRegeneration = 0.1;   // health per tick out of combat
-	m_TicksOfCombatUntilRegeneration = (unsigned long long)(10 * m_World->GameWindow()->Timer()->GetFramerate());
+	m_TicksOfCombatUntilRegeneration = (unsigned long long)(10 * Application.GetClock()->GetFramerate());
 	m_LastInCombat = 0;
 
 	m_SelectedWeaponIndex = -1;
-	m_GameController = nullptr;
+//	m_GameController = nullptr;
 	memset(m_Movement, 0, sizeof(m_Movement));
 
 	m_NPC = is_npc;
 
-	TTF_Font *MainFont = m_World->GameWindow()->Assetz()->TextHandler()->GetMainFont();
-	m_AmmoCount = new TextSurface(m_World->GameWindow()->Assetz(),
-								  MainFont,
-								  "0", { 255, 255, 255 });
+	m_AmmoCount = new TextSurface(CommonUI::fontDefault, "0", { 255, 255, 255 });
 
 	auto CoordinateText = FString("Spawned [%ix, %iy]", int(start_pos.x), int(start_pos.y));
-	m_CoordinatePlate = new TextSurface(m_World->GameWindow()->Assetz(),
-										MainFont, CoordinateText, { 255, 255, 255 });
+	m_CoordinatePlate = new TextSurface(CommonUI::fontDefault, CoordinateText, { 255, 255, 255 });
 
-	m_HealthInt = new TextSurface(m_World->GameWindow()->Assetz(),
-								  m_World->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
-								  "0", { 0, 0, 0 });
+	m_HealthInt = new TextSurface(CommonUI::fontDefault, "0", { 0, 0, 0 });
 
 	m_HitTicks = 0;
 	m_CharacterColor = { 255, 255, 255, 255 };
@@ -126,9 +121,7 @@ Character::Character(GameWorld *world,
 	m_HealthRed = { 255, 0, 0, 255 };
 	m_HealthBlack = { 0, 0, 0, 255 };
 
-	m_ErrorText = new TextSurface(m_World->GameWindow()->Assetz(),
-								  m_World->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
-								  "m_ErrorText", { 255, 255, 255 });
+	m_ErrorText = new TextSurface(CommonUI::fontDefault, "m_ErrorText", { 255, 255, 255 });
 	// TODO: make vector of weapons instead of array
 }
 
@@ -236,7 +229,7 @@ void Character::DropWeapon()
 
 	NewWeapon->Accelerate(m_DirectionalCore.Direction * 20);
 	NewWeapon->SetRotation(m_DirectionalCore.Direction.Atan2());
-	NewWeapon->AccelerateRotation(std::fmod(m_World->GameWindow()->Random()->Float(), 0.7f) - 0.35f);
+	NewWeapon->AccelerateRotation(std::fmod(Application.GetRandomizer()->Float(), 0.7f) - 0.35f);
 	m_CurrentWeapon = nullptr;
 }
 
@@ -379,7 +372,7 @@ void Character::EventDeath()
 
 		NewWeapon->Accelerate(m_DirectionalCore.Direction * 5);
 		NewWeapon->SetRotation(m_DirectionalCore.Direction.Atan2());
-		NewWeapon->AccelerateRotation(std::fmod(m_World->GameWindow()->Random()->Float(), 0.35f) - 0.175f);
+		NewWeapon->AccelerateRotation(std::fmod(Application.GetRandomizer()->Float(), 0.35f) - 0.175f);
 	}
 
 	if (!m_NPC)
@@ -432,12 +425,12 @@ void Character::TickKeyboardControls()
 	}
 
 	// RequestUpdate look direction
-	int XMouse, YMouse;
+	float XMouse, YMouse;
 	SDL_GetMouseState(&XMouse, &YMouse);
-	Drawing *Render = m_World->GameWindow()->Render();
-	double Zoom = Render->GetZoom();
-	m_Input.m_LookingX = Render->GetCameraX() - m_Core.Pos.x + (XMouse - m_World->GameWindow()->GetWidth2()) / Zoom;
-	m_Input.m_LookingY = Render->GetCameraY() - m_Core.Pos.y + (YMouse - m_World->GameWindow()->GetHeight2()) / Zoom;
+
+	auto camera = GameReference.GetCamera();
+	m_Input.m_LookingX = camera.GetPos().x - m_Core.Pos.x + (XMouse - Application.GetWidth2()) / camera.GetZoom();
+	m_Input.m_LookingY = camera.GetPos().y - m_Core.Pos.y + (YMouse - Application.GetHeight2()) / camera.GetZoom();
 	m_Input.m_LookingLength = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY).Length();
 
 	if (m_Input.m_LookingLength != 0.0)
@@ -452,8 +445,8 @@ void Character::TickKeyboardControls()
 	}
 
 	auto MouseState = SDL_GetMouseState(nullptr, nullptr);
-	m_Input.m_Shooting = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT); // If clicked, shoot = true
-	m_Input.m_Hooking = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
+	m_Input.m_Shooting = MouseState & SDL_BUTTON_LMASK; // If clicked, shoot = true
+	m_Input.m_Hooking = MouseState & SDL_BUTTON_RMASK;
 	m_Input.m_Sneaking = m_Movement[CONTROL_SHIFT];
 
 	// Switch weapons TODO mouse input class
@@ -463,44 +456,45 @@ void Character::TickKeyboardControls()
 	//    && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
 }
 
+// Todo: update to SDL3
 void Character::TickGameControllerControls()
 {
-	// Sneaking
-	m_Input.m_Sneaking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
-
-	// Check for current joystick values
-	m_GameController->GetJoystick1(m_Input.m_GoingX, m_Input.m_GoingY);
-
-	// AxisX**2 + AxisY**2 <= 1 (keep direction length of 1)
-	m_Input.m_GoingLength = Vec2d(m_Input.m_GoingX, m_Input.m_GoingY).Length();
-	m_Input.m_GoingX /= m_Input.m_GoingLength;
-	m_Input.m_GoingY /= m_Input.m_GoingLength;
-
-	// RequestUpdate look direction
-	double LookingX, LookingY;
-	m_GameController->GetJoystick2(LookingX, LookingY);
-
-	m_Input.m_LookingLength = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY).Length();
-	if (m_Input.m_LookingLength >= 0.6)
-	{
-		m_Input.m_LookingX = LookingX / m_Input.m_LookingLength;
-		m_Input.m_LookingY = LookingY / m_Input.m_LookingLength;
-	}
-
-	// Shooting
-	m_Input.m_Shooting = m_GameController->GetRightTrigger() > 0.7;
-	m_Input.m_Hooking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-	m_Input.m_Reloading = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X);
-
-	// Switch weapons
-	m_Input.m_NextItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
-		&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-	m_Input.m_PrevItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)
-		&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-	m_Input.m_DeselectItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP)
-		&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_UP) ||
-		m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)
-			&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+//	// Sneaking
+//	m_Input.m_Sneaking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
+//
+//	// Check for current joystick values
+//	m_GameController->GetJoystick1(m_Input.m_GoingX, m_Input.m_GoingY);
+//
+//	// AxisX**2 + AxisY**2 <= 1 (keep direction length of 1)
+//	m_Input.m_GoingLength = Vec2d(m_Input.m_GoingX, m_Input.m_GoingY).Length();
+//	m_Input.m_GoingX /= m_Input.m_GoingLength;
+//	m_Input.m_GoingY /= m_Input.m_GoingLength;
+//
+//	// RequestUpdate look direction
+//	double LookingX, LookingY;
+//	m_GameController->GetJoystick2(LookingX, LookingY);
+//
+//	m_Input.m_LookingLength = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY).Length();
+//	if (m_Input.m_LookingLength >= 0.6)
+//	{
+//		m_Input.m_LookingX = LookingX / m_Input.m_LookingLength;
+//		m_Input.m_LookingY = LookingY / m_Input.m_LookingLength;
+//	}
+//
+//	// Shooting
+//	m_Input.m_Shooting = m_GameController->GetRightTrigger() > 0.7;
+//	m_Input.m_Hooking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+//	m_Input.m_Reloading = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X);
+//
+//	// Switch weapons
+//	m_Input.m_NextItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
+//		&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+//	m_Input.m_PrevItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)
+//		&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+//	m_Input.m_DeselectItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP)
+//		&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_UP) ||
+//		m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)
+//			&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
 }
 
 // When in combat heal differently than out of combat
@@ -514,10 +508,11 @@ void Character::TickHealth()
 
 void Character::TickControls()
 {
-	if (m_GameController)
-		TickGameControllerControls();
-	else
-		TickKeyboardControls();
+	// Todo: update to SDL3
+//	if (m_GameController)
+//		TickGameControllerControls();
+//	else
+	TickKeyboardControls();
 
 	if (m_Input.m_LookingLength <= 0.6 && m_Input.m_GoingLength > 0.2)
 	{
@@ -667,8 +662,7 @@ void Character::DrawErrorIcons()
 
 void Character::DrawCharacter()
 {
-	Drawing *Render = m_World->GameWindow()->Render();
-
+	auto drawing = Application.GetDrawing();
 	SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
 						   float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
 						   float(m_Core.Size.x),
@@ -678,24 +672,22 @@ void Character::DrawCharacter()
 
 	Vec2d PointingVector = m_DirectionalCore.Direction * 3.0 + m_Core.Vel / 3.0;
 	double PointingAngle = PointingVector.Atan2() / M_PI * 180.0;
-	SDL_RendererFlip flip = SDL_FLIP_NONE;
-	Render->RenderTextureExFCamera(sCharacterTexture.GetTexture()->SDLTexture(),
-								   nullptr,
-								   DrawRect,
-								   PointingAngle - 90.0,
-								   nullptr,
-								   flip);
+	SDL_FlipMode flip = SDL_FLIP_NONE;
+	drawing->RenderTextureRotated(sCharacterTexture.GetTexture()->SDLTexture(),
+								  nullptr, DrawRect,
+								  PointingAngle - 90.0, nullptr,
+								  flip, GameReference.GetCamera());
 }
 
 void Character::DrawHook()
 {
-	Drawing *Render = m_World->GameWindow()->Render();
+	auto drawing = Application.GetDrawing();
 
 	// Draw hook
 	if (m_Hook.m_Deployed)
 	{
-		Render->SetColor(m_HookColor.r, m_HookColor.g, m_HookColor.b, 255);
-		Render->LineCamera(m_Core.Pos.x, m_Core.Pos.y, m_Hook.m_x, m_Hook.m_y);
+		drawing->SetColor(m_HookColor.r, m_HookColor.g, m_HookColor.b, 255);
+		drawing->DrawLine(Vec2f(m_Core.Pos), Vec2f(m_Hook.m_x, m_Hook.m_y), GameReference.GetCamera());
 	}
 }
 
@@ -704,7 +696,7 @@ void Character::DrawHealthbar()
 	if (m_NPC)
 		return;
 
-	Drawing *Render = m_World->GameWindow()->Render();
+	auto drawing = Application.GetDrawing();
 
 	// Render health bar
 	if (m_HealthComponent.IsFullHealth())
@@ -714,11 +706,11 @@ void Character::DrawHealthbar()
 	Texture *HealthPlate = m_ErrorStatuses.ConfusingHealth.IsActive() ? m_HealthBar.GetTexture()
 																	  : m_HealthBar.UpdateTexture();
 
-	int HealthBarW = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
-	int HealthBarH = HealthPlate->GetHeight();
-	SDL_Rect HealthplateRect = { int(m_Core.Pos.x - HealthBarW / 2.0) + 10, // Adjust position to the right
-								 int(m_Core.Pos.y + m_Core.Size.y / 2.0),
-								 HealthBarW, HealthBarH };
+	float HealthBarW = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
+	float HealthBarH = HealthPlate->GetHeight();
+	SDL_FRect HealthplateRect = { float(m_Core.Pos.x - HealthBarW / 2.0) + 10, // Adjust position to the right
+								  float(m_Core.Pos.y + m_Core.Size.y / 2.0),
+								  HealthBarW, HealthBarH };
 
 	if (m_HealthInt->GetFlaggedForUpdate())
 	{
@@ -735,34 +727,34 @@ void Character::DrawHealthbar()
 	Texture *HealthTexture = m_HealthInt->RequestUpdate();
 	double HealthTextureW = HealthTexture->GetWidth();
 	double HealthTextureH = HealthTexture->GetHeight();
-	SDL_Rect HealthIntRect = { int(m_Core.Pos.x - HealthTextureW / 4.0) + 10, // Adjust position to the right
-							   int(m_Core.Pos.y + m_Core.Size.y / 2.0 + HealthTextureH / 4.0),
-							   int(HealthTextureW / 2.0),
-							   int(HealthTextureH / 2.0) };
+	SDL_FRect HealthIntRect = { float(m_Core.Pos.x - HealthTextureW / 4.0) + 10, // Adjust position to the right
+								float(m_Core.Pos.y + m_Core.Size.y / 2.0 + HealthTextureH / 4.0),
+								float(HealthTextureW / 2.0),
+								float(HealthTextureH / 2.0) };
 
-	Render->RenderTextureCamera(HealthPlate->SDLTexture(), nullptr, HealthplateRect);
-	Render->RenderTextureCamera(HealthTexture->SDLTexture(), nullptr, HealthIntRect);
+	drawing->RenderTexture(HealthPlate->SDLTexture(), nullptr, HealthplateRect, GameReference.GetCamera());
+	drawing->RenderTexture(HealthTexture->SDLTexture(), nullptr, HealthIntRect, GameReference.GetCamera());
 
 	// Draw level indicator
-	TTF_Font *SmallFont = m_World->GameWindow()->Assetz()->TextHandler()->GetFont(1);
 	std::string LevelText = FString("LVL %i", m_Player->GetLevel()); // Use the level value directly
-	TextSurface LevelSurface(m_World->GameWindow()->Assetz(), SmallFont, LevelText, { 255, 255, 255 });
+	TextSurface LevelSurface(CommonUI::fontSmall, LevelText, { 255, 255, 255 });
 	Texture *LevelTexture = LevelSurface.RequestUpdate();
-	int LevelTextureW = LevelTexture->GetWidth();
-	int LevelTextureH = LevelTexture->GetHeight();
-	SDL_Rect LevelRect = {
-		int(m_Core.Pos.x - HealthBarW / 2.0) - LevelTextureW + 5, // Position to the left of the health bar
-		int(m_Core.Pos.y + m_Core.Size.y / 2.0) + 3,
+	float LevelTextureW = LevelTexture->GetWidth();
+	float LevelTextureH = LevelTexture->GetHeight();
+	SDL_FRect LevelRect = {
+		float(m_Core.Pos.x - HealthBarW / 2.0) - LevelTextureW + 5, // Position to the left of the health bar
+		float(m_Core.Pos.y + m_Core.Size.y / 2.0) + 3,
 		LevelTextureW,
 		LevelTextureH
 	};
 
-	Render->RenderTextureCamera(LevelTexture->SDLTexture(), nullptr, LevelRect);
+	drawing->RenderTexture(LevelTexture->SDLTexture(), nullptr, LevelRect, GameReference.GetCamera());
 }
 
 void Character::DrawHands()
 {
-	Drawing *Render = m_World->GameWindow()->Render();
+	auto drawing = Application.GetDrawing();
+	auto camera = GameReference.GetCamera();
 
 	m_Hands.SetColor(m_HandColor);
 	m_Hands.Draw();
@@ -779,7 +771,7 @@ void Character::DrawHands()
 		WeaponRect.h *= 4;
 		WeaponRect.x = float(m_Core.Pos.x + HoldPosition.x);
 		WeaponRect.y = float(m_Core.Pos.y + HoldPosition.y - float(WeaponRect.h) / 2.0);
-		SDL_FPoint WeaponPivot = { 0, float(double(WeaponRect.h) / 2.0 * Render->GetZoom()) };
+		SDL_FPoint WeaponPivot = { 0, float(double(WeaponRect.h) / 2.0 * camera.GetZoom()) };
 
 		// Laser sight
 		if (m_CurrentWeapon->WepType() == WeaponType::WEAPON_SNIPER)
@@ -817,16 +809,14 @@ void Character::DrawHands()
 
 				if (found) break;
 			}
-			Render->SetColor(255, 0, 0, 255);
-			Render->LineCamera(m_Core.Pos.x, m_Core.Pos.y, current_position.x, current_position.y);
+			drawing->SetColor(255, 0, 0, 255);
+			drawing->DrawLine(Vec2f(m_Core.Pos), Vec2f(current_position), camera);
 		}
 
-		Render->RenderTextureExFCamera(texture->SDLTexture(),
-									   nullptr,
-									   WeaponRect,
-									   Radians / M_PI * 180.0,
-									   &WeaponPivot,
-									   SDL_FLIP_VERTICAL);
+		drawing->RenderTextureRotated(texture->SDLTexture(),
+									  nullptr, WeaponRect,
+									  Radians / M_PI * 180.0, &WeaponPivot,
+									  SDL_FLIP_VERTICAL, camera);
 	}
 }
 
@@ -836,38 +826,37 @@ void Character::DrawNameplate()
 	if (NameVisibility == 0.0)
 		return;
 
-	Drawing *Render = m_World->GameWindow()->Render();
+	auto drawing = Application.GetDrawing();
 
 	int Opacity = int(NameVisibility * 255.0);
-
 	Texture *NamePlateTexture = m_Player ? m_Player->GetNamePlate()->RequestUpdate() : ms_BotNamePlate->GetTexture();
 
-	int NamePlateW = NamePlateTexture->GetWidth();
-	int NamePlateH = NamePlateTexture->GetHeight();
-	SDL_Rect NamePlateRect = { int(m_Core.Pos.x - NamePlateW / 2.0),
-							   int(m_Core.Pos.y - m_Core.Size.y / 2.0 - NamePlateH),
-							   NamePlateW, NamePlateH };
+	float NamePlateW = NamePlateTexture->GetWidth();
+	float NamePlateH = NamePlateTexture->GetHeight();
+	SDL_FRect NamePlateRect = { float(m_Core.Pos.x - NamePlateW / 2.0),
+								float(m_Core.Pos.y - m_Core.Size.y / 2.0 - NamePlateH),
+								NamePlateW, NamePlateH };
 
 	SDL_SetTextureAlphaMod(NamePlateTexture->SDLTexture(), Opacity);
-	Render->RenderTextureCamera(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect);
+	drawing->RenderTexture(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect, GameReference.GetCamera());
 
 	auto CoordinateText = FString("%ix, %iy", int(m_Core.Pos.x), int(m_Core.Pos.y));
 	m_CoordinatePlate->SetText(CoordinateText);
 	m_CoordinatePlate->SetColor(m_NameplateColor);
 	Texture *CoordinateTexture = m_CoordinatePlate->RequestUpdate();
 
-	int CoordinatePlateW = NamePlateTexture->GetWidth();
-	int CoordinatePlateH = NamePlateTexture->GetHeight();
-	SDL_Rect CoordinateRect = { int(m_Core.Pos.x - CoordinatePlateW / 2.0),
-								int(NamePlateRect.y - CoordinatePlateH),
-								CoordinatePlateW, CoordinatePlateH };
+	float CoordinatePlateW = NamePlateTexture->GetWidth();
+	float CoordinatePlateH = NamePlateTexture->GetHeight();
+	SDL_FRect CoordinateRect = { float(m_Core.Pos.x - CoordinatePlateW / 2.0),
+								 float(NamePlateRect.y - CoordinatePlateH),
+								 CoordinatePlateW, CoordinatePlateH };
 	SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), Opacity);
-	Render->RenderTextureCamera(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
+	drawing->RenderTexture(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect, GameReference.GetCamera());
 }
 
 void Character::DrawAmmoCounter()
 {
-	Drawing *Render = m_World->GameWindow()->Render();
+	auto drawing = Application.GetDrawing();
 
 	char msg[64];
 	std::snprintf(msg, sizeof(msg), "%u/%u", m_CurrentWeapon->GetMagAmmo(), m_CurrentWeapon->GetTrueAmmo());
@@ -876,12 +865,12 @@ void Character::DrawAmmoCounter()
 	else m_AmmoCount->SetColor({ 255, 255, 255 });
 
 	Texture *AmmoTexture = m_AmmoCount->RequestUpdate();
-	int AmmoTextureW = AmmoTexture->GetWidth();
-	int AmmoTextureH = AmmoTexture->GetHeight();
-	SDL_Rect AmmoRect = { int(m_Core.Pos.x - AmmoTextureW / 2.0),
-						  int(m_Core.Pos.y + m_Core.Size.y / 2 + 20),
-						  AmmoTextureW, AmmoTextureH };
-	Render->RenderTextureCamera(AmmoTexture->SDLTexture(), nullptr, AmmoRect);
+	float AmmoTextureW = AmmoTexture->GetWidth();
+	float AmmoTextureH = AmmoTexture->GetHeight();
+	SDL_FRect AmmoRect = { float(m_Core.Pos.x - AmmoTextureW / 2.0),
+						   float(m_Core.Pos.y + m_Core.Size.y / 2 + 20),
+						   AmmoTextureW, AmmoTextureH };
+	drawing->RenderTexture(AmmoTexture->SDLTexture(), nullptr, AmmoRect, GameReference.GetCamera());
 }
 
 void Character::DrawErrorName()
@@ -889,9 +878,8 @@ void Character::DrawErrorName()
 	if (!m_ErrorStatuses.AnyActive(2.0))
 		return;
 
-	Drawing *Render = m_World->GameWindow()->Render();
+	auto drawing = Application.GetDrawing();
 	auto error_message = FString("Error %s activated", m_ErrorStatuses.GetLastActivated()->Name());
-
 	if (m_ErrorText->GetText() != error_message)
 	{
 		m_ErrorText->SetText(error_message);
@@ -899,70 +887,54 @@ void Character::DrawErrorName()
 	}
 
 	Texture *ErrorTexture = m_ErrorText->RequestUpdate();
-	int Text_w = ErrorTexture->GetWidth();
-	int Text_h = ErrorTexture->GetHeight();
-	SDL_Rect ErrorRect = { int(m_Core.Pos.x - (double)Text_w / 2.0),
-						   int(m_Core.Pos.y - 50.0),
-						   int(Text_w),
-						   int(Text_h) };
-	Render->RenderTextureCamera(ErrorTexture->SDLTexture(), nullptr, ErrorRect);
+	float Text_w = ErrorTexture->GetWidth();
+	float Text_h = ErrorTexture->GetHeight();
+	SDL_FRect ErrorRect = { float(m_Core.Pos.x - (double)Text_w / 2.0),
+							float(m_Core.Pos.y - 50.0),
+							Text_w, Text_h };
+	drawing->RenderTexture(ErrorTexture->SDLTexture(), nullptr, ErrorRect, GameReference.GetCamera());
 }
 
 void Character::Event(const SDL_Event& currentEvent)
 {
-	if (m_NPC || m_GameController)
+	if (m_NPC)
 		return;
 
-	if (currentEvent.type == SDL_KEYDOWN && currentEvent.key.repeat == 0 ||
-		currentEvent.type == SDL_KEYUP)
+//	if (m_GameController) // Todo: update sdl3
+//		return;
+
+	if (currentEvent.type == SDL_EVENT_KEY_DOWN && currentEvent.key.repeat == 0 ||
+		currentEvent.type == SDL_EVENT_KEY_UP)
 	{ // TODO: Put this into CharacterInput struct
-		bool State = currentEvent.type == SDL_KEYDOWN;
+		bool State = currentEvent.type == SDL_EVENT_KEY_DOWN;
 		if (State)
 		{
-			int KeyCode = currentEvent.key.keysym.scancode;
+			int KeyCode = currentEvent.key.scancode;
 			if (KeyCode == SDL_SCANCODE_GRAVE)
-			{
 				m_CurrentWeapon = nullptr;
-			}
 			else if (KeyCode == SDL_SCANCODE_1)
-			{
 				SwitchWeapon(WEAPON_GLOCK);
-			}
 			else if (KeyCode == SDL_SCANCODE_2)
-			{
 				SwitchWeapon(WEAPON_SHOTGUN);
-			}
 			else if (KeyCode == SDL_SCANCODE_3)
-			{
 				SwitchWeapon(WEAPON_BURST);
-			}
 			else if (KeyCode == SDL_SCANCODE_4)
-			{
 				SwitchWeapon(WEAPON_MINIGUN);
-			}
 			else if (KeyCode == SDL_SCANCODE_5)
-			{
 				SwitchWeapon(WEAPON_SNIPER);
-			}
 			else if (KeyCode == SDL_SCANCODE_6)
-			{
 				SwitchWeapon(WEAPON_PATERSONNAVY);
-			}
 			else if (KeyCode == SDL_SCANCODE_Q)
-			{
 				DropWeapon();
-			}
 		}
 
 		// Reloads weapon on keyboard player with R button press
-		if (currentEvent.key.keysym.scancode == SDL_SCANCODE_R)
+		if (currentEvent.key.scancode == SDL_SCANCODE_R)
 			m_Input.m_Reloading = State;
 
 		for (int i = 0; i < NUM_CONTROLS; i++)
-		{
-			if (currentEvent.key.keysym.scancode == ms_DefaultControls[i])
+			if (currentEvent.key.scancode == ms_DefaultControls[i])
 				m_Movement[i] = State;
-		}
 	}
 }
 

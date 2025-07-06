@@ -2,8 +2,9 @@
 // Created by Matq on 13/12/2024.
 //
 
-#include "ErrorStatusEffect.h"
 #include "../ErrorStatuses.h"
+#include "client/game/GameReference.h"
+#include "ErrorStatusEffect.h"
 
 ErrorStatusEffect::ErrorStatusEffect(ErrorStatuses *parent,
 									 ErrorType type,
@@ -30,7 +31,7 @@ void ErrorStatusEffect::Activate()
 	if (m_EffectDuration == 0)
 		return;
 
-	m_ActivatedTimestamp = m_Parent->GetInterface()->GameWindow()->World()->GetTick();
+	m_ActivatedTimestamp = GameReference.World()->GetTick();
 	m_EndTimestamp = m_ActivatedTimestamp + m_EffectDuration;
 	m_Active = true;
 }
@@ -44,6 +45,6 @@ void ErrorStatusEffect::Tick()
 	if (!m_Active)
 		return;
 
-	if (m_Parent->GetInterface()->GameWindow()->World()->GetTick() >= m_EndTimestamp)
+	if (GameReference.World()->GetTick() >= m_EndTimestamp)
 		m_Active = false;
 }

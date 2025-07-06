@@ -4,9 +4,12 @@
 class CyborgClass : public PlayerClass
 {
 public:
-	std::string GetName() const override { return "Cyborg"; }
+	CyborgClass();
+
+//	std::string GetName() const override { return "Cyborg"; }
 
 	void ApplyPrimaryClassBonuses(Player *player) override;
 	void ApplySecondaryClassBonuses(Player *player) override;
 	void LevelupStats(Player *player) override;
+
 };

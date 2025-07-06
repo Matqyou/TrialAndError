@@ -4,7 +4,8 @@
 class ZombieClass : public PlayerClass
 {
 public:
-	std::string GetName() const override { return "Zombie"; }
+	ZombieClass();
+//	std::string GetName() const override { return "Zombie"; }
 
 	void ApplySecondaryClassBonuses(Player *player) override;
 	void ApplyPrimaryClassBonuses(Player *player) override;

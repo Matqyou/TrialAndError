@@ -9,7 +9,6 @@
 class ErrorBulletFrenzy : public ErrorStatusEffect
 {
 private:
-	static LoadedTexture sTextureBulletFrenzy;
 
 public:
 	explicit ErrorBulletFrenzy(ErrorStatuses *parent);

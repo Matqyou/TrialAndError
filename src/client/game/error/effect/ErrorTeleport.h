@@ -9,7 +9,6 @@
 class ErrorTeleport : public ErrorStatusEffect
 {
 private:
-	static LoadedTexture sTextureTeleport;
 
 public:
 	explicit ErrorTeleport(ErrorStatuses *parent);

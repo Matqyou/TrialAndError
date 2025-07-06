@@ -6,11 +6,11 @@
 #include "../../entities/characters/character/Character.h"
 #include "../../entities/Projectile.h"
 
-LoadedTexture WeaponSniper::sTextureWeapon("weapons.sniper");
-LoadedTexture WeaponSniper::sTextureProjectile("entity.projectile.sniper");
-LoadedSound WeaponSniper::sShootSound("weapon.shotgun.shoot2");
-LoadedSound WeaponSniper::sClickSound("weapon.sniper.fail_reload");
-LoadedSound WeaponSniper::sReloadSound("weapon.sniper.reload");
+static LinkTexture sTextureWeapon("weapons.sniper");
+static LinkTexture sTextureProjectile("entity.projectile.sniper");
+static LinkSound sShootSound("weapon.shotgun.shoot2");
+static LinkSound sClickSound("weapon.sniper.fail_reload");
+static LinkSound sReloadSound("weapon.sniper.reload");
 Vec2d WeaponSniper::sHoldPosition(1.0, 0.0);
 std::pair<Vec2d, Vec2d> WeaponSniper::sHandPositions = {{ 80.0, -3.0 }, { 20.0, 2.0 }};
 

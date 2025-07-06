@@ -1,24 +1,23 @@
 #pragma once
 
-#include "SDL.h"
-#include <cstring>
-#include "../../Entity.h"
-#include "../../../Player.h"
-#include "../../../weapons/projectile/WeaponGlock.h"
 #include "../../../weapons/projectile/WeaponShotgun.h"
-#include "../../../weapons/projectile/WeaponBurst.h"
 #include "../../../weapons/projectile/WeaponMinigun.h"
-#include "client/core/GameControllers.h"
-#include "shared/utility/Colors.h"
-#include "../../../indicators/HealthBar.h"
-#include "../../../interface/LevelUpMenu.h"
+#include "client/game/ui/menus/levelup/LevelUpMenu.h"
+#include "../../../weapons/projectile/WeaponGlock.h"
+#include "../../../weapons/projectile/WeaponBurst.h"
 #include "../../../indicators/TextSurface.h"
-#include "../../AmmoBox.h"
-#include "../../Crate.h"
-#include "Hook.h"
-#include "Hands.h"
-#include "../../../../core/Assets.h"
+#include "../../../indicators/HealthBar.h"
 #include "../../../error/ErrorStatuses.h"
+#include "client/core/GameControllers.h"
+#include "../../../../core/Assets.h"
+#include "shared/utility/Colors.h"
+#include "../../../Player.h"
+#include "../../AmmoBox.h"
+#include "../../Entity.h"
+#include "../../Crate.h"
+#include <cstring>
+#include "Hands.h"
+#include "Hook.h"
 
 struct CharacterInput
 {
@@ -59,7 +58,7 @@ protected:
 	TextSurface *m_HealthInt;
 	double m_ColorHue;
 	int m_SelectedWeaponIndex;
-	GameController *m_GameController;
+//	GameController *m_GameController;
 	bool m_Movement[NUM_CONTROLS];
 	bool m_NPC;
 	CharacterInput m_Input, m_LastInput;
@@ -107,21 +106,21 @@ protected:
 	void DrawErrorName();
 
 public:
-	static LoadedTexture sCharacterTexture;
+//	static LoadedTexture sCharacterTexture;
 //    static LoadedTexture sTextureGlock;
 //    static LoadedTexture sTextureShotgun;
 //    static LoadedTexture sTextureBurst;
 //    static LoadedTexture sTextureSniper;
 //    static LoadedTexture sTexturePatersonNavy;
 //    static LoadedTexture sTexturesMinigun[4];
-	static LoadedTexture sTextureBlood;
-	static LoadedSound sHitSounds[3];
-	static LoadedSound sInvincibleHitSound;
-	static LoadedSound sDeathSound;
-	static LoadedSound sAmmoPickupSound;
-	static LoadedSound sItemSwitchSound;
-	static LoadedSound sThrowItemSound;
-	static LoadedSound sPickupItemSound;
+//	static LoadedTexture sTextureBlood;
+//	static LoadedSound sHitSounds[3];
+//	static LoadedSound sInvincibleHitSound;
+//	static LoadedSound sDeathSound;
+//	static LoadedSound sAmmoPickupSound;
+//	static LoadedSound sItemSwitchSound;
+//	static LoadedSound sThrowItemSound;
+//	static LoadedSound sPickupItemSound;
 	static TextSurface *ms_BotNamePlate;
 	TextSurface *m_ErrorText;
 
@@ -136,7 +135,7 @@ public:
 	// Getting
 	[[nodiscard]] Hook *GetHook() { return &m_Hook; }
 	[[nodiscard]] Player *GetPlayer() const { return m_Player; }
-	[[nodiscard]] GameController *GetGameController() const { return m_GameController; }
+//	[[nodiscard]] GameController *GetGameController() const { return m_GameController; }
 	[[nodiscard]] ProjectileWeapon *GetCurrentWeapon() const { return m_CurrentWeapon; }
 	[[nodiscard]] CharacterInput& GetInput() { return m_Input; }
 	[[nodiscard]] CharacterInput& GetLastInput() { return m_LastInput; }
@@ -146,7 +145,7 @@ public:
 	[[nodiscard]] double GetDamageAmp() const { if (m_Player)return m_Player->GetDamageAmp(); else return m_DamageAmp; }
 
 	// Setting
-	void SetGameController(GameController *game_controller) { m_GameController = game_controller; }
+//	void SetGameController(GameController *game_controller) { m_GameController = game_controller; }
 	void RemoveCombat();
 	void GiveWeapon(ProjectileWeapon *proj_weapon);
 	void AmmoPickup(AmmoBox *ammo_box);

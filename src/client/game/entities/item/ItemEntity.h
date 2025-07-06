@@ -37,13 +37,6 @@ protected:
 	void TickPickup();
 
 public:
-	static LoadedTexture sTextureGlock;
-	static LoadedTexture sTextureShotgun;
-	static LoadedTexture sTextureBurst;
-	static LoadedTexture sTextureSniper;
-	static LoadedTexture sTexturePatersonNavy;
-	static LoadedTexture sTexturesMinigun[4];
-
 	ItemEntity(GameWorld *world,
 			   ItemType item_type,
 			   Entity *dropper,

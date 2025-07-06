@@ -4,7 +4,7 @@
 
 #include "ErrorDangerousRecoil.h"
 
-LoadedTexture ErrorDangerousRecoil::sTextureDangerousRecoil("icons.dangerous_recoil");
+LinkTexture sTextureDangerousRecoil("icons.dangerous_recoil");
 
 ErrorDangerousRecoil::ErrorDangerousRecoil(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,

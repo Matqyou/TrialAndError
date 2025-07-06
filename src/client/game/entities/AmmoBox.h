@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Entity.h"
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 enum AmmoType
 {
@@ -28,11 +28,6 @@ protected:
 	void TickPickup();
 
 public:
-	static LoadedTexture sTextureGlock;
-	static LoadedTexture sTextureShotgun;
-	static LoadedTexture sTextureBurst;
-	static LoadedTexture sTextureMinigun;
-	static LoadedTexture sTextureSniper;
 	// static Sound* ms_PickupSounds[7];
 
 	AmmoBox(GameWorld *world,

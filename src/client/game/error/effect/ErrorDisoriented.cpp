@@ -4,7 +4,7 @@
 
 #include "ErrorDisoriented.h"
 
-LoadedTexture ErrorDisoriented::sTextureDisoriented("icons.disoriented");
+LinkTexture sTextureDisoriented("icons.disoriented");
 
 ErrorDisoriented::ErrorDisoriented(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,

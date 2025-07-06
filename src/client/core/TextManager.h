@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "SDL_ttf.h"
+#include <SDL3_ttf/SDL_ttf.h>
+#include "Assets.h"
 #include <vector>
 #include <string>
-#include "Assets.h"
 
 std::string FStringColors(const char *format, ...);
 std::string FString(const char *format, ...);

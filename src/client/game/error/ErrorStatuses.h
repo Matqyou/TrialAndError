@@ -15,7 +15,7 @@
 #include "effect/ErrorSlowdown.h"
 #include "effect/ErrorSpiky.h"
 #include "effect/ErrorTeleport.h"
-#include "../interface/Interface.h"
+#include "client/game/ui/Interface.h"
 
 struct ErrorFrame
 {
@@ -43,11 +43,6 @@ private:
 	ErrorStatusEffect *m_LastActivatedEffect;
 	std::vector<ErrorStatusEffect *> m_Effects;
 	ErrorFrames m_Frames;
-
-	static LoadedTexture sTextureErrorFrame;
-	static LoadedTexture sTextureErrorBackground;
-
-	static LoadedTexture sTextureFrame;
 
 	void DrawIngame(); // temp
 	void DrawAsGUI(); // temp

@@ -4,7 +4,7 @@
 
 #include "ErrorHealersParadise.h"
 
-LoadedTexture ErrorHealersParadise::sTextureHealersParadise("icons.healers_paradise");
+LinkTexture sTextureHealersParadise("icons.healers_paradise");
 
 ErrorHealersParadise::ErrorHealersParadise(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,

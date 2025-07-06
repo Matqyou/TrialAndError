@@ -29,16 +29,16 @@ protected:
     void TickPickup(double x, double y);
 
 public:
-    static LoadedTexture sTextureErrorDisorianted;
-    static LoadedTexture sTextureErrorSpiky;
-    static LoadedTexture sTextureErrorConfusingHP;
-    static LoadedTexture sTextureErrorInvincible;
-    static LoadedTexture sTextureErrorHealersParadise;
-    static LoadedTexture sTextureErrorRanged;
-    static LoadedTexture sTextureErrorSlowDown;
-    static LoadedTexture sTextureErrorDangerousRecoil;
-    static LoadedTexture sTextureMagicParticle;
-    static LoadedSound ms_PickupSounds[7];
+//    static LoadedTexture sTextureErrorDisorianted;
+//    static LoadedTexture sTextureErrorSpiky;
+//    static LoadedTexture sTextureErrorConfusingHP;
+//    static LoadedTexture sTextureErrorInvincible;
+//    static LoadedTexture sTextureErrorHealersParadise;
+//    static LoadedTexture sTextureErrorRanged;
+//    static LoadedTexture sTextureErrorSlowDown;
+//    static LoadedTexture sTextureErrorDangerousRecoil;
+//    static LoadedTexture sTextureMagicParticle;
+//    static LoadedSound ms_PickupSounds[7];
 
     Error(GameWorld* world, const Vec2d& start_pos, int typeID);
 

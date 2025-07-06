@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "client/GameData.h"
+#include "client/game/GameReference.h"
 #include "../entities/Entity.h"
 
 class HealthBar
@@ -21,8 +21,7 @@ private:
 	Texture *m_Texture;
 
 public:
-	HealthBar(GameData *game_window,
-			  HasHealth *health_component,
+	HealthBar(HasHealth *health_component,
 			  int width,
 			  int height,
 			  int spacing_w,

@@ -5,12 +5,11 @@
 #pragma once
 
 #include "client/core/AssetsManager.h"
-#include "client/core/Drawing.h"
+#include "client/core/drawing/Drawing.h"
 
 class TextSurface
 {
 private:
-	AssetsManager *m_AssetsHandler;
 	Texture *m_Texture;
 	std::string m_Text;
 	TTF_Font *m_Font;
@@ -21,7 +20,7 @@ private:
 	Texture *UpdateTexture();
 
 public:
-	TextSurface(AssetsManager *assets_handler, TTF_Font *font, const std::string& text, SDL_Color color);
+	TextSurface(TTF_Font *font, const std::string& text, SDL_Color color);
 	~TextSurface();
 
 	// Getting

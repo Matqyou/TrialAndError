@@ -4,53 +4,38 @@
 
 #pragma once
 
+//#include "ui/structures/visual_texture/files/HitboxFile.h"
+#include "client/core/texture/visual/VisualTexture.h"
+#include "shared/utility/Strings.h"
+#include "SDL3_mixer/SDL_mixer.h"
+#include "shared/utility/Vec2.h"
+#include "SDL3_ttf/SDL_ttf.h"
+#include <unordered_map>
+#include <functional>
 #include <iostream>
+#include <vector>
 #include <memory>
 #include <mutex>
-#include <vector>
-#include <unordered_map>
-#include "SDL_image.h"
-#include "SDL_mixer.h"
 
-struct TextureInfo
-{
-	Uint32 format;
-	int access, w, h;
-};
-
-class Assets;
-class Texture
+class DiskTexture
 {
 private:
-	friend class Assets;
-	const std::string m_Key;
-	SDL_Texture *m_SDLTexture;
-	TextureInfo m_Information;
+	Texture *m_Texture;
 	std::string m_LoadExtension;
 
 public:
-	explicit Texture(std::string key = "NaN", SDL_Texture *sdl_texture = nullptr, std::string load_extension = "NaN");
-	~Texture();
+	DiskTexture(Texture *texture, const std::string& load_extension);
+	~DiskTexture();
 
 	// Getting
-	[[nodiscard]] SDL_Texture *SDLTexture() const { return m_SDLTexture; }
-	[[nodiscard]] Uint32 GetFormat() const { return m_Information.format; }
-	[[nodiscard]] int GetAccess() const { return m_Information.access; }
-	[[nodiscard]] int GetWidth() const { return m_Information.w; }
-	[[nodiscard]] int GetHeight() const { return m_Information.h; }
-	[[nodiscard]] const std::string& Key() const { return m_Key; }
-
-	// Manipulating
-	void SetBlendMode(SDL_BlendMode blend_mode);
-	void SetColorMod(Uint8 r, Uint8 g, Uint8 b);
-	Texture *SetAlphaMod(int alpha);
+	[[nodiscard]] const std::string& GetExtension() const { return m_LoadExtension; }
 
 };
 
 class Sound
 {
 private:
-	friend class Assets;
+	friend class AssetsClass;
 	const std::string m_Key;
 	Mix_Chunk *m_MixChunk;
 	std::string m_LoadExtension;
@@ -70,7 +55,7 @@ public:
 class Music
 {
 private:
-	friend class Assets;
+	friend class AssetsClass;
 	const std::string m_Key;
 	Mix_Music *m_MixMusic;
 	std::string m_LoadExtension;
@@ -87,81 +72,217 @@ public:
 
 };
 
-class LoadedTexture;
-class LoadedSound;
-class LoadedMusic;
-class Assets
+class Font
 {
-	static Assets *Instance;
-	SDL_Renderer *m_Renderer;
-	bool m_SoundsEnabled;
-
-	std::unordered_map<std::string, Texture *> m_Textures;
-	std::unordered_map<std::string, Sound *> m_Sounds;
-	std::unordered_map<std::string, Music *> m_Music;
-	// std::vector<Texture2> m_UsedTextures;
-	Texture *m_InvalidTexture;
-
-	static std::vector<LoadedTexture *> m_RegisterTextures;
-	static std::vector<LoadedSound *> m_RegisterSounds;
-	static std::vector<LoadedMusic *> m_RegisterMusic;
+private:
+	friend class AssetsClass;
+	const std::string m_Key;
+	std::string m_LoadExtension;
+	TTF_Font *m_TTFFont;
+	float m_Size;
 
 public:
-	static void initialize(SDL_Renderer *renderer, bool sounds_enabled);
-	static void deinitialize();
-	static Assets *Get();
-
-	Assets(const Assets&) = delete;
-	Assets& operator=(const Assets&) = delete;
+	explicit Font(TTF_Font *ttf_font = nullptr, std::string key = "NaN", std::string load_extension = "NaN");
+	~Font();
 
 	// Getting
-	Texture *GetTexture(const std::string& texture_key);
-	Sound *GetSound(const std::string& sound_key);
-	Music *GetMusic(const std::string& music_key);
-	bool SoundsEnabled() const { return m_SoundsEnabled; }
+	[[nodiscard]] TTF_Font *TTFFont() const { return m_TTFFont; }
+
+	// Manipulating
+	Font *CacheSize(float size)
+	{
+		this->m_Size = size;
+		return this;
+	}
+
+};
+
+class Drawing;
+class LinkTexture;
+class PregenerateTexture;
+class LinkSound;
+class LinkMusic;
+class PreloadFont;
+class LinkFont;
+class AssetsClass
+{
+public:
+	enum class Status
+	{
+		// Nothing has been initialized as of this point.
+		UNINITIALIZED,
+
+		// Assets such as - images, sounds, fonts - now have
+		// their keys loaded into the memory, and you can access
+		// them using LinkTexture, LinkSound, LinkMusic and LinkFont.
+		KEYS_LOADED,
+
+		// All the names used throughout the program such as
+		// LinkTexture, LinkSound, LinkMusic and LinkFont should
+		// now be populated with values.
+		ASSETS_LINKED,
+	};
+
+private:
+	bool m_SoundsEnabled;
+
+	using Resources = std::vector<std::tuple<std::string, std::string, std::string>>;
+	Resources m_VisHitboxResources;
+	Resources m_TextureResources;
+	Resources m_SoundResources;
+	Resources m_MusicResources;
+	Resources m_FontResources;
+	size_t m_TextureResourcesIndex;
+	size_t m_SoundResourcesIndex;
+	size_t m_MusicResourcesIndex;
+
+	// Textures
+	std::unordered_map<std::string, DiskTexture *> m_DiskTextures;
+	std::unordered_map<std::string, Texture *> m_Textures;
+	static std::vector<LinkTexture *> m_LinkTextures;
+	static std::vector<PregenerateTexture *> m_PregenerateTextures;
+	static std::vector<LinkTexture *>::iterator m_LinkTexturesIterator;
+	static std::vector<PregenerateTexture *>::iterator m_PregenerateTexturesIterator;
+	static std::vector<Texture *> m_AutomaticDeletionTextures;
+	Texture *m_InvalidTextureDefault;
+
+	std::unordered_map<std::string, Sound *> m_Sounds;
+	std::unordered_map<std::string, Music *> m_Music;
+	std::unordered_map<std::string, Font *> m_Fonts;
+
+	static std::vector<PreloadFont *> m_PreloadFonts;
+	static std::vector<LinkSound *> m_LinkSounds;
+	static std::vector<LinkMusic *> m_LinkMusic;
+	static std::vector<LinkFont *> m_LinkFonts;
+
+	// Iterators
+	std::vector<PreloadFont *>::iterator m_PreloadFontIterator;
+	static std::vector<LinkSound *>::iterator m_LinkSoundsIterator;
+	static std::vector<LinkMusic *>::iterator m_LinkMusicIterator;
+	static std::vector<LinkFont *>::iterator m_LinkFontsIterator;
+
+	static size_t sTotalWork, sWorkDone;
+
+	bool LoadingTextures();
+	bool LoadingSounds();
+	bool LoadingMusic();
+	bool LoadingFonts(); // All at once
+	bool GeneratingTextures();
+	bool LinkingTextures(); // All at once
+	bool LinkingSounds(); // All at once
+	bool LinkingMusic(); // All at once
+	bool LinkingFonts(); // All at once
+
+	Status status; // To know if assets are initialized or not
+
+public:
+	AssetsClass();
+	void Initialize(bool sounds_enabled);
+	void Destroy();
+	~AssetsClass();
+
+	// Getting
+	[[nodiscard]] Status GetStatus() const { return status; }
+	[[nodiscard]] Texture *GetInvalidTexture() const { return m_InvalidTextureDefault; };
+	[[nodiscard]] Texture *GetTexture(const std::string& texture_key);
+	[[nodiscard]] const std::unordered_map<std::string, Texture *>& GetAllTextures();
+	[[nodiscard]] Sound *GetSound(const std::string& sound_key);
+	[[nodiscard]] Music *GetMusic(const std::string& music_key);
+	[[nodiscard]] Font *GetFont(const std::string& font_key);
+	[[nodiscard]] bool SoundsEnabled() const { return m_SoundsEnabled; }
+	[[nodiscard]] bool IsLoading() { return status != Status::ASSETS_LINKED; }
+	[[nodiscard]] static size_t GetTotalWork() { return sTotalWork; }
+	[[nodiscard]] static size_t GetWorkDone() { return sWorkDone; }
 
 	// Generating
 	Texture *TextureFromSurface(SDL_Surface *sdl_surface);
-	Texture *CreateTexture(Uint32 format, int access, int w, int h);
+	SDL_Surface *CreateSDLSurface(int width, int height, SDL_PixelFormat format);
+	Texture *CreateTexture(SDL_PixelFormat format, SDL_TextureAccess access, int w, int h);
+	SDL_Texture *CopySDLTexture(SDL_Texture *copy_texture, SDL_TextureAccess access);
+//    VisualTexture* RenderTextBlendedVisual(TTF_Font* font, const std::string& text, SDL_Color color);
+	Texture *RenderTextBlended(TTF_Font *font, const std::string& text, SDL_Color color);
+	Texture *RenderTextBlended(TTF_Font *font, const char *text, SDL_Color color);
+	Texture *RenderTextBlendedOutline(TTF_Font *font, const char *text, int thickness,
+									  SDL_Color text_color, SDL_Color outline_color);
+	Texture *RenderTextSolid(TTF_Font *font, const std::string& text, SDL_Color color);
+	Texture *RenderTextSolid(TTF_Font *font, const char *text, SDL_Color color);
+	Texture *RenderTextureOnTextureCentered(Texture *outer, Texture *inner, bool copy = false);
+	bool SaveTextureToDisk(Texture *texture, const std::string& filename);
 
 	// Manipulating
-	static void RequireTexture(LoadedTexture *register_texture);
-	static void RequireSound(LoadedSound *register_sound);
-	static void RequireMusic(LoadedMusic *register_music);
-	static void SetMusicVolume(int volume);
-	static void PauseMusic();
-
-private:
-	Assets(SDL_Renderer *renderer, bool sounds_enabled);
-	~Assets();
+	static void LinkPreloadedTexture(LinkTexture *register_texture);
+	static void LinkPregeneratedTexture(PregenerateTexture *pregenerate_texture);
+	static void LinkPreloadedSound(LinkSound *register_sound);
+	static void LinkPreloadedMusic(LinkMusic *register_music);
+	static void PreloadFont_(PreloadFont *preload_font);
+	static void LinkPreloadedFont(LinkFont *register_font);
+	static void AutomaticallyDeleteTexture(Texture *texture);
+	void SetMusicVolume(int volume);
+	void PauseMusic();
+	void ThreadedLoading();
 
 };
 
-class LoadedTexture
+extern AssetsClass Assets;
+
+class LinkTexture
 {
 private:
-	friend class Assets;
+	friend class AssetsClass;
 	std::string m_Key;
 	Texture *m_Texture;
 
+	using TextureCallback = std::function<void(Texture *)>;
+	TextureCallback m_LoadCallback;
+
 public:
-	explicit LoadedTexture(std::string texture_key);
+	explicit LinkTexture(std::string texture_key);
+	explicit LinkTexture(std::string texture_key, TextureCallback load_callback);
+	operator Texture *() const { return GetTexture(); }  // Implicit
+	operator SDL_Texture *() const { return GetSDLTexture(); }  // Implicit
 
 	// Getting
 	[[nodiscard]] const std::string& Key() const { return m_Key; }
-	[[nodiscard]] Texture *GetTexture() const { return m_Texture; }
+	[[nodiscard]] Texture *GetTexture() const { return m_Texture; } // todo: error handling
+	[[nodiscard]] SDL_Texture *GetSDLTexture() const
+	{ // todo: error handling
+		return m_Texture->SDLTexture();
+	}
 
 };
 
-class LoadedSound
+class PregenerateTexture
 {
 private:
-	friend class Assets;
+	friend class AssetsClass;
+	std::string m_Key;
+	Texture *m_Texture;
+
+	using TextureCallback = std::function<Texture *(AssetsClass *)>;
+	TextureCallback m_GenerateCallback;
+
+public:
+	explicit PregenerateTexture(std::string texture_key, TextureCallback generate_callback);
+
+	// Getting
+	[[nodiscard]] const std::string& Key() const { return m_Key; }
+	[[nodiscard]] Texture *GetTexture() const { return m_Texture; } // todo: error handling
+	[[nodiscard]] SDL_Texture *GetSDLTexture() const
+	{
+		return m_Texture->SDLTexture(); // todo: error handling
+	}
+
+};
+
+class LinkSound
+{
+private:
+	friend class AssetsClass;
 	std::string m_Key;
 	Sound *m_Sound;
 
 public:
-	explicit LoadedSound(std::string sound_key);
+	explicit LinkSound(std::string sound_key);
 
 	// Getting
 	[[nodiscard]] const std::string& Key() const { return m_Key; }
@@ -169,18 +290,61 @@ public:
 
 };
 
-class LoadedMusic
+class LinkMusic
 {
 private:
-	friend class Assets;
+	friend class AssetsClass;
 	std::string m_Key;
 	Music *m_Music;
 
 public:
-	explicit LoadedMusic(std::string music_key);
+	explicit LinkMusic(std::string music_key);
 
 	// Getting
 	[[nodiscard]] const std::string& Key() const { return m_Key; }
 	[[nodiscard]] Music *GetMusic() const;
+
+};
+
+class PreloadFont
+{
+private:
+	friend class AssetsClass;
+	std::string m_Key;
+	std::string m_FontID;
+	float m_Size;
+	Font *m_Font;
+
+public:
+	explicit PreloadFont(std::string font_key, std::string font_id, float ptsize);
+	operator Font *() const { return GetFont(); }  // Implicit
+	operator TTF_Font *() const { return GetTTFFont(); }  // Implicit
+
+	// Getting
+	[[nodiscard]] const std::string& Key() const { return m_Key; }
+	[[nodiscard]] const std::string& FontID() const { return m_FontID; }
+	[[nodiscard]] float Size() const { return m_Size; }
+	[[nodiscard]] Font *GetFont() const;
+	[[nodiscard]] TTF_Font *GetTTFFont() const;
+
+};
+
+class LinkFont
+{
+private:
+	friend class AssetsClass;
+	std::string m_Key;
+	std::string m_FontID;
+	int m_Size;
+	Font *m_Font;
+
+public:
+	explicit LinkFont(std::string font_key);
+
+	// Getting
+	[[nodiscard]] const std::string& Key() const { return m_Key; }
+	[[nodiscard]] const std::string& FontID() const { return m_FontID; }
+	[[nodiscard]] int Size() const { return m_Size; }
+	[[nodiscard]] Font *GetFont() const;
 
 };

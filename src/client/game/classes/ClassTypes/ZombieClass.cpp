@@ -1,6 +1,12 @@
 #include "ZombieClass.h"
 #include "../../Player.h"
 
+ZombieClass::ZombieClass()
+	: PlayerClass(PLAYERCLASS_ZOMBIE)
+{
+
+}
+
 void ZombieClass::ApplyPrimaryClassBonuses(Player *player)
 {
 	player->SetExtraLife(true);         // One-time revive

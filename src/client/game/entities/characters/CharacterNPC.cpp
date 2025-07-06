@@ -9,7 +9,7 @@ CharacterNPC::CharacterNPC(GameWorld *world,
 						   double max_health,
 						   const Vec2d& start_pos,
 						   const Vec2d& start_vel,
-						   NPCType ai_type,
+						   NPCType npc_type,
 						   bool is_boss)
 	: Character(world,
 				nullptr,
@@ -19,7 +19,7 @@ CharacterNPC::CharacterNPC(GameWorld *world,
 				true)
 {
 	m_LastAttacker = nullptr;
-	m_AIType = ai_type;
+	m_AIType = npc_type;
 	m_IsBoss = is_boss;
 	m_ColorHue = is_boss ? 250.0 + (rand() % 90) - 45 : 120.0 + (rand() % 90) - 45;
 }

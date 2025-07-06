@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include "GameWorld.h"
-#include "./interface/LevelUpMenu.h"
+#include "client/game/ui/menus/levelup/LevelUpMenu.h"
 #include "./classes/PlayerClass.h"
-#include <string>
 #include <unordered_map>
+#include "GameWorld.h"
+#include "client/game/powerups/PowerupManager.h"
+#include <string>
 #include <queue>
 
 enum
@@ -20,13 +21,13 @@ class Character;
 class Player
 {
 private:
+	friend class GameWorld;
 	unsigned int m_XP;
 	unsigned int m_Level;
-	friend class GameWorld;
+
 	GameWorld *m_GameWorld;
 	Character *m_Character;
 	PlayerClass *m_Class;
-	PlayerClass *m_SecondaryClass;
 	LevelUpMenu *m_LevelUpMenu;
 	std::string m_Username;
 	unsigned int m_Index;
@@ -37,12 +38,12 @@ private:
 	double m_MaxHealthAmp;
 	bool m_ExtraLife;
 	TextSurface *m_NamePlate;
-	std::queue<LevelUpMenu *> m_levelUpMenuQueue;
-	std::unordered_map<std::string, int> m_UpgradeCounts;
+//	std::queue<LevelUpMenu *> m_levelUpMenuQueue;
+	int m_UpgradeCounts[(size_t)Powerup::NUM_POWERUPS];
 	Player *m_Prev, *m_Next;
 
 public:
-	Player(GameWorld *game_world, const std::string& username, PlayerClass *primaryClass = nullptr);
+	Player(GameWorld *game_world, const std::string& username, PlayerClass *player_class = nullptr);
 	~Player();
 
 	// Getting
@@ -53,7 +54,7 @@ public:
 	[[nodiscard]] Player *Prev() const { return m_Prev; }
 	[[nodiscard]] LevelUpMenu *GetLevelUpMenu() const { return m_LevelUpMenu; }
 	[[nodiscard]] TextSurface *GetNamePlate() const { return m_NamePlate; }
-	[[nodiscard]] std::queue<LevelUpMenu *> GetLevelUpMenuQueue() const { return m_levelUpMenuQueue; }
+//	[[nodiscard]] std::queue<LevelUpMenu *> GetLevelUpMenuQueue() const { return m_levelUpMenuQueue; }
 	[[nodiscard]] unsigned int GetXP() const { return m_XP; }
 	[[nodiscard]] int GetBaseDamage() const { return m_BaseDamage; }
 	[[nodiscard]] double GetDamageAmp() const { return m_DamageAmp; }
@@ -71,13 +72,13 @@ public:
 	void SetExtraLife(bool ExtraLife) { m_ExtraLife = ExtraLife; };
 	void SetCharacter(Character *character);
 	void SetUsername(const std::string& username);
-	void SetLevelUpMenuQueue(std::queue<LevelUpMenu *> MenuQueue) { m_levelUpMenuQueue = MenuQueue; };
+//	void SetLevelUpMenuQueue(std::queue<LevelUpMenu *> MenuQueue) { m_levelUpMenuQueue = MenuQueue; };
 
 	// XP and Leveling
 	void GainXP(unsigned int amount);
 	void LevelUp();
 
-	void AddPowerupUpgrade(const std::string& name);
+	void AddPowerupUpgrade(Powerup type, int times = 1);
+	int GetPowerupUpgradeCount(Powerup type);
 
-	int GetPowerupUpgradeCount(const std::string& name);
 };

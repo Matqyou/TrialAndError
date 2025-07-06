@@ -2,3 +2,6 @@
 
 # TrialAndError
 ![This is russia.](bin/assets/images/backgrounds/background_pattern.png)
+
+# Directories
+bin - Contains images, sounds and other content

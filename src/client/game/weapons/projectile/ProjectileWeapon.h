@@ -54,8 +54,6 @@ protected:
 	[[nodiscard]] double GenerateRandomProjectileSpeed() const;
 
 public:
-	static LoadedSound sNoAmmoSound;
-
 	ProjectileWeapon(DirectionalEntity *parent,
 					 WeaponType type,
 					 Texture *texture,

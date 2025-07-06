@@ -1,6 +1,12 @@
 #include "HumanClass.h"
 #include "../../Player.h"
 
+HumanClass::HumanClass()
+	: PlayerClass(PLAYERCLASS_HUMAN)
+{
+
+}
+
 void HumanClass::ApplyPrimaryClassBonuses(Player *player)
 {
 	player->SetExtraLife(true);         // One-time revive

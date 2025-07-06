@@ -2,18 +2,18 @@
 // Created by Matq on 16/04/2023.
 //
 
-#include "TileMap.h"
-#include <fstream>
+#include "client/game/GameReference.h"
 #include <filesystem>
+#include <fstream>
 #include <iostream>
+#include "TileMap.h"
 
-TileMap::TileMap(Drawing *render, int tilesize, int width, int height)
+TileMap::TileMap(int tilesize, int width, int height)
 	: m_Tilesize(tilesize),
 	  m_Width(width),
 	  m_Height(height),
 	  m_Area(width * height)
 {
-	m_Render = render;
 	m_Map = new Tile *[m_Area];
 	memset(m_Map, 0, 8 * m_Area);
 
@@ -156,6 +156,7 @@ void TileMap::LoadTilemap(const char *filepath)
 
 void TileMap::Draw()
 {
+	auto drawing = Application.GetDrawing();
 	for (int y = 0; y < m_Height; y++)
 	{
 		for (int x = 0; x < m_Width; x++)
@@ -164,10 +165,10 @@ void TileMap::Draw()
 			if (!DrawTile)
 				continue;
 
-			SDL_Rect DrawRect = { int(x * m_Tilesize), int(y * m_Tilesize),
-								  int(m_Tilesize), int(m_Tilesize) };
-			m_Render->SetColor(DrawTile->m_Color);
-			m_Render->FillRectCamera(DrawRect);
+			SDL_FRect DrawRect = { float(x * m_Tilesize), float(y * m_Tilesize),
+								   float(m_Tilesize), float(m_Tilesize) };
+			drawing->SetColor(DrawTile->m_Color);
+			drawing->DrawRect(DrawRect, true, GameReference.GetCamera());
 		}
 	}
 }

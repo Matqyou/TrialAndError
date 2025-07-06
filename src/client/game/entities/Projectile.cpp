@@ -8,10 +8,10 @@
 #include "Crate.h"
 #include "characters/character/Character.h"
 
-LoadedTexture Projectile::sTextureSpark("particle.spark");
-LoadedSound Projectile::sMetalImpactSounds[2] = {
-	LoadedSound("entity.projectile.impact.metal.1"),
-	LoadedSound("entity.projectile.impact.metal.2"),
+LinkTexture sTextureSpark("particle.spark");
+LinkSound sMetalImpactSounds[2] = {
+	LinkSound("entity.projectile.impact.metal.1"),
+	LinkSound("entity.projectile.impact.metal.2"),
 };
 
 Projectile::Projectile(GameWorld *world,
@@ -165,11 +165,11 @@ void Projectile::Tick()
 
 void Projectile::Draw()
 {
-	Drawing *Render = m_World->GameWindow()->Render();
+	auto drawing = Application.GetDrawing();
 	double Angle = std::atan2(m_Core.Vel.y, m_Core.Vel.x) / M_PI * 180.0 - 90.0;
-	SDL_Rect BulletRect = { int(m_Core.Pos.x - m_Core.Size.x / 2.0),
-							int(m_Core.Pos.y - m_Core.Size.y / 2.0),
-							int(m_Core.Size.x),
-							int(m_Core.Size.y) };
-	Render->RenderTextureExCamera(m_Texture->SDLTexture(), nullptr, BulletRect, Angle, nullptr, SDL_FLIP_NONE);
+	SDL_FRect BulletRect = { float(m_Core.Pos.x - m_Core.Size.x / 2.0),
+							 float(m_Core.Pos.y - m_Core.Size.y / 2.0),
+							float(m_Core.Size.x),
+							 float(m_Core.Size.y) };
+	drawing->RenderTextureRotated(m_Texture->SDLTexture(), nullptr, BulletRect, Angle, nullptr, SDL_FLIP_NONE, GameReference.GetCamera());
 }

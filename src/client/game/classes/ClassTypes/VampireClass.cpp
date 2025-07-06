@@ -1,6 +1,12 @@
 #include "VampireClass.h"
 #include "../../Player.h"
 
+VampireClass::VampireClass()
+	: PlayerClass(PLAYERCLASS_VAMPIRE)
+{
+
+}
+
 void VampireClass::ApplyPrimaryClassBonuses(Player *player)
 {
 	player->SetExtraLife(true);         // One-time revive

@@ -9,7 +9,6 @@
 class ErrorSlowdown : public ErrorStatusEffect
 {
 private:
-	static LoadedTexture sTextureSlowdown;
 
 public:
 	explicit ErrorSlowdown(ErrorStatuses *parent);

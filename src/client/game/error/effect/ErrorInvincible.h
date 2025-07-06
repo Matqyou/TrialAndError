@@ -9,7 +9,6 @@
 class ErrorInvincible : public ErrorStatusEffect
 {
 private:
-	static LoadedTexture sTextureInvincible;
 
 public:
 	explicit ErrorInvincible(ErrorStatuses *parent);

@@ -4,7 +4,7 @@
 
 #include "ErrorSlowdown.h"
 
-LoadedTexture ErrorSlowdown::sTextureSlowdown("icons.slowdown");
+LinkTexture sTextureSlowdown("icons.slowdown");
 
 ErrorSlowdown::ErrorSlowdown(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,

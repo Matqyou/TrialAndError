@@ -5,6 +5,7 @@
 #pragma once
 
 #include "../GameWorld.h"
+#include <SDL3/SDL.h>
 
 struct EntityCore
 {

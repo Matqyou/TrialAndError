@@ -9,7 +9,6 @@
 class ErrorDangerousRecoil : public ErrorStatusEffect
 {
 private:
-	static LoadedTexture sTextureDangerousRecoil;
 
 public:
 	explicit ErrorDangerousRecoil(ErrorStatuses *parent);
