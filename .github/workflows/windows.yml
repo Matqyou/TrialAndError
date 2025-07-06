@@ -1,0 +1,48 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup MinGW
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-make
+
+      - name: Build Debug
+        shell: msys2 {0}
+        run: |
+          mkdir build-debug && cd build-debug
+          cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug
+          cmake --build .
+
+      - name: Build Release
+        shell: msys2 {0}
+        run: |
+          mkdir build-release && cd build-release
+          cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+          cmake --build .
+
+      - name: Upload Debug Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-build
+          path: build-debug/TrialAndError/
+
+      - name: Upload Release Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build
+          path: build-release/TrialAndError/
