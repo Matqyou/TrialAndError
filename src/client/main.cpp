@@ -69,7 +69,6 @@ int main()
 	Texture *Vignette = assets->GetTexture("backgrounds.vignette")
 		->SetAlphaMod(200);
 
-	GameReference.AddPlayerClassMenu();
 	MainMenu mainMenu(&GameReference);
 	mainMenu.Show();
 

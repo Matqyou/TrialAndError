@@ -7,8 +7,8 @@
 #include "shared/utility/Vec2.h"
 #include "client/core/Assets.h"
 struct PlanetaryCoords {
-    double longitude;      // Degrees: 0–360 (wraps)
-    double latitude;       // Degrees: -90 to +90 (clamped)
+    double longitude;      // Radians: 0–2PI (wraps)
+    double latitude;       // Radians: -PI/2 to +PI/2 (clamped)
     double planet_radius;  // Radius of the planet (e.g., 1000 units)
 
     PlanetaryCoords(double lon = 0.0, double lat = 0.0, double r = 1000.0);
@@ -19,7 +19,7 @@ struct PlanetaryCoords {
     // Convert from cartesian position to planetary coordinates
     static PlanetaryCoords FromCartesian(const Vec2d& pos, double planet_radius);
 
-    // Normalize longitude to [0, 360), clamp latitude to [-90, 90]
+    // Normalize longitude to [0, 2*PI), clamp latitude to [-PI/2, PI/2]
     void NormalizeAngle();
 };
 

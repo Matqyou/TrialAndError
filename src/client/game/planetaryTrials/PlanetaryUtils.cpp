@@ -13,8 +13,9 @@ PlanetaryCoords::PlanetaryCoords(double lon, double lat, double r)
 
 Vec2d PlanetaryCoords::ToCartesian() const
 {
-    double lonRad = longitude * M_PI / 180.0;
-    double latRad = latitude  * M_PI / 180.0;
+    // longitude and latitude are stored in radians
+    double lonRad = longitude;
+    double latRad = latitude;
 
     double x = planet_radius * cos(latRad) * cos(lonRad);
     double y = planet_radius * sin(latRad);
@@ -25,19 +26,22 @@ PlanetaryCoords PlanetaryCoords::FromCartesian(const Vec2d& pos, double r)
 {
     double lonRad = atan2(pos.y, pos.x);
     double hyp = sqrt(pos.x * pos.x + pos.y * pos.y);
-    double latRad = asin(pos.y / hyp);
+    double latRad = 0.0;
+    if (hyp > 0.0)
+        latRad = asin(std::clamp(pos.y / hyp, -1.0, 1.0));
 
     PlanetaryCoords pc;
     pc.planet_radius = r;
-    pc.longitude = fmod(lonRad * 180.0 / M_PI + 360.0, 360.0);
-    pc.latitude  = std::clamp(latRad * 180.0 / M_PI, -90.0, 90.0);
+    // store in radians, normalize longitude to [0, 2PI)
+    pc.longitude = fmod(lonRad + 2.0 * M_PI, 2.0 * M_PI);
+    pc.latitude  = std::clamp(latRad, -M_PI / 2.0, M_PI / 2.0);
     return pc;
 }
 
 void PlanetaryCoords::NormalizeAngle()
 {
-    longitude = fmod(longitude + 360.0, 360.0);
-    latitude  = std::clamp(latitude, -90.0, 90.0);
+    longitude = fmod(longitude + 2.0 * M_PI, 2.0 * M_PI);
+    latitude  = std::clamp(latitude, -M_PI / 2.0, M_PI / 2.0);
 }
 
 namespace PlanetaryUtils

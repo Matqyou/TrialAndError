@@ -13,6 +13,8 @@ private:
 	Texture *m_TextureBack;
 	SDL_Rect m_ResumeButtonRect;
 	SDL_Rect m_BackToMenuButtonRect;
+	bool m_ResumeHover{false};
+	bool m_BackToMenuHover{false};
 	bool m_Paused;
 
 public:

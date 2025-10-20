@@ -529,7 +529,9 @@ void Character::TickControls()
 void Character::TickProcessInputs()
 {
 	if (m_Input.m_GoingLength >= 0.2)
-	{ // Fix controller drifting
+	{ 
+
+		// Fix controller drifting
 		// Checks if player is shifting (holding left stick)
 		// TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
 
@@ -537,7 +539,7 @@ void Character::TickProcessInputs()
 			(m_ErrorStatuses.Disoriented.IsActive() ? -1 : 1) *
 			(m_ErrorStatuses.Slowdown.IsActive() ? 0.5 : 1) *
 			(m_CurrentWeapon ? 0.9 : 1.0);
-
+		std::cout << "GoingX: " << m_Input.m_GoingX << " acc: " << Acceleration << std::endl;
 		// Accelerate in that direction
 		m_Core.Vel += Vec2d(m_Input.m_GoingX, m_Input.m_GoingY) * Acceleration;
 	}

@@ -47,6 +47,11 @@ protected:
 	Texture *m_Background;
 	int m_BackgroundW{}, m_BackgroundH{};
 
+	// Death screen UI
+	SDL_Rect m_DeathPanelRect{};
+	SDL_Rect m_DeathBackButtonRect{};
+	bool m_DeathBackHover{false};
+
 	unsigned long long m_LastWave;
 	unsigned long long m_TimeBetweenWaves;
 	unsigned int m_NumEnemiesPerWave;

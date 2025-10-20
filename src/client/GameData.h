@@ -92,9 +92,11 @@ public:
 	// Manipulating
 	bool Initialize();
 	void Deinitialize(bool play_quit_sound);
-
+	
 	void AddPlayerClassMenu();
 	void AddPendingClass(PlayerClass *playerClass);
+	void ResetPlayerClassMenus();
+	void ResetPendingClasses();
 	void RemovePlayerClassMenu();
 
 	void StartGame(GameMode mode);

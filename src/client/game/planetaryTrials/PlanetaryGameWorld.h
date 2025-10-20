@@ -25,6 +25,8 @@ private:
     std::vector<Texture *> m_BackgroundLayers;
     std::vector<double> m_LayerDistances;
 
+    double m_Yaw = 0.0;   // A/D
+    double m_Pitch = 0.0; // W/S
     // Camera tracking
     Vec2d m_CameraPos;
     double m_CameraZoom;
@@ -65,7 +67,7 @@ public:
 
     // Physics calculations
     double GetSurfaceHeight(double angle) const; // For terrain variation
-
+    void AddAngles(double longChange, double latChange);
     Vec2d GetSurfaceNormal(const Vec2d &world_pos) const;
 
     // Rendering
@@ -87,6 +89,7 @@ private:
     int m_CurrentPlanetIndex;
     double m_CamLonDeg = 0.0; // 0-360°
     double m_CamLatDeg = 0.0; // −90 … +90°
+
     // Planetary-specific rendering
     void TickPlanetaryCamera();
     void RenderPlanetaryBackground();
@@ -101,7 +104,6 @@ public:
     ~PlanetaryGameWorld();
 
     // Planet management
-    void AddCameraAngles(double dLonDeg, double dLatDeg);
     void SetCurrentPlanet(int planet_index);
     void AddPlanetConfig(const PlanetConfig &config);
     PlanetaryWorld *GetCurrentPlanet() const { return m_CurrentPlanet; }

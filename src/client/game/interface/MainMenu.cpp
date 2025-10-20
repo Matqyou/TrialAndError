@@ -26,6 +26,8 @@ MainMenu::~MainMenu()
 
 void MainMenu::Show()
 {
+	GameReference.ResetPlayerClassMenus();
+	GameReference.ResetPendingClasses();
 	bool running = true;
 	bool menuOpen = true;
 
@@ -117,22 +119,13 @@ void MainMenu::HandleEvent(const SDL_Event& event, bool& running, bool& menuOpen
 
 			int x = event.motion.x;
 			int y = event.motion.y;
-			bool hovering = false;
-			if ((x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
-				y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h) ||
-				(x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
-					y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h))
-			{
-				hovering = true;
-			}
-			if (hovering)
-			{
-				SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND));
-			}
-			else
-			{
-				SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
-			}
+			m_PlayHover = (x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
+						   y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h);
+			m_ExitHover = (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
+						  y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h);
+
+			bool hoveringAny = m_PlayHover || m_ExitHover;
+			SDL_SetCursor(SDL_CreateSystemCursor(hoveringAny ? SDL_SYSTEM_CURSOR_HAND : SDL_SYSTEM_CURSOR_ARROW));
 		}
 			break;
 		case SDL_WINDOWEVENT:
@@ -262,6 +255,16 @@ void MainMenu::Render()
 
 		render->RenderTexture(sTextureTitle.GetTexture()->SDLTexture(), nullptr, m_TitleRect);
 		render->RenderTexture(sTexturePlay.GetTexture()->SDLTexture(), nullptr, m_PlayButtonRect);
+		if (m_PlayHover)
+		{
+			render->SetColor(255, 255, 255, 60);
+			SDL_RenderFillRect(renderer, &m_PlayButtonRect);
+		}
 		render->RenderTexture(sTextureExit.GetTexture()->SDLTexture(), nullptr, m_ExitButtonRect);
+		if (m_ExitHover)
+		{
+			render->SetColor(255, 255, 255, 60);
+			SDL_RenderFillRect(renderer, &m_ExitButtonRect);
+		}
 	}
 }

@@ -273,6 +273,42 @@ void GameWorld::Event(const SDL_Event &currentEvent)
 	if (m_Paused)
 		return;
 
+	// If the game has ended, intercept mouse events for the death UI
+	if (m_GameOver)
+	{
+		if (currentEvent.type == SDL_MOUSEBUTTONDOWN)
+		{
+			if (currentEvent.button.button == SDL_BUTTON_LEFT)
+			{
+				int x = currentEvent.button.x;
+				int y = currentEvent.button.y;
+				if (x >= m_DeathBackButtonRect.x && x < m_DeathBackButtonRect.x + m_DeathBackButtonRect.w &&
+					y >= m_DeathBackButtonRect.y && y < m_DeathBackButtonRect.y + m_DeathBackButtonRect.h)
+				{
+					// Play click sound and go back to main menu
+					Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
+					// Show main menu
+					if (m_GameWindow->Menu())
+					{
+						m_GameWindow->Menu()->Show();
+					}
+				}
+			}
+		}
+		else if (currentEvent.type == SDL_MOUSEMOTION)
+		{
+			int x = currentEvent.motion.x;
+			int y = currentEvent.motion.y;
+			bool hovering = (x >= m_DeathBackButtonRect.x && x < m_DeathBackButtonRect.x + m_DeathBackButtonRect.w &&
+							 y >= m_DeathBackButtonRect.y && y < m_DeathBackButtonRect.y + m_DeathBackButtonRect.h);
+			m_DeathBackHover = hovering;
+			SDL_SetCursor(SDL_CreateSystemCursor(hovering ? SDL_SYSTEM_CURSOR_HAND : SDL_SYSTEM_CURSOR_ARROW));
+		}
+
+		// swallow other input when game over
+		return;
+	}
+
 	if (currentEvent.type == SDL_KEYDOWN)
 	{
 		if (currentEvent.key.keysym.scancode == SDL_SCANCODE_SPACE)
@@ -550,7 +586,79 @@ void GameWorld::Draw()
 	int ScoreHeight = int(ScoreTexture->GetHeight() * 2.5);
 	SDL_Rect ScoreRect = {0, int(m_GameWindow->GetHeight() - ScoreHeight), ScoreWidth, ScoreHeight};
 	if (!m_GameOver)
+	{
 		render->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
+	}
 	else
-		render->RenderTextureFullscreen(ScoreTexture->SDLTexture(), nullptr);
+	{
+		// Render a semi-opaque dark overlay
+		render->SetColor(0, 0, 0, 200);
+		SDL_Rect full = {0, 0, m_GameWindow->GetWidth(), m_GameWindow->GetHeight()};
+		SDL_RenderFillRect(renderer, &full);
+
+		// Panel dimensions
+		int pw = (int)(m_GameWindow->GetWidth() * 0.6);
+		int ph = (int)(m_GameWindow->GetHeight() * 0.6);
+		int px = (m_GameWindow->GetWidth() - pw) / 2;
+		int py = (m_GameWindow->GetHeight() - ph) / 2;
+		m_DeathPanelRect = {px, py, pw, ph};
+
+		// Panel background
+		render->SetColor(20, 20, 30, 230);
+		SDL_RenderFillRect(renderer, &m_DeathPanelRect);
+
+		// Title: You Died
+		render->SetColor(220, 40, 40, 255);
+		TextSurface titleTex(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), "You Died", {220, 40, 40});
+		Texture *tTex = titleTex.RequestUpdate();
+		int tw = tTex->GetWidth() * 3;
+		int th = tTex->GetHeight() * 3;
+		SDL_Rect titleRect = {px + (pw - tw) / 2, py + 20, tw, th};
+		render->RenderTexture(tTex->SDLTexture(), nullptr, titleRect);
+
+		// Stats: Score + Playtime
+		render->SetColor(200, 200, 200, 255);
+		char buf[256];
+		std::snprintf(buf, sizeof(buf), "Score: %u", m_Score);
+		TextSurface scoreLine(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), buf, {200, 200, 200});
+		Texture *sLineTex = scoreLine.RequestUpdate();
+		SDL_Rect sRect = {px + 40, py + 100, (int)(sLineTex->GetWidth() * 2.0), (int)(sLineTex->GetHeight() * 2.0)};
+		render->RenderTexture(sLineTex->SDLTexture(), nullptr, sRect);
+
+		// Playtime: if Clock exists
+		double seconds = 0.0;
+		if (m_GameWindow->Timer())
+			seconds = (double)m_CurrentTick / std::max(1.0, (double)m_GameWindow->Timer()->GetFramerate());
+		int mins = (int)seconds / 60;
+		int secs = (int)seconds % 60;
+		std::snprintf(buf, sizeof(buf), "Playtime: %02d:%02d", mins, secs);
+		TextSurface timeLine(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), buf, {200, 200, 200});
+		Texture *tLineTex = timeLine.RequestUpdate();
+		SDL_Rect tRect = {px + 40, py + 140, (int)(tLineTex->GetWidth() * 2.0), (int)(tLineTex->GetHeight() * 2.0)};
+		render->RenderTexture(tLineTex->SDLTexture(), nullptr, tRect);
+
+		// Additional stats could go here (kills, accuracy, etc.) if you track them.
+
+		// Back to Menu button
+		int buttonWidth = 300;
+		int buttonHeight = 80;
+		int buttonX = px + (pw - buttonWidth) / 2;
+		int buttonY = py + ph - buttonHeight - 40;
+		m_DeathBackButtonRect = {buttonX, buttonY, buttonWidth, buttonHeight};
+
+		// Button background
+		if (m_DeathBackHover)
+			render->SetColor(100, 200, 255, 255);
+		else
+			render->SetColor(80, 180, 230, 255);
+		SDL_RenderFillRect(renderer, &m_DeathBackButtonRect);
+
+		// Button text
+		TextSurface backTextSurface(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), "Back to Menu", {10, 10, 10});
+		Texture *buttonTexture = backTextSurface.RequestUpdate();
+		SDL_Rect buttonTextRect = {buttonX + (buttonWidth - (int)(buttonTexture->GetWidth() * 1.5)) / 2,
+								   buttonY + (buttonHeight - (int)(buttonTexture->GetHeight() * 1.5)) / 2,
+								   (int)(buttonTexture->GetWidth() * 1.5), (int)(buttonTexture->GetHeight() * 1.5)};
+		render->RenderTexture(buttonTexture->SDLTexture(), nullptr, buttonTextRect);
+	}
 }

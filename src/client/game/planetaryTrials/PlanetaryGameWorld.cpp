@@ -42,6 +42,12 @@ void PlanetaryWorld::SetConfig(const PlanetConfig &config)
     }
 }
 
+void PlanetaryWorld::AddAngles(double longChange, double latChange)
+{
+    m_Yaw = std::fmod(m_Yaw + longChange, 2.0 * M_PI);
+    m_Pitch = std::fmod(m_Pitch + latChange, 2.0 * M_PI);
+}
+
 bool PlanetaryWorld::LoadPlanetTexture(const char *texture_path)
 {
     m_PlanetTexture = Assets::Get()->GetTexture(texture_path);
@@ -88,39 +94,43 @@ void PlanetaryWorld::RenderPlanetCore(SDL_Renderer *renderer, int screen_width, 
     if (!m_PlanetTexture)
         return;
 
-    const int segments = 50;
-    const int rings = 30;
+    const int segments = 30;
+    const int rings = 40;
 
     std::vector<SDL_Vertex> verts;
     std::vector<int> indices;
+    std::vector<float> zdepth;
 
-    double radius = std::min(screen_width, screen_height);
+    double radius = m_Config.radius;
     float center_x = screen_width / 2.0f;
-    float center_y = screen_height - 40;
+    float center_y = (screen_height + radius) / 2.0f;
 
-    double longitude_rotation = -atan2(m_CameraPos.y, m_CameraPos.x);
+    double longitude_rotation = m_Yaw;
+    double latitude_rotation = m_Pitch;
 
-    double latitude_rotation = atan2(sqrt(m_CameraPos.x * m_CameraPos.x + m_CameraPos.y * m_CameraPos.y), m_Config.radius) - M_PI / 2;
-
-    verts.reserve((rings + 1) * (segments + 2)); // +2 for seam duplication
+    verts.reserve((rings + 1) * (segments + 2));
+    zdepth.reserve((rings + 1) * (segments + 2));
     indices.reserve(rings * segments * 6);
 
     for (int ring = 0; ring <= rings; ++ring)
     {
+        double phi = M_PI * ring / rings;
+        phi = std::max(0.0, std::min(M_PI, phi));
+
         for (int seg = 0; seg <= segments; ++seg)
         {
-            double phi = M_PI * ring / rings;
             double theta = 2.0 * M_PI * seg / segments;
 
             double x = sin(phi) * cos(theta);
             double y = cos(phi);
             double z = sin(phi) * sin(theta);
 
-            // Apply camera rotation
+            // Rotate around Y (longitude)
             double x1 = x * cos(longitude_rotation) - z * sin(longitude_rotation);
             double y1 = y;
             double z1 = x * sin(longitude_rotation) + z * cos(longitude_rotation);
 
+            // Rotate around X (latitude)
             double x2 = x1;
             double y2 = y1 * cos(latitude_rotation) - z1 * sin(latitude_rotation);
             double z2 = y1 * sin(latitude_rotation) + z1 * cos(latitude_rotation);
@@ -129,33 +139,33 @@ void PlanetaryWorld::RenderPlanetCore(SDL_Renderer *renderer, int screen_width, 
             double screen_y = center_y - y2 * radius;
 
             // Lighting
-            double light_dir_x = 0.3;
-            double light_dir_y = 0.3;
-            double light_dir_z = 0.8;
+            double light_dir_x = 0.3, light_dir_y = 0.3, light_dir_z = 0.8;
             double dot = x2 * light_dir_x + y2 * light_dir_y + z2 * light_dir_z;
             double light_intensity = std::max(0.15, dot * 0.85 + 0.15);
             Uint8 brightness = static_cast<Uint8>(light_intensity * 255);
 
-            float u = (float)seg / segments;
+            float u = 1.0f - (float)seg / segments;
+
             float v = (float)ring / rings;
 
             SDL_Vertex vertex;
             vertex.position = {(float)screen_x, (float)screen_y};
             vertex.tex_coord = {u, v};
             vertex.color = {brightness, brightness, brightness, 255};
-            verts.push_back(vertex);
 
-            // Duplicate vertex at seam for u = 1.0 exactly (avoid interpolation to u=0)
-            if (seg == segments)
-            {
-                SDL_Vertex seam_vertex = vertex;
-                seam_vertex.tex_coord.x = 1.0f;
-                verts.push_back(seam_vertex);
-            }
+            verts.push_back(vertex);
+            zdepth.push_back((float)z2);
         }
     }
 
-    int row_stride = segments + 1 + 1; // +1 for regular, +1 for seam dup
+    int row_stride = segments + 1;
+    const float kEps = 0.001f;
+
+    auto tri_front = [&](int a, int b, int c) -> bool
+    {
+        float avgz = (zdepth[a] + zdepth[b] + zdepth[c]) / 3.0f;
+        return avgz > -kEps;
+    };
 
     for (int ring = 0; ring < rings; ++ring)
     {
@@ -166,17 +176,24 @@ void PlanetaryWorld::RenderPlanetCore(SDL_Renderer *renderer, int screen_width, 
             int i2 = i0 + row_stride;
             int i3 = i2 + 1;
 
-            indices.push_back(i0);
-            indices.push_back(i2);
-            indices.push_back(i1);
-
-            indices.push_back(i1);
-            indices.push_back(i2);
-            indices.push_back(i3);
+            if (tri_front(i0, i2, i1))
+            {
+                indices.push_back(i0);
+                indices.push_back(i2);
+                indices.push_back(i1);
+            }
+            if (tri_front(i1, i2, i3))
+            {
+                indices.push_back(i1);
+                indices.push_back(i2);
+                indices.push_back(i3);
+            }
         }
     }
-
-    SDL_RenderGeometry(renderer, m_PlanetTexture->SDLTexture(), verts.data(), (int)verts.size(), indices.data(), (int)indices.size());
+    SDL_RenderGeometry(renderer,
+                       m_PlanetTexture->SDLTexture(),
+                       verts.data(), (int)verts.size(),
+                       indices.data(), (int)indices.size());
 }
 
 void PlanetaryWorld::RenderAtmosphere(SDL_Renderer *renderer, int screen_width, int screen_height)
@@ -274,7 +291,7 @@ PlanetaryGameWorld::PlanetaryGameWorld(GameData *game_window, int width, int hei
 {
     // Initialize with a default planet configuration
     PlanetConfig defaultPlanet;
-    defaultPlanet.radius = 1000.0;
+    defaultPlanet.radius = width * height / 2;
     defaultPlanet.atmosphere_height = 100.0;
     defaultPlanet.surface_color = {100, 150, 200, 255};
     defaultPlanet.atmosphere_color = {150, 200, 255, 80};
@@ -343,30 +360,29 @@ void PlanetaryGameWorld::TickPlanetaryCamera()
     if (!m_CurrentPlanet)
         return;
 
-    auto Char = FirstCharacter();
-    if (!Char || Char->IsNPC())
+    PlanetaryCharacter* player = dynamic_cast<PlanetaryCharacter*>(FirstCharacter());
+    if (!player || player->IsNPC())
         return;
 
-    auto* PlanetChar = dynamic_cast<PlanetaryCharacter*>(Char);
-    if (!PlanetChar)
-        return;
+    // Player world position from spherical coords
+    const PlanetaryCoords& playerCoords = player->GetPlanetaryPos();
+    Vec2d playerWorld = playerCoords.ToCartesian();
 
-    // Track character's planetary position
-    const PlanetaryCoords& charPos = PlanetChar->GetPlanetaryPos();
-    Vec2d targetCam = charPos.ToCartesian();
+    Vec2d lookDir = player->GetDirectionalCore().Direction;
 
-    Drawing* Render = m_GameWindow->Render();
-    double OldX = Render->GetCameraX();
-    double OldY = Render->GetCameraY();
+    const double radius = m_CurrentPlanet->GetConfig().radius;
+    Vec2d targetCam = { playerWorld.x + lookDir.x ,
+                        playerWorld.y + lookDir.y};
 
-    constexpr double followSpeed = 0.15;
-    double NewX = OldX + (targetCam.x - OldX) * followSpeed;
-    double NewY = OldY + (targetCam.y - OldY) * followSpeed;
+    Drawing* render = m_GameWindow->Render();
+    double oldCamX = render->GetCameraX();
+    double oldCamY = render->GetCameraY();
 
-    Render->SetCameraPos(NewX, NewY);
-
-    // Update for rendering the sphere
-    m_CurrentPlanet->SetCameraPos(Vec2d(NewX, NewY));
+    // Smooth follow (same 0.1 factor as your regular camera)
+    const double followSpeed = 0.1;
+    double newCamX = oldCamX + (targetCam.x - oldCamX) * followSpeed;
+    double newCamY = oldCamY + (targetCam.y - oldCamY) * followSpeed;
+    render->SetCameraPos(newCamX, newCamY);
 }
 
 void PlanetaryGameWorld::RenderPlanetaryBackground()
@@ -548,7 +564,72 @@ void PlanetaryGameWorld::Draw()
     int ScoreHeight = int(ScoreTexture->GetHeight() * 2.5);
     SDL_Rect ScoreRect = {0, int(m_GameWindow->GetHeight() - ScoreHeight), ScoreWidth, ScoreHeight};
     if (!m_GameOver)
+    {
         render->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
+    }
     else
-        render->RenderTextureFullscreen(ScoreTexture->SDLTexture(), nullptr);
+    {
+        // Render death overlay for planetary mode
+        render->SetColor(0, 0, 0, 200);
+        SDL_Rect full = {0, 0, m_GameWindow->GetWidth(), m_GameWindow->GetHeight()};
+        SDL_RenderFillRect(renderer, &full);
+
+        int pw = (int)(m_GameWindow->GetWidth() * 0.6);
+        int ph = (int)(m_GameWindow->GetHeight() * 0.6);
+        int px = (m_GameWindow->GetWidth() - pw) / 2;
+        int py = (m_GameWindow->GetHeight() - ph) / 2;
+        m_DeathPanelRect = {px, py, pw, ph};
+
+        render->SetColor(20, 20, 30, 230);
+        SDL_RenderFillRect(renderer, &m_DeathPanelRect);
+
+        // Title
+        render->SetColor(220, 40, 40, 255);
+        TextSurface titleTex(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), "You Died", {220,40,40});
+        Texture *tTex = titleTex.RequestUpdate();
+        int tw = tTex->GetWidth() * 3;
+        int th = tTex->GetHeight() * 3;
+        SDL_Rect titleRect = {px + (pw - tw) / 2, py + 20, tw, th};
+        render->RenderTexture(tTex->SDLTexture(), nullptr, titleRect);
+
+        // Score and playtime
+        render->SetColor(200,200,200,255);
+        char buf[256];
+        std::snprintf(buf, sizeof(buf), "Score: %u", m_Score);
+        TextSurface scoreLine(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), buf, {200,200,200});
+        Texture *sLineTex = scoreLine.RequestUpdate();
+        SDL_Rect sRect = {px + 40, py + 100, (int)(sLineTex->GetWidth()*2.0), (int)(sLineTex->GetHeight()*2.0)};
+        render->RenderTexture(sLineTex->SDLTexture(), nullptr, sRect);
+
+        double seconds = 0.0;
+        if (m_GameWindow->Timer())
+            seconds = (double)m_CurrentTick / std::max(1.0, (double)m_GameWindow->Timer()->GetFramerate());
+        int mins = (int)seconds / 60;
+        int secs = (int)seconds % 60;
+        std::snprintf(buf, sizeof(buf), "Playtime: %02d:%02d", mins, secs);
+        TextSurface timeLine(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), buf, {200,200,200});
+        Texture *tLineTex = timeLine.RequestUpdate();
+        SDL_Rect tRect = {px + 40, py + 140, (int)(tLineTex->GetWidth()*2.0), (int)(tLineTex->GetHeight()*2.0)};
+        render->RenderTexture(tLineTex->SDLTexture(), nullptr, tRect);
+
+        // Back to Menu button
+        int buttonWidth = 300;
+        int buttonHeight = 80;
+        int buttonX = px + (pw - buttonWidth) / 2;
+        int buttonY = py + ph - buttonHeight - 40;
+        m_DeathBackButtonRect = {buttonX, buttonY, buttonWidth, buttonHeight};
+
+        if (m_DeathBackHover)
+            render->SetColor(100,200,255,255);
+        else
+            render->SetColor(80,180,230,255);
+        SDL_RenderFillRect(renderer, &m_DeathBackButtonRect);
+
+        TextSurface backTextSurface(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), "Back to Menu", {10,10,10});
+        Texture *buttonTexture = backTextSurface.RequestUpdate();
+        SDL_Rect buttonTextRect = {buttonX + (buttonWidth - (int)(buttonTexture->GetWidth()*1.5))/2,
+                                   buttonY + (buttonHeight - (int)(buttonTexture->GetHeight()*1.5))/2,
+                                   (int)(buttonTexture->GetWidth()*1.5), (int)(buttonTexture->GetHeight()*1.5)};
+        render->RenderTexture(buttonTexture->SDLTexture(), nullptr, buttonTextRect);
+    }
 }

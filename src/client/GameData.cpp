@@ -58,6 +58,18 @@ void GameData::RemovePlayerClassMenu()
 	m_ClassSelectMenus.pop_back();
 }
 
+void GameData::ResetPlayerClassMenus()
+{
+	m_ClassSelectMenus.clear();
+	ClassSelectMenu *menu = new ClassSelectMenu(this);
+	m_ClassSelectMenus.push_back(menu);
+}
+
+void GameData::ResetPendingClasses()
+{
+	m_PendingPlayerClasses.clear();
+}
+
 void GameData::UpdateDimensions(int width, int height)
 {
 	m_Width = width;
@@ -233,8 +245,8 @@ bool GameData::Initialize()
 void GameData::Deinitialize(bool play_quit_sound)
 {
 	std::cout << FStringColors(
-		"&8---------------------------- &fDeinitializing(play_quit_sound = %s) &8----------------------------",
-		play_quit_sound ? "true" : "false")
+					 "&8---------------------------- &fDeinitializing(play_quit_sound = %s) &8----------------------------",
+					 play_quit_sound ? "true" : "false")
 			  << std::endl;
 	Assets::PauseMusic();
 	delete m_GameWorld;
@@ -305,7 +317,7 @@ void GameData::Deinitialize(bool play_quit_sound)
 	exit(0);
 }
 
-void GameData::Event(const SDL_Event& event)
+void GameData::Event(const SDL_Event &event)
 {
 	if (event.type != SDL_WINDOWEVENT ||
 		event.window.event != SDL_WINDOWEVENT_SIZE_CHANGED)
@@ -334,6 +346,10 @@ void GameData::StartGame(GameMode mode)
 	{
 		// Levels are not implemented yet
 	}
+	else if (mode == GameMode::PvP)
+	{
+		InitializeSandbox();
+	}
 
 	// ADD ANY FUTURE GAME MODES HERE
 }
@@ -345,7 +361,7 @@ void GameData::InitializeSandbox()
 	m_Draw->SetWorld(m_GameWorld);
 	Character::ms_BotNamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
 												 m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
-												 "Bot User", { 255, 150, 150, 255 });
+												 "Bot User", {255, 150, 150, 255});
 
 	for (int y = 0; y < 5; y++)
 		for (int x = 0; x < 5; x++)
@@ -377,25 +393,26 @@ void GameData::InitializeSandbox()
 
 void GameData::InitializeInfinite()
 {
-	m_GameWorld = new PlanetaryGameWorld(this, 1000, 1000);
+	m_GameWorld = new PlanetaryGameWorld(this, 50, 30);
+	Vec2d worldCenter(m_GameWorld->GetWidth() / 2.0, m_GameWorld->GetHeight() / 2.0);
 	m_Draw->SetWorld(m_GameWorld);
 	Character::ms_BotNamePlate = new TextSurface(
 		m_GameWorld->GameWindow()->Assetz(),
 		m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
-		"Bot User", { 255, 150, 150, 255 });
+		"Bot User", {255, 150, 150, 255});
 
-	const auto& connectedControllers = Controllers()->GetConnectedControllers();
+	const auto &connectedControllers = Controllers()->GetConnectedControllers();
 
 	for (size_t i = 0; i < m_PendingPlayerClasses.size(); ++i)
 	{
 		std::string name = (i == 0) ? "Keyboard" : "Controller";
 		auto player = new Player(m_GameWorld, name, m_PendingPlayerClasses[i]);
-		auto character = new PlanetaryCharacter((PlanetaryGameWorld*)m_GameWorld,
-									   player,
-									   100.0,
-									   Vec2d(32 * 17.5, 32 * 17.5),
-									   Vec2d(10, 10),
-									   false);
+		auto character = new PlanetaryCharacter((PlanetaryGameWorld *)m_GameWorld,
+												player,
+												100.0,
+												worldCenter,
+												Vec2d(10, 10),
+												false);
 		if (i > 0 && connectedControllers.size() >= i)
 		{
 			character->SetGameController(connectedControllers[i - 1]);

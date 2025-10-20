@@ -19,6 +19,8 @@ private:
 	SDL_Rect m_TitleRect;
 	SDL_Rect m_PlayButtonRect;
 	SDL_Rect m_ExitButtonRect;
+    bool m_PlayHover{false};
+    bool m_ExitHover{false};
 
 	std::vector<std::tuple<Vec2d, Vec2d, double>> m_Stars;
 	std::chrono::steady_clock::time_point m_Opened;
