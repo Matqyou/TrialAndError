@@ -70,7 +70,7 @@ int main()
 		->SetAlphaMod(200);
 
 	MainMenu mainMenu(&GameReference);
-	mainMenu.Show();
+	mainMenu.InitialShow();
 
 	PauseMenu *PauseMenu;
 	while (true)

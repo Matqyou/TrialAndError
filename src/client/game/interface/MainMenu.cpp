@@ -12,9 +12,9 @@ LoadedTexture MainMenu::sTextureExit("ui.main.exit2");
 MainMenu::MainMenu(GameData *game_window)
 	: m_GameWindow(game_window)
 {
-	m_TitleRect = { int(m_GameWindow->GetWidth2()) - 300, int(m_GameWindow->GetHeight2()) / 4 - 50, 600, 300 };
-	m_PlayButtonRect = { int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) - 40, 360, 80 };
-	m_ExitButtonRect = { int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) + 140, 360, 80 };
+	m_TitleRect = {int(m_GameWindow->GetWidth2()) - 300, int(m_GameWindow->GetHeight2()) / 4 - 50, 600, 300};
+	m_PlayButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) - 40, 360, 80};
+	m_ExitButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) + 140, 360, 80};
 
 	m_Opened = std::chrono::steady_clock::now();
 	m_Intro = true;
@@ -26,33 +26,18 @@ MainMenu::~MainMenu()
 
 void MainMenu::Show()
 {
-	GameReference.ResetPlayerClassMenus();
-	GameReference.ResetPendingClasses();
-	bool running = true;
-	bool menuOpen = true;
-
-	while (menuOpen)
-	{
-		Tick();
-		Render();
-		SDL_ShowCursor(1);
-		SDL_Event currentEvent;
-		while (SDL_PollEvent(&currentEvent))
-		{
-			m_GameWindow->Event(currentEvent);
-			HandleEvent(currentEvent, running, menuOpen);
-		}
-		m_GameWindow->Render()->UpdateWindow();
-	}
-	m_GameWindow->Render()->Clear();
+	m_Intro = false;
+	this->InitialShow();
 }
 
 void MainMenu::InitialShow()
 {
+	GameReference.ResetPlayerClassMenus();
+	GameReference.ResetPendingClasses();
 	bool running = true;
 	bool menuOpen = true;
-
-	sElevatorMusic.GetMusic()->PlayMusic(-1);
+	if(m_Intro)
+		sElevatorMusic.GetMusic()->PlayMusic(-1);
 	while (menuOpen)
 	{
 		Tick();
@@ -69,78 +54,78 @@ void MainMenu::InitialShow()
 	m_GameWindow->Render()->Clear();
 }
 
-
-void MainMenu::HandleEvent(const SDL_Event& event, bool& running, bool& menuOpen)
+void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen)
 {
 	switch (event.type)
 	{
-		case SDL_QUIT:m_GameWindow->Deinitialize(true); // close everything except sound
-			while (Mix_Playing(-1))
-			{
-			} // wait until last sound is done playing
-			delete m_GameWindow;
-			exit(0);
-		case SDL_MOUSEBUTTONDOWN:
-			if (m_Intro)
-			{
-				m_Intro = false;
-				Mix_SetMusicPosition(16);
-				break;
-			}
-
-			SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
-			if (event.button.button == SDL_BUTTON_LEFT)
-			{
-				int x = event.button.x;
-				int y = event.button.y;
-				if (x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
-					y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h)
-				{
-					menuOpen = false;
-					Assets::PauseMusic();
-					Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
-					m_GameWindow->GameSelectMenu()->Show();
-				}
-				if (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
-					y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h)
-				{
-					m_GameWindow->Deinitialize(true);
-					while (Mix_Playing(-1))
-					{
-					} // wait until last sound is done playing
-					delete m_GameWindow;
-				}
-			}
-			break;
-		case SDL_MOUSEMOTION:
+	case SDL_QUIT:
+		m_GameWindow->Deinitialize(true); // close everything except sound
+		while (Mix_Playing(-1))
 		{
-			if (m_Intro)
-				break;
-
-			int x = event.motion.x;
-			int y = event.motion.y;
-			m_PlayHover = (x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
-						   y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h);
-			m_ExitHover = (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
-						  y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h);
-
-			bool hoveringAny = m_PlayHover || m_ExitHover;
-			SDL_SetCursor(SDL_CreateSystemCursor(hoveringAny ? SDL_SYSTEM_CURSOR_HAND : SDL_SYSTEM_CURSOR_ARROW));
-		}
+		} // wait until last sound is done playing
+		delete m_GameWindow;
+		exit(0);
+	case SDL_MOUSEBUTTONDOWN:
+		if (m_Intro)
+		{
+			m_Intro = false;
+			Mix_SetMusicPosition(16);
 			break;
-		case SDL_WINDOWEVENT:
-			if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+		}
+
+		SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
+		if (event.button.button == SDL_BUTTON_LEFT)
+		{
+			int x = event.button.x;
+			int y = event.button.y;
+			if (x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
+				y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h)
 			{
-				m_TitleRect = { int(m_GameWindow->GetWidth2()) - 300, int(m_GameWindow->GetHeight2()) / 4 - 50, 600,
-								300 };
-				m_PlayButtonRect = { int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) - 40, 360,
-									 80 };
-				m_ExitButtonRect = { int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) + 140, 360,
-									 80 };
-				m_GameWindow->Render()->Clear();
-				m_GameWindow->Render()->UpdateWindow();
-				break;
+				menuOpen = false;
+				Assets::PauseMusic();
+				Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
+				m_GameWindow->GameSelectMenu()->Show();
 			}
+			if (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
+				y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h)
+			{
+				m_GameWindow->Deinitialize(true);
+				while (Mix_Playing(-1))
+				{
+				} // wait until last sound is done playing
+				delete m_GameWindow;
+			}
+		}
+		break;
+	case SDL_MOUSEMOTION:
+	{
+		if (m_Intro)
+			break;
+
+		int x = event.motion.x;
+		int y = event.motion.y;
+		m_PlayHover = (x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
+					   y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h);
+		m_ExitHover = (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
+					   y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h);
+
+		bool hoveringAny = m_PlayHover || m_ExitHover;
+		SDL_SetCursor(SDL_CreateSystemCursor(hoveringAny ? SDL_SYSTEM_CURSOR_HAND : SDL_SYSTEM_CURSOR_ARROW));
+	}
+	break;
+	case SDL_WINDOWEVENT:
+		if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+		{
+			m_TitleRect = {int(m_GameWindow->GetWidth2()) - 300, int(m_GameWindow->GetHeight2()) / 4 - 50, 600,
+						   300};
+			m_PlayButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) - 40, 360,
+								80};
+			m_ExitButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) + 140, 360,
+								80};
+			m_GameWindow->Render()->Clear();
+			m_GameWindow->Render()->UpdateWindow();
+			break;
+		}
 	}
 }
 
@@ -149,7 +134,8 @@ void MainMenu::Tick()
 	if (m_Intro)
 	{
 		if (std::chrono::duration_cast<
-			std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_Opened).count() >= 15500)
+				std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_Opened)
+				.count() >= 15500)
 			m_Intro = false;
 
 		return;
@@ -168,7 +154,7 @@ void MainMenu::Tick()
 
 	for (int i = m_Stars.size() - 1; i >= 0; --i)
 	{
-		auto& [position, velocity, duration] = m_Stars[i];
+		auto &[position, velocity, duration] = m_Stars[i];
 
 		auto direction = position - MousePositionD;
 		double distance = direction.Length();
@@ -207,7 +193,8 @@ void MainMenu::Render()
 		render->Clear();
 
 		int duration = (int)std::chrono::duration_cast<
-			std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_Opened).count();
+						   std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_Opened)
+						   .count();
 		int centerX = (int)m_GameWindow->GetWidth2();
 		int centerY = (int)m_GameWindow->GetHeight2();
 		int radius = (int)((double)duration * 0.05);
@@ -238,7 +225,7 @@ void MainMenu::Render()
 		render->SetColor(200, 200, 200, 255);
 		for (int i = m_Stars.size() - 1; i >= 0; --i)
 		{
-			auto& [position, velocity, duration] = m_Stars[i];
+			auto &[position, velocity, duration] = m_Stars[i];
 
 			auto size = (int)duration / 750.0;
 			for (int j = 0; j < size; j++)
@@ -254,17 +241,10 @@ void MainMenu::Render()
 		}
 
 		render->RenderTexture(sTextureTitle.GetTexture()->SDLTexture(), nullptr, m_TitleRect);
-		render->RenderTexture(sTexturePlay.GetTexture()->SDLTexture(), nullptr, m_PlayButtonRect);
-		if (m_PlayHover)
-		{
-			render->SetColor(255, 255, 255, 60);
-			SDL_RenderFillRect(renderer, &m_PlayButtonRect);
-		}
-		render->RenderTexture(sTextureExit.GetTexture()->SDLTexture(), nullptr, m_ExitButtonRect);
-		if (m_ExitHover)
-		{
-			render->SetColor(255, 255, 255, 60);
-			SDL_RenderFillRect(renderer, &m_ExitButtonRect);
-		}
+		// Ensure blending
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+		render->RenderButton(sTexturePlay.GetTexture()->SDLTexture(), m_PlayButtonRect, m_PlayHover);
+		render->RenderButton(sTextureExit.GetTexture()->SDLTexture(), m_ExitButtonRect, m_ExitHover);
 	}
 }

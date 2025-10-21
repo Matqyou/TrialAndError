@@ -99,6 +99,36 @@ void Drawing::RenderTexture(SDL_Texture *texture, SDL_Rect *srcrect, const SDL_R
 	SDL_RenderCopy(m_Renderer, texture, srcrect, &dstrect);
 }
 
+void Drawing::RenderButton(SDL_Texture *texture, const SDL_Rect &dstrect, bool hover)
+{
+	// Ensure blending
+	SDL_SetRenderDrawBlendMode(m_Renderer, SDL_BLENDMODE_BLEND);
+
+	if (hover)
+	{
+		SDL_Rect shadow = dstrect;
+		shadow.x += 4; shadow.y += 4; shadow.w += 6; shadow.h += 6;
+		SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 110);
+		SDL_RenderFillRect(m_Renderer, &shadow);
+
+		SDL_Rect hoveredRect = dstrect;
+		hoveredRect.x -= 2; hoveredRect.y -= 2; hoveredRect.w += 4; hoveredRect.h += 4;
+		SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+
+		// draw a slightly brightened/scaled version for the hover pop
+		SDL_SetTextureColorMod(texture, 220, 220, 220);
+		SDL_RenderCopy(m_Renderer, texture, nullptr, &hoveredRect);
+
+		// restore
+		SDL_SetTextureColorMod(texture, 255, 255, 255);
+		SDL_SetTextureAlphaMod(texture, 255);
+	}
+	else
+	{
+		SDL_RenderCopy(m_Renderer, texture, nullptr, &dstrect);
+	}
+}
+
 void Drawing::RenderTextureCamera(SDL_Texture *texture, SDL_Rect *srcrect, const SDL_Rect& dstrect)
 {
 	SDL_Rect MovedRect = TranslateRect(dstrect);

@@ -109,21 +109,12 @@ void PauseMenu::Render()
 {
 	Drawing *render = m_GameWindow->Render();
 	SDL_Renderer *renderer = m_GameWindow->Renderer();
-	// Draw resume button (texture)
-	render->RenderTexture(m_TextureResume->SDLTexture(), nullptr, m_ResumeButtonRect);
-	if (m_ResumeHover)
-	{
-		// light overlay to indicate hover
-		render->SetColor(255, 255, 255, 60);
-		SDL_RenderFillRect(renderer, &m_ResumeButtonRect);
-	}
+	// Ensure blending is enabled for overlays and texture alpha/mod
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+	render->RenderButton(m_TextureResume->SDLTexture(), m_ResumeButtonRect, m_ResumeHover);
 
 	// Draw back button (texture)
-	render->RenderTexture(m_TextureBack->SDLTexture(), nullptr, m_BackToMenuButtonRect);
-	if (m_BackToMenuHover)
-	{
-		render->SetColor(255, 255, 255, 60);
-		SDL_RenderFillRect(renderer, &m_BackToMenuButtonRect);
-	}
+	render->RenderButton(m_TextureBack->SDLTexture(), m_BackToMenuButtonRect, m_BackToMenuHover);
 	render->UpdateWindow();
 }

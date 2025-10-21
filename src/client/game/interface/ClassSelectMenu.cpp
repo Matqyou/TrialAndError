@@ -286,34 +286,10 @@ void ClassSelectMenu::Render()
 	}
 
 	render->RenderTexture(sTextureTitle.GetTexture()->SDLTexture(), nullptr, m_TitleRect);
-	render->RenderTexture(sTextureClassButton1.GetTexture()->SDLTexture(), nullptr, m_ClassButtonRect1);
-	if (m_ClassHover1)
-	{
-		render->SetColor(255, 255, 255, 60);
-		SDL_RenderFillRect(renderer, &m_ClassButtonRect1);
-	}
-	render->RenderTexture(sTextureClassButton2.GetTexture()->SDLTexture(), nullptr, m_ClassButtonRect2);
-	if (m_ClassHover2)
-	{
-		render->SetColor(255, 255, 255, 60);
-		SDL_RenderFillRect(renderer, &m_ClassButtonRect2);
-	}
-	render->RenderTexture(sTextureClassButton3.GetTexture()->SDLTexture(), nullptr, m_ClassButtonRect3);
-	if (m_ClassHover3)
-	{
-		render->SetColor(255, 255, 255, 60);
-		SDL_RenderFillRect(renderer, &m_ClassButtonRect3);
-	}
-	render->RenderTexture(sTextureClassButton4.GetTexture()->SDLTexture(), nullptr, m_ClassButtonRect4);
-	if (m_ClassHover4)
-	{
-		render->SetColor(255, 255, 255, 60);
-		SDL_RenderFillRect(renderer, &m_ClassButtonRect4);
-	}
-	render->RenderTexture(sTextureBack.GetTexture()->SDLTexture(), nullptr, m_BackButtonRect);
-	if (m_BackHover)
-	{
-		render->SetColor(255, 255, 255, 60);
-		SDL_RenderFillRect(renderer, &m_BackButtonRect);
-	}
+
+	render->RenderButton(sTextureClassButton1.GetTexture()->SDLTexture(), m_ClassButtonRect1, m_ClassHover1);
+	render->RenderButton(sTextureClassButton2.GetTexture()->SDLTexture(), m_ClassButtonRect2, m_ClassHover2);
+	render->RenderButton(sTextureClassButton3.GetTexture()->SDLTexture(), m_ClassButtonRect3, m_ClassHover3);
+	render->RenderButton(sTextureClassButton4.GetTexture()->SDLTexture(), m_ClassButtonRect4, m_ClassHover4);
+	render->RenderButton(sTextureBack.GetTexture()->SDLTexture(), m_BackButtonRect, m_BackHover);
 }

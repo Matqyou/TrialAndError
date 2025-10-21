@@ -49,6 +49,9 @@ public:
 	// Drawing
 	void FillRect(const SDL_Rect& rect);
 	void RenderTexture(SDL_Texture *texture, SDL_Rect *srcrect, const SDL_Rect& dstrect);
+
+	// Renders a button-like texture with a hover effect (soft shadow + tint + subtle overlay)
+	void RenderButton(SDL_Texture *texture, const SDL_Rect &dstrect, bool hover);
 	void RenderTextureF(SDL_Texture *texture, SDL_Rect *srcrect, const SDL_FRect& dstrect);
 	void RenderTextureFullscreen(SDL_Texture *, SDL_Rect *srcrect);
 	void Clear();  // Resets all pixels to a color value

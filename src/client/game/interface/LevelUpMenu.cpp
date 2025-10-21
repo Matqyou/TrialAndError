@@ -156,26 +156,19 @@ void LevelUpMenu::HandleEvent(const SDL_Event& event)
 		{
 			int x = event.motion.x;
 			int y = event.motion.y;
-			bool hovering = false;
+			m_HoverIndex = -1;
 			for (int i = 0; i < m_selectedIndices.size(); ++i)
 			{
 				SDL_Rect rect = m_ErrorOutlineRect;
 				rect.x = int(m_GameWindow->GetWidth2() / 12) + i * (rect.w + int(m_GameWindow->GetWidth2() * 0.25));
 				rect.y = int(m_GameWindow->GetHeight2() / 6);
-				if (x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h / 1.2)
+				if (x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h)
 				{
-					hovering = true;
+					m_HoverIndex = i;
 					break;
 				}
 			}
-			if (hovering)
-			{
-				SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND));
-			}
-			else
-			{
-				SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
-			}
+			SDL_SetCursor(SDL_CreateSystemCursor(m_HoverIndex != -1 ? SDL_SYSTEM_CURSOR_HAND : SDL_SYSTEM_CURSOR_ARROW));
 		}
 			break;
 		case SDL_WINDOWEVENT:
@@ -225,17 +218,18 @@ void LevelUpMenu::Render()
 		rect.x = startX + i * (rect.w + spacing);
 		rect.y = startY;
 
-		// Draw ErrorOutline texture as the base
-		render->RenderTexture(m_TextureErrorOutline->SDLTexture(), nullptr, rect);
+		// Draw ErrorOutline texture as the base with hover effect
+		render->RenderButton(m_TextureErrorOutline->SDLTexture(), rect, (i == m_HoverIndex));
 
 		m_ErrorIconRect.x = rect.x + int(rect.w * 0.3);
 		m_ErrorIconRect.y = rect.y + int(rect.h * 0.15);
 		m_ErrorIconRect.w = int(rect.w * 0.4);
 		m_ErrorIconRect.h = int(rect.h * 0.225);
-		// Draw powerup texture
 
+		// Draw powerup texture icon
 		render->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
 		render->RenderTexture(texture->SDLTexture(), nullptr, m_ErrorIconRect);
+		
 		// Draw description below the powerup
 		SDL_Rect descriptionRect = { rect.x + int(rect.w / 4), int((rect.y + rect.h) / 1.9),
 									 rect.w - int(rect.w / 2.25), rect.h - int(rect.h / 1.35) };

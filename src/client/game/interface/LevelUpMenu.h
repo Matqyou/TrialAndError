@@ -35,6 +35,7 @@ private:
 	std::vector<int> m_selectedIndices;
 	SDL_Rect m_ErrorIconRect;
 	SDL_Rect m_ErrorOutlineRect;
+	int m_HoverIndex{-1};
 
 	// Powerup effect functions
 	void ApplyAllStats();
