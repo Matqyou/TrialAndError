@@ -5,29 +5,32 @@
 #include "Player.h"
 #include "entities/characters/character/Character.h"
 
-Player::Player(GameWorld *game_world, const std::string& username, PlayerClass *primaryClass)
-	: m_GameWorld(game_world),
-	  m_Character(nullptr),
-	  m_Username(),
-	  m_XP(0),
-	  m_Level(1),
-	  m_Prev(nullptr),
-	  m_Next(nullptr),
-	  m_levelUpMenuQueue(),
-	  m_Class(primaryClass ? primaryClass : PlayerClass::FromString("Human"))
+Player::Player(GameWorld *game_world, const std::string& username, PlayerClass *primaryClass, bool assignDefaultClass)
+		: m_GameWorld(game_world),
+			m_Character(nullptr),
+			m_Username(),
+			m_XP(0),
+			m_Level(1),
+			m_Prev(nullptr),
+			m_Next(nullptr),
+			m_levelUpMenuQueue(),
+			m_Class(nullptr)
 {
-	m_BossDamageAmp = 1;
+		m_BossDamageAmp = 1;
 	m_BaseDamage = 10;
 	m_DamageAmp = 1;
-	m_MaxHealthAmp = 1;
+		m_MaxHealthAmp = 1;
 	m_ExtraLife = false;
-	SetUsername(username);
+		if (assignDefaultClass)
+				m_Class = primaryClass ? primaryClass : PlayerClass::FromString("Human");
+
+		SetUsername(username);
 	m_LevelUpMenu = new LevelUpMenu(m_GameWorld, this);
 	m_Index = -1;
 	m_Index = m_GameWorld->GetNextPlayerIndex();
 	m_NamePlate = new TextSurface(m_GameWorld->GameWindow()->Assetz(),
 								  m_GameWorld->GameWindow()->Assetz()->TextHandler()->GetMainFont(),
-								  m_Username, { 255, 255, 255, 255 });
+																	m_Username, { 255, 255, 255, 255 });
 	m_GameWorld->AddPlayer(this);
 }
 
@@ -91,7 +94,14 @@ void Player::SetUsername(const std::string& username)
 	}
 	else
 	{
-		std::cout << FStringColors("[Player] &8Setting username to: &f") << m_Class->GetName() << std::endl;
-		m_Username = m_Class->GetName() + " - " + username;
+		if (m_Class)
+		{
+			std::cout << FStringColors("[Player] &8Setting username to: &f") << m_Class->GetName() << std::endl;
+			m_Username = m_Class->GetName() + " - " + username;
+		}
+		else
+		{
+			m_Username = username;
+		}
 	}
 }

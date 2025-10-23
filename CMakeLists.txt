@@ -150,6 +150,9 @@ set(PROJECT_FILES
         src/client/game/planetaryTrials/PlanetaryGameWorld.h
         src/client/game/planetaryTrials/PlanetaryUtils.cpp
         src/client/game/planetaryTrials/PlanetaryUtils.h
+        src/client/game/OverworldGameWorld.cpp
+        src/client/game/OverworldGameWorld.h
+    src/client/game/entities/Planet.cpp
 
 )
 

@@ -66,8 +66,9 @@ int main()
 	Drawing *Render = GameReference.Render();
 	Assets *assets = Assets::Get();
 
-	Texture *Vignette = assets->GetTexture("backgrounds.vignette")
-		->SetAlphaMod(200);
+	Texture *Vignette = assets->GetTexture("backgrounds.vignette");
+	if (Vignette)
+		Vignette->SetAlphaMod(200);
 
 	MainMenu mainMenu(&GameReference);
 	mainMenu.InitialShow();
@@ -131,7 +132,8 @@ int main()
 		// Drawing
 		GameReference.World()->Draw();
 		GameReference.GetInterface()->DrawBackground();
-		Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
+		if (Vignette)
+			Render->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
 		// Render the pause menu if open
 		if (pauseMenuOpen)

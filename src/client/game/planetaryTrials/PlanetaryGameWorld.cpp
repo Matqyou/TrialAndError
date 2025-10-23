@@ -372,14 +372,14 @@ void PlanetaryGameWorld::TickPlanetaryCamera()
 
     const double radius = m_CurrentPlanet->GetConfig().radius;
     Vec2d targetCam = { playerWorld.x + lookDir.x ,
-                        playerWorld.y + lookDir.y};
+                        (playerWorld.y + lookDir.y) * 0.75};
 
     Drawing* render = m_GameWindow->Render();
     double oldCamX = render->GetCameraX();
     double oldCamY = render->GetCameraY();
 
     // Smooth follow (same 0.1 factor as your regular camera)
-    const double followSpeed = 0.1;
+    const double followSpeed = 0.05;
     double newCamX = oldCamX + (targetCam.x - oldCamX) * followSpeed;
     double newCamY = oldCamY + (targetCam.y - oldCamY) * followSpeed;
     render->SetCameraPos(newCamX, newCamY);

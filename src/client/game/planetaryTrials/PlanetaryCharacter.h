@@ -18,32 +18,33 @@ class PlanetaryCharacter : public Character {
 private:
     PlanetaryWorld* m_PlanetaryWorld;
     PlanetaryCoords m_PlanetaryPos;
-    
+
 protected:
     // Override movement processing
     void TickPlanetaryKeyboardControls();
     void TickControls() override;
     void TickCollision();
-    
+
 public:
     PlanetaryCharacter(PlanetaryGameWorld *planetary_world,
-                      Player *player,
-                      double max_health,
+                       Player *player,
+                       double max_health,
                       const Vec2d& start_pos,
                       const Vec2d& start_vel,
-                      bool is_npc);
+                       bool is_npc);
     // Planetary-specific getters
     PlanetaryWorld* GetPlanetaryWorld() const { return m_PlanetaryWorld; }
     const PlanetaryCoords& GetPlanetaryPos() const { return m_PlanetaryPos; }
-    
+
     // Planetary-specific setters
     void SetPlanetaryWorld(PlanetaryWorld* world);
     void SetPlanetaryPosition(const PlanetaryCoords& coords);
-    
+
     // Movement utilities
     Vec2d GetUpDirection() const;
     Vec2d GetRightDirection() const;
 
     // Override base methods
     void Draw() override;
+    void DrawNameplate();
 };

@@ -42,7 +42,9 @@ private:
 	Player *m_Prev, *m_Next;
 
 public:
-	Player(GameWorld *game_world, const std::string& username, PlayerClass *primaryClass = nullptr);
+	// If assignDefaultClass is true and primaryClass is nullptr, a default class will be assigned.
+	// If assignDefaultClass is false, the player's class will remain nullptr until chosen later.
+	Player(GameWorld *game_world, const std::string& username, PlayerClass *primaryClass = nullptr, bool assignDefaultClass = true);
 	~Player();
 
 	// Getting
@@ -71,6 +73,7 @@ public:
 	void SetExtraLife(bool ExtraLife) { m_ExtraLife = ExtraLife; };
 	void SetCharacter(Character *character);
 	void SetUsername(const std::string& username);
+	void SetGameWorld(GameWorld *game_world) { m_GameWorld = game_world; }
 	void SetLevelUpMenuQueue(std::queue<LevelUpMenu *> MenuQueue) { m_levelUpMenuQueue = MenuQueue; };
 
 	// XP and Leveling

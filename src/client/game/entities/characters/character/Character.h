@@ -104,7 +104,7 @@ public:
 		void DrawHook();
 		void DrawHealthbar();
 		void DrawHands();
-		void DrawNameplate();
+		virtual void DrawNameplate();
 		void DrawErrorName();
 
 public:

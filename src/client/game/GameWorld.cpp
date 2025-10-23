@@ -7,6 +7,7 @@
 #include "entities/Entity.h"
 #include "entities/characters/character/Character.h"
 #include "entities/characters/CharacterNPC.h"
+#include "planetaryTrials/PlanetaryGameWorld.h"
 #include <cmath>
 
 GameWorld::GameWorld(GameData *game_window, int width, int height)
@@ -312,7 +313,14 @@ void GameWorld::Event(const SDL_Event &currentEvent)
 	if (currentEvent.type == SDL_KEYDOWN)
 	{
 		if (currentEvent.key.keysym.scancode == SDL_SCANCODE_SPACE)
-			ToggleShowNames();
+		{
+			std::cout << FStringColors("[GameWorld] Spacebar pressed - toggling names") << std::endl;
+			try {
+				ToggleShowNames();
+			} catch (const std::exception &e) {
+				std::cout << FStringColors("[GameWorld] Exception while toggling names: %s", e.what()) << std::endl;
+			}
+		}
 		else if (currentEvent.key.keysym.scancode == SDL_SCANCODE_O)
 		{
 			m_Tiles->LoadTilemap("assets/tilemaps/test_level");
@@ -565,9 +573,6 @@ void GameWorld::Draw()
 	// Stop drawing when the game has been triggered as over
 	if (!m_GameOver)
 	{
-		SDL_Rect DestinationRect = {0, 0, int(m_Width), int(m_Height)};
-		render->RenderTextureCamera(m_Background->SDLTexture(), nullptr, DestinationRect);
-
 		SDL_Rect DrawRect = {0, 0, int(m_Width), int(m_Height)};
 		render->SetColor(100, 100, 100, 255);
 		render->DrawRectCamera(DrawRect);

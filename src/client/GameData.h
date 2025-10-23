@@ -92,6 +92,9 @@ public:
 	// Manipulating
 	bool Initialize();
 	void Deinitialize(bool play_quit_sound);
+	// Spawn any pending player classes into the current world (after SetWorld)
+	void SpawnPendingPlayers();
+	void SetWorld(GameWorld *world);
 	
 	void AddPlayerClassMenu();
 	void AddPendingClass(PlayerClass *playerClass);

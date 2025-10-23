@@ -2,19 +2,41 @@
 
 #include "MainMenu.h"
 #include "./GameModeMenu.h"
+#include "../../game/OverworldGameWorld.h"
+#include "../Player.h"
+#include "../entities/characters/character/Character.h"
 
 LoadedMusic MainMenu::sElevatorMusic("intro");
 LoadedTexture MainMenu::sMenuTexture("interface.menu");
 LoadedTexture MainMenu::sTextureTitle("ui.main.title2");
 LoadedTexture MainMenu::sTexturePlay("ui.main.playbutton2");
 LoadedTexture MainMenu::sTextureExit("ui.main.exit2");
+LoadedTexture MainMenu::sTextureTraining("ui.main.trainingbutton");
 
 MainMenu::MainMenu(GameData *game_window)
 	: m_GameWindow(game_window)
 {
-	m_TitleRect = {int(m_GameWindow->GetWidth2()) - 300, int(m_GameWindow->GetHeight2()) / 4 - 50, 600, 300};
-	m_PlayButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) - 40, 360, 80};
-	m_ExitButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) + 140, 360, 80};
+	// Center title horizontally, and place title near top quarter
+	int centerX = (int)m_GameWindow->GetWidth2();
+	int centerY = (int)m_GameWindow->GetHeight2();
+	m_TitleRect = {centerX - 300, centerY / 2 - 150, 600, 200};
+
+	// Layout buttons vertically centered under title, spaced evenly
+	int totalWidth = (int)m_GameWindow->GetWidth();
+	int buttonH = 80; // slightly taller
+	int gap = 24;
+	int exitW = 360; // match exit width for Play/Training
+	int playW = exitW;
+	int trainW = exitW;
+	int startY = centerY - 60; // main buttons slightly above center
+
+	// Place Play and Training side-by-side centered
+	int rowX = centerX - (playW + gap + trainW) / 2;
+	m_PlayButtonRect = {rowX, startY, playW, buttonH};
+	m_TrainingButtonRect = {rowX + playW + gap, startY, trainW, buttonH};
+
+	// Exit below, centered with same width
+	m_ExitButtonRect = {centerX - exitW / 2, startY + buttonH + 32, exitW, buttonH};
 
 	m_Opened = std::chrono::steady_clock::now();
 	m_Intro = true;
@@ -37,7 +59,13 @@ void MainMenu::InitialShow()
 	bool running = true;
 	bool menuOpen = true;
 	if(m_Intro)
-		sElevatorMusic.GetMusic()->PlayMusic(-1);
+	{
+		try {
+			sElevatorMusic.GetMusic()->PlayMusic(-1);
+		} catch (const std::exception &e) {
+			std::cout << FStringColors("[MainMenu] Failed to play elevator music: %s", e.what()) << std::endl;
+		}
+	}
 	while (menuOpen)
 	{
 		Tick();
@@ -78,14 +106,31 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
 		{
 			int x = event.button.x;
 			int y = event.button.y;
-			if (x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
-				y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h)
+			if (x >= m_TrainingButtonRect.x && x < m_TrainingButtonRect.x + m_TrainingButtonRect.w &&
+				y >= m_TrainingButtonRect.y && y < m_TrainingButtonRect.y + m_TrainingButtonRect.h)
 			{
+				// Training -> previous Play behavior (game select)
 				menuOpen = false;
 				Assets::PauseMusic();
 				Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
 				m_GameWindow->GameSelectMenu()->Show();
 			}
+			else if (x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
+			y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h)
+		{
+			// Play -> Overworld (new larger world)
+			menuOpen = false;
+			Assets::PauseMusic();
+			Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
+			GameWorld *world = new OverworldGameWorld(m_GameWindow, 100, 60); // larger overworld
+			m_GameWindow->SetWorld(world);
+
+			// Spawn a default player without assigning a class yet (they'll choose class in-game)
+			Player *player = new Player(world, "Player1", nullptr, false);
+			// Create a character for this player at the world's center
+			Vec2d spawnPos(world->GetWidth() / 2.0, world->GetHeight() / 2.0);
+			new Character(world, player, 100.0, spawnPos, Vec2d(0, 0), false);
+		}
 			if (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
 				y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h)
 			{
@@ -104,24 +149,35 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
 
 		int x = event.motion.x;
 		int y = event.motion.y;
-		m_PlayHover = (x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
-					   y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h);
-		m_ExitHover = (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
-					   y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h);
+	m_PlayHover = (x >= m_PlayButtonRect.x && x < m_PlayButtonRect.x + m_PlayButtonRect.w &&
+		       y >= m_PlayButtonRect.y && y < m_PlayButtonRect.y + m_PlayButtonRect.h);
+	m_TrainingHover = (x >= m_TrainingButtonRect.x && x < m_TrainingButtonRect.x + m_TrainingButtonRect.w &&
+		       y >= m_TrainingButtonRect.y && y < m_TrainingButtonRect.y + m_TrainingButtonRect.h);
+	m_ExitHover = (x >= m_ExitButtonRect.x && x < m_ExitButtonRect.x + m_ExitButtonRect.w &&
+		       y >= m_ExitButtonRect.y && y < m_ExitButtonRect.y + m_ExitButtonRect.h);
 
-		bool hoveringAny = m_PlayHover || m_ExitHover;
-		SDL_SetCursor(SDL_CreateSystemCursor(hoveringAny ? SDL_SYSTEM_CURSOR_HAND : SDL_SYSTEM_CURSOR_ARROW));
+	bool hoveringAny = m_PlayHover || m_ExitHover || m_TrainingHover;
+	SDL_SetCursor(SDL_CreateSystemCursor(hoveringAny ? SDL_SYSTEM_CURSOR_HAND : SDL_SYSTEM_CURSOR_ARROW));
 	}
 	break;
 	case SDL_WINDOWEVENT:
 		if (event.window.event == SDL_WINDOWEVENT_RESIZED)
 		{
-			m_TitleRect = {int(m_GameWindow->GetWidth2()) - 300, int(m_GameWindow->GetHeight2()) / 4 - 50, 600,
-						   300};
-			m_PlayButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) - 40, 360,
-								80};
-			m_ExitButtonRect = {int(m_GameWindow->GetWidth2()) - 180, int(m_GameWindow->GetHeight2()) + 140, 360,
-								80};
+			int centerX = (int)m_GameWindow->GetWidth2();
+			int centerY = (int)m_GameWindow->GetHeight2();
+			m_TitleRect = {centerX - 300, centerY / 2 - 150, 600, 200};
+
+			int buttonH = 80; // slightly taller
+			int gap = 24;
+			int exitW = 360;
+			int playW = exitW;
+			int trainW = exitW;
+			int startY = centerY - 60;
+			int rowX = centerX - (playW + gap + trainW) / 2;
+			m_PlayButtonRect = {rowX, startY, playW, buttonH};
+			m_TrainingButtonRect = {rowX + playW + gap, startY, trainW, buttonH};
+
+			m_ExitButtonRect = {centerX - exitW / 2, startY + buttonH + 32, exitW, buttonH};
 			m_GameWindow->Render()->Clear();
 			m_GameWindow->Render()->UpdateWindow();
 			break;
@@ -240,11 +296,12 @@ void MainMenu::Render()
 			}
 		}
 
-		render->RenderTexture(sTextureTitle.GetTexture()->SDLTexture(), nullptr, m_TitleRect);
-		// Ensure blending
-		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+	render->RenderTexture(sTextureTitle.GetTexture()->SDLTexture(), nullptr, m_TitleRect);
+	// Ensure blending
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-		render->RenderButton(sTexturePlay.GetTexture()->SDLTexture(), m_PlayButtonRect, m_PlayHover);
-		render->RenderButton(sTextureExit.GetTexture()->SDLTexture(), m_ExitButtonRect, m_ExitHover);
+	render->RenderButton(sTexturePlay.GetTexture()->SDLTexture(), m_PlayButtonRect, m_PlayHover);
+	render->RenderButton(sTextureTraining.GetTexture()->SDLTexture(), m_TrainingButtonRect, m_TrainingHover);
+	render->RenderButton(sTextureExit.GetTexture()->SDLTexture(), m_ExitButtonRect, m_ExitHover);
 	}
 }

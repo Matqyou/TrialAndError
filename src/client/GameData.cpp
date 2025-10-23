@@ -326,6 +326,45 @@ void GameData::Event(const SDL_Event &event)
 	UpdateDimensions(event.window.data1, event.window.data2);
 }
 
+void GameData::SetWorld(GameWorld *world)
+{
+	if (m_GameWorld)
+	{
+		delete m_GameWorld;
+	}
+	m_GameWorld = world;
+	if (m_Draw)
+		m_Draw->SetWorld(m_GameWorld);
+}
+
+void GameData::SpawnPendingPlayers()
+{
+	if (!m_GameWorld)
+		return;
+
+	Vec2d worldCenter(m_GameWorld->GetWidth() / 2.0, m_GameWorld->GetHeight() / 2.0);
+
+	const auto &connectedControllers = Controllers()->GetConnectedControllers();
+
+	for (size_t i = 0; i < m_PendingPlayerClasses.size(); ++i)
+	{
+		std::string name = (i == 0) ? "Keyboard" : "Controller";
+		auto player = new Player(m_GameWorld, name, m_PendingPlayerClasses[i]);
+		// Default spawn: center of world (GameWorld may override for Planetary)
+		auto character = new Character(m_GameWorld,
+									   player,
+									   100.0,
+									   Vec2d(32 * 17.5, 32 * 17.5),
+									   Vec2d(10, 10),
+									   false);
+		if (i > 0 && connectedControllers.size() >= i)
+		{
+			character->SetGameController(connectedControllers[i - 1]);
+		}
+	}
+	m_PendingPlayerClasses.clear();
+}
+
 void GameData::AddPendingClass(PlayerClass *playerClass)
 {
 	m_PendingPlayerClasses.push_back(playerClass);
@@ -394,6 +433,7 @@ void GameData::InitializeSandbox()
 void GameData::InitializeInfinite()
 {
 	m_GameWorld = new PlanetaryGameWorld(this, 50, 30);
+		m_GameWorld->SetTestingMode(true); // stop waves
 	Vec2d worldCenter(m_GameWorld->GetWidth() / 2.0, m_GameWorld->GetHeight() / 2.0);
 	m_Draw->SetWorld(m_GameWorld);
 	Character::ms_BotNamePlate = new TextSurface(
