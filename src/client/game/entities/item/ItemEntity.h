@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../Entity.h"
+#include <client/game/entities/cartesian/Entity.h>
 
 enum ItemType
 {

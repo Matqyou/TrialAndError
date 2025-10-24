@@ -53,8 +53,7 @@ set(PROJECT_FILES
     src/client/game/entities/cartesian/Planet.h
     src/client/game/entities/cartesian/Projectile.cpp
     src/client/game/entities/cartesian/Projectile.h
-    src/client/game/entities/characters/character/Character.cpp
-    src/client/game/entities/characters/character/Character.h
+    # Non-cartesian duplicate Character files removed to avoid duplicate symbol definitions
     src/client/game/entities/item/ItemEntity.cpp
     src/client/game/entities/item/ItemEntity.h
     src/client/game/entities/item/weapons/EntityGuns.cpp
@@ -107,12 +106,8 @@ set(PROJECT_FILES
     src/client/game/interface/MainMenu.h
     src/client/game/interface/PauseMenu.cpp
     src/client/game/interface/PauseMenu.h
-    src/client/game/planetaryTrials/PlanetaryCharacter.cpp
-    src/client/game/planetaryTrials/PlanetaryCharacter.h
-    src/client/game/planetaryTrials/PlanetaryGameWorld.cpp
-    src/client/game/planetaryTrials/PlanetaryGameWorld.h
-    src/client/game/planetaryTrials/PlanetaryUtils.cpp
-    src/client/game/planetaryTrials/PlanetaryUtils.h
+    src/client/game/interface/PlanetEnterMenu.cpp
+    src/client/game/interface/PlanetEnterMenu.h
     src/client/game/players/classes/ClassTypes/CyborgClass.cpp
     src/client/game/players/classes/ClassTypes/CyborgClass.h
     src/client/game/players/classes/ClassTypes/HumanClass.cpp
@@ -195,18 +190,8 @@ if (WIN32)
     # Shortcut destination (.lnk file)
     set(SHORTCUT_PATH "${DESKTOP_PATH}/${PROJECT_NAME}.lnk")
 
-    add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
-        COMMENT "Creating desktop shortcut..."
-        COMMAND powershell -NoProfile -ExecutionPolicy Bypass -Command
-            "try {
-                $Wsh = New-Object -ComObject WScript.Shell;
-                $Shortcut = $Wsh.CreateShortcut('${SHORTCUT_PATH}');
-                $Shortcut.TargetPath = '${EXE_PATH}';
-                $Shortcut.WorkingDirectory = '${CMAKE_RUNTIME_OUTPUT_DIRECTORY}';
-                $Shortcut.IconLocation = '${EXE_PATH},0';
-                $Shortcut.Save();
-                Write-Host 'Shortcut created at: ${SHORTCUT_PATH}';
-            } catch { Write-Warning 'Could not create shortcut (no permission?)'; }"
-    )
+    # Post-build shortcut creation disabled to avoid PowerShell quoting/execution issues
+    # add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    #     COMMENT "Creating desktop shortcut..."
+    #     COMMAND powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $Wsh = New-Object -ComObject WScript.Shell; $Shortcut = $Wsh.CreateShortcut('${SHORTCUT_PATH}'); $Shortcut.TargetPath = '${EXE_PATH}'; $Shortcut.WorkingDirectory = '${CMAKE_RUNTIME_OUTPUT_DIRECTORY}'; $Shortcut.IconLocation = '${EXE_PATH},0'; $Shortcut.Save(); Write-Host 'Shortcut created at: ${SHORTCUT_PATH}'; } catch { Write-Warning 'Could not create shortcut (no permission?)'; }" )
 endif()

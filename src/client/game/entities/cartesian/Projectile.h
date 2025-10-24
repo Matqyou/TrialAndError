@@ -1,8 +1,8 @@
 // Copied Projectile.h into cartesian
 #pragma once
 
-#include "../cartesian/Entity.h"
-#include "../../weapons/projectile/ProjectileWeapon.h"
+#include <client/game/entities/cartesian/Entity.h>
+#include <client/game/weapons/projectile/ProjectileWeapon.h>
 
 class Projectile : public Entity
 {

@@ -8,16 +8,16 @@
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 
-#include "client/core/GameControllers.h"
-#include "shared/utility/Randomizer.h"
-#include "client/core/AssetsManager.h"
-#include "game/interface/Interface.h"
-#include "game/interface/MainMenu.h"
-#include "shared/utility/Vec2.h"
-#include "client/core/Drawing.h"
-#include "client/core/Clock.h"
-#include "game/GameWorld.h"
-#include "shared/Protocol.h"
+#include <client/core/GameControllers.h>
+#include <shared/utility/Randomizer.h>
+#include <client/core/AssetsManager.h>
+#include <client/game/interface/Interface.h>
+#include <client/game/interface/MainMenu.h>
+#include <shared/utility/Vec2.h>
+#include <client/core/Drawing.h>
+#include <client/core/Clock.h>
+#include <client/game/world/GameWorld.h>
+#include <shared/Protocol.h>
 #include <vector>
 
 class MainMenu;

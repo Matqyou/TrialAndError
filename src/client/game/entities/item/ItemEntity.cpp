@@ -3,7 +3,7 @@
 //
 
 #include "ItemEntity.h"
-#include "../characters/character/Character.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
 
 LoadedTexture ItemEntity::sTextureGlock("entity.items.glock");
 LoadedTexture ItemEntity::sTextureShotgun("entity.items.shotgun");

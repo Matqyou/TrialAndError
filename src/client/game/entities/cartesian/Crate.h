@@ -1,9 +1,9 @@
 // Copied Crate.h into cartesian
 #pragma once
 
-#include "../cartesian/Entity.h"
+#include <client/game/entities/cartesian/Entity.h>
 #include "SDL.h"
-#include "AmmoBox.h"
+#include <client/game/entities/cartesian/AmmoBox.h>
 
 enum DropType
 {

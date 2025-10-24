@@ -3,8 +3,8 @@
 //
 
 #include "WeaponSniper.h"
-#include "../../entities/characters/character/Character.h"
-#include "../../entities/Projectile.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
+#include <client/game/entities/cartesian/Projectile.h>
 
 LoadedTexture WeaponSniper::sTextureWeapon("weapons.sniper");
 LoadedTexture WeaponSniper::sTextureProjectile("entity.projectile.sniper");

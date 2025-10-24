@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../characters/CharacterNPC.h"
-#include "../../planetary/PlanetaryUtils.h"
-#include "../../planetary/PlanetaryGameWorld.h"
+#include <client/game/entities/cartesian/characters/CharacterNPC.h>
+#include <client/game/world/planetary/PlanetaryUtils.h>
+#include <client/game/world/planetary/PlanetaryGameWorld.h>
 
 // Planetary NPC: NPC behavior implemented in planetary coordinates
 class PlanetaryCharacterNPC : public CharacterNPC

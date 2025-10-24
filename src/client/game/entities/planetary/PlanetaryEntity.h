@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../planetary/PlanetaryUtils.h"
-#include "../../../../shared/utility/Vec2.h"
-#include "../../GameWorld.h"
+#include <client/game/world/planetary/PlanetaryUtils.h>
+#include <shared/utility/Vec2.h>
+#include <client/game/world/GameWorld.h>
 
 // Minimal planetary entity core and base classes (shim)
 struct PlanetaryEntityCore

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "client/GameData.h"
+#include <client/GameData.h>
 #include "SDL.h"
 class PauseMenu
 {

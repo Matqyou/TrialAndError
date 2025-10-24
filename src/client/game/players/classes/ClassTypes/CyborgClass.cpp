@@ -1,5 +1,5 @@
 #include "CyborgClass.h"
-#include "../../Player.h"
+#include <client/game/players/Player.h>
 
 void CyborgClass::ApplyPrimaryClassBonuses(Player *player)
 {

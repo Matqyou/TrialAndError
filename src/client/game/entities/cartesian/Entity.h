@@ -1,7 +1,8 @@
 // Copied Entity.h into cartesian folder for cartesian-specific entities
 #pragma once
 
-#include "../../world/GameWorld.h"
+#include <client/game/world/GameWorld.h>
+#include <shared/utility/Vec2.h>
 
 struct EntityCore
 {

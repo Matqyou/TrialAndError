@@ -3,11 +3,11 @@
 //
 
 #include "GameWorld.h"
-#include "Player.h"
-#include "entities/Entity.h"
-#include "entities/characters/character/Character.h"
-#include "entities/characters/CharacterNPC.h"
-#include "planetary/PlanetaryGameWorld.h"
+#include <client/game/players/Player.h>
+#include <client/game/entities/cartesian/Entity.h>
+#include <client/game/entities/cartesian/characters/character/Character.h>
+#include <client/game/entities/cartesian/characters/CharacterNPC.h>
+#include <client/game/world/planetary/PlanetaryGameWorld.h>
 #include <cmath>
 
 GameWorld::GameWorld(GameData *game_window, int width, int height)

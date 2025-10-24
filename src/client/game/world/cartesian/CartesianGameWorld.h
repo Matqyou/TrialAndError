@@ -1,13 +1,13 @@
 // CartesianGameWorld.h
 #pragma once
 
-#include "client/GameData.h"
-#include "GameWorld.h"
-#include "shared/utility/Vec2.h"
-#include "entities/Planet.h"
+#include <client/game/world/GameWorld.h>
+#include <shared/utility/Vec2.h>
+#include <client/game/entities/cartesian/Planet.h>
 #include <vector>
-
-struct PlanetEntityRef { Planet *planet; };
+#include <client/GameData.h>
+#include <shared/utility/Vec2.h>
+class PlanetEnterMenu;
 
 class CartesianGameWorld : public GameWorld
 {
@@ -25,12 +25,6 @@ private:
     // Spawned entity pointers
     std::vector<Planet*> m_PlanetEntities;
 
-    // Popup state when near a planet
-    bool m_ShowEnterPopup = false;
-    Planet *m_ActivePlanet = nullptr;
-    SDL_Rect m_PopupRect{};
-    SDL_Rect m_PopupStartButton{};
-    SDL_Rect m_PopupCancelButton{};
-    bool m_PopupStartHover = false;
-    bool m_PopupCancelHover = false;
+    // Planet enter menu (interface element)
+    PlanetEnterMenu *m_PlanetEnterMenu = nullptr;
 };

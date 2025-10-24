@@ -1,7 +1,7 @@
 // Copied AmmoBox.h into cartesian
 #pragma once
 
-#include "../cartesian/Entity.h"
+#include <client/game/entities/cartesian/Entity.h>
 #include "SDL.h"
 
 enum AmmoType

@@ -1,8 +1,8 @@
 // PlanetarySystem.cpp
-#include "../../../GameData.h"
+#include <client/GameData.h>
 #include <random>
-#include "../../planetary/PlanetaryUtils.h"
-#include "../../planetary/PlanetaryGameWorld.h"
+#include <client/game/world/planetary/PlanetaryUtils.h>
+#include <client/game/world/planetary/PlanetaryGameWorld.h>
 #include "PlanetaryCharacter.h"
 
 // PlanetaryCharacter Implementation

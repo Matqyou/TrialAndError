@@ -2,7 +2,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include "../Player.h"
+#include <client/game/players/Player.h>
 
 LevelUpMenu::LevelUpMenu(GameWorld *gameWorld, Player *Player)
 	: m_GameWorld(gameWorld)

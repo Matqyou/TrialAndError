@@ -1,7 +1,7 @@
 // src/game/interface/GameModeMenu.cpp
 
 #include "ClassSelectMenu.h"
-#include "../classes/PlayerClass.h"
+#include <client/game/players/classes/PlayerClass.h>
 #include "GameModeMenu.h"
 
 LoadedTexture ClassSelectMenu::sMenuTexture("interface.menu");

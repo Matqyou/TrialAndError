@@ -1,5 +1,5 @@
 #include "HumanClass.h"
-#include "../../Player.h"
+#include <client/game/players/Player.h>
 
 void HumanClass::ApplyPrimaryClassBonuses(Player *player)
 {

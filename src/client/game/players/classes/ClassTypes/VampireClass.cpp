@@ -1,5 +1,5 @@
 #include "VampireClass.h"
-#include "../../Player.h"
+#include <client/game/players/Player.h>
 
 void VampireClass::ApplyPrimaryClassBonuses(Player *player)
 {

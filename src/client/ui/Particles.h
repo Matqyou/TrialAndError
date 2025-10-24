@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "client/core/Drawing.h"
-#include "shared/utility/Vec2.h"
+#include <client/core/Drawing.h>
+#include <shared/utility/Vec2.h>
 
 struct Particle
 {

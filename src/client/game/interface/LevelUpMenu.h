@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "client/GameData.h"
-#include "../GameWorld.h"
+#include <client/GameData.h>
+#include <client/game/world/GameWorld.h>
 #include "SDL.h"
 
 class Player;

@@ -3,8 +3,8 @@
 //
 
 #include "WeaponBurst.h"
-#include "../../entities/characters/character/Character.h"
-#include "../../entities/Projectile.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
+#include <client/game/entities/cartesian/Projectile.h>
 #include <cmath>
 
 LoadedTexture WeaponBurst::sTextureWeapon("weapons.burst");

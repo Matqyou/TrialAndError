@@ -3,7 +3,7 @@
 //
 
 #include "ErrorStatusEffect.h"
-#include "../ErrorStatuses.h"
+#include <client/game/error/ErrorStatuses.h>
 
 ErrorStatusEffect::ErrorStatusEffect(ErrorStatuses *parent,
 									 ErrorType type,

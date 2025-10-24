@@ -1,7 +1,7 @@
 // Copied Error.h into cartesian
 #pragma once
 
-#include "../cartesian/Entity.h"
+#include <client/game/entities/cartesian/Entity.h>
 
 enum ErrorType {
     HEALERS_PARADISE,

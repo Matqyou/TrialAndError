@@ -1,5 +1,5 @@
 #include "ZombieClass.h"
-#include "../../Player.h"
+#include <client/game/players/Player.h>
 
 void ZombieClass::ApplyPrimaryClassBonuses(Player *player)
 {

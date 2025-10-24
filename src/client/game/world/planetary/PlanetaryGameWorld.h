@@ -4,9 +4,11 @@
 #include <cmath>
 #include <vector>
 #include "SDL.h"
-#include "shared/utility/Vec2.h"
-#include "client/core/Assets.h"
+#include <shared/utility/Vec2.h>
+#include <client/core/Assets.h>
 #include "PlanetaryUtils.h"
+
+#include <client/game/world/GameWorld.h>
 
 // Forward declarations
 class Character;

@@ -3,7 +3,7 @@
 //
 
 #include "Player.h"
-#include "entities/characters/character/Character.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
 
 Player::Player(GameWorld *game_world, const std::string& username, PlayerClass *primaryClass, bool assignDefaultClass)
 		: m_GameWorld(game_world),
@@ -77,7 +77,8 @@ int Player::GetPowerupUpgradeCount(const std::string& name)
 
 void Player::SetCharacter(Character *character)
 {
-	if (m_Character)
+	// Allow clearing the character (character == nullptr) or setting if none exists.
+	if (m_Character && character)
 		std::printf("Player `%s` already has a characters..\n", m_Username.c_str());
 	else
 		m_Character = character;

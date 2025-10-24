@@ -1,6 +1,6 @@
 // Copied AmmoBox.cpp into cartesian
-#include "AmmoBox.h"
-#include "../characters/character/Character.h"
+#include <client/game/entities/cartesian/AmmoBox.h>
+#include <client/game/entities/cartesian/characters/character/Character.h>
 #include <cmath>
 #include <iostream>
 

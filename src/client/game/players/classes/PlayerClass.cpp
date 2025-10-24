@@ -1,8 +1,8 @@
 #include "PlayerClass.h"
-#include "./ClassTypes/HumanClass.h"
-#include "./ClassTypes/CyborgClass.h"
-#include "./ClassTypes/ZombieClass.h"
-#include "./ClassTypes/VampireClass.h"
+#include <client/game/players/classes/ClassTypes/HumanClass.h>
+#include <client/game/players/classes/ClassTypes/CyborgClass.h>
+#include <client/game/players/classes/ClassTypes/ZombieClass.h>
+#include <client/game/players/classes/ClassTypes/VampireClass.h>
 
 #include <algorithm>
 

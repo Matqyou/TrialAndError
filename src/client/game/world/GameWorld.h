@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include "../client/GameData.h"
-#include "client/core/GameControllers.h"
-#include "indicators/TextSurface.h"
-#include "collision/TileMap.h"
-#include "shared/Protocol.h"
-#include "../ui/Particles.h"
-#include "./interface/PauseMenu.h"
-#include "shared/utility/Vec2.h"
+#include <client/GameData.h>
+#include <client/core/GameControllers.h>
+#include <client/game/indicators/TextSurface.h>
+#include <client/game/collision/TileMap.h>
+#include <shared/Protocol.h>
+#include <client/ui/Particles.h>
+#include <client/game/interface/PauseMenu.h>
+#include <shared/utility/Vec2.h>
 #include <chrono>
 
 class Player;

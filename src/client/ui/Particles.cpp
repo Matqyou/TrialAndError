@@ -5,8 +5,8 @@
 #include "Particles.h"
 
 #include <utility>
-#include "client/core/TextManager.h"
-#include "client/game/GameWorld.h"
+#include <client/core/TextManager.h>
+#include <client/game/world/GameWorld.h>
 
 void Particle::Tick()
 {

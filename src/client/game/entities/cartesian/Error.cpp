@@ -1,6 +1,6 @@
 // Copied Error.cpp into cartesian
 #include "Error.h"
-#include "../characters/character/Character.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
 #include <random>
 #include <string>
 

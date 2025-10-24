@@ -4,8 +4,8 @@
 #include <cmath>
 #include <vector>
 #include "SDL.h"
-#include "shared/utility/Vec2.h"
-#include "client/core/Assets.h"
+#include <shared/utility/Vec2.h>
+#include <client/core/Assets.h>
 struct PlanetaryCoords {
     double longitude;      // Radians: 0–2PI (wraps)
     double latitude;       // Radians: -PI/2 to +PI/2 (clamped)

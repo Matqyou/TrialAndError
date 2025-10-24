@@ -1,22 +1,14 @@
 // PlanetarySystem.cpp
-#include "client/GameData.h"
+
 #include <random>
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 #include "PlanetaryUtils.h"
 #include "PlanetaryGameWorld.h"
-#include "../entities/characters/CharacterNPC.h"
-// PlanetarySystem.cpp
-#include "client/GameData.h"
-#include <random>
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-#include "PlanetaryUtils.h"
-#include "PlanetaryGameWorld.h"
-#include "client/game/entities/characters/CharacterNPC.h"
-#include "../entities/planetary/PlanetaryCharacter.h"
+#include <client/GameData.h>
+#include <client/game/entities/cartesian/characters/CharacterNPC.h>
+#include <client/game/entities/planetary/characters/character/PlanetaryCharacter.h>
 
 // Simple 3D vector struct for local use
 struct Vec3

@@ -1,10 +1,10 @@
 // src/game/interface/MainMenu.cpp
 
 #include "MainMenu.h"
-#include "./GameModeMenu.h"
-#include "../../game/cartesian/CartesianGameWorld.h"
-#include "../Player.h"
-#include "../entities/characters/character/Character.h"
+#include <client/game/interface/GameModeMenu.h>
+#include <client/game/world/cartesian/CartesianGameWorld.h>
+#include <client/game/players/Player.h>
+#include <client/game/entities/cartesian/characters/character/Character.h>
 
 LoadedMusic MainMenu::sElevatorMusic("intro");
 LoadedTexture MainMenu::sMenuTexture("interface.menu");

@@ -1,12 +1,12 @@
 //
 // Created by 11dpjgailis on 16.03.2023.
 //
-#include "Character.h"
-#include "../CharacterNPC.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
+#include <client/game/entities/cartesian/characters/CharacterNPC.h>
 #include <cmath>
 #include <iostream>
-#include "../../../../item/weapons/EntityGuns.h"
-#include "../../Projectile.h"
+#include <client/game/entities/item/weapons/EntityGuns.h>
+#include <client/game/entities/cartesian/Projectile.h>
 #include <vector>
 
 #ifndef M_SQRT1_2

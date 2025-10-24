@@ -1,5 +1,5 @@
 #pragma once
-#include "../PlayerClass.h"
+#include <client/game/players/classes/PlayerClass.h>
 
 class ZombieClass : public PlayerClass
 {

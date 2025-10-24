@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "GameWorld.h"
-#include "./interface/LevelUpMenu.h"
-#include "./classes/PlayerClass.h"
+#include <client/game/world/GameWorld.h>
+#include <client/game/interface/LevelUpMenu.h>
+#include <client/game/players/classes/PlayerClass.h>
 #include <string>
 #include <unordered_map>
 #include <queue>

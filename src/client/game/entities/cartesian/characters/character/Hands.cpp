@@ -4,7 +4,7 @@
 
 #include "Hands.h"
 #include "Character.h"
-#include "../CharacterNPC.h"
+#include <client/game/entities/cartesian/characters/CharacterNPC.h>
 #include <cmath>
 
 LoadedTexture Hands::sFistTexture("entity.character.fist");

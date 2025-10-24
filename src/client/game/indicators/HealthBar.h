@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "client/GameData.h"
-#include "../entities/Entity.h"
+#include <client/GameData.h>
+#include <client/game/entities/cartesian/Entity.h>
 
 class HealthBar
 {

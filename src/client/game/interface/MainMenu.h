@@ -3,8 +3,8 @@
 #pragma once
 
 #include "SDL.h"
-#include "client/GameData.h"
-#include "shared/utility/Vec2.h"
+#include <client/GameData.h>
+#include <shared/utility/Vec2.h>
 #include <chrono>
 
 class MainMenu

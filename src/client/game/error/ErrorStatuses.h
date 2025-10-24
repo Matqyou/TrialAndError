@@ -4,18 +4,18 @@
 
 #pragma once
 
-#include "effect/ErrorBulletFrenzy.h"
-#include "effect/ErrorCantHear.h"
-#include "effect/ErrorConfusingHealth.h"
-#include "effect/ErrorDangerousRecoil.h"
-#include "effect/ErrorDisoriented.h"
-#include "effect/ErrorHealersParadise.h"
-#include "effect/ErrorInvincible.h"
-#include "effect/ErrorRangedFists.h"
-#include "effect/ErrorSlowdown.h"
-#include "effect/ErrorSpiky.h"
-#include "effect/ErrorTeleport.h"
-#include "../interface/Interface.h"
+#include <client/game/error/effect/ErrorBulletFrenzy.h>
+#include <client/game/error/effect/ErrorCantHear.h>
+#include <client/game/error/effect/ErrorConfusingHealth.h>
+#include <client/game/error/effect/ErrorDangerousRecoil.h>
+#include <client/game/error/effect/ErrorDisoriented.h>
+#include <client/game/error/effect/ErrorHealersParadise.h>
+#include <client/game/error/effect/ErrorInvincible.h>
+#include <client/game/error/effect/ErrorRangedFists.h>
+#include <client/game/error/effect/ErrorSlowdown.h>
+#include <client/game/error/effect/ErrorSpiky.h>
+#include <client/game/error/effect/ErrorTeleport.h>
+#include <client/game/interface/Interface.h>
 
 struct ErrorFrame
 {

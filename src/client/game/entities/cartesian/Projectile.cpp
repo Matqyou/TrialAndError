@@ -3,7 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include "Crate.h"
-#include "../characters/character/Character.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
 
 LoadedTexture Projectile::sTextureSpark("particle.spark");
 LoadedSound Projectile::sMetalImpactSounds[2] = {

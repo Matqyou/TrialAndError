@@ -2,23 +2,23 @@
 
 #include "SDL.h"
 #include <cstring>
-#include "../../Entity.h"
-#include "../../../Players/Player.h"
-#include "../../../../weapons/projectile/WeaponGlock.h"
-#include "../../../../weapons/projectile/WeaponShotgun.h"
-#include "../../../../weapons/projectile/WeaponBurst.h"
-#include "../../../../weapons/projectile/WeaponMinigun.h"
-#include "client/core/GameControllers.h"
-#include "shared/utility/Colors.h"
-#include "../../../../indicators/HealthBar.h"
-#include "../../../../interface/LevelUpMenu.h"
-#include "../../../../indicators/TextSurface.h"
-#include "../../AmmoBox.h"
-#include "../../Crate.h"
-#include "Hook.h"
-#include "Hands.h"
-#include "../../../../../core/Assets.h"
-#include "../../../../error/ErrorStatuses.h"
+#include <client/game/entities/cartesian/Entity.h>
+#include <client/game/players/Player.h>
+#include <client/game/weapons/projectile/WeaponGlock.h>
+#include <client/game/weapons/projectile/WeaponShotgun.h>
+#include <client/game/weapons/projectile/WeaponBurst.h>
+#include <client/game/weapons/projectile/WeaponMinigun.h>
+#include <client/core/GameControllers.h>
+#include <shared/utility/Colors.h>
+#include <client/game/indicators/HealthBar.h>
+#include <client/game/interface/LevelUpMenu.h>
+#include <client/game/indicators/TextSurface.h>
+#include <client/game/entities/cartesian/AmmoBox.h>
+#include <client/game/entities/cartesian/Crate.h>
+#include <client/game/entities/cartesian/characters/character/Hook.h>
+#include <client/game/entities/cartesian/characters/character/Hands.h>
+#include <client/core/Assets.h>
+#include <client/game/error/ErrorStatuses.h>
 
 struct CharacterInput
 {

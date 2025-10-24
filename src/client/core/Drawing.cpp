@@ -3,7 +3,7 @@
 //
 
 #include "Drawing.h"
-#include "client/game/GameWorld.h"
+#include <client/game/world/GameWorld.h>
 
 Drawing::Drawing(GameData *game_window)
 {

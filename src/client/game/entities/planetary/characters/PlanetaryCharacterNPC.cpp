@@ -1,9 +1,9 @@
 #include "PlanetaryCharacterNPC.h"
 #include <cstdlib>
-#include "../../planetary/PlanetaryGameWorld.h"
-#include "../../planetary/PlanetaryUtils.h"
-#include "../../entities/Planet.h"
-#include "shared/utility/Vec2.h"
+#include <client/game/world/planetary/PlanetaryGameWorld.h>
+#include <client/game/world/planetary/PlanetaryUtils.h>
+#include <client/game/entities/cartesian/Planet.h>
+#include <shared/utility/Vec2.h>
 #include <iostream>
 
 PlanetaryCharacterNPC::PlanetaryCharacterNPC(PlanetaryGameWorld *planetaryWorld, const Vec2d &pos)

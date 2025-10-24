@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../base/ErrorStatusEffect.h"
+#include <client/game/error/base/ErrorStatusEffect.h>
 
 class ErrorBulletFrenzy : public ErrorStatusEffect
 {

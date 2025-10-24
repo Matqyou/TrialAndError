@@ -1,6 +1,6 @@
 // Copied Crate.cpp into cartesian
-#include "Crate.h"
-#include "../characters/character/Character.h"
+#include <client/game/entities/cartesian/Crate.h>
+#include <client/game/entities/cartesian/characters/character/Character.h>
 #include <iostream>
 
 LoadedSound Crate::sHitSound[] = {

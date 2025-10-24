@@ -3,16 +3,16 @@
 //
 
 #include "GameData.h"
-#include "client/core/Assets.h"
-#include "game/entities/cartesian/Crate.h"
-#include "game/entities/item/weapons/EntityGuns.h"
-#include "game/entities/cartesian/Projectile.h"
-#include "game/entities/cartesian/Error.h"
-#include "game/entities/characters/character/Character.h"
-#include "game/entities/planetary/PlanetaryCharacter.h"
-#include "game/interface/GameModeMenu.h"
-#include "game/interface/ClassSelectMenu.h"
-#include "game/planetary/PlanetaryGameWorld.h"
+#include <client/core/Assets.h>
+#include <client/game/entities/cartesian/Crate.h>
+#include <client/game/entities/item/weapons/EntityGuns.h>
+#include <client/game/entities/cartesian/Projectile.h>
+#include <client/game/entities/cartesian/Error.h>
+#include <client/game/entities/cartesian/characters/character/Character.h>
+#include <client/game/entities/planetary/characters/character/PlanetaryCharacter.h>
+#include <client/game/interface/GameModeMenu.h>
+#include <client/game/interface/ClassSelectMenu.h>
+#include <client/game/world/planetary/PlanetaryGameWorld.h>
 
 LoadedSound GameData::sQuitSound("ui.quit");
 

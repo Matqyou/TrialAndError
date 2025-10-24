@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "character/Character.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
 
 enum NPCType
 {

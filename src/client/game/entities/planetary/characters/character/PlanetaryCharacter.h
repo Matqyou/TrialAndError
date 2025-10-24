@@ -4,11 +4,11 @@
 #include <cmath>
 #include <vector>
 #include "SDL.h"
-#include "shared/utility/Vec2.h"
-#include "client/core/Assets.h"
-#include "../../planetary/PlanetaryGameWorld.h"
-#include "../../planetary/PlanetaryUtils.h"
-#include "../characters/character/Character.h"
+#include <shared/utility/Vec2.h>
+#include <client/core/Assets.h>
+#include <client/game/world/planetary/PlanetaryGameWorld.h>
+#include <client/game/world/planetary/PlanetaryUtils.h>
+#include <client/game/entities/cartesian/characters/character/Character.h>
 
 // Enhanced Character with planetary movement
 class PlanetaryCharacter : public Character {
