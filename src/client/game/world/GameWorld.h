@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "client/GameData.h"
+#include "../client/GameData.h"
 #include "client/core/GameControllers.h"
 #include "indicators/TextSurface.h"
 #include "collision/TileMap.h"

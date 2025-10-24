@@ -7,7 +7,7 @@
 #include "entities/Entity.h"
 #include "entities/characters/character/Character.h"
 #include "entities/characters/CharacterNPC.h"
-#include "planetaryTrials/PlanetaryGameWorld.h"
+#include "planetary/PlanetaryGameWorld.h"
 #include <cmath>
 
 GameWorld::GameWorld(GameData *game_window, int width, int height)

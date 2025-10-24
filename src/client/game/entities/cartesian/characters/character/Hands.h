@@ -5,8 +5,9 @@
 #pragma once
 
 #include "shared/utility/Colors.h"
-#include "../../../../core/Assets.h"
+#include "../../../../../core/Assets.h"
 #include "shared/utility/Vec2.h"
+#include <client/core/Assets.h>
 
 class Character;
 class Hands
@@ -24,7 +25,7 @@ private:
 	double m_Size, m_Size2;
 
 	static LoadedTexture sFistTexture;
-	static LoadedSound sPunchSound;
+	static LoadedTexture sPunchSound;
 
 public:
 	Hands(Character *parent, double fist_animation_duration);

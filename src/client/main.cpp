@@ -17,11 +17,11 @@
 
 #include "game/entities/characters/CharacterNPC.h"
 #include "game/indicators/TextSurface.h"
-#include "game/entities/Projectile.h"
+#include "game/entities/cartesian/Projectile.h"
 #include "game/interface/PauseMenu.h"
 #include "game/interface/MainMenu.h"
 #include "client/core/TextManager.h"
-#include "game/entities/AmmoBox.h"
+#include "game/entities/cartesian/AmmoBox.h"
 #include "GameData.h"
 #include <iostream>
 #include <cstdlib>

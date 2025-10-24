@@ -1,10 +1,7 @@
-//
-// Created by Mim on 5/13/2023.
-//
-
+// Copied Error.h into cartesian
 #pragma once
 
-#include "Entity.h"
+#include "../cartesian/Entity.h"
 
 enum ErrorType {
     HEALERS_PARADISE,

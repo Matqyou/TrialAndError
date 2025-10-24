@@ -1,4 +1,4 @@
-// OverworldGameWorld.h
+// CartesianGameWorld.h
 #pragma once
 
 #include "client/GameData.h"
@@ -9,11 +9,11 @@
 
 struct PlanetEntityRef { Planet *planet; };
 
-class OverworldGameWorld : public GameWorld
+class CartesianGameWorld : public GameWorld
 {
 public:
-    OverworldGameWorld(GameData *game_window, int width, int height);
-    ~OverworldGameWorld() override;
+    CartesianGameWorld(GameData *game_window, int width, int height);
+    ~CartesianGameWorld() override;
 
     void Tick() override;
     void Draw() override;

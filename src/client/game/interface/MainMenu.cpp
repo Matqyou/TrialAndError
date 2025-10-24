@@ -2,7 +2,7 @@
 
 #include "MainMenu.h"
 #include "./GameModeMenu.h"
-#include "../../game/OverworldGameWorld.h"
+#include "../../game/cartesian/CartesianGameWorld.h"
 #include "../Player.h"
 #include "../entities/characters/character/Character.h"
 
@@ -122,7 +122,7 @@ void MainMenu::HandleEvent(const SDL_Event &event, bool &running, bool &menuOpen
 			menuOpen = false;
 			Assets::PauseMusic();
 			Assets::Get()->GetSound("ui.pitch.low")->PlaySound();
-			GameWorld *world = new OverworldGameWorld(m_GameWindow, 100, 60); // larger overworld
+			GameWorld *world = new CartesianGameWorld(m_GameWindow, 100, 60); // larger cartesian world
 			m_GameWindow->SetWorld(world);
 
 			// Spawn a default player without assigning a class yet (they'll choose class in-game)
