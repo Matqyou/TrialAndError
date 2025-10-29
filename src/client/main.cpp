@@ -16,9 +16,11 @@
 #endif
 
 #include "game/entities/characters/CharacterNPC.h"
+#include "client/game/ui/menus/Menus.h"
+#include "client/game/GameReference.h"
+#include "client/utility/Debugging.h"
 #include "game/entities/Projectile.h"
 #include "client/core/TextManager.h"
-#include "client/game/GameReference.h"
 #include "client/Protocol.h"
 #include <SDL3/SDL_main.h>
 #include <iostream>
@@ -73,10 +75,12 @@ int main()
 	EventContext event_context;
 	do // Loading loop
 	{
+		event_context.ResetContext(); // Per tick context
 		// Events
 		while (SDL_PollEvent(&sdl_event))
 		{
-			Application.Event(sdl_event);
+			event_context.ResetRapidContext(); // Per event context
+			Application.HandleEvent(sdl_event, event_context);
 			switch (sdl_event.type)
 			{
 				case SDL_EVENT_QUIT:
@@ -115,18 +119,19 @@ int main()
 		}
 	} while (Assets.IsLoading());
 
-	GameReference.InitUI();
+	// Do this after assets have been loaded because it uses them
+	Menus.InitMenus();
+	Menus.main_menu->SwitchToThisMenu();
 
 	Texture *Vignette = Assets.GetTexture("backgrounds.vignette")
 		->SetAlphaMod(200);
 
-	GameReference.AddPlayerClassMenu();
-	GameReference.Menu()->SwitchToThisMenu();
+//	GameReference.AddPlayerClassMenu();
+//	GameReference.Menu()->SwitchToThisMenu();
 //	MainMenu mainMenu;
 //	mainMenu.Show();
 
 //	PauseMenu *PauseMenu;
-	bool render_debug = false;
 	while (true)
 	{
 		// This part of the loop runs with no delay
@@ -136,13 +141,10 @@ int main()
 		while (SDL_PollEvent(&sdl_event))
 		{
 			event_context.ResetRapidContext(); // Per event context
-			Application.Event(sdl_event);
 
-			auto current_menu = GameReference.GetCurrentMenu();
-			if (current_menu)
-				current_menu->HandleEvent(sdl_event, event_context);
-			if (GameReference.World())
-				GameReference.World()->HandleEvent(sdl_event);
+			Application.HandleEvent(sdl_event, event_context);
+			Menus.HandleEvent(sdl_event, event_context);
+			GameReference.HandleEvent(sdl_event, event_context);
 
 //			if (pauseMenuOpen)
 //			{
@@ -194,21 +196,21 @@ int main()
 					clock->ResetFramerate();
 					break;
 				}
-				case SDL_EVENT_KEY_DOWN:
-				{
-					SDL_Scancode scancode = sdl_event.key.scancode;
-//					if (scancode == SDL_SCANCODE_ESCAPE)
-//						GameReference.GetPauseMenu()->SwitchToThisMenu();
-					if (sdl_event.key.scancode == SDL_SCANCODE_F2)
-						render_debug = !render_debug;
-					else if (sdl_event.key.scancode == SDL_SCANCODE_F3)
-						GameReference.GetCurrentMenu()->DebugPrint();
-//					else if (scancode == SDL_SCANCODE_Z)
-//						new CharacterNPC(GameReference.World(), 50.0,
-//										 Vec2d(32 * 30, 32), Vec2d(0, 10),
-//										 NPC_TURRET, true);
-					break;
-				}
+//				case SDL_EVENT_KEY_DOWN:
+//				{
+//					SDL_Scancode scancode = sdl_event.key.scancode;
+////					if (scancode == SDL_SCANCODE_ESCAPE)
+////						GameReference.GetPauseMenu()->SwitchToThisMenu();
+//					if (sdl_event.key.scancode == SDL_SCANCODE_F2)
+//						render_debug = !render_debug;
+//					else if (sdl_event.key.scancode == SDL_SCANCODE_F3)
+//						Menus.GetCurrentMenu()->DebugPrint();
+////					else if (scancode == SDL_SCANCODE_Z)
+////						new CharacterNPC(GameReference.World(), 50.0,
+////										 Vec2d(32 * 30, 32), Vec2d(0, 10),
+////										 NPC_TURRET, true);
+//					break;
+//				}
 			}
 			Element::DestroyElements();
 		}
@@ -223,8 +225,7 @@ int main()
 			// Ticking
 			if (GameReference.World())
 				GameReference.World()->Tick(elapsed_seconds);
-			if (GameReference.GetCurrentMenu())
-				GameReference.GetCurrentMenu()->Tick(elapsed_seconds);
+			Menus.Tick(elapsed_seconds);
 
 			// Drawing
 			if (GameReference.World())
@@ -232,13 +233,7 @@ int main()
 			GameReference.GetInterface()->DrawBackground();
 			drawing->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
-			auto current_menu = GameReference.GetCurrentMenu();
-			if (current_menu)
-			{
-				current_menu->Render();
-				if (render_debug)
-					current_menu->RenderDebug();
-			}
+			Menus.Render();
 
 			// Render one of the levelupmenus in queue if any
 //			if (GameReference.World()->LvlMenu())

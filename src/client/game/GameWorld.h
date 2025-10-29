@@ -16,7 +16,7 @@ class Entity;
 class Character;
 class Crate;
 class PauseMenu;
-class LevelUpMenu;
+class LevelupMenu;
 class GameWorld
 {
 private:
@@ -28,15 +28,15 @@ private:
 	bool m_Paused;
 	bool m_GameOver;
 	bool m_LevelUpDelay;
-	Player *m_FirstPlayer, *m_LastPlayer;
-	Entity *m_FirstType[NUM_ENTITY_TYPES]{ }, *m_LastType[NUM_ENTITY_TYPES]{ };
-	Entity *m_First, *m_Last;
+	std::vector<Player *> players;
+	std::vector<Entity *> entities;
+	std::vector<Entity *> entities_by_types[NUM_ENTITY_TYPES];
 	unsigned long long m_CurrentTick;
 
 	bool m_TestingMode; // Waves paused
 
 	// Cool scrolling background                                        cap
-	Texture *m_Background;
+	Texture *background_texture;
 	int m_BackgroundW{ }, m_BackgroundH{ };
 
 	unsigned long long m_LastWave;
@@ -46,9 +46,9 @@ private:
 	unsigned int m_Score;
 	TextSurface *m_ScoreText;
 
-	void TickCamera();
-	void TickSpawner();
-	void TickEntities();
+	void TickCamera(double elapsed_seconds);
+	void TickSpawner(double elapsed_seconds);
+	void TickEntities(double elapsed_seconds);
 	void TickDestroy();
 
 public:
@@ -65,15 +65,15 @@ public:
 	[[nodiscard]] bool GameOver() const { return m_GameOver; }
 	[[nodiscard]] unsigned long long GetTick() const { return m_CurrentTick; }
 	[[nodiscard]] unsigned int GetNextPlayerIndex() const;
-	[[nodiscard]] Entity *FirstEntity() const { return m_First; }
-	[[nodiscard]] Entity *FirstEntityType(EntityType entity_type) const { return m_FirstType[entity_type]; }
-	[[nodiscard]] Player *FirstPlayer() const { return m_FirstPlayer; }
-	[[nodiscard]] Character *FirstCharacter() const { return (Character *)(FirstEntityType(CHARACTER_ENTITY)); }
-	[[nodiscard]] Crate *FirstCrate() const { return (Crate *)(FirstEntityType(CRATE_ENTITY)); }
+	[[nodiscard]] std::vector<Player *>& GetPlayers() { return players; }
+	[[nodiscard]] std::vector<Entity *>& GetEntities() { return entities; }
+	[[nodiscard]] std::vector<Entity *>& GetEntitiesByType(int entity_type) { return entities_by_types[entity_type]; }
 	[[nodiscard]] bool GetDelay() const { return m_LevelUpDelay; }
 	// void GetPointInWorld(double relative_x, double relative_y, double& out_x, double& out_y) const;
 
 	// Setting
+	void InitPlayers();
+
 	void SetPaused(bool state) { m_Paused = state; }
 	void SetDelay(bool state) { m_LevelUpDelay = state; }
 
@@ -97,7 +97,7 @@ public:
 	void RemoveEntity(Entity *entity);
 
 	// Ticking
-	void HandleEvent(const SDL_Event& sdl_event);
+	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_context);
 	void Tick(double elapsed_seconds);
 	void Draw();
 

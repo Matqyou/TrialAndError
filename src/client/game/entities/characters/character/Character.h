@@ -2,7 +2,7 @@
 
 #include "../../../weapons/projectile/WeaponShotgun.h"
 #include "../../../weapons/projectile/WeaponMinigun.h"
-#include "client/game/ui/menus/levelup/LevelUpMenu.h"
+#include "client/game/ui/menus/levelup/LevelupMenu.h"
 #include "../../../weapons/projectile/WeaponGlock.h"
 #include "../../../weapons/projectile/WeaponBurst.h"
 #include "../../../indicators/TextSurface.h"
@@ -90,10 +90,10 @@ protected:
 	virtual void EventDeath();
 	void TickKeyboardControls();
 	void TickGameControllerControls();
-	void TickHealth();
+	void TickHealth(double elapsed_seconds);
 	virtual void TickControls();
-	void TickProcessInputs();
-	void TickHook();
+	void TickProcessInputs(double elapsed_seconds);
+	void TickHook(double elapsed_seconds);
 	void TickCollision();
 	void TickCurrentWeapon();
 	void DrawAmmoCounter();
@@ -124,11 +124,8 @@ public:
 	static TextSurface *ms_BotNamePlate;
 	TextSurface *m_ErrorText;
 
-	Character(GameWorld *world,
-			  Player *player,
-			  double max_health,
-			  const Vec2d& start_pos,
-			  const Vec2d& start_vel,
+	Character(GameWorld *world, Player *player, double max_health,
+			  const Vec2d& start_pos, const Vec2d& start_vel,
 			  bool is_npc);
 	~Character();
 
@@ -157,8 +154,8 @@ public:
 	void LevelupStats(unsigned int level);
 
 	// Listening & Ticking
-	void Event(const SDL_Event& currentEvent);
-	void Tick() override;
+	void HandleEvent(const SDL_Event& sdl_event);
+	void Tick(double elapsed_seconds) override;
 	void Draw() override;
 
 };

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "client/game/GameReference.h"
-#include "client/game/ui/menus/FullscreenMenu.h"
+#include "client/game/ui/menus/base/FullscreenMenu.h"
 #include "SDL3/SDL.h"
 #include <chrono>
 

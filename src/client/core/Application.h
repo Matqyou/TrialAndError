@@ -10,6 +10,7 @@
 #include "client/core/Clock.h"
 #include "client/core/Assets.h"
 #include "shared/utility/Randomizer.h"
+#include "client/game/ui/EventContext.h"
 
 class ApplicationClass
 {
@@ -59,7 +60,7 @@ public:
 	[[nodiscard]] int GetHeight2() const { return resolution.y / 2; }
 
 	// Ticking
-	void Event(const SDL_Event& sdl_event);
+	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_context);
 
 };
 

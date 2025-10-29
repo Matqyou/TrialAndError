@@ -7,22 +7,22 @@
 
 void ApplicationClass::PrintVersions()
 {
-	std::wcout << Strings::FStringColorsW(L"&8SDL %d.%d.%d\n",
-										  SDL_MAJOR_VERSION,
-										  SDL_MINOR_VERSION,
-										  SDL_MICRO_VERSION);
-	std::wcout << Strings::FStringColorsW(L"&8SDLimage %u.%u.%u\n",
-										  SDL_IMAGE_MAJOR_VERSION,
-										  SDL_IMAGE_MINOR_VERSION,
-										  SDL_IMAGE_MICRO_VERSION);
-	std::wcout << Strings::FStringColorsW(L"&8SDLmixer %u.%u.%u\n",
-										  SDL_MIXER_MAJOR_VERSION,
-										  SDL_MIXER_MINOR_VERSION,
-										  SDL_MIXER_MICRO_VERSION);
-	std::wcout << Strings::FStringColorsW(L"&8SDLttf %u.%u.%u\n",
-										  SDL_TTF_MAJOR_VERSION,
-										  SDL_TTF_MINOR_VERSION,
-										  SDL_TTF_MICRO_VERSION);
+	std::cout << Strings::FStringColors("&8SDL %d.%d.%d\n",
+										SDL_MAJOR_VERSION,
+										SDL_MINOR_VERSION,
+										SDL_MICRO_VERSION);
+	std::cout << Strings::FStringColors("&8SDLimage %u.%u.%u\n",
+										SDL_IMAGE_MAJOR_VERSION,
+										SDL_IMAGE_MINOR_VERSION,
+										SDL_IMAGE_MICRO_VERSION);
+	std::cout << Strings::FStringColors("&8SDLmixer %u.%u.%u\n",
+										SDL_MIXER_MAJOR_VERSION,
+										SDL_MIXER_MINOR_VERSION,
+										SDL_MIXER_MICRO_VERSION);
+	std::cout << Strings::FStringColors("&8SDLttf %u.%u.%u\n",
+										SDL_TTF_MAJOR_VERSION,
+										SDL_TTF_MINOR_VERSION,
+										SDL_TTF_MICRO_VERSION);
 }
 
 ApplicationClass::ApplicationClass()
@@ -34,7 +34,7 @@ void ApplicationClass::Initialize(const char *title,
 								  const char *version,
 								  const char *identifier,
 								  const Vec2i& resolution,
-								  double framerate,  double idle_framerate,
+								  double framerate, double idle_framerate,
 								  const char *renderer_backend)
 {
 	if (status == Status::INITIALIZED)
@@ -95,16 +95,16 @@ void ApplicationClass::Initialize(const char *title,
 	PrintVersions();
 
 	this->resolution = resolution;
-	window = SDL_CreateWindow(title, resolution.x,  resolution.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow(title, resolution.x, resolution.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 	if (!window)
 		throw std::runtime_error(Strings::FString("Error while creating the window %s\n", SDL_GetError()));
 
-	std::wcout << Strings::FStringColorsW(L"[Application] &6Available render back-ends:\n");
+	std::cout << Strings::FStringColors("[Application] &6Available render back-ends:\n");
 	int numDrivers = SDL_GetNumRenderDrivers();
 	for (int i = 0; i < numDrivers; i++)
 	{
 		auto info = SDL_GetRenderDriver(i);
-		std::wcout << Strings::FStringColorsW(L"[Application] &6#%i %s\n", i, info);
+		std::cout << Strings::FStringColors("[Application] &6#%i %s\n", i, info);
 	}
 
 	renderer = SDL_CreateRenderer(window, renderer_backend != nullptr ? renderer_backend : "direct3d11");
@@ -156,7 +156,7 @@ ApplicationClass::~ApplicationClass()
 	Destroy();
 }
 
-void ApplicationClass::Event(const SDL_Event& sdl_event)
+void ApplicationClass::HandleEvent(const SDL_Event& sdl_event, EventContext& event_context)
 {
 	switch (sdl_event.type)
 	{
@@ -164,7 +164,6 @@ void ApplicationClass::Event(const SDL_Event& sdl_event)
 		{
 			resolution.x = sdl_event.window.data1;
 			resolution.y = sdl_event.window.data2;
-
 			break;
 		}
 	}

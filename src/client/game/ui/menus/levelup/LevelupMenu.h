@@ -2,20 +2,18 @@
 
 #pragma once
 
-#include "client/game/ui/menus/FullscreenMenu.h"
+#include "client/game/ui/menus/base/FullscreenMenu.h"
 #include "client/game/GameWorld.h"
 #include "SDL3/SDL.h"
 
 class Player;
-class LevelUpMenu : public FullscreenMenu
+class LevelupMenu : public FullscreenMenu
 {
 private:
 	bool m_Paused;
 	std::vector<Texture *> m_powerupTextures;
 	std::vector<Texture *> m_specialPowerupTextures;
 	std::vector<int> m_selectedIndices;
-//	SDL_FRect m_ErrorIconRect;
-//	SDL_FRect m_ErrorOutlineRect;
 
 	// Powerup effect functions
 //	void ApplyAllStats();
@@ -30,8 +28,8 @@ private:
 //	void ApplyInfiniteGlockAmmo();
 
 public:
-	LevelUpMenu();
-	~LevelUpMenu() override;
+	LevelupMenu();
+	~LevelupMenu() override;
 
 	// Sense
 	[[nodiscard]] bool Paused() const { return m_Paused; }

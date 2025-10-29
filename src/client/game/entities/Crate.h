@@ -37,6 +37,6 @@ public:
 	void Heal(double value);
 
 	// Ticking
-	void Tick() override;
+	void Tick(double elapsed_seconds) override;
 	void Draw() override;
 };

@@ -104,10 +104,6 @@ Entity::Entity(GameWorld *world,
 {
 	m_World = world;
 
-	m_PrevType = nullptr;
-	m_NextType = nullptr;
-	m_Prev = nullptr;
-	m_Next = nullptr;
 	m_EntityType = entity_type;
 	m_Alive = true;
 	m_Core = *m_pUnknownCore;
@@ -135,7 +131,7 @@ void Entity::TickUpdateLastCore()
 	memcpy(&m_LastCore, &m_Core, sizeof(EntityCore));
 }
 
-void Entity::TickVelocity()
+void Entity::TickVelocity(double elapsed_seconds)
 {
 	m_Core.Vel.x *= m_Core.BaseDamping;
 	m_Core.Vel.y *= m_Core.BaseDamping;
@@ -195,7 +191,7 @@ void Entity::Accelerate(const Vec2d& direction)
 	m_Core.Vel += direction;
 }
 
-void Entity::Tick()
+void Entity::Tick(double elapsed_seconds)
 {
 
 }

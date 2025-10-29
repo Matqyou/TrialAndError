@@ -21,7 +21,6 @@ GameData::GameData()
 {
 	world = nullptr;
 	interface = nullptr;
-	current_menu = nullptr;
 	exit_callback = { };
 }
 
@@ -40,21 +39,16 @@ void GameData::ExitApplication()
 	exit_callback();
 }
 
-void GameData::AddPlayerClassMenu()
-{
-	auto menu = new ClassSelectMenu();
-	m_ClassSelectMenus.push_back(menu);
-}
+//void GameData::AddPlayerClassMenu()
+//{
+//	auto menu = new ClassSelectMenu();
+//	m_ClassSelectMenus.push_back(menu);
+//}
 
-void GameData::RemovePlayerClassMenu()
-{
-	m_ClassSelectMenus.pop_back();
-}
-
-void GameData::SetCurrentMenu(FullscreenMenu *new_menu)
-{
-	current_menu = new_menu;
-}
+//void GameData::RemovePlayerClassMenu()
+//{
+//	m_ClassSelectMenus.pop_back();
+//}
 
 void GameData::DeleteWorld()
 {
@@ -64,42 +58,26 @@ void GameData::DeleteWorld()
 
 bool GameData::Initialize()
 {
-	main_menu = nullptr;
-	pause_menu = nullptr;
-	levelup_menu = nullptr;
-	gamemode_menu = nullptr;
 	interface = new Interface();
-	return true;
-}
 
-void GameData::InitUI()
-{ // I dont like the way this looks
-	if (!main_menu)
-		main_menu = new MainMenu();
-	if (!pause_menu)
-		pause_menu = new PauseMenu();
-	if (!levelup_menu)
-		levelup_menu = new LevelUpMenu();
-	if (!gamemode_menu)
-		gamemode_menu = new GamemodeMenu();
+	// Creates 1 player preferences object
+	player_preferences.emplace_back();
+
+	return true;
 }
 
 void GameData::Deinitialize(bool play_quit_sound)
 {
 	Assets.PauseMusic();
-	delete main_menu;
-	delete pause_menu;
-	delete levelup_menu;
-	delete gamemode_menu;
 	delete interface;
 	delete world;
 }
 
-void GameData::AddPendingClass(PlayerClass *playerClass)
-{
-	m_PendingPlayerClasses.push_back(playerClass);
-	m_ClassSelectMenus.pop_back();
-}
+//void GameData::AddPendingClass(PlayerClass *playerClass)
+//{
+//	m_PendingPlayerClasses.push_back(playerClass);
+//	m_ClassSelectMenus.pop_back();
+//}
 
 void GameData::StartGame(Gamemode mode)
 {
@@ -143,14 +121,14 @@ void GameData::InitializeSandbox()
 	new EntitySniper(world, nullptr, nullptr, Vec2d(500, WeaponsY));
 	new EntityPatersonNavy(world, nullptr, nullptr, Vec2d(600, WeaponsY));
 
-	auto Player1 = new Player(world, "Keyboard", m_PendingPlayerClasses[0]);
-	auto Char1 = new Character(world,
-							   Player1,
-							   100.0,
-							   Vec2d(32 * 17.5, 32 * 17.5),
-							   Vec2d(10, 10),
-							   false);
-	Player1->GainXP(300);
+//	auto Player1 = new Player(world, "Keyboard", m_PendingPlayerClasses[0]);
+//	auto Char1 = new Character(world,
+//							   Player1,
+//							   100.0,
+//							   Vec2d(32 * 17.5, 32 * 17.5),
+//							   Vec2d(10, 10),
+//							   false);
+//	Player1->GainXP(300);
 }
 
 void GameData::InitializeInfinite()
@@ -158,23 +136,13 @@ void GameData::InitializeInfinite()
 	world = new GameWorld(50, 30);
 	Character::ms_BotNamePlate = new TextSurface(CommonUI::fontDefault, "Bot User", { 255, 150, 150, 255 });
 
-//	const auto& connectedControllers = Controllers()->GetConnectedControllers();
+	world->InitPlayers();
+}
 
-	for (size_t i = 0; i < m_PendingPlayerClasses.size(); ++i)
-	{
-		std::string name = (i == 0) ? "Keyboard" : "Controller";
-		auto player = new Player(world, name, m_PendingPlayerClasses[i]);
-		auto character = new Character(world,
-									   player,
-									   100.0,
-									   Vec2d(32 * 17.5, 32 * 17.5),
-									   Vec2d(10, 10),
-									   false);
-
-//		if (i > 0 && connectedControllers.size() >= i)
-//			character->SetGameController(connectedControllers[i - 1]);
-	}
-	m_PendingPlayerClasses.clear();
+void GameData::HandleEvent(const SDL_Event& sdl_event, EventContext& event_context)
+{
+	if (GameReference.World())
+		GameReference.World()->HandleEvent(sdl_event, event_context);
 }
 
 GameData GameReference;

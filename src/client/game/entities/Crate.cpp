@@ -54,12 +54,12 @@ Crate::Crate(GameWorld *world,
 
 Crate::~Crate()
 {
-	Character *Char = m_World->FirstCharacter();
-	for (; Char; Char = (Character *)Char->NextType())
+	for (Entity *entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 	{
-		Hook *TargetHook = Char->GetHook();
-		if (TargetHook->m_GrabbedEntity == this)
-			TargetHook->Unhook();
+		auto character = (Character *)entity;
+		Hook *character_hook = character->GetHook();
+		if (character_hook->m_GrabbedEntity == this)
+			character_hook->Unhook();
 	}
 }
 
@@ -78,7 +78,7 @@ void Crate::Heal(double value)
 	m_HealthComponent.ChangeHealthBy(+value);
 }
 
-void Crate::Tick()
+void Crate::Tick(double elapsed_seconds)
 {
 	TickWalls();
 
@@ -94,9 +94,8 @@ void Crate::Tick()
 		}
 		else
 		{
-			new Error(m_World,
-					  m_Core.Pos,
-					  m_ErrorType); // To change the drop just change m_ErrorType the enum value of whatever ERROR is needed
+			// To change the drop just change m_ErrorType the enum value of whatever ERROR is needed
+			new Error(m_World, m_Core.Pos, m_ErrorType);
 		}
 	}
 }

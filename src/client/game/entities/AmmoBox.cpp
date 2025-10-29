@@ -38,15 +38,16 @@ AmmoBox::AmmoBox(GameWorld *world,
 void AmmoBox::TickPickup()
 {
 	// Check if position collides any of the players
-	auto Char = m_World->FirstCharacter();
-	for (; Char; Char = (Character *)(Char->NextType()))
+	for (Entity* entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 	{
-		EntityCore& CharCore = Char->GetCore();
-		double Distance = DistanceVec2d(m_Core.Pos, CharCore.Pos);
+		auto character = (Character*)entity;
+		EntityCore& entity_core = character->GetCore();
+		double Distance = DistanceVec2d(m_Core.Pos, entity_core.Pos);
 
-		if (Distance > m_Core.sizeRatio + Char->GetCore().sizeRatio) continue;
+		if (Distance > m_Core.sizeRatio + character->GetCore().sizeRatio)
+			continue;
 
-		Char->AmmoPickup(this);
+		character->AmmoPickup(this);
 
 		// TODO Increase ammo amount, also check which type of ammo has been picked up aswell
 		// something like if(m_DropType == AMMO_GLOCK){
@@ -70,11 +71,11 @@ unsigned int AmmoBox::TakeAmmo(unsigned int request)
 	return request;
 }
 
-void AmmoBox::Tick()
+void AmmoBox::Tick(double elapsed_seconds)
 {
 	TickPickup();
 
-	TickVelocity();
+	TickVelocity(elapsed_seconds);
 	TickWalls();
 
 	if (m_AmmoCount <= 0) m_Alive = false;

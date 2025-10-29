@@ -50,6 +50,6 @@ public:
 	void AccelerateRotation(double acceleration);
 
 	// Ticking
-	void Tick() override;
+	void Tick(double elapsed_seconds) override;
 	void Draw() override;
 };

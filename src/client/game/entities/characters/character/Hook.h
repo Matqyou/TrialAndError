@@ -39,5 +39,6 @@ struct Hook
 	void HookWall();
 
 	// Ticking
-	void Tick();
+	void Tick(double elapsed_seconds);
+
 };

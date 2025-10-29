@@ -8,7 +8,7 @@
 
 #define CHECK_SDL_TEXTURE(sdl_texture, message) \
     if ((sdl_texture) == nullptr) { \
-        std::wcout << Strings::FStringColorsW(L"[Texture] &c" message L"\n"); \
+        std::cout << Strings::FStringColors("[Texture] &c" message "\n"); \
         return this; \
     }
 

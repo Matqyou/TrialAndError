@@ -67,8 +67,6 @@ protected:
 	friend class Hook;
 	HasHealth m_HealthComponent;
 	GameWorld *m_World;
-	Entity *m_PrevType, *m_NextType;
-	Entity *m_Prev, *m_Next;
 	EntityCore *m_pUnknownCore, *m_pLastUnknownCore;
 	EntityCore& m_Core, & m_LastCore;
 	EntityType m_EntityType;
@@ -78,7 +76,7 @@ protected:
 	const bool m_HasHealthComponent;
 
 	virtual void TickUpdateLastCore();
-	virtual void TickVelocity();
+	virtual void TickVelocity(double elapsed_seconds);
 	virtual void TickWalls();
 
 public:
@@ -96,10 +94,6 @@ public:
 	// Getting
 	[[nodiscard]] GameWorld *World() const { return m_World; }
 	[[nodiscard]] EntityType GetType() const { return m_EntityType; }
-	[[nodiscard]] Entity *Next() const { return m_Next; }
-	[[nodiscard]] Entity *Prev() const { return m_Prev; }
-	[[nodiscard]] Entity *NextType() const { return m_NextType; }
-	[[nodiscard]] Entity *PrevType() const { return m_PrevType; }
 	[[nodiscard]] EntityCore& GetCore() { return m_Core; }
 	[[nodiscard]] EntityCore& GetLastCore() { return m_LastCore; }
 	[[nodiscard]] bool IsAlive() const { return m_Alive; }
@@ -114,7 +108,7 @@ public:
 	void Accelerate(const Vec2d& direction);
 
 	// Ticking
-	virtual void Tick();
+	virtual void Tick(double elapsed_seconds);
 	virtual void Draw();
 };
 

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "client/game/ui/menus/FullscreenMenu.h"
+#include "client/game/ui/menus/base/FullscreenMenu.h"
 #include "shared/utility/Vec2.h"
 #include "SDL3/SDL.h"
 #include <chrono>

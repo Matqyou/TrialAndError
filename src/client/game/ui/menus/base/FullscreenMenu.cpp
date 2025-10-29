@@ -5,6 +5,7 @@
 #include "FullscreenMenu.h"
 #include "client/core/Application.h"
 #include "client/game/GameReference.h"
+#include "client/game/ui/menus/Menus.h"
 
 FullscreenMenu::FullscreenMenu()
 	: Element()
@@ -43,6 +44,6 @@ void FullscreenMenu::RefreshMenu()
 
 void FullscreenMenu::SwitchToThisMenu()
 {
-	GameReference.SetCurrentMenu(this);
+	Menus.SetCurrentMenu(this);
 	RefreshMenu();
 }

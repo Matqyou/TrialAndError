@@ -60,39 +60,37 @@ void Projectile::TickCollision()
 		Vec2d current_position = LastPosition + direction * (double)i;
 
 		// Check if position collides any of the players
-		auto Entity = m_World->FirstEntity();
-		for (; Entity; Entity = Entity->Next())
+		for (Entity *entity : m_World->GetEntities())
 		{
-			bool IsShooter = m_Shooter == Entity;
-			if (!Entity->IsAlive()) continue;
-			if (!Entity->HasHealthComponent()) continue;
-			if (!Entity->HealthComponent().IsAlive()) continue;
+			bool is_shooter = m_Shooter == entity;
+			if (!entity->IsAlive()) continue;
+			if (!entity->HasHealthComponent()) continue;
+			if (!entity->HealthComponent().IsAlive()) continue;
 
 			// Ignore npc friendly fire for now
-			if (Entity->GetType() == CHARACTER_ENTITY)
+			if (entity->GetType() == CHARACTER_ENTITY)
 			{
-				auto ShootableCharacter = (Character *)Entity;
-				if (ShooterIsCharacter && ShooterCharacter->IsNPC() == ShootableCharacter->IsNPC())
+				auto shootable_character = (Character *)entity;
+				if (ShooterIsCharacter && ShooterCharacter->IsNPC() == shootable_character->IsNPC())
 					continue;
 			}
 
 			// Check for (Projectile <-> Entity) collision at the position
-			bool Collides = Entity->PointCollides(current_position);
-			if (IsShooter && !Collides)
-			{ m_StillCollidesShooter = false; }
-			else if (Collides && (!IsShooter || !m_StillCollidesShooter))
+			bool Collides = entity->PointCollides(current_position);
+			if (is_shooter && !Collides) { m_StillCollidesShooter = false; }
+			else if (Collides && (!is_shooter || !m_StillCollidesShooter))
 			{
 				double victim_health;
-				if (Entity->GetType() == CHARACTER_ENTITY)
+				if (entity->GetType() == CHARACTER_ENTITY)
 				{
-					auto ShootableCharacter = (Character *)Entity;
+					auto ShootableCharacter = (Character *)entity;
 					victim_health = ShootableCharacter->HealthComponent().m_Health;
 					ShootableCharacter->Damage(m_Damage, m_Shooter);
 					ShootableCharacter->Accelerate(direction * 0.5 * m_Damage);
 				}
-				else if (Entity->GetType() == CRATE_ENTITY)
+				else if (entity->GetType() == CRATE_ENTITY)
 				{
-					auto ShootableCrate = (Crate *)Entity;
+					auto ShootableCrate = (Crate *)entity;
 					victim_health = ShootableCrate->HealthComponent().m_Health;
 					ShootableCrate->Damage(m_Damage, m_Shooter);
 				}
@@ -155,9 +153,9 @@ void Projectile::TickWallCollision()
 	}
 }
 
-void Projectile::Tick()
+void Projectile::Tick(double elapsed_seconds)
 {
-	TickVelocity();
+	TickVelocity(elapsed_seconds);
 	TickCollision();
 	TickWallCollision();
 	TickUpdateLastCore();
@@ -169,7 +167,7 @@ void Projectile::Draw()
 	double Angle = std::atan2(m_Core.Vel.y, m_Core.Vel.x) / M_PI * 180.0 - 90.0;
 	SDL_FRect BulletRect = { float(m_Core.Pos.x - m_Core.Size.x / 2.0),
 							 float(m_Core.Pos.y - m_Core.Size.y / 2.0),
-							float(m_Core.Size.x),
+							 float(m_Core.Size.x),
 							 float(m_Core.Size.y) };
 	drawing->RenderTextureRotated(m_Texture->SDLTexture(), nullptr, BulletRect, Angle, nullptr, SDL_FLIP_NONE, GameReference.GetCamera());
 }

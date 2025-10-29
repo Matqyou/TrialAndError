@@ -3,16 +3,17 @@
 //
 
 #include "client/game/powerups/PowerupManager.h"
-#include "client/game/ui/CommonUI.h"
+#include "client/game/ui/menus/Menus.h"
 #include "client/game/GameReference.h"
 #include "client/core/Application.h"
+#include "client/game/ui/CommonUI.h"
 #include "client/game/Player.h"
-#include "LevelUpMenu.h"
+#include "LevelupMenu.h"
 #include <cstdlib>
 #include <vector>
 #include <ctime>
 
-LevelUpMenu::LevelUpMenu()
+LevelupMenu::LevelupMenu()
 {
 //	m_ErrorIconRect = { 0, 0, float(Application.GetWidth2() * 0.4), float(Application.GetHeight2() * 0.4) };
 //	m_ErrorOutlineRect = { 0, 0, float(Application.GetWidth2() / 2.2), float(Application.GetHeight2() / 0.6) };
@@ -29,12 +30,12 @@ LevelUpMenu::LevelUpMenu()
 	AddChildren({ frame });
 }
 
-LevelUpMenu::~LevelUpMenu()
+LevelupMenu::~LevelupMenu()
 {
 
 }
 
-void LevelUpMenu::SwitchToThisMenu()
+void LevelupMenu::SwitchToThisMenu()
 {
 	GameReference.World()->SetDelay(true);
 	GameReference.World()->SetPaused(true);
@@ -63,7 +64,7 @@ void LevelUpMenu::SwitchToThisMenu()
 
 	m_selectedIndices = selected;
 
-	GameReference.SetCurrentMenu(this);
+	Menus.SetCurrentMenu(this);
 	RefreshMenu();
 }
 

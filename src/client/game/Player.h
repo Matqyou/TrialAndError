@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "client/game/ui/menus/levelup/LevelUpMenu.h"
+#include "client/game/ui/menus/levelup/LevelupMenu.h"
 #include "./classes/PlayerClass.h"
 #include <unordered_map>
 #include "GameWorld.h"
@@ -28,7 +28,7 @@ private:
 	GameWorld *m_GameWorld;
 	Character *m_Character;
 	PlayerClass *m_Class;
-	LevelUpMenu *m_LevelUpMenu;
+	LevelupMenu *m_LevelUpMenu;
 	std::string m_Username;
 	unsigned int m_Index;
 
@@ -40,7 +40,6 @@ private:
 	TextSurface *m_NamePlate;
 //	std::queue<LevelUpMenu *> m_levelUpMenuQueue;
 	int m_UpgradeCounts[(size_t)Powerup::NUM_POWERUPS];
-	Player *m_Prev, *m_Next;
 
 public:
 	Player(GameWorld *game_world, const std::string& username, PlayerClass *player_class = nullptr);
@@ -50,9 +49,7 @@ public:
 	[[nodiscard]] Character *GetCharacter() const { return m_Character; }
 	[[nodiscard]] std::string GetUsername() const { return m_Username; }
 	[[nodiscard]] unsigned int GetIndex() const { return m_Index; }
-	[[nodiscard]] Player *Next() const { return m_Next; }
-	[[nodiscard]] Player *Prev() const { return m_Prev; }
-	[[nodiscard]] LevelUpMenu *GetLevelUpMenu() const { return m_LevelUpMenu; }
+	[[nodiscard]] LevelupMenu *GetLevelUpMenu() const { return m_LevelUpMenu; }
 	[[nodiscard]] TextSurface *GetNamePlate() const { return m_NamePlate; }
 //	[[nodiscard]] std::queue<LevelUpMenu *> GetLevelUpMenuQueue() const { return m_levelUpMenuQueue; }
 	[[nodiscard]] unsigned int GetXP() const { return m_XP; }

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "client/game/ui/menus/FullscreenMenu.h"
+#include "client/game/ui/menus/base/FullscreenMenu.h"
 #include "client/core/texture/Texture.h"
 #include "shared/utility/Functions.h"
 #include "SDL3/SDL.h"

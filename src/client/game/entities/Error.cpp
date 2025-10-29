@@ -50,10 +50,10 @@ Error::Error(GameWorld *world, const Vec2d& start_pos, int typeID)
 
 void Error::TickPickup(double x, double y)
 {
-	auto Char = m_World->FirstCharacter();
-	for (; Char; Char = (Character *)(Char->NextType()))
+	for (Entity* entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 	{
-		auto& CharCore = Char->GetDirectionalCore();
+		auto character = (Character*)entity;
+		auto& CharCore = character->GetDirectionalCore();
 		bool Collides = (CharCore.Pos.x - CharCore.Size.x / 2 - m_Core.sizeRatio < x) &&
 			(CharCore.Pos.x + CharCore.Size.x / 2 + m_Core.sizeRatio > x) &&
 			(CharCore.Pos.y - CharCore.Size.y / 2 - m_Core.sizeRatio < y) &&
@@ -66,65 +66,67 @@ void Error::TickPickup(double x, double y)
 
 		if (m_Type == DISORIANTED)
 		{
-			if (Char->IsNPC())
-			{ Char->GetErrorStatuses().Disoriented.Activate(); }
+			if (character->IsNPC())
+			{ character->GetErrorStatuses().Disoriented.Activate(); }
 			else
 			{
-				auto Plr = m_World->FirstCharacter();
-				for (; Plr; Plr = (Character *)(Plr->NextType()))
+				for (Entity* entity2 : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 				{
-					if (!Plr->IsNPC()) continue;
-					Plr->GetErrorStatuses().Disoriented.Activate();
+					auto character2 = (Character*)entity2;
+					if (!character2->IsNPC()) continue;
+					character2->GetErrorStatuses().Disoriented.Activate();
 				}
 			}
 		}
 		else if (m_Type == CONFUSING_HP)
 		{
-			auto Plr = m_World->FirstCharacter();
-			for (; Plr; Plr = (Character *)(Plr->NextType()))
-				Plr->GetErrorStatuses().ConfusingHealth.Activate();
+			for (Entity* entity2 : m_World->GetEntitiesByType(CHARACTER_ENTITY))
+			{
+				auto character2 = (Character *)entity2;
+				character2->GetErrorStatuses().ConfusingHealth.Activate();
+			}
 		}
 		else if (m_Type == INVINCIBLE)
-		{ Char->GetErrorStatuses().Invincible.Activate(); }
+		{ character->GetErrorStatuses().Invincible.Activate(); }
 		else if (m_Type == SPIKY)
-		{ Char->GetErrorStatuses().Spiky.Activate(); }
+		{ character->GetErrorStatuses().Spiky.Activate(); }
 		else if (m_Type == HEALERS_PARADISE)
 		{
-			if (Char->IsNPC())
-			{ Char->GetErrorStatuses().HealersParadise.Activate(); }
+			if (character->IsNPC())
+			{ character->GetErrorStatuses().HealersParadise.Activate(); }
 			else
 			{
-				auto Plr = m_World->FirstCharacter();
-				for (; Plr; Plr = (Character *)(Plr->NextType()))
+				for (Entity* entity2 : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 				{
-					if (Plr->IsNPC()) continue;
-					Plr->GetErrorStatuses().HealersParadise.Activate();
+					auto character2 = (Character *)entity2;
+					if (character2->IsNPC()) continue;
+					character2->GetErrorStatuses().HealersParadise.Activate();
 				}
 			}
 		}
 		else if (m_Type == RANGED)
-		{ Char->GetErrorStatuses().RangedFists.Activate(); }
+		{ character->GetErrorStatuses().RangedFists.Activate(); }
 		else if (m_Type == SLOW_DOWN)
 		{
-			if (Char->IsNPC())
-			{ Char->GetErrorStatuses().Slowdown.Activate(); }
+			if (character->IsNPC())
+			{ character->GetErrorStatuses().Slowdown.Activate(); }
 			else
 			{
-				auto Plr = m_World->FirstCharacter();
-				for (; Plr; Plr = (Character *)(Plr->NextType()))
+				for (Entity* entity2 : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 				{
-					if (!Plr->IsNPC()) continue;
-					Plr->GetErrorStatuses().Slowdown.Activate();
+					auto character2 = (Character *)entity2;
+					if (!character2->IsNPC()) continue;
+					character2->GetErrorStatuses().Slowdown.Activate();
 				}
 			}
 		}
 		else if (m_Type == DANGEROUS_RECOIL)
-		{ Char->GetErrorStatuses().DangerousRecoil.Activate(); }
+		{ character->GetErrorStatuses().DangerousRecoil.Activate(); }
 		m_Alive = false;
 	}
 }
 
-void Error::Tick()
+void Error::Tick(double elapsed_seconds)
 {
 	TickPickup(m_Core.Pos.x, m_Core.Pos.y);
 	TickWalls();

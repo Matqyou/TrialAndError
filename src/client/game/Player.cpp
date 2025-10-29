@@ -12,8 +12,6 @@ Player::Player(GameWorld *game_world, const std::string& username, PlayerClass *
 	  m_Username(),
 	  m_XP(0),
 	  m_Level(1),
-	  m_Prev(nullptr),
-	  m_Next(nullptr),
 	  m_Class(player_class ? player_class : PlayerClass::CreateClass(PLAYERCLASS_HUMAN))
 {
 	m_BossDamageAmp = 1;
@@ -75,7 +73,7 @@ int Player::GetPowerupUpgradeCount(Powerup type)
 void Player::SetCharacter(Character *character)
 {
 	if (m_Character)
-		std::printf("Player `%s` already has a characters..\n", m_Username.c_str());
+		std::printf("Player `%s` already has a character.\n", m_Username.c_str());
 	else
 		m_Character = character;
 }

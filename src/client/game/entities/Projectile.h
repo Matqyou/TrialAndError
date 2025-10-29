@@ -34,6 +34,6 @@ public:
 			   const Vec2d& start_vel);
 
 	// Ticking
-	void Tick() override;
+	void Tick(double elapsed_seconds) override;
 	void Draw() override;
 };

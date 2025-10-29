@@ -5,7 +5,7 @@
 #pragma once
 
 #include "client/core/texture/visual/VisualTexture.h"
-#include "client/game/ui/elements/EventContext.h"
+#include "client/game/ui/EventContext.h"
 #include "client/core/drawing/Drawing.h"
 #include "shared/utility/Rectangles.h"
 #include "SDL3/SDL.h"

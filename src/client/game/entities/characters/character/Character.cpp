@@ -71,7 +71,7 @@ Character::Character(GameWorld *world,
 						0.93,
 						true,
 						max_health),
-	  m_BaseAcceleration(0.45),
+	  m_BaseAcceleration(0.3),
 	  m_Hands(this, 10.0),
 	  m_Hook(this),
 	  m_HealthBar(&m_HealthComponent, 75, 15, 2, 2),
@@ -130,12 +130,12 @@ Character::~Character()
 	delete m_CoordinatePlate;
 	delete m_ErrorText;
 
-	Character *Char = m_World->FirstCharacter();
-	for (; Char; Char = (Character *)Char->NextType())
+	for (Entity *entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 	{
-		Hook *TargetHook = Char->GetHook();
-		if (TargetHook->m_GrabbedEntity == this)
-			TargetHook->Unhook();
+		auto character = (Character *)entity;
+		Hook *character_hook = character->GetHook();
+		if (character_hook->m_GrabbedEntity == this)
+			character_hook->Unhook();
 	}
 }
 
@@ -377,13 +377,15 @@ void Character::EventDeath()
 
 	if (!m_NPC)
 	{ // prob better place for this code
-		int NumRealCharacters = 0;
-		for (auto Char = m_World->FirstCharacter(); Char; Char = (Character *)Char->NextType())
+		int num_real_players = 0;
+		for (Entity *entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 		{
-			if (!Char->IsNPC())
-				NumRealCharacters++;
+			auto character = (Character *)entity;
+			if (!character->IsNPC())
+				num_real_players++;
 		}
-		if (NumRealCharacters == 1)
+
+		if (num_real_players == 0)
 			m_World->AlliesGone();
 	}
 
@@ -498,11 +500,13 @@ void Character::TickGameControllerControls()
 }
 
 // When in combat heal differently than out of combat
-void Character::TickHealth()
+void Character::TickHealth(double elapsed_seconds)
 {
 	auto CurrentTick = m_World->GetTick();
 	bool ActiveRegeneration = CurrentTick - m_LastInCombat < m_TicksOfCombatUntilRegeneration;
-	m_HealthComponent.ChangeHealthBy(+(ActiveRegeneration ? m_PassiveRegeneration : m_ActiveRegeneration));
+
+	auto delta_health = +(ActiveRegeneration ? m_PassiveRegeneration : m_ActiveRegeneration);
+	m_HealthComponent.ChangeHealthBy(delta_health);
 	m_HealthComponent.LimitHealthToMax();
 }
 
@@ -521,7 +525,7 @@ void Character::TickControls()
 	}
 }
 
-void Character::TickProcessInputs()
+void Character::TickProcessInputs(double elapsed_seconds)
 {
 	if (m_Input.m_GoingLength >= 0.2)
 	{ // Fix controller drifting
@@ -538,18 +542,11 @@ void Character::TickProcessInputs()
 	}
 
 	if (m_Input.m_LookingLength >= 0.6)
-	{
-		m_DirectionalCore.Direction = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY) * (m_ErrorStatuses.Disoriented.IsActive()
-																					   ? -1 : 1);
-	}
+		m_DirectionalCore.Direction = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY) * (m_ErrorStatuses.Disoriented.IsActive() ? -1 : 1);
 	else if (m_Input.m_GoingLength >= 0.2)
-	{
-		m_DirectionalCore.Direction = Vec2d(m_Input.m_GoingX, m_Input.m_GoingY) * (m_ErrorStatuses.Disoriented.IsActive()
-																				   ? -1 : 1);
-	}
+		m_DirectionalCore.Direction = Vec2d(m_Input.m_GoingX, m_Input.m_GoingY) * (m_ErrorStatuses.Disoriented.IsActive() ? -1 : 1);
 
-	if (m_Input.m_NextItem ^ m_Input.m_PrevItem
-		^ m_Input.m_DeselectItem)
+	if (m_Input.m_NextItem ^ m_Input.m_PrevItem ^ m_Input.m_DeselectItem)
 	{ // I hope this works as intended, only 1 at a time | ignore if multiple inputs at the same time
 		if (m_Input.m_DeselectItem)
 		{
@@ -579,26 +576,26 @@ void Character::TickProcessInputs()
 	}
 }
 
-void Character::TickHook()
+void Character::TickHook(double elapsed_seconds)
 {
-	m_Hook.Tick();
+	m_Hook.Tick(elapsed_seconds);
 }
 
 void Character::TickCollision()
 {
 	// Handle collision with other characters
-	auto Char = m_World->FirstCharacter();
-	for (; Char; Char = (Character *)(Char->NextType()))
+	for (Entity *entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 	{
-		if (Char == this)
+		auto character = (Character *)entity;
+		if (character == this)
 			continue;
 
-		EntityCore& EntCore = Char->GetCore();
-		double XDistance = m_Core.Pos.x - EntCore.Pos.x;
-		double YDistance = m_Core.Pos.y - EntCore.Pos.y;
-		double Distance = DistanceVec2d(m_Core.Pos, EntCore.Pos);
+		EntityCore& entity_core = character->GetCore();
+		double XDistance = m_Core.Pos.x - entity_core.Pos.x;
+		double YDistance = m_Core.Pos.y - entity_core.Pos.y;
+		double Distance = DistanceVec2d(m_Core.Pos, entity_core.Pos);
 
-		if (Distance > m_Core.sizeRatio + EntCore.sizeRatio)
+		if (Distance > m_Core.sizeRatio + entity_core.sizeRatio)
 			continue;
 		else if (Distance == 0.0)
 		{
@@ -611,25 +608,25 @@ void Character::TickCollision()
 		double XPush = XDistance / Distance * 0.5;
 		double YPush = YDistance / Distance * 0.5;
 		m_Core.Accelerate(XPush, YPush);
-		EntCore.Accelerate(-XPush, -YPush);
+		entity_core.Accelerate(-XPush, -YPush);
 
-		if (m_ErrorStatuses.Spiky.IsActive() && m_NPC != Char->IsNPC())
-			Char->Damage(3, this);
+		if (m_ErrorStatuses.Spiky.IsActive() && m_NPC != character->IsNPC())
+			character->Damage(3, this);
 	}
 
 	// Handle collision with crates
-	auto CrateEntity = m_World->FirstCrate();
-	for (; CrateEntity; CrateEntity = (Crate *)(CrateEntity->NextType()))
+	for (Entity *entity : m_World->GetEntitiesByType(CRATE_ENTITY))
 	{
-		EntityCore& CrateCore = CrateEntity->GetCore();
-		Vec2d Difference = m_Core.Pos - CrateCore.Pos;
-		double Distance = Difference.Length();
-		double ClosestPossibleDistance = CrateCore.sizeRatio + m_Core.sizeRatio;
+		auto crate_entity = (Crate *)entity;
+		EntityCore& crate_core = crate_entity->GetCore();
+		Vec2d difference = m_Core.Pos - crate_core.Pos;
+		double distance = difference.Length();
+		double closest_possible_distance = crate_core.sizeRatio + m_Core.sizeRatio;
 
-		if (Distance > ClosestPossibleDistance)
+		if (distance > closest_possible_distance)
 			continue;
 
-		m_Core.Pos = CrateCore.Pos + Difference / Distance * ClosestPossibleDistance;
+		m_Core.Pos = crate_core.Pos + difference / distance * closest_possible_distance;
 	}
 }
 
@@ -665,8 +662,7 @@ void Character::DrawCharacter()
 	auto drawing = Application.GetDrawing();
 	SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
 						   float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
-						   float(m_Core.Size.x),
-						   float(m_Core.Size.y) };
+						   float(m_Core.Size.x), float(m_Core.Size.y) };
 
 	sCharacterTexture.GetTexture()->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
 
@@ -783,18 +779,13 @@ void Character::DrawHands()
 				current_position += direction;
 
 				// Check against walls
-				if (current_position.x < 0 ||
-					current_position.y < 0 ||
-					current_position.x > m_World->GetWidth() ||
-					current_position.y > m_World->GetHeight())
-				{
+				if (current_position.x < 0 || current_position.y < 0 ||
+					current_position.x > m_World->GetWidth() || current_position.y > m_World->GetHeight())
 					break;
-				}
 
-				// Check against entities
+				// Check collision against entities
 				bool found = false;
-				auto entity = m_World->FirstEntity();
-				for (; entity != nullptr; entity = entity->Next())
+				for (Entity *entity : m_World->GetEntities())
 				{
 					if (entity == this || !entity->HasHealthComponent())
 						continue;
@@ -895,7 +886,7 @@ void Character::DrawErrorName()
 	drawing->RenderTexture(ErrorTexture->SDLTexture(), nullptr, ErrorRect, GameReference.GetCamera());
 }
 
-void Character::Event(const SDL_Event& currentEvent)
+void Character::HandleEvent(const SDL_Event& sdl_event)
 {
 	if (m_NPC)
 		return;
@@ -903,13 +894,13 @@ void Character::Event(const SDL_Event& currentEvent)
 //	if (m_GameController) // Todo: update sdl3
 //		return;
 
-	if (currentEvent.type == SDL_EVENT_KEY_DOWN && currentEvent.key.repeat == 0 ||
-		currentEvent.type == SDL_EVENT_KEY_UP)
+	if (sdl_event.type == SDL_EVENT_KEY_DOWN && sdl_event.key.repeat == 0 ||
+		sdl_event.type == SDL_EVENT_KEY_UP)
 	{ // TODO: Put this into CharacterInput struct
-		bool State = currentEvent.type == SDL_EVENT_KEY_DOWN;
+		bool State = sdl_event.type == SDL_EVENT_KEY_DOWN;
 		if (State)
 		{
-			int KeyCode = currentEvent.key.scancode;
+			int KeyCode = sdl_event.key.scancode;
 			if (KeyCode == SDL_SCANCODE_GRAVE)
 				m_CurrentWeapon = nullptr;
 			else if (KeyCode == SDL_SCANCODE_1)
@@ -929,21 +920,21 @@ void Character::Event(const SDL_Event& currentEvent)
 		}
 
 		// Reloads weapon on keyboard player with R button press
-		if (currentEvent.key.scancode == SDL_SCANCODE_R)
+		if (sdl_event.key.scancode == SDL_SCANCODE_R)
 			m_Input.m_Reloading = State;
 
 		for (int i = 0; i < NUM_CONTROLS; i++)
-			if (currentEvent.key.scancode == ms_DefaultControls[i])
+			if (sdl_event.key.scancode == ms_DefaultControls[i])
 				m_Movement[i] = State;
 	}
 }
 
-void Character::Tick()
+void Character::Tick(double elapsed_seconds)
 {
-	TickHealth();
+	TickHealth(elapsed_seconds);
 	TickControls();      // Parse the inputs of each device keyboard/controller/AI
-	TickProcessInputs(); // Do stuff depending on the current held buttons
-	TickHook();          // Move hook and or player etc.
+	TickProcessInputs(elapsed_seconds); // Do stuff depending on the current held buttons
+	TickHook(elapsed_seconds);          // Move hook and or player etc.
 	TickCurrentWeapon(); // Shoot accelerate reload etc.
 	m_Hands.Tick();
 	m_ErrorStatuses.Tick();
@@ -954,7 +945,7 @@ void Character::Tick()
 	// like collisions and velocity tick
 
 	TickCollision();
-	TickVelocity(); // Move the characters entity
+	TickVelocity(elapsed_seconds); // Move the characters entity
 	TickWalls();    // Check if colliding with walls
 
 	// Check if health on screen needs updating

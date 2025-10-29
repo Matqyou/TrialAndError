@@ -6,6 +6,7 @@
 #include "client/core/Application.h"
 #include "client/game/GameReference.h"
 #include "client/game/ui/CommonUI.h"
+#include "client/game/ui/menus/Menus.h"
 
 static LinkMusic sElevatorMusic("intro");
 static LinkTexture sMenuTexture("interface.menu");
@@ -37,9 +38,9 @@ MainMenu::MainMenu()
 
 	play_button->SetCallback([]()
 							 {
-								 Assets.PauseMusic();
+//								 Assets.PauseMusic();
 								 CommonUI::soundUiPitchLow.GetSound()->PlaySound();
-								 GameReference.GameSelectMenu()->SwitchToThisMenu();
+								 Menus.gamemode_menu->SwitchToThisMenu();
 							 });
 	exit_button->SetCallback([]()
 							 {
@@ -68,11 +69,13 @@ MainMenu::~MainMenu()
 
 void MainMenu::SwitchToThisMenu()
 {
-	sElevatorMusic.GetMusic()->PlayMusic(-1);
-	if (!m_Intro)
-		Mix_SetMusicPosition(16);
+	if (!Mix_PausedMusic() && !Mix_PlayingMusic())
+	{
+		sElevatorMusic.GetMusic()->PlayMusic(-1);
+		if (!m_Intro) Mix_SetMusicPosition(16);
+	} else { Mix_ResumeMusic(); }
 
-	GameReference.SetCurrentMenu(this);
+	Menus.SetCurrentMenu(this);
 	RefreshMenu();
 }
 
@@ -100,8 +103,7 @@ void MainMenu::Tick(double elapsed_seconds)
 {
 	if (m_Intro)
 	{
-		if (std::chrono::duration_cast<
-			std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_Opened).count() >= 15500)
+		if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_Opened).count() >= 15500)
 			m_Intro = false;
 
 		return;

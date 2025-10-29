@@ -43,7 +43,7 @@ public:
     Error(GameWorld* world, const Vec2d& start_pos, int typeID);
 
     // Ticking
-    void Tick() override;
+    void Tick(double elapsed_seconds) override;
     void Draw() override;
 
 };

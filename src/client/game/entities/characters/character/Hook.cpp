@@ -51,7 +51,7 @@ void Hook::HookWall()
 	m_Grabbed = GRABBED_WALL;
 }
 
-void Hook::Tick()
+void Hook::Tick(double elapsed_seconds)
 {
 	GameWorld *World = m_Parent->World();
 	bool Hooking = m_Parent->GetInput().m_Hooking;
@@ -103,26 +103,26 @@ void Hook::Tick()
 		}
 
 		// Hook snaps to player - idk if its good or not cus i havent made it yet
-		Character *Player = m_Parent->World()->FirstCharacter();
-		for (; Player; Player = (Character *)(Player->NextType()))
+		for (Entity* entity : World->GetEntitiesByType(CHARACTER_ENTITY))
 		{
-			if (Player == m_Parent)
+			auto character = (Character*)entity;
+			if (character == m_Parent)
 				continue;
 
-			if (Player->PointCollides(Vec2d(m_x, m_y)))
+			if (character->PointCollides(Vec2d(m_x, m_y)))
 			{
 				m_Grabbed = GRABBED_ENTITY;
-				m_GrabbedEntity = Player;
+				m_GrabbedEntity = character;
 				break;
 			}
 		}
-		Crate *CrateEntity = m_Parent->World()->FirstCrate();
-		for (; CrateEntity; CrateEntity = (Crate *)(CrateEntity->NextType()))
+		for (Entity* entity : World->GetEntitiesByType(CRATE_ENTITY))
 		{
-			if (CrateEntity->PointCollides(Vec2d(m_x, m_y)))
+			auto crate = (Crate*)entity;
+			if (crate->PointCollides(Vec2d(m_x, m_y)))
 			{
 				m_Grabbed = GRABBED_ENTITY;
-				m_GrabbedEntity = CrateEntity;
+				m_GrabbedEntity = crate;
 				break;
 			}
 		}

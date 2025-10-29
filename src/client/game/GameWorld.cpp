@@ -26,16 +26,16 @@ GameWorld::GameWorld(int width, int height)
 
 	m_TestingMode = false;
 
-	m_First = nullptr;
-	m_Last = nullptr;
-	memset(m_FirstType, 0, sizeof(m_FirstType));
-	memset(m_LastType, 0, sizeof(m_LastType));
-	m_FirstPlayer = nullptr;
-	m_LastPlayer = nullptr;
+//	m_First = nullptr;
+//	m_Last = nullptr;
+//	memset(m_FirstType, 0, sizeof(m_FirstType));
+//	memset(m_LastType, 0, sizeof(m_LastType));
+//	m_FirstPlayer = nullptr;
+//	m_LastPlayer = nullptr;
 
-	m_Background = Assets.GetTexture("backgrounds.background_pattern");
-	m_BackgroundW = m_Background->GetWidth();
-	m_BackgroundH = m_Background->GetHeight();
+	background_texture = Assets.GetTexture("backgrounds.background_pattern");
+	m_BackgroundW = (int)background_texture->GetWidth();
+	m_BackgroundH = (int)background_texture->GetHeight();
 
 	m_LastWave = 0;
 	m_TimeBetweenWaves = 300;
@@ -49,13 +49,11 @@ GameWorld::~GameWorld()
 {
 	delete m_Tiles;
 	delete m_Particles;
-	Entity *CurrentEntity = m_Last;
-	while (CurrentEntity)
-	{
-		auto NextEntity = CurrentEntity->m_Prev;
-		delete CurrentEntity;
-		CurrentEntity = NextEntity;
-	}
+
+	for (auto player : players)
+		delete player;
+	for (auto entity : entities)
+		delete entity;
 }
 
 void GameWorld::EnemyKilled(Player *player, Character *enemy)
@@ -94,18 +92,16 @@ void GameWorld::CheckLevelUps()
 unsigned int GameWorld::GetNextPlayerIndex() const
 {
 	unsigned int Index = 0;
-
 	while (true)
 	{
 		bool Used = false;
-		for (auto pPlayer = m_FirstPlayer; pPlayer != nullptr; pPlayer = pPlayer->m_Next)
-		{
-			if (pPlayer->GetIndex() == Index)
+		for (auto player : players)
+			if (player->GetIndex() == Index)
 				Used = true;
-		}
 
 		if (!Used)
 			return Index;
+
 		Index++;
 	}
 }
@@ -117,6 +113,24 @@ void GameWorld::AddScore(unsigned int score)
 	std::snprintf(msg, sizeof(msg), "Score: %i", m_Score);
 	m_ScoreText->SetText(msg);
 	m_ScoreText->FlagForUpdate();
+}
+
+void GameWorld::InitPlayers()
+{
+	auto num_expected_players = GameReference.NumExpectedPlayers();
+	for (int i = 0; i < num_expected_players; i++)
+	{
+		const char *default_username = i == 0 ? "Keyboard" : "Controller";
+
+		auto preferences = GameReference.GetPlayerPreferences(i);
+		auto preferred_class_type = preferences.GetPlayerClassType();
+		auto new_player_class_object = PlayerClass::CreateClass(preferred_class_type);
+
+		auto new_player = new Player(this, default_username, new_player_class_object);
+		auto new_character = new Character(this, new_player, 100.0,
+										   Vec2d(32 * 17.5, 32 * 17.5), Vec2d(10, 10),
+										   false);
+	}
 }
 
 void GameWorld::EnemiesKilled()
@@ -136,19 +150,20 @@ void GameWorld::AlliesGone()
 
 Player *GameWorld::AddPlayer(Player *player)
 {
-	if (!m_FirstPlayer)
-	{
-		m_FirstPlayer = player;
-		m_LastPlayer = player;
-		player->m_Prev = nullptr;
-		player->m_Next = nullptr;
-	}
-	else
-	{
-		m_LastPlayer->m_Next = player;
-		player->m_Prev = m_LastPlayer;
-		m_LastPlayer = player;
-	}
+	players.push_back(player);
+//	if (!m_FirstPlayer)
+//	{
+//		m_FirstPlayer = player;
+//		m_LastPlayer = player;
+//		player->m_Prev = nullptr;
+//		player->m_Next = nullptr;
+//	}
+//	else
+//	{
+//		m_LastPlayer->m_Next = player;
+//		player->m_Prev = m_LastPlayer;
+//		m_LastPlayer = player;
+//	}
 
 	return player;
 }
@@ -156,50 +171,15 @@ Player *GameWorld::AddPlayer(Player *player)
 // ::RemovePlayer() doesn't reset players Previous and Next player pointers
 void GameWorld::RemovePlayer(Player *player)
 {
-	// Remove player from list of all players
-	if (player->m_Prev)
-		player->m_Prev->m_Next = player->m_Next;
-	if (player->m_Next)
-		player->m_Next->m_Prev = player->m_Prev;
-	if (m_FirstPlayer == player)
-		m_FirstPlayer = player->m_Next;
-	if (m_LastPlayer == player)
-		m_LastPlayer = player->m_Prev;
+	players.erase(std::remove(players.begin(), players.end(), player), players.end());
 }
 
 Entity *GameWorld::AddEntity(Entity *entity)
 {
-	EntityType Enttype = entity->GetType();
-	Entity *& FirstType = m_FirstType[Enttype];
-	Entity *& LastType = m_LastType[Enttype];
+	entities.push_back(entity);
 
-	if (!FirstType)
-	{ // Then there also shouldn't be a last type
-		FirstType = entity;
-		LastType = entity;
-		entity->m_PrevType = nullptr;
-		entity->m_NextType = nullptr;
-	}
-	else
-	{ // Then there also should be a last type
-		LastType->m_NextType = entity;
-		entity->m_PrevType = LastType;
-		LastType = entity;
-	}
-
-	if (!m_First)
-	{
-		m_First = entity;
-		m_Last = entity;
-		entity->m_Prev = nullptr;
-		entity->m_Next = nullptr;
-	}
-	else
-	{
-		m_Last->m_Next = entity;
-		entity->m_Prev = m_Last;
-		m_Last = entity;
-	}
+	auto entity_type = entity->GetType();
+	entities_by_types[entity_type].push_back(entity);
 
 	return entity;
 }
@@ -207,57 +187,13 @@ Entity *GameWorld::AddEntity(Entity *entity)
 // ::RemoveEntity() doesn't reset entities Previous and Next entity pointers
 void GameWorld::RemoveEntity(Entity *entity)
 {
-	EntityType Type = entity->GetType();
-	Entity *& FirstType = m_FirstType[Type];
-	Entity *& LastType = m_LastType[Type];
+	entities.erase(std::remove(entities.begin(), entities.end(), entity), entities.end());
 
-	// Remove entity from list of same type
-	if (entity->m_PrevType)
-		entity->m_PrevType->m_NextType = entity->m_NextType;
-	if (entity->m_NextType)
-		entity->m_NextType->m_PrevType = entity->m_PrevType;
-	if (FirstType == entity)
-		FirstType = entity->m_NextType;
-	if (LastType == entity)
-		LastType = entity->m_PrevType;
-
-	// Remove entity from list of all entities
-	if (entity->m_Prev)
-		entity->m_Prev->m_Next = entity->m_Next;
-	if (entity->m_Next)
-		entity->m_Next->m_Prev = entity->m_Prev;
-	if (m_First == entity)
-		m_First = entity->m_Next;
-	if (m_Last == entity)
-		m_Last = entity->m_Prev;
+	auto entity_type = entity->GetType();
+	auto& entities_with_this_type = entities_by_types[entity_type];
+	entities_with_this_type.erase(std::remove(entities_with_this_type.begin(), entities_with_this_type.end(), entity),
+								  entities_with_this_type.end());
 }
-
-//void GameWorld::DestroyPlayerByController(GameController *DeletedController) const
-//{
-//	Player *Plr = m_FirstPlayer;
-//	for (; Plr; Plr = Plr->m_Next)
-//	{
-//		Character *Char = Plr->GetCharacter();
-//		if (Char->GetGameController() == DeletedController)
-//		{
-//			delete Plr;
-//			return;
-//		}
-//	}
-//}
-
-//void GameWorld::DestroyCharacterByController(GameController *DeletedController) const
-//{
-//	Character *Char = FirstCharacter();
-//	for (; Char; Char = (Character *)(Char->NextType()))
-//	{
-//		if (Char->GetGameController() == DeletedController)
-//		{
-//			delete Char;
-//			return;
-//		}
-//	}
-//}
 
 void GameWorld::ToggleShowNames()
 {
@@ -266,7 +202,7 @@ void GameWorld::ToggleShowNames()
 		m_ShowNamesVisibility = 1.0;
 }
 
-void GameWorld::HandleEvent(const SDL_Event& sdl_event)
+void GameWorld::HandleEvent(const SDL_Event& sdl_event, EventContext& event_context)
 {
 	if (m_Paused)
 		return;
@@ -285,53 +221,47 @@ void GameWorld::HandleEvent(const SDL_Event& sdl_event)
 			m_Tiles->SaveTilemap("assets/tilemaps/test_level");
 	}
 
-	// Loop allows self-destruction in the ::Event() method
-	Character *Next, *Current = FirstCharacter();
-	for (; Current; Current = Next)
+	for (Entity *entity : entities_by_types[CHARACTER_ENTITY])
 	{
-		Next = (Character *)(Current->NextType());
-		Current->Event(sdl_event);
+		auto character = (Character *)entity;
+		character->HandleEvent(sdl_event);
 	}
 }
 
-void GameWorld::TickCamera()
+void GameWorld::TickCamera(double elapsed_seconds)
 {
-	if (!m_FirstType[CHARACTER_ENTITY])
+	if (entities_by_types[CHARACTER_ENTITY].empty())
 		return;
 
 	bool FirstIteration = true;
 	double minX, maxX, minY, maxY;
 
-	auto Char = FirstCharacter();
-	for (; Char; Char = (Character *)Char->NextType())
+	for (Entity *entity : entities_by_types[CHARACTER_ENTITY])
 	{
-		if (Char->IsNPC())
-		{
-			auto NPC = (CharacterNPC *)Char;
-			if (!NPC->GetCurrentWeapon())
+		auto character = (Character *)entity;
+		if (character->IsNPC())
+			if (!character->GetCurrentWeapon())
 				continue;
-		}
 
-		EntityCore& Core = Char->GetCore();
-
+		EntityCore& entity_core = character->GetCore();
 		if (FirstIteration)
 		{
 			FirstIteration = false;
-			minX = Core.Pos.x;
-			maxX = Core.Pos.x;
-			minY = Core.Pos.y;
-			maxY = Core.Pos.y;
+			minX = entity_core.Pos.x;
+			maxX = entity_core.Pos.x;
+			minY = entity_core.Pos.y;
+			maxY = entity_core.Pos.y;
 		}
 		else
 		{
-			if (Core.Pos.x < minX)
-				minX = Core.Pos.x;
-			if (Core.Pos.x > maxX)
-				maxX = Core.Pos.x;
-			if (Core.Pos.y < minY)
-				minY = Core.Pos.y;
-			if (Core.Pos.y > maxY)
-				maxY = Core.Pos.y;
+			if (entity_core.Pos.x < minX)
+				minX = entity_core.Pos.x;
+			if (entity_core.Pos.x > maxX)
+				maxX = entity_core.Pos.x;
+			if (entity_core.Pos.y < minY)
+				minY = entity_core.Pos.y;
+			if (entity_core.Pos.y > maxY)
+				maxY = entity_core.Pos.y;
 		}
 	}
 
@@ -355,7 +285,7 @@ void GameWorld::TickCamera()
 	}
 }
 
-void GameWorld::TickSpawner()
+void GameWorld::TickSpawner(double elapsed_seconds)
 {
 	if (m_TestingMode || m_CurrentTick - m_LastWave < m_TimeBetweenWaves)
 		return;
@@ -425,25 +355,26 @@ void GameWorld::TickSpawner()
 	}
 }
 
-void GameWorld::TickEntities()
+void GameWorld::TickEntities(double elapsed_seconds)
 {
 	// Loop through each entity and tick
-	for (auto Current = m_First; Current; Current = Current->m_Next)
-		Current->Tick();
+	for (Entity *entity : entities)
+		entity->Tick(elapsed_seconds);
 }
 
 void GameWorld::TickDestroy()
 {
-	// Loop through each entity and destroy aliven't entities
-	Entity *Current, *Next;
-	for (Current = m_First; Current; Current = Next)
+	std::vector<Entity*> to_delete;
+	for (Entity* entity : entities)
 	{
-		Next = Current->m_Next;
-		if (!Current->IsAlive())
-			delete Current;
+		if (!entity->IsAlive())
+			to_delete.push_back(entity);
 	}
-}
 
+	// Delete them (this will call RemoveEntity for each)
+	for (Entity* entity : to_delete)
+		delete entity;
+}
 void GameWorld::Tick(double elapsed_seconds)
 {
 	if (m_Paused || m_GameOver)
@@ -452,11 +383,12 @@ void GameWorld::Tick(double elapsed_seconds)
 	if (!m_ShowNames)
 		m_ShowNamesVisibility *= 0.98;
 
-	TickSpawner();
-	TickEntities();
+	TickSpawner(elapsed_seconds);
+	TickEntities(elapsed_seconds);
 	TickDestroy();
+
 	m_Particles->Tick();
-	TickCamera();
+	TickCamera(elapsed_seconds);
 
 	m_CurrentTick++;
 }
@@ -469,24 +401,23 @@ void GameWorld::Draw()
 	if (!m_GameOver)
 	{
 		SDL_FRect DestinationRect = { 0, 0, float(m_Width), float(m_Height) };
-		drawing->RenderTexture(m_Background->SDLTexture(), nullptr, DestinationRect, GameReference.GetCamera());
+		drawing->RenderTexture(background_texture->SDLTexture(), nullptr, DestinationRect, GameReference.GetCamera());
 
 		SDL_FRect DrawRect = { 0, 0, float(m_Width), float(m_Height) };
 		drawing->SetColor(100, 100, 100, 255);
 		drawing->DrawRect(DrawRect, false, GameReference.GetCamera());
 
 		m_Particles->Draw();
-		for (auto Current : m_FirstType)
-			for (; Current; Current = Current->NextType())
-				Current->Draw();
-
-		m_Tiles->Draw();
+		for (auto& entities_by_type : entities_by_types)
+			for (Entity *entity : entities_by_type)
+				entity->Draw();
+//		m_Tiles->Draw();
 	}
 
 	// Draw the score value
 	Texture *ScoreTexture = m_ScoreText->RequestUpdate();
-	float ScoreWidth = float(ScoreTexture->GetWidth() * 2.5);
-	float ScoreHeight = float(ScoreTexture->GetHeight() * 2.5);
+	auto ScoreWidth = (float)(ScoreTexture->GetWidth() * 2.5);
+	auto ScoreHeight = (float)(ScoreTexture->GetHeight() * 2.5);
 	SDL_FRect ScoreRect = { 0, (float)(Application.GetHeight()) - ScoreHeight, ScoreWidth, ScoreHeight };
 	if (!m_GameOver)
 		drawing->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);

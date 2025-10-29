@@ -17,7 +17,7 @@ protected:
 	const int class_type;
 
 public:
-	PlayerClass(int player_class_type);
+	explicit PlayerClass(int player_class_type);
 	virtual ~PlayerClass() = default;
 
 	// Sense

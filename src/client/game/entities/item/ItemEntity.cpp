@@ -91,9 +91,9 @@ void ItemEntity::TickPickup()
 	if (!m_Alive)
 		return;
 
-	auto Char = m_World->FirstCharacter();
-	for (; Char; Char = (Character *)Char->NextType())
+	for (Entity* entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 	{
+		auto character = (Character*)entity;
 		// The code below makes me think what if the m_Dropper entity was dead a long time ago and now
 		// a new entity has been summoned with the exact same address... HMMMMMMMM
 		// In a world where the pickup cooldown is infinite this entity is doomed to suffer
@@ -101,11 +101,11 @@ void ItemEntity::TickPickup()
 		// Eh theres probably a way for that entity to reincarnate, but if there isn't there's nothing
 		// really he can do about this situation
 		// Todo: think of some connected/smart pointers cuz that is the next big thing i need to learn
-		if (!Char->IsAlive() || (Char == m_Dropper && m_World->GetTick() - m_DroppedSince < m_PickupCooldown)) continue;
-		double Distance = DistanceVec2d(m_Core.Pos, Char->GetCore().Pos);
-		if (Distance > m_Core.sizeRatio + Char->GetCore().sizeRatio) continue;
+		if (!character->IsAlive() || (character == m_Dropper && m_World->GetTick() - m_DroppedSince < m_PickupCooldown)) continue;
+		double Distance = DistanceVec2d(m_Core.Pos, character->GetCore().Pos);
+		if (Distance > m_Core.sizeRatio + character->GetCore().sizeRatio) continue;
 
-		EventPickup(*Char);
+		EventPickup(*character);
 		break;
 	}
 }
@@ -120,10 +120,10 @@ void ItemEntity::AccelerateRotation(double acceleration)
 	m_RotationalVelocity += acceleration;
 }
 
-void ItemEntity::Tick()
+void ItemEntity::Tick(double elapsed_seconds)
 {
 	TickPickup();
-	TickVelocity();
+	TickVelocity(elapsed_seconds);
 	m_Rotation += m_RotationalVelocity;
 	m_RotationalVelocity *= m_RotationalDamping;
 }

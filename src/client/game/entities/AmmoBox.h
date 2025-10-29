@@ -42,6 +42,6 @@ public:
 	unsigned int TakeAmmo(unsigned int request);
 
 	// Ticking
-	void Tick() override;
+	void Tick(double elapsed_seconds) override;
 	void Draw() override;
 };

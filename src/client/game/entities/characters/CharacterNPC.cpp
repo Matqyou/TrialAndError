@@ -35,26 +35,24 @@ void CharacterNPC::EventDeath()
 	Character *killer = (Character *)m_HealthComponent.GetDamager();
 	Player *KillerPlayer = killer->GetPlayer();
 	if (KillerPlayer)
-	{
 		m_World->EnemyKilled(KillerPlayer, this);
-	}
 
 	if (rand() % 100 <= 20)
 		new Crate(m_World, m_Core.Pos, DropType(rand() % 2));
 
-	int NumNPCS = 0;
-	for (auto Char = m_World->FirstCharacter(); Char; Char = (Character *)Char->NextType())
+	int num_npcs_alive = 0;
+	for (Entity *entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 	{
-		if (Char->IsNPC() && Char->IsAlive())
-		{
-			NumNPCS++;
-		}
+		auto character = (Character *)entity;
+		if (character->IsNPC() && character->IsAlive())
+			num_npcs_alive++;
 	}
-	if (NumNPCS == 0)
+
+	if (num_npcs_alive == 0)
 	{
 		m_World->EnemiesKilled();
-		for (auto Char = m_World->FirstCharacter(); Char; Char = (Character *)Char->NextType())
-			Char->RemoveCombat();
+		for (Entity *entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
+			((Character *)entity)->RemoveCombat();
 	}
 }
 
@@ -70,20 +68,20 @@ void CharacterNPC::TickControls()
 
 	auto CurrentTick = m_World->GetTick();
 
-	auto Char = m_World->FirstCharacter();
 	Character *ClosestChar = nullptr;
 	double Closest = -1;
-	for (; Char != nullptr; Char = (Character *)(Char->NextType()))
+	for (Entity *entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
 	{
-		if (Char == this || Char->IsNPC())
+		auto character = (Character *)entity;
+		if (character == this || character->IsNPC())
 			continue;
 
-		auto& EntCore = Char->GetDirectionalCore();
+		auto& EntCore = character->GetDirectionalCore();
 		double Distance = DistanceVec2d(m_Core.Pos, EntCore.Pos);
 		if (Distance < 1000.0 && (!ClosestChar || Distance < Closest))
 		{
 			Closest = Distance;
-			ClosestChar = Char;
+			ClosestChar = character;
 		}
 	}
 

@@ -74,44 +74,42 @@ void Hands::Tick()
 			YHands = ParentCore.Pos.y + std::sin(Radians) * m_LeftHand.y + m_Parent->GetInput().m_LookingY * m_FistingRadius;
 		}
 
-		auto Ent = World->FirstEntity();
-		for (; Ent; Ent = Ent->Next())
+		for (Entity *entity : World->GetEntities())
 		{
-			if (Ent == m_Parent) continue;
-			if (Ent->GetType() == CHARACTER_ENTITY
-				&& m_Parent->IsNPC() == ((Character *)Ent)->IsNPC())
+			if (entity == m_Parent) continue;
+			if (entity->GetType() == CHARACTER_ENTITY &&
+				m_Parent->IsNPC() == ((Character *)entity)->IsNPC())
 				continue;
 
-			EntityCore& EntCore = Ent->GetCore();
+			EntityCore& EntCore = entity->GetCore();
 			double XClosest = std::max(EntCore.Pos.x - EntCore.Size.x / 2.0, std::min(EntCore.Pos.x + EntCore.Size.x / 2.0, XHands));
 			double YClosest = std::max(EntCore.Pos.y - EntCore.Size.y / 2.0, std::min(EntCore.Pos.y + EntCore.Size.y / 2.0, YHands));
 			double Distance = std::sqrt(std::pow(XClosest - XHands, 2) + std::pow(YClosest - YHands, 2));
 			if (Distance > m_FistingRadius)
 				continue;
 
-			if (!m_Parent->IsNPC() && Ent->GetType() == CRATE_ENTITY)
+			if (!m_Parent->IsNPC() && entity->GetType() == CRATE_ENTITY)
 			{
-				((Crate *)Ent)->Damage(5, nullptr);
+				((Crate *)entity)->Damage(5, nullptr);
 				continue;
 			}
 
-			if (Ent->GetType() != CHARACTER_ENTITY)
+			if (entity->GetType() != CHARACTER_ENTITY)
 				continue;
 
 			auto BoostDirection = Vec2d(m_Parent->GetInput().m_LookingX, m_Parent->GetInput().m_LookingY);
-			Ent->Accelerate(BoostDirection * 5.0);
+			entity->Accelerate(BoostDirection * 5.0);
 
 			double Damage = m_Parent->GetBaseDamage() * m_Parent->GetDamageAmp();
 			if (!m_Parent->GetPlayer())
 			{
-				((Character *)Ent)->Damage(Damage, m_Parent);
+				((Character *)entity)->Damage(Damage, m_Parent);
 				continue;
 			}
-			if (((CharacterNPC *)Ent)->IsBoss())
-			{
+
+			if (((CharacterNPC *)entity)->IsBoss())
 				Damage = Damage * m_Parent->GetPlayer()->GetBossDamageAmp();
-			}
-			((Character *)Ent)->Damage(Damage, m_Parent);
+			((Character *)entity)->Damage(Damage, m_Parent);
 
 		}
 	}
