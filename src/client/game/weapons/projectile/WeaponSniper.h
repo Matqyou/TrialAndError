@@ -5,7 +5,7 @@
 #pragma once
 
 #include "ProjectileWeapon.h"
-#include "../../entities/Entity.h"
+#include <client/game/entities/cartesian/Entity.h>
 
 class WeaponSniper : public ProjectileWeapon
 {

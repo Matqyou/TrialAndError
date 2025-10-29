@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../../entities/Error.h"
+#include <client/game/entities/cartesian/Error.h>
 
 class ErrorStatuses;
 class ErrorStatusEffect

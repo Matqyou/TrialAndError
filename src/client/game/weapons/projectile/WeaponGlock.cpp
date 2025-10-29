@@ -3,8 +3,8 @@
 //
 
 #include "WeaponGlock.h"
-#include "../../entities/characters/character/Character.h"
-#include "../../entities/Projectile.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
+#include <client/game/entities/cartesian/Projectile.h>
 
 static LinkTexture sTextureWeapon("weapons.glock");
 static LinkTexture sTextureProjectile("entity.projectile.glock");

@@ -3,7 +3,7 @@
 //
 
 #include "ItemEntity.h"
-#include "../characters/character/Character.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
 
 static LinkTexture sTextureGlock("entity.items.glock");
 static LinkTexture sTextureShotgun("entity.items.shotgun");

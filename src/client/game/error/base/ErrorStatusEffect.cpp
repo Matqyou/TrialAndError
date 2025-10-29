@@ -2,9 +2,9 @@
 // Created by Matq on 13/12/2024.
 //
 
-#include "../ErrorStatuses.h"
-#include "client/game/GameReference.h"
 #include "ErrorStatusEffect.h"
+#include <client/game/error/ErrorStatuses.h>
+#include "client/game/GameReference.h"
 
 ErrorStatusEffect::ErrorStatusEffect(ErrorStatuses *parent,
 									 ErrorType type,

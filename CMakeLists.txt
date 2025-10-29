@@ -119,3 +119,20 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
         COMMENT "Copying SDL3_ttf.dll"
 )
+
+
+if (WIN32)
+    # Location of the built exe
+    set(EXE_PATH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.exe")
+
+    # Path to the Desktop
+    file(TO_CMAKE_PATH "$ENV{USERPROFILE}/Desktop" DESKTOP_PATH)
+
+    # Shortcut destination (.lnk file)
+    set(SHORTCUT_PATH "${DESKTOP_PATH}/${PROJECT_NAME}.lnk")
+
+    # Post-build shortcut creation disabled to avoid PowerShell quoting/execution issues
+    # add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    #     COMMENT "Creating desktop shortcut..."
+    #     COMMAND powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $Wsh = New-Object -ComObject WScript.Shell; $Shortcut = $Wsh.CreateShortcut('${SHORTCUT_PATH}'); $Shortcut.TargetPath = '${EXE_PATH}'; $Shortcut.WorkingDirectory = '${CMAKE_RUNTIME_OUTPUT_DIRECTORY}'; $Shortcut.IconLocation = '${EXE_PATH},0'; $Shortcut.Save(); Write-Host 'Shortcut created at: ${SHORTCUT_PATH}'; } catch { Write-Warning 'Could not create shortcut (no permission?)'; }" )
+endif()

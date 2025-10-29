@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include "../ItemEntity.h"
-#include "../../../weapons/projectile/WeaponGlock.h"
-#include "../../../weapons/projectile/WeaponShotgun.h"
-#include "../../../weapons/projectile/WeaponBurst.h"
-#include "../../../weapons/projectile/WeaponSniper.h"
-#include "../../../weapons/projectile/WeaponMinigun.h"
-#include "../../../weapons/projectile/PatersonNavy.h"
+#include <client/game/entities/item/ItemEntity.h>
+#include <client/game/weapons/projectile/WeaponGlock.h>
+#include <client/game/weapons/projectile/WeaponShotgun.h>
+#include <client/game/weapons/projectile/WeaponBurst.h>
+#include <client/game/weapons/projectile/WeaponSniper.h>
+#include <client/game/weapons/projectile/WeaponMinigun.h>
+#include <client/game/weapons/projectile/PatersonNavy.h>
 
 class EntityGlock : public ItemEntity
 {

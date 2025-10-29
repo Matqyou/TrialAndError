@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "client/core/drawing/Drawing.h"
-#include "shared/utility/Vec2.h"
+#include <client/core/Drawing.h>
+#include <shared/utility/Vec2.h>
 
 struct Particle
 {
@@ -62,7 +62,7 @@ class GameWorld;
 class Particles
 {
 private:
-	Particle m_Particles[100]; // 1024
+	Particle m_Particles[1024];
 	size_t m_CreateParticleIndex;
 
 public:

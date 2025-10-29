@@ -3,6 +3,9 @@
 //
 
 #include "Particles.h"
+
+#include <client/core/TextManager.h>
+#include <client/game/world/GameWorld.h>
 #include "client/game/GameReference.h"
 #include "client/core/Application.h"
 #include "client/core/TextManager.h"
@@ -69,7 +72,6 @@ bool Particles::PlayParticle(Particle particle)
 
 void Particles::Tick()
 {
-	auto world = GameReference.World();
 	for (auto& particle : m_Particles)
 	{
 		if (!particle.m_Active)

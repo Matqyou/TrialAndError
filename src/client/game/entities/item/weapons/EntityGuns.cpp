@@ -3,7 +3,7 @@
 //
 
 #include "EntityGuns.h"
-#include "../../characters/character/Character.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
 
 void EntityGlock::EventPickup(Character& picker_char)
 {

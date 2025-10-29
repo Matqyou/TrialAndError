@@ -15,6 +15,14 @@
 #undef ERROR
 #endif
 
+#include <client/game/entities/cartesian/characters/CharacterNPC.h>
+#include <client/game/indicators/TextSurface.h>
+#include <client/game/entities/cartesian/Projectile.h>
+#include <client/game/interface/PauseMenu.h>
+#include <client/game/interface/MainMenu.h>
+#include <client/core/TextManager.h>
+#include <client/game/entities/cartesian/AmmoBox.h>
+#include "GameData.h"
 #include "game/entities/characters/CharacterNPC.h"
 #include "client/game/ui/menus/Menus.h"
 #include "client/game/GameReference.h"
@@ -26,7 +34,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <vector>
-
 #include <random>
 
 LinkSound sConnectedSound("ui.pitch.mid");
@@ -124,12 +131,11 @@ int main()
 	Menus.main_menu->SwitchToThisMenu();
 
 	Texture *Vignette = Assets.GetTexture("backgrounds.vignette")
-		->SetAlphaMod(200);
+	if (Vignette)
+		Vignette->SetAlphaMod(200);
 
-//	GameReference.AddPlayerClassMenu();
-//	GameReference.Menu()->SwitchToThisMenu();
-//	MainMenu mainMenu;
-//	mainMenu.Show();
+	MainMenu mainMenu(&GameReference);
+	mainMenu.InitialShow();
 
 //	PauseMenu *PauseMenu;
 	while (true)
@@ -231,7 +237,8 @@ int main()
 			if (GameReference.World())
 				GameReference.World()->Draw();
 			GameReference.GetInterface()->DrawBackground();
-			drawing->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
+			if (Vignette)
+				drawing->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 
 			Menus.Render();
 

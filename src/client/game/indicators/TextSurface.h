@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "client/core/AssetsManager.h"
-#include "client/core/drawing/Drawing.h"
+#include <client/core/AssetsManager.h>
+#include <client/core/Drawing.h>
 
 class TextSurface
 {
