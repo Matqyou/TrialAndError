@@ -2,6 +2,7 @@
 // Created by Matq on 04/06/2023.
 //
 
+#include <cmath>
 #include "Vec2.h"
 
 template<class T>
@@ -38,6 +39,18 @@ Vec2<T> Vec2<T>::operator-(const Vec2& v) const
 }
 
 template<class T>
+Vec2<T> Vec2<T>::operator*(const Vec2& v) const
+{
+	return Vec2(x * v.x, y * v.y);
+}
+
+template<class T>
+Vec2<T> Vec2<T>::operator/(const Vec2& v) const
+{
+	return Vec2(x / v.x, y / v.y);
+}
+
+template<class T>
 Vec2<T>& Vec2<T>::operator+=(const Vec2& v)
 {
 	x += v.x;
@@ -51,6 +64,20 @@ Vec2<T>& Vec2<T>::operator-=(const Vec2& v)
 	x -= v.x;
 	y -= v.y;
 	return *this;
+}
+
+template<class T>
+Vec2<T>& Vec2<T>::operator*=(const Vec2& v)
+{
+	x *= v.x;
+	y *= v.y;
+}
+
+template<class T>
+Vec2<T>& Vec2<T>::operator/=(const Vec2& v)
+{
+	x /= v.x;
+	y /= v.y;
 }
 
 template<class T>
@@ -85,6 +112,12 @@ Vec2<T> Vec2<T>::operator/(T scalar) const
 		// In this example, we simply return the original vector
 		return *this;
 	}
+}
+
+template<class T>
+Vec2<T> Vec2<T>::operator-() const
+{
+	return { -x, -y };
 }
 
 template<class T>
@@ -124,37 +157,85 @@ Vec2<T>& Vec2<T>::operator/=(T scalar)
 }
 
 template<class T>
-void Vec2<T>::Rotate(double radians)
+Vec2<T> Vec2<T>::Rotate(double radians) const
 {
 	double c = cos(radians);
 	double s = sin(radians);
 	double tx = x * c - y * s;
 	double ty = x * s + y * c;
-	x = tx;
-	y = ty;
+	return { tx, ty };
 }
 
 template<class T>
-Vec2<T>& Vec2<T>::Normalize()
+Vec2<T> Vec2<T>::RotateF(float radians) const
 {
-	double len = Length();
-	if (len != 0)
-	{
-		x = T(double(x) / len);
-		y = T(double(y) / len);
-	}
-	return *this;
+	float c = cosf(radians);
+	float s = sinf(radians);
+	float tx = x * c - y * s;
+	float ty = x * s + y * c;
+	return { tx, ty };
 }
+
 template<class T>
-Vec2<T>& Vec2<T>::SetLength(double length)
+Vec2<T> Vec2<T>::Normalize() const
+{
+	double len = Length();
+	constexpr double epsilon = 1e-10;
+
+	if (len > epsilon)
+	{
+		double inv_len = 1.0 / len;
+		return {
+			static_cast<T>(x * inv_len),
+			static_cast<T>(y * inv_len)
+		};
+	}
+	return { x, y };
+}
+
+template<class T>
+Vec2<T> Vec2<T>::NormalizeF() const
+{
+	float len = LengthF();
+	constexpr double epsilon = 1e-10;
+
+	if (len > epsilon)
+	{
+		float inv_len = 1.0f / len;
+		return {
+			static_cast<T>(x * inv_len),
+			static_cast<T>(y * inv_len)
+		};
+	}
+	return { x, y };
+}
+
+template<class T>
+Vec2<T> Vec2<T>::SetLength(double length) const
 {
 	double len = Length();
 	if (len != 0)
 	{
-		x = T(double(x) / len * length);
-		y = T(double(y) / len * length);
+		return {
+			static_cast<T>(x / len * length),
+			static_cast<T>(y / len * length)
+		};
 	}
-	return *this;
+	return { x, y };
+}
+
+template<class T>
+Vec2<T> Vec2<T>::SetLengthF(float length) const
+{
+	float len = LengthF();
+	if (len != 0)
+	{
+		return {
+			static_cast<T>(x / len * length),
+			static_cast<T>(y / len * length)
+		};
+	}
+	return { x, y };
 }
 
 template<class T>
@@ -172,67 +253,54 @@ bool Vec2<T>::operator!=(const Vec2<T>& v)
 template<class T>
 double Vec2<T>::Length() const
 {
-	return std::sqrt(static_cast<double>(x) * static_cast<double>(x) +
-		static_cast<double>(y) * static_cast<double>(y));
+	return std::sqrt(
+		static_cast<double>(x) * static_cast<double>(x) +
+			static_cast<double>(y) * static_cast<double>(y)
+	);
+}
+
+template<class T>
+float Vec2<T>::LengthF() const
+{
+	return std::sqrt(
+		static_cast<float>(x) * static_cast<float>(x) +
+			static_cast<float>(y) * static_cast<float>(y)
+	);
 }
 
 template<class T>
 double Vec2<T>::Atan2() const
 {
-	return std::atan2(y, x);
+	return std::atan2(static_cast<double>(y), static_cast<double>(x));
 }
 
 template<class T>
-Vec2<T> Vec2<T>::Ortho() const
+float Vec2<T>::Atan2F() const
 {
-	return Vec2(y, -x);
+	return atan2f(static_cast<float>(y), static_cast<float>(x));
 }
 
-template<class T>
-double Vec2<T>::DotProduct(const Vec2& v1, const Vec2& v2)
+float DistanceVec2i(const Vec2i& v1, const Vec2i& v2)
 {
-	return static_cast<double>(v1.x) * static_cast<double>(v2.x) +
-		static_cast<double>(v1.y) * static_cast<double>(v2.y);
+	return (v1 - v2).LengthF();
 }
 
-template<class T>
-double Vec2<T>::CrossProduct(const Vec2& v1, const Vec2& v2)
+float DistanceVec2f(const Vec2f& v1, const Vec2f& v2)
 {
-	return (static_cast<double>(v1.x) * static_cast<double>(v2.y)) -
-		(static_cast<double>(v1.y) * static_cast<double>(v2.x));
+	return (v1 - v2).LengthF();
 }
 
-template<class T>
-double DistanceVec2d(const Vec2<T>& v1, const Vec2<T>& v2)
+double DistanceVec2d(const Vec2d& v1, const Vec2d& v2)
 {
-	double dx = static_cast<double>(v1.x) - static_cast<double>(v2.x);
-	double dy = static_cast<double>(v1.y) - static_cast<double>(v2.y);
-	return std::sqrt(dx * dx + dy * dy);
+	return (v1 - v2).Length();
 }
 
-template<class T>
-float DistanceVec2f(const Vec2<T>& v1, const Vec2<T>& v2)
+Vec2f FromAngleVec2f(float radians)
 {
-	float dx = static_cast<float>(v1.x) - static_cast<float>(v2.x);
-	float dy = static_cast<float>(v1.y) - static_cast<float>(v2.y);
-	return std::sqrt(dx * dx + dy * dy);
+	return { cosf(radians), sinf(radians) };
 }
 
-template<class T>
-Vec2<T> ClampMax(const Vec2<T>& v, const Vec2<T>& max)
+Vec2d FromAngleVec2d(double radians)
 {
-	Vec2 result = v;
-	if (v.x > max.x) result.x = max.x;
-	if (v.y > max.y) result.y = max.y;
-	return result;
-}
-
-inline Vec2<double> AngleVec2d(double radians)
-{
-	return { std::cos(radians), std::sin(radians) };
-}
-
-inline Vec2<float> AngleVec2f(float radians)
-{
-	return { std::cos(radians), std::sin(radians) };
+	return { cos(radians), sin(radians) };
 }

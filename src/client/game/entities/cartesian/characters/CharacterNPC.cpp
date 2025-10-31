@@ -7,8 +7,8 @@
 
 CharacterNPC::CharacterNPC(GameWorld *world,
 						   double max_health,
-						   const Vec2d& start_pos,
-						   const Vec2d& start_vel,
+						   const Vec2f& start_pos,
+						   const Vec2f& start_vel,
 						   NPCType npc_type,
 						   bool is_boss)
 	: Character(world,
@@ -38,7 +38,7 @@ void CharacterNPC::EventDeath()
 		m_World->EnemyKilled(KillerPlayer, this);
 
 	if (rand() % 100 <= 20)
-		new Crate(m_World, m_Core.Pos, DropType(rand() % 2));
+		new Crate(m_World, m_Core.pos, DropType(rand() % 2));
 
 	int num_npcs_alive = 0;
 	for (Entity *entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
@@ -76,69 +76,66 @@ void CharacterNPC::TickControls()
 		if (character == this || character->IsNPC())
 			continue;
 
-		auto& EntCore = character->GetDirectionalCore();
-		double Distance = DistanceVec2d(m_Core.Pos, EntCore.Pos);
-		if (Distance < 1000.0 && (!ClosestChar || Distance < Closest))
+		auto& core = character->GetDirectionalCore();
+		float distance = DistanceVec2f(m_Core.pos, core.pos);
+		if (distance < 1000.0 && (!ClosestChar || distance < Closest))
 		{
-			Closest = Distance;
+			Closest = distance;
 			ClosestChar = character;
 		}
 	}
 
-	m_Input.m_Shooting = false;
-	m_Input.m_NextItem = false;
+	input.shooting = false;
+	input.next_item = false;
 
 	if (!ClosestChar)
 	{
-		m_Input.m_GoingLength = 0.0;
-		m_Input.m_LookingLength = 1.0;
-		const double OneDegree = double(rand() % 10 - 5) / 180.0 * M_PI;
-		double Angle = std::atan2(m_Input.m_LookingY, m_Input.m_LookingX) + OneDegree;
-		m_Input.m_LookingX = cos(Angle);
-		m_Input.m_LookingY = sin(Angle);
-		m_Input.m_Shooting = false;
+//		input.m_GoingLength = 0.0;
+//		input.m_LookingLength = 1.0;
+		const float one_degree = static_cast<float>(rand() % 10 - 5) / 180.0f * static_cast<float>(M_PI);
+		float angle = input.looking_direction.Atan2F() + one_degree;
+		input.looking_direction = FromAngleVec2f(angle);
+//		double Angle = std::atan2(input.m_LookingY, input.m_LookingX) + OneDegree;
+//		input.m_LookingX = cos(Angle);
+//		input.m_LookingY = sin(Angle);
+		input.shooting = false;
 	}
 	else
 	{
 		EntityCore& ClosestCore = ClosestChar->GetCore();
-		double TravelX = ClosestCore.Pos.x - m_Core.Pos.x;
-		double TravelY = ClosestCore.Pos.y - m_Core.Pos.y;
-		m_Input.m_GoingLength = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
-		m_Input.m_GoingX = TravelX / m_Input.m_GoingLength * (m_CurrentWeapon ? 1 : 0.5);
-		m_Input.m_GoingY = TravelY / m_Input.m_GoingLength * (m_CurrentWeapon ? 1 : 0.5);
-		m_Input.m_LookingLength = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
-		m_Input.m_LookingX = TravelX / m_Input.m_GoingLength;
-		m_Input.m_LookingY = TravelY / m_Input.m_GoingLength;
+		Vec2f travel_direction = (ClosestCore.pos - m_Core.pos).Normalize();
+		input.going_direction = travel_direction * (m_CurrentWeapon ? 1.0f : 0.5f);
+		input.looking_direction = travel_direction;
 
-		m_Input.m_Reloading = false;
+		input.reloading = false;
 
 		if (!m_CurrentWeapon)
 		{
-			m_Input.m_NextItem = true;
+			input.next_item = true;
 			if (CurrentTick - m_Hands.LastFisted() > 20)
-				m_Input.m_Shooting = true;
+				input.shooting = true;
 		}
 		else
 		{
 			if (Closest <= 300.0)
-				m_Input.m_GoingLength = 0.0;
+				input.going_direction = Vec2f(0.0f, 0.0f);
 
 			if (!m_CurrentWeapon->GetMagAmmo())
 			{
 				if (m_CurrentWeapon->GetTrueAmmo())
 				{
-					m_Input.m_Reloading = true;
+					input.reloading = true;
 				}
 				else
 				{
-					m_Input.m_NextItem = true;
+					input.next_item = true;
 				}
 			}
 			else
 			{
 				if (m_CurrentWeapon->IsAutomatic() || CurrentTick - m_CurrentWeapon->LastShot() > (unsigned long long)((double(m_CurrentWeapon->TickCooldown()) - 1500.0 / Closest) * 10))
 				{
-					m_Input.m_Shooting = true;
+					input.shooting = true;
 				}
 			}
 		}

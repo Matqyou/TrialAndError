@@ -6,16 +6,22 @@
 
 struct EntityCore
 {
-    Vec2d Pos, Size, Vel;
-    double BaseDamping{ }, sizeRatio{ };
+    Vec2f pos, size, vel;
+    float base_damping, size_ratio;
+
+	EntityCore()
+	{
+		base_damping = 0.0f;
+		size_ratio = 0.0f;
+	}
 
     // Manipulating
-    void Accelerate(double x, double y);
+    void Accelerate(const Vec2f& impulse);
 };
 
 struct DirectionalEntityCore : public EntityCore
 {
-    Vec2d Direction;
+    Vec2f direction;
 
     DirectionalEntityCore() : EntityCore() { }
 };
@@ -23,7 +29,7 @@ struct DirectionalEntityCore : public EntityCore
 struct HasHealth
 {
 protected:
-    const Entity& m_Parent;
+    const Entity& m_Parent; // todo: very bad what the heck
     Entity *m_LastDamager;
     unsigned long long m_CombatTick;
 
@@ -75,16 +81,16 @@ protected:
     const bool m_HasHealthComponent;
 
     virtual void TickUpdateLastCore();
-    virtual void TickVelocity();
+    virtual void TickVelocity(double seconds_elapsed);
     virtual void TickWalls();
 
 public:
     Entity(GameWorld *world,
            EntityFormFactor form_factor,
            EntityType entity_type,
-           const Vec2d& start_pos,
-           const Vec2d& start_size,
-           const Vec2d& start_vel,
+           const Vec2f& start_pos,
+           const Vec2f& start_size,
+           const Vec2f& start_vel,
            double base_damping,
            bool has_health_component,
            double max_health = 1.0);
@@ -104,14 +110,14 @@ public:
     [[nodiscard]] HasHealth& HealthComponent() { return m_HealthComponent; }
 
     // Generating
-    [[nodiscard]] bool PointCollides(const Vec2d& point) const;
+    [[nodiscard]] bool PointCollides(const Vec2f& point) const;
     [[nodiscard]] virtual const char *toString() const;
 
     // Manipulating
-    void Accelerate(const Vec2d& direction);
+    void Accelerate(const Vec2f& direction);
 
     // Ticking
-    virtual void Tick();
+    virtual void Tick(double elapsed_seconds);
     virtual void Draw();
 };
 
@@ -126,10 +132,10 @@ protected:
 public:
     DirectionalEntity(GameWorld *world,
                       EntityType entity_type,
-                      const Vec2d& start_pos,
-                      const Vec2d& start_size,
-                      const Vec2d& start_vel,
-                      const Vec2d& start_direction,
+                      const Vec2f& start_pos,
+                      const Vec2f& start_size,
+                      const Vec2f& start_vel,
+                      const Vec2f& start_direction,
                       double base_damping,
                       bool has_health_component,
                       double max_health = 1.0);

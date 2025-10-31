@@ -3,7 +3,7 @@
 #pragma once
 
 #include "client/game/ui/menus/base/FullscreenMenu.h"
-#include "client/game/GameWorld.h"
+//#include "client/game/GameWorld.h"
 #include "SDL3/SDL.h"
 
 class Player;

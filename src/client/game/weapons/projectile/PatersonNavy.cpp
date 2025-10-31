@@ -11,8 +11,8 @@ static LinkTexture sTextureProjectile("entity.projectile.paterson_navy");
 static LinkSound sShootSound("weapon.paterson_navy.shoot");
 static LinkSound sClickSound("weapon.paterson_navy.fail_reload");
 static LinkSound sReloadSound("weapon.paterson_navy.reload");
-Vec2d PatersonNavy::sHoldPosition(10.0, 0.0);
-std::pair<Vec2d, Vec2d> PatersonNavy::sHandPositions = {{ 5.0, -5.0 }, { 10.0, 2.0 }};
+Vec2f PatersonNavy::sHoldPosition(10.0, 0.0);
+std::pair<Vec2f, Vec2f> PatersonNavy::sHandPositions = {{ 5.0, -5.0 }, { 10.0, 2.0 }};
 
 PatersonNavy::PatersonNavy(DirectionalEntity *parent)
 	: ProjectileWeapon(parent,
@@ -56,18 +56,18 @@ void PatersonNavy::Tick()
 			m_LastShotAt = CurrentTick;
 			sShootSound.GetSound()->PlaySound();
 
-			Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
+			Vec2f ProjectileVelocity = ShooterCore.direction * m_ProjectileSpeed;
 			new Projectile(World,
 						   m_Parent,
 						   WEAPON_GLOCK,
 						   sTextureProjectile.GetTexture(),
 						   m_Damage,
-						   ShooterCore.Pos,
+						   ShooterCore.pos,
 						   ProjectileVelocity);
 
-			double recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ? m_RecoilForce * 3.0
-																								   : m_RecoilForce;
-			Vec2d recoil_acceleration = ShooterCore.Direction * -recoil;
+			float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
+						   m_RecoilForce * 3.0f : m_RecoilForce;
+			Vec2f recoil_acceleration = ShooterCore.direction * -recoil;
 			m_Parent->Accelerate(recoil_acceleration);
 		}
 		else

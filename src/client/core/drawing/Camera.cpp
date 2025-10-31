@@ -11,13 +11,13 @@ Camera::Camera()
 	zoom = 1.0;
 }
 
-Camera::Camera(Vec2f start_pos)
+Camera::Camera(const Vec2f& start_pos)
 {
 	pos = start_pos;
 	zoom = 1.0;
 }
 
-Camera::Camera(Vec2f start_pos, double start_zoom)
+Camera::Camera(const Vec2f& start_pos, float start_zoom)
 {
 	pos = start_pos;
 	zoom = start_zoom;
@@ -28,30 +28,48 @@ Camera::~Camera()
 
 }
 
-float Camera::DetranslateX(float x) const
+float Camera::CameraToScreenX(float x) const
 {
-	return (x - Application.GetWidth2()) / zoom + pos.x;
+	return (x - static_cast<float>(Application.GetWidth2())) / zoom + pos.x;
 }
 
-float Camera::DetranslateY(float y) const
+float Camera::CameraToScreenY(float y) const
 {
-	return (y - Application.GetHeight2()) / zoom + pos.y;
+	return (y - static_cast<float>(Application.GetHeight2())) / zoom + pos.y;
 }
 
-float Camera::TranslateX(float x) const
+float Camera::ScreenToCameraX(float x) const
 {
-	return (x - pos.x) * zoom + Application.GetWidth2();
+	return (x - pos.x) * zoom + static_cast<float>(Application.GetWidth2());
 }
 
-float Camera::TranslateY(float y) const
+float Camera::ScreenToCameraY(float y) const
 {
-	return (y - pos.y) * zoom + Application.GetHeight2();
+	return (y - pos.y) * zoom + static_cast<float>(Application.GetHeight2());
 }
 
-SDL_FRect Camera::TranslateRect(const SDL_FRect& rect) const
+//template <class T>
+//Vec2f Camera::CameraToScreenPoint(Vec2<T> point) const
+//{
+//	return {
+//		CameraToScreenX(point.x),
+//		CameraToScreenY(point.y)
+//	};
+//}
+//
+//template <class T>
+//Vec2f Camera::ScreenToCameraPoint(Vec2<T> point) const
+//{
+//	return {
+//		ScreenToCameraX(point.x),
+//		ScreenToCameraY(point.y)
+//	};
+//}
+
+SDL_FRect Camera::ScreenToCameraRect(const SDL_FRect& rect) const
 {
-	return { float(TranslateX(rect.x)),
-			 float(TranslateY(rect.y)),
+	return { float(ScreenToCameraX(rect.x)),
+			 float(ScreenToCameraY(rect.y)),
 			 float(rect.w * zoom),
 			 float(rect.h * zoom) };
 }

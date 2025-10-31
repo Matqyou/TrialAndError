@@ -14,8 +14,8 @@ private:
 	double m_Damage;
 
 public:
-	static Vec2d sHoldPosition;
-	static std::pair<Vec2d, Vec2d> sHandPositions;
+	static Vec2f sHoldPosition;
+	static std::pair<Vec2f, Vec2f> sHandPositions;
 
 	explicit WeaponSniper(DirectionalEntity *parent);
 

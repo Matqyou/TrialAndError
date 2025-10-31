@@ -33,7 +33,7 @@ ApplicationClass::ApplicationClass()
 void ApplicationClass::Initialize(const char *title,
 								  const char *version,
 								  const char *identifier,
-								  const Vec2i& resolution,
+								  const Vec2i& window_resolution,
 								  double framerate, double idle_framerate,
 								  const char *renderer_backend)
 {
@@ -94,8 +94,9 @@ void ApplicationClass::Initialize(const char *title,
 
 	PrintVersions();
 
-	this->resolution = resolution;
-	window = SDL_CreateWindow(title, resolution.x, resolution.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+	resolution = window_resolution;
+	half_resolution = Vec2f(window_resolution) / 2.f;
+	window = SDL_CreateWindow(title, window_resolution.x, window_resolution.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 	if (!window)
 		throw std::runtime_error(Strings::FString("Error while creating the window %s\n", SDL_GetError()));
 
@@ -156,6 +157,14 @@ ApplicationClass::~ApplicationClass()
 	Destroy();
 }
 
+Vec2f ApplicationClass::GetMousePosition() const
+{
+	Vec2f position;
+	SDL_GetMouseState(&position.x, &position.y);
+
+	return position;
+}
+
 void ApplicationClass::HandleEvent(const SDL_Event& sdl_event, EventContext& event_context)
 {
 	switch (sdl_event.type)
@@ -164,6 +173,7 @@ void ApplicationClass::HandleEvent(const SDL_Event& sdl_event, EventContext& eve
 		{
 			resolution.x = sdl_event.window.data1;
 			resolution.y = sdl_event.window.data2;
+			half_resolution = Vec2f(resolution) / 2.f;
 			break;
 		}
 	}

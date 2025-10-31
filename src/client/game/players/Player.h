@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <client/game/world/GameWorld.h>
-#include <client/game/interface/LevelUpMenu.h>
 #include <client/game/players/classes/PlayerClass.h>
-#include <string>
-#include <unordered_map>
-#include "GameWorld.h"
+//#include <client/game/interface/LevelUpMenu.h>
 #include "client/game/powerups/PowerupManager.h"
+#include <client/game/world/GameWorld.h>
+
+#include <unordered_map>
+#include <string>
 #include <string>
 #include <queue>
 
@@ -30,7 +30,7 @@ private:
 	GameWorld *m_GameWorld;
 	Character *m_Character;
 	PlayerClass *m_Class;
-	LevelupMenu *m_LevelUpMenu;
+//	LevelupMenu *m_LevelUpMenu;
 	std::string m_Username;
 	unsigned int m_Index;
 
@@ -51,7 +51,7 @@ public:
 	[[nodiscard]] Character *GetCharacter() const { return m_Character; }
 	[[nodiscard]] std::string GetUsername() const { return m_Username; }
 	[[nodiscard]] unsigned int GetIndex() const { return m_Index; }
-	[[nodiscard]] LevelupMenu *GetLevelUpMenu() const { return m_LevelUpMenu; }
+//	[[nodiscard]] LevelupMenu *GetLevelUpMenu() const { return m_LevelUpMenu; }
 	[[nodiscard]] TextSurface *GetNamePlate() const { return m_NamePlate; }
 //	[[nodiscard]] std::queue<LevelUpMenu *> GetLevelUpMenuQueue() const { return m_levelUpMenuQueue; }
 	[[nodiscard]] unsigned int GetXP() const { return m_XP; }

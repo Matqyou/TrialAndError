@@ -15,7 +15,7 @@
 #include <client/game/error/effect/ErrorSlowdown.h>
 #include <client/game/error/effect/ErrorSpiky.h>
 #include <client/game/error/effect/ErrorTeleport.h>
-#include <client/game/interface/Interface.h>
+#include <client/game/ui/Interface.h>
 
 struct ErrorFrame
 {

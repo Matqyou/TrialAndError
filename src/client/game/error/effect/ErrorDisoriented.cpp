@@ -8,7 +8,7 @@ LinkTexture sTextureDisoriented("icons.disoriented");
 
 ErrorDisoriented::ErrorDisoriented(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,
-						ErrorType::DISORIANTED,
+						ErrorType::DISORIENTED,
 						"Disoriented",
 						sTextureDisoriented.GetTexture(),
 						1500)

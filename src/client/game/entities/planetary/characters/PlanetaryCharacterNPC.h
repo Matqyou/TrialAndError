@@ -12,12 +12,17 @@ protected:
     PlanetaryCoords m_PlanetaryPos;
 
 public:
-    PlanetaryCharacterNPC(PlanetaryGameWorld *planetaryWorld, const Vec2d &pos);
-    virtual ~PlanetaryCharacterNPC() override = default;
+    PlanetaryCharacterNPC(PlanetaryGameWorld *planetaryWorld, const Vec2f &pos);
+    ~PlanetaryCharacterNPC() override = default;
 
-    void SetPlanetaryWorld(PlanetaryWorld *world) { m_PlanetaryWorld = world; }
-    void SetPlanetaryPosition(const PlanetaryCoords &coords) { m_PlanetaryPos = coords; }
-    const PlanetaryCoords &GetPlanetaryPos() const { return m_PlanetaryPos; }
+	// Getting
+	[[nodiscard]] const PlanetaryCoords &GetPlanetaryPos() const { return m_PlanetaryPos; }
 
-    void Tick() override;
+	// Setting
+	void SetPlanetaryWorld(PlanetaryWorld *world) { m_PlanetaryWorld = world; }
+	void SetPlanetaryPosition(const PlanetaryCoords &coords) { m_PlanetaryPos = coords; }
+
+	// Ticking
+    void Tick(double seconds_elapsed) override;
+
 };

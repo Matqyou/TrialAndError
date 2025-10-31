@@ -5,7 +5,6 @@
 #pragma once
 
 #include <client/core/AssetsManager.h>
-#include <client/core/Drawing.h>
 
 class TextSurface
 {

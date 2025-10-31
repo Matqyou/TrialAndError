@@ -3,8 +3,6 @@
 
 #include "Interface.h"
 #include <client/game/entities/cartesian/Planet.h>
-#include <client/GameData.h>
-#include "SDL.h"
 
 class PlanetEnterMenu : public InterfaceElement
 {
@@ -21,9 +19,10 @@ public:
 
 private:
     Planet *m_ActivePlanet{nullptr};
-    SDL_Rect m_PopupRect{};
-    SDL_Rect m_PopupStartButton{};
-    SDL_Rect m_PopupCancelButton{};
+    SDL_FRect m_PopupRect{};
+    SDL_FRect m_PopupStartButton{};
+    SDL_FRect m_PopupCancelButton{};
     bool m_PopupStartHover{false};
     bool m_PopupCancelHover{false};
+
 };

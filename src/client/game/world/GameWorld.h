@@ -4,13 +4,14 @@
 
 #pragma once
 
-#include <client/GameData.h>
-#include <client/core/GameControllers.h>
+#include <client/game/ui/menus/pause/PauseMenu.h>
 #include <client/game/indicators/TextSurface.h>
 #include <client/game/collision/TileMap.h>
-#include <shared/Protocol.h>
-#include <client/ui/Particles.h>
-#include <client/game/interface/PauseMenu.h>
+#include <client/core/GameControllers.h>
+#include <client/game/ui/Particles.h>
+//#include <client/GameData.h>
+#include <client/Protocol.h>
+
 #include <shared/utility/Vec2.h>
 #include <chrono>
 
@@ -29,7 +30,7 @@ protected:
 	LevelUpMenu *m_LevelUpMenu;
 	TileMap *m_Tiles;
 	Particles *m_Particles;
-	double m_Width, m_Height;
+	float m_Width, m_Height;
 	double m_ShowNamesVisibility;
 	bool m_ShowNames;
 	bool m_Paused;
@@ -39,7 +40,7 @@ protected:
 	std::vector<Entity *> entities;
 	std::vector<Entity *> entities_by_types[NUM_ENTITY_TYPES];
 	unsigned long long m_CurrentTick;
-	std::vector<std::tuple<Vec2d, Vec2d, double>> m_Stars;
+	std::vector<std::tuple<Vec2f, Vec2f, float>> m_Stars;
 
 	bool m_TestingMode; // Waves paused
 
@@ -48,8 +49,8 @@ protected:
 	int m_BackgroundW{ }, m_BackgroundH{ };
 
 	// Death screen UI
-	SDL_Rect m_DeathPanelRect{};
-	SDL_Rect m_DeathBackButtonRect{};
+	SDL_FRect m_DeathPanelRect{};
+	SDL_FRect m_DeathBackButtonRect{};
 	bool m_DeathBackHover{false};
 
 	unsigned long long m_LastWave;
@@ -59,22 +60,22 @@ protected:
 	unsigned int m_Score;
 	TextSurface *m_ScoreText;
 
-	void TickCamera(double elapsed_seconds);
-	void TickSpawner(double elapsed_seconds);
-	void TickEntities(double elapsed_seconds);
-	void TickDestroy();
-	void TickBackground();
+	virtual void TickCamera(double elapsed_seconds);
+	virtual void TickSpawner(double elapsed_seconds);
+	virtual void TickEntities(double elapsed_seconds);
+	virtual void TickDestroy(double seconds_elapsed);
+	virtual void TickBackground(double seconds_elapsed);
 
 public:
 	GameWorld(int width, int height);
-	~GameWorld();
+	virtual ~GameWorld();
 
 	// Getting
 //	[[nodiscard]] PauseMenu *Menu() const { return m_PauseMenu; }
 //	[[nodiscard]] LevelUpMenu *LvlMenu() const { return m_LevelUpMenu; }
 	[[nodiscard]] Particles *GetParticles() const { return m_Particles; };
-	[[nodiscard]] double GetWidth() const { return m_Width; }
-	[[nodiscard]] double GetHeight() const { return m_Height; }
+	[[nodiscard]] float GetWidth() const { return m_Width; }
+	[[nodiscard]] float GetHeight() const { return m_Height; }
 	[[nodiscard]] double GetNamesShown() const { return m_ShowNamesVisibility < 0.1 ? 0.0 : m_ShowNamesVisibility; }
 	[[nodiscard]] bool GameOver() const { return m_GameOver; }
 	[[nodiscard]] unsigned long long GetTick() const { return m_CurrentTick; }
@@ -110,8 +111,8 @@ public:
 	void RemoveEntity(Entity *entity);
 
 	// Ticking
-	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_context);
-	void Tick(double elapsed_seconds);
-	void Draw();
+	virtual void HandleEvent(const SDL_Event& sdl_event, EventContext& event_context);
+	virtual void Tick(double elapsed_seconds);
+	virtual void Draw();
 
 };

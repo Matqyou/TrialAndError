@@ -40,8 +40,8 @@ public:
 	ItemEntity(GameWorld *world,
 			   ItemType item_type,
 			   Entity *dropper,
-			   const Vec2d& start_pos,
-			   const Vec2d& start_size);
+			   const Vec2f& start_pos,
+			   const Vec2f& start_size);
 
 	// Setting
 	void SetRotation(double rotation);

@@ -4,22 +4,22 @@
 #include <cmath>
 #include <iostream>
 
-LoadedTexture AmmoBox::sTextureGlock("entity.ammo_box.glock");
-LoadedTexture AmmoBox::sTextureShotgun("entity.ammo_box.shotgun");
-LoadedTexture AmmoBox::sTextureBurst("entity.ammo_box.burst");
-LoadedTexture AmmoBox::sTextureMinigun("entity.ammo_box.minigun");
-LoadedTexture AmmoBox::sTextureSniper("entity.ammo_box.sniper");
+LinkTexture AmmoBox::sTextureGlock("entity.ammo_box.glock");
+LinkTexture AmmoBox::sTextureShotgun("entity.ammo_box.shotgun");
+LinkTexture AmmoBox::sTextureBurst("entity.ammo_box.burst");
+LinkTexture AmmoBox::sTextureMinigun("entity.ammo_box.minigun");
+LinkTexture AmmoBox::sTextureSniper("entity.ammo_box.sniper");
 
 AmmoBox::AmmoBox(GameWorld *world,
                  AmmoType type,
-                 const Vec2d& start_pos,
+                 const Vec2f& start_pos,
                  unsigned int AmmoCount)
     : Entity(world,
              NORMAL_ENTITY,
              AMMO_BOX_ENTITY,
              start_pos,
-             Vec2d(40, 28),
-             Vec2d(0.0, 0.0),
+             Vec2f(40, 28),
+             Vec2f(0.0, 0.0),
              0.95,
              false)
 {
@@ -34,32 +34,34 @@ AmmoBox::AmmoBox(GameWorld *world,
 }
 void AmmoBox::TickPickup()
 {
-    auto Char = m_World->FirstCharacter();
-    for (; Char; Char = (Character *)(Char->NextType()))
+    auto characters = m_World->GetEntitiesByType(CHARACTER_ENTITY);
+    for (Entity* entity : characters)
     {
-        EntityCore& CharCore = Char->GetCore();
-        double Distance = DistanceVec2d(m_Core.Pos, CharCore.Pos);
+		Character* character = (Character*)entity;
+        EntityCore& CharCore = character->GetCore();
 
-        if (Distance > m_Core.sizeRatio + Char->GetCore().sizeRatio) continue;
+        float Distance = DistanceVec2f(m_Core.pos, CharCore.pos);
+        if (Distance > m_Core.size_ratio + character->GetCore().size_ratio)
+			continue;
 
-        Char->AmmoPickup(this);
+        character->AmmoPickup(this);
     }
 }
 
-unsigned int AmmoBox::TakeAmmo(unsigned int request)
+unsigned int AmmoBox::TakeAmmo(unsigned int amount)
 {
-    if (request > m_AmmoCount)
-        request = m_AmmoCount;
+    if (amount > m_AmmoCount)
+		amount = m_AmmoCount;
 
-    m_AmmoCount -= request;
-    return request;
+    m_AmmoCount -= amount;
+    return amount;
 }
 
-void AmmoBox::Tick()
+void AmmoBox::Tick(double elapsed_seconds)
 {
     TickPickup();
 
-    TickVelocity();
+    TickVelocity(elapsed_seconds);
     TickWalls();
 
     if (m_AmmoCount <= 0) m_Alive = false;
@@ -67,12 +69,11 @@ void AmmoBox::Tick()
 
 void AmmoBox::Draw()
 {
-    Drawing *Render = m_World->GameWindow()->Render();
+    Drawing *drawing = Application.GetDrawing();
 
-    SDL_FRect DrawRect = { float(m_Core.Pos.x) - float(m_Core.Size.x / 2.0),
-                           float(m_Core.Pos.y) - float(m_Core.Size.y / 2.0),
-                           float(m_Core.Size.x),
-                           float(m_Core.Size.y) };
-
-    Render->RenderTextureFCamera(m_Texture->SDLTexture(), nullptr, DrawRect);
+    SDL_FRect DrawRect = { float(m_Core.pos.x) - float(m_Core.size.x / 2.0),
+                           float(m_Core.pos.y) - float(m_Core.size.y / 2.0),
+                           float(m_Core.size.x),
+                           float(m_Core.size.y) };
+    drawing->RenderTexture(m_Texture->SDLTexture(), nullptr, DrawRect, GameReference.GetCamera());
 }

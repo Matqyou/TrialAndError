@@ -12,8 +12,8 @@ static LinkTexture sTextureProjectile("entity.projectile.burst");
 static LinkSound sShootSound("weapon.burst.shoot");
 static LinkSound sClickSound("weapon.burst.fail_reload");
 static LinkSound sReloadSound("weapon.burst.reload");
-Vec2d WeaponBurst::sHoldPosition(5.0, 0.0);
-std::pair<Vec2d, Vec2d> WeaponBurst::sHandPositions = {{ 60.0, -3.0 }, { 20.0, 2.0 }};
+Vec2f WeaponBurst::sHoldPosition(5.0, 0.0);
+std::pair<Vec2f, Vec2f> WeaponBurst::sHandPositions = {{ 60.0, -3.0 }, { 20.0, 2.0 }};
 
 WeaponBurst::WeaponBurst(Character *owner)
 	: ProjectileWeapon(owner,
@@ -63,18 +63,18 @@ void WeaponBurst::Tick()
 				m_Ammo--;
 				sShootSound.GetSound()->PlaySound();
 
-				Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
+				Vec2f ProjectileVelocity = ShooterCore.direction * m_ProjectileSpeed;
 				new Projectile(World,
 							   m_Parent,
 							   WEAPON_BURST,
 							   sTextureProjectile.GetTexture(),
 							   m_Damage,
-							   ShooterCore.Pos,
+							   ShooterCore.pos,
 							   ProjectileVelocity);
 
-				double recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive()
-								? m_RecoilForce * 3.0 : m_RecoilForce;
-				Vec2d recoil_acceleration = ShooterCore.Direction * -recoil;
+				float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
+							   m_RecoilForce * 3.0f : m_RecoilForce;
+				Vec2f recoil_acceleration = ShooterCore.direction * -recoil;
 				m_Parent->Accelerate(recoil_acceleration);
 			}
 			else
@@ -97,18 +97,18 @@ void WeaponBurst::Tick()
 				m_LastShotAt = CurrentTick;
 				sShootSound.GetSound()->PlaySound();
 
-				Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
+				Vec2f ProjectileVelocity = ShooterCore.direction * m_ProjectileSpeed;
 				new Projectile(World,
 							   m_Parent,
 							   WEAPON_BURST,
 							   sTextureProjectile.GetTexture(),
 							   m_Damage,
-							   ShooterCore.Pos,
+							   ShooterCore.pos,
 							   ProjectileVelocity);
 
-				double recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive()
-								? m_RecoilForce * 3.0 : m_RecoilForce;
-				Vec2d recoil_acceleration = ShooterCore.Direction * -recoil;
+				float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
+							   m_RecoilForce * 3.0f : m_RecoilForce;
+				Vec2f recoil_acceleration = ShooterCore.direction * -recoil;
 				m_Parent->Accelerate(recoil_acceleration);
 			}
 			else

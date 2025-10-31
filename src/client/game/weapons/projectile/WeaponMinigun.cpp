@@ -17,8 +17,8 @@ static LinkTexture sTextureProjectile("entity.projectile.minigun");
 static LinkSound sShootSound("weapon.minigun.shoot");
 static LinkSound sClickSound("weapon.minigun.fail_reload");
 static LinkSound sReloadSound("weapon.minigun.reload");
-Vec2d WeaponMinigun::sHoldPosition(10.0, 0.0);
-std::pair<Vec2d, Vec2d> WeaponMinigun::sHandPositions = {{ 10.0, -15.0 }, { 17.0, 13.0 }};
+Vec2f WeaponMinigun::sHoldPosition(10.0, 0.0);
+std::pair<Vec2f, Vec2f> WeaponMinigun::sHandPositions = {{ 10.0, -15.0 }, { 17.0, 13.0 }};
 
 WeaponMinigun::WeaponMinigun(Character *owner)
 	: ProjectileWeapon(owner,
@@ -81,19 +81,19 @@ void WeaponMinigun::Tick()
 				m_LastShotAt = CurrentTick;
 				sShootSound.GetSound()->PlaySound();
 
-				double Angle = ShooterCore.Direction.Atan2() + GenerateSpreadAngle();
-				Vec2d ProjectileVelocity = AngleVec2d(Angle) * m_ProjectileSpeed;
+				float Angle = ShooterCore.direction.Atan2() + GenerateSpreadAngle();
+				Vec2f ProjectileVelocity = FromAngleVec2f(Angle) * m_ProjectileSpeed;
 				new Projectile(World,
 							   m_Parent,
 							   WEAPON_MINIGUN,
 							   sTextureProjectile.GetTexture(),
 							   m_Damage,
-							   ShooterCore.Pos,
+							   ShooterCore.pos,
 							   ProjectileVelocity);
 
-				double recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive()
-								? m_RecoilForce * 3.0 : m_RecoilForce;
-				Vec2d recoil_acceleration = ShooterCore.Direction * -recoil;
+				float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
+							   m_RecoilForce * 3.0f : m_RecoilForce;
+				Vec2f recoil_acceleration = ShooterCore.direction * -recoil;
 				m_Parent->Accelerate(recoil_acceleration);
 			}
 			else

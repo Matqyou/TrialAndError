@@ -1,20 +1,19 @@
 // CartesianGameWorld.cpp
 #include "CartesianGameWorld.h"
-#include <client/core/Assets.h>
-#include <client/game/entities/characters/character/Character.h>
-#include <client/core/Drawing.h>
-#include <client/game/world/planetary/PlanetaryGameWorld.h>
 #include <client/game/entities/planetary/characters/character/PlanetaryCharacter.h>
-#include <client/game/interface/PlanetEnterMenu.h>
+#include <client/game/entities/characters/character/Character.h>
+#include <client/game/world/planetary/PlanetaryGameWorld.h>
+#include <client/game/ui/PlanetEnterMenu.h>
+#include <client/core/Assets.h>
 
-CartesianGameWorld::CartesianGameWorld(GameData *game_window, int width, int height)
-    : GameWorld(game_window, width, height)
+CartesianGameWorld::CartesianGameWorld(int width, int height)
+    : GameWorld(width, height)
 {
     // Create some dummy planets in the world (with color)
-    m_Planets.push_back({Vec2d(width * 3, height * 4), 48, SDL_Color{120, 120, 255, 255}});
-    m_Planets.push_back({Vec2d(width * 5, height * 5), 48, SDL_Color{120, 120, 255, 255}});
-    m_Planets.push_back({Vec2d(width, height), 48, SDL_Color{120, 120, 255, 255}});
-    m_Planets.push_back({Vec2d(width * 0.7, height * 0.6), 64, SDL_Color{200, 160, 255, 255}});
+    m_Planets.push_back({Vec2f(width * 3, height * 4), 48, SDL_Color{120, 120, 255, 255}});
+    m_Planets.push_back({Vec2f(width * 5, height * 5), 48, SDL_Color{120, 120, 255, 255}});
+    m_Planets.push_back({Vec2f(width, height), 48, SDL_Color{120, 120, 255, 255}});
+    m_Planets.push_back({Vec2f(width * 0.7, height * 0.6), 64, SDL_Color{200, 160, 255, 255}});
 
     // Spawn Planet entities
     for (size_t i = 0; i < m_Planets.size(); ++i)
@@ -27,29 +26,29 @@ CartesianGameWorld::CartesianGameWorld(GameData *game_window, int width, int hei
     }
 
     // Create the interface menu for entering planets (inactive until opened)
-    m_PlanetEnterMenu = new PlanetEnterMenu(GameWindow()->GetInterface());
+    m_PlanetEnterMenu = new PlanetEnterMenu(GameReference.GetInterface());
 }
 
 CartesianGameWorld::~CartesianGameWorld()
 {
     for (auto *p : m_PlanetEntities)
         delete p;
+
     if (m_PlanetEnterMenu)
         delete m_PlanetEnterMenu;
 }
 
-void CartesianGameWorld::Tick()
+void CartesianGameWorld::Tick(double seconds_elapsed)
 {
-    GameWorld::Tick();
+    GameWorld::Tick(seconds_elapsed);
 
-    if (!FirstPlayer())
-        return;
-    Character *c = FirstPlayer()->GetCharacter();
-    if (!c)
+	auto player = players.front();
+    if (!player || !player->GetCharacter())
         return;
 
-    // Use the character's world position for proximity checks (not the camera target)
-    Vec2d ppos = c->GetCore().Pos;
+	// Use the character's world position for proximity checks (not the camera target)
+    Character *character = player->GetCharacter();
+    Vec2f character_pos = character->GetCore().pos;
 
     // If the interface menu is open, let it handle input/rendering; skip further checks
     if (m_PlanetEnterMenu && m_PlanetEnterMenu->IsActive())
@@ -59,8 +58,8 @@ void CartesianGameWorld::Tick()
     for (auto *p : m_PlanetEntities)
     {
         // Simple proximity check (same as Overworld): distance from player to planet center
-        Vec2d d = ppos - p->GetCore().Pos;
-        if (d.Length() < p->Radius() + 8)
+        Vec2f difference = character_pos - p->GetCore().pos;
+        if (difference.LengthF() < p->Radius() + 8.0f)
         {
             if (m_PlanetEnterMenu)
                 m_PlanetEnterMenu->Open(p);
@@ -71,16 +70,14 @@ void CartesianGameWorld::Tick()
 
 void CartesianGameWorld::Draw()
 {
-    Drawing *render = GameWindow()->Render();
-    SDL_Renderer *r = GameWindow()->Renderer();
-    render->SetColor(10, 10, 30, 255);
-    render->Clear();
+    Drawing *drawing = Application.GetDrawing();
+
+    drawing->SetColor(10, 10, 30, 255);
+    drawing->Clear();
 
     // Draw planets via their entities
     for (auto *pe : m_PlanetEntities)
-    {
         pe->Draw();
-    }
 
     // Draw rest via base (players, UI)
     GameWorld::Draw();

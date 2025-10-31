@@ -1,14 +1,14 @@
 // PlanetaryCharacter.h (moved to entities/planetary)
 #pragma once
 
-#include <cmath>
-#include <vector>
-#include "SDL.h"
-#include <shared/utility/Vec2.h>
-#include <client/core/Assets.h>
+#include <client/game/entities/cartesian/characters/character/Character.h>
 #include <client/game/world/planetary/PlanetaryGameWorld.h>
 #include <client/game/world/planetary/PlanetaryUtils.h>
-#include <client/game/entities/cartesian/characters/character/Character.h>
+#include <shared/utility/Vec2.h>
+#include <client/core/Assets.h>
+
+#include <cmath>
+#include <vector>
 
 // Enhanced Character with planetary movement
 class PlanetaryCharacter : public Character {
@@ -26,8 +26,8 @@ public:
     PlanetaryCharacter(PlanetaryGameWorld *planetary_world,
                        Player *player,
                        double max_health,
-                       const Vec2d& start_pos,
-                       const Vec2d& start_vel,
+                       const Vec2f& start_pos,
+                       const Vec2f& start_vel,
                        bool is_npc);
     // Planetary-specific getters
     PlanetaryWorld* GetPlanetaryWorld() const { return m_PlanetaryWorld; }
@@ -38,11 +38,11 @@ public:
     void SetPlanetaryPosition(const PlanetaryCoords& coords);
 
     // Movement utilities
-    Vec2d GetUpDirection() const;
-    Vec2d GetRightDirection() const;
+    Vec2f GetUpDirection() const;
+    Vec2f GetRightDirection() const;
 
     // Override base methods
     void Draw() override;
     void DrawNameplate() override;
-    void Tick() override;
+    void Tick(double seconds_elapsed) override;
 };

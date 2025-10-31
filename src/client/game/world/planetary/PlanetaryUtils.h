@@ -3,21 +3,21 @@
 
 #include <cmath>
 #include <vector>
-#include "SDL.h"
 #include <shared/utility/Vec2.h>
 #include <client/core/Assets.h>
-struct PlanetaryCoords {
-    double longitude;      // Radians: 0–2PI (wraps)
-    double latitude;       // Radians: -PI/2 to +PI/2 (clamped)
-    double planet_radius;  // Radius of the planet (e.g., 1000 units)
 
-    PlanetaryCoords(double lon = 0.0, double lat = 0.0, double r = 1000.0);
+struct PlanetaryCoords {
+    float longitude;      // Radians: 0–2PI (wraps)
+    float latitude;       // Radians: -PI/2 to +PI/2 (clamped)
+    float planet_radius;  // Radius of the planet (e.g., 1000 units)
+
+    PlanetaryCoords(float lon = 0.0, float lat = 0.0, float r = 1000.0);
 
     // Convert to cartesian XY (on a sphere) for rendering/physics
-    Vec2d ToCartesian() const;
+    Vec2f ToCartesian() const;
 
     // Convert from cartesian position to planetary coordinates
-    static PlanetaryCoords FromCartesian(const Vec2d& pos, double planet_radius);
+    static PlanetaryCoords FromCartesian(const Vec2f& pos, float planet_radius);
 
     // Normalize longitude to [0, 2*PI), clamp latitude to [-PI/2, PI/2]
     void NormalizeAngle();
@@ -25,8 +25,8 @@ struct PlanetaryCoords {
 
 // Planet configuration for different levels
 struct PlanetConfig {
-    double radius;
-    double atmosphere_height;
+    float radius;
+    float atmosphere_height;
     SDL_Color surface_color;
     SDL_Color atmosphere_color;
     const char* texture_path;
@@ -59,7 +59,7 @@ namespace PlanetaryUtils {
                        int screen_width, int screen_height, double zoom = 1.0);
     
     // Convert world coordinates to screen coordinates  
-    Vec2d WorldToScreen(const Vec2d& world_pos, const Vec2d& camera_pos,
+    Vec2d WorldToScreen(const Vec2f& world_pos, const Vec2f& camera_pos,
                        int screen_width, int screen_height, double zoom = 1.0);
     
     // Calculate optimal camera distance for planet

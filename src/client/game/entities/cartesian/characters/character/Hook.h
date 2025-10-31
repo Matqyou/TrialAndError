@@ -17,14 +17,14 @@ struct Hook
 	};
 
 	Character *m_Parent;
-	double m_x, m_y;
-	double m_xvel, m_yvel;
-	double m_MaxLength;
-	double m_HookTravelSpeed;
-	double m_WallDragForce;
-	double m_HookStrength;
-	double m_HookerInfluenceRatio;
-	double m_HookistInfluenceRatio;
+	Vec2f pos;
+	Vec2f vel;
+	float m_MaxLength;
+	float m_HookTravelSpeed;
+	float m_WallDragForce;
+	float m_HookStrength;
+	float m_HookerInfluenceRatio;
+	float m_HookistInfluenceRatio;
 	bool m_Deployed;
 	int m_Grabbed;
 	Entity *m_GrabbedEntity;

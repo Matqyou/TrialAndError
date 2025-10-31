@@ -32,7 +32,7 @@ void Drawing::DrawRect(const SDL_FRect& rect, bool fill)
 
 void Drawing::DrawRect(const SDL_FRect& rect, bool fill, const Camera& camera)
 {
-	SDL_FRect MovedRect = camera.TranslateRect(rect);
+	SDL_FRect MovedRect = camera.ScreenToCameraRect(rect);
 	if (fill)
 		SDL_RenderFillRect(m_Renderer, &MovedRect);
 	else
@@ -73,8 +73,8 @@ void Drawing::DrawLine(const Vec2f& start, const Vec2f& end)
 
 void Drawing::DrawLine(const Vec2f& start, const Vec2f& end, const Camera& camera)
 {
-	SDL_RenderLine(m_Renderer, camera.TranslateX(start.x), camera.TranslateY(start.y),
-				   camera.TranslateX(end.x), camera.TranslateY(end.y));
+	SDL_RenderLine(m_Renderer, camera.ScreenToCameraX(start.x), camera.ScreenToCameraY(start.y),
+				   camera.ScreenToCameraX(end.x), camera.ScreenToCameraY(end.y));
 }
 
 void Drawing::DrawLine(const Vec2f& start, const Vec2f& end, float size, SDL_FColor color)
@@ -128,7 +128,7 @@ void Drawing::RenderTexture(SDL_Texture *texture, SDL_FRect *srcrect, const SDL_
 
 void Drawing::RenderTexture(SDL_Texture *texture, SDL_FRect *srcrect, const SDL_FRect& dstrect, const Camera& camera)
 {
-	SDL_FRect MovedRect = camera.TranslateRect(dstrect);
+	SDL_FRect MovedRect = camera.ScreenToCameraRect(dstrect);
 	SDL_RenderTexture(m_Renderer, texture, srcrect, &MovedRect);
 }
 
@@ -145,7 +145,7 @@ void Drawing::RenderTextureRotated(SDL_Texture *texture,
 								   double angle, SDL_FPoint *center,
 								   SDL_FlipMode flip, const Camera& camera)
 {
-	SDL_FRect MovedRect = camera.TranslateRect(dstrect);
+	SDL_FRect MovedRect = camera.ScreenToCameraRect(dstrect);
 	SDL_RenderTextureRotated(m_Renderer, texture, srcrect, &MovedRect, angle, center, flip);
 }
 

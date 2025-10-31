@@ -5,13 +5,14 @@
 #include "client/game/powerups/PowerupManager.h"
 #include "client/game/ui/menus/Menus.h"
 #include "client/game/GameReference.h"
-#include "client/core/Application.h"
+//#include "client/core/Application.h"
 #include "client/game/ui/CommonUI.h"
-#include "client/game/Player.h"
+//#include "client/game/players/Player.h"
 #include "LevelupMenu.h"
+
 #include <cstdlib>
 #include <vector>
-#include <ctime>
+//#include <ctime>
 
 LevelupMenu::LevelupMenu()
 {

@@ -17,15 +17,15 @@ private:
 	SDL_Color m_Color;
 	unsigned long long m_LastFisted;
 	unsigned long long m_LastFistedL, m_LastFistedR;
-	const double m_FistingAnimationDuration;
-	double m_FistingRadius, m_BaseFistingRadius;
+	const float m_FistingAnimationDuration;
+	float m_FistingRadius, m_BaseFistingRadius;
 
-	Vec2d m_LeftHand;
-	Vec2d m_RightHand;
+	Vec2f m_LeftHand;
+	Vec2f m_RightHand;
 	double m_Size, m_Size2;
 
 public:
-	Hands(Character *parent, double fist_animation_duration);
+	Hands(Character *parent, float fist_animation_duration);
 	~Hands();
 
 	// Getting

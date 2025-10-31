@@ -5,7 +5,6 @@
 #pragma once
 
 #include <shared/utility/Colors.h>
-#include <client/core/Drawing.h>
 
 class TileMap;
 struct Tile

@@ -26,8 +26,8 @@ protected:
 public:
 	CharacterNPC(GameWorld *world,
 				 double max_health,
-				 const Vec2d& start_pos,
-				 const Vec2d& start_vel,
+				 const Vec2f& start_pos,
+				 const Vec2f& start_vel,
 				 NPCType npc_type,
 				 bool is_boss);
 	~CharacterNPC() override;

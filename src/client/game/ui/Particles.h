@@ -4,19 +4,19 @@
 
 #pragma once
 
-#include <client/core/Drawing.h>
+#include <client/core/Assets.h>
 #include <shared/utility/Vec2.h>
 
 struct Particle
 {
 	Texture *m_Texture;
-	Vec2d m_Position;
-	Vec2d m_Size;
-	Vec2d m_Vel;
-	double m_VelDamping;
-	double m_Orientation;
-	double m_OrientationVel;
-	double m_OrientationVelDamping;
+	Vec2f m_Position;
+	Vec2f m_Size;
+	Vec2f m_Vel;
+	float m_VelDamping;
+	float m_Orientation;
+	float m_OrientationVel;
+	float m_OrientationVelDamping;
 	unsigned long long m_Lifetime;
 	bool m_Active;
 
@@ -31,13 +31,13 @@ struct Particle
 		m_Active = false;
 	}
 	Particle(Texture *texture,
-			 const Vec2d& pos,
-			 const Vec2d& size,
-			 const Vec2d& vel,
-			 double vel_damping,
-			 double orientation,
-			 double orientation_vel,
-			 double orientation_vel_damping,
+			 const Vec2f& pos,
+			 const Vec2f& size,
+			 const Vec2f& vel,
+			 float vel_damping,
+			 float orientation,
+			 float orientation_vel,
+			 float orientation_vel_damping,
 			 unsigned long long lifetime)
 	{
 		m_Texture = texture;
@@ -62,11 +62,12 @@ class GameWorld;
 class Particles
 {
 private:
+	GameWorld *world;
 	Particle m_Particles[1024];
 	size_t m_CreateParticleIndex;
 
 public:
-	Particles();
+	Particles(GameWorld *parent_world);
 
 	// Manipulating
 	bool PlayParticle(Particle particle);

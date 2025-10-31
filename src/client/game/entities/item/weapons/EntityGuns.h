@@ -20,8 +20,8 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntityGlock(GameWorld *world, Entity *dropper, WeaponGlock *glock, const Vec2d& start_pos);
-	~EntityGlock();
+	EntityGlock(GameWorld *world, Entity *dropper, WeaponGlock *glock, const Vec2f& start_pos);
+	~EntityGlock() override;
 
 };
 
@@ -32,7 +32,7 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntityShotgun(GameWorld *world, Entity *dropper, WeaponShotgun *shotgun, const Vec2d& start_pos);
+	EntityShotgun(GameWorld *world, Entity *dropper, WeaponShotgun *shotgun, const Vec2f& start_pos);
 	~EntityShotgun();
 };
 
@@ -44,7 +44,7 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntityBurst(GameWorld *world, Entity *dropper, WeaponBurst *burst, const Vec2d& start_pos);
+	EntityBurst(GameWorld *world, Entity *dropper, WeaponBurst *burst, const Vec2f& start_pos);
 	~EntityBurst();
 };
 
@@ -56,7 +56,7 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntitySniper(GameWorld *world, Entity *dropper, WeaponSniper *sniper, const Vec2d& start_pos);
+	EntitySniper(GameWorld *world, Entity *dropper, WeaponSniper *sniper, const Vec2f& start_pos);
 	~EntitySniper();
 };
 
@@ -68,7 +68,7 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntityMinigun(GameWorld *world, Entity *dropper, WeaponMinigun *minigun, const Vec2d& start_pos);
+	EntityMinigun(GameWorld *world, Entity *dropper, WeaponMinigun *minigun, const Vec2f& start_pos);
 	~EntityMinigun();
 };
 
@@ -80,7 +80,7 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntityPatersonNavy(GameWorld *world, Entity *dropper, PatersonNavy *paterson_navy, const Vec2d& start_pos);
+	EntityPatersonNavy(GameWorld *world, Entity *dropper, PatersonNavy *paterson_navy, const Vec2f& start_pos);
 	~EntityPatersonNavy();
 
 };

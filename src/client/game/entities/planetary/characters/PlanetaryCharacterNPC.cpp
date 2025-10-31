@@ -6,8 +6,8 @@
 #include <shared/utility/Vec2.h>
 #include <iostream>
 
-PlanetaryCharacterNPC::PlanetaryCharacterNPC(PlanetaryGameWorld *planetaryWorld, const Vec2d &pos)
-    : CharacterNPC((GameWorld *)planetaryWorld, 100.0, pos, Vec2d(0,0), NPC_DUMMY, false)
+PlanetaryCharacterNPC::PlanetaryCharacterNPC(PlanetaryGameWorld *planetaryWorld, const Vec2f &pos)
+    : CharacterNPC((GameWorld *)planetaryWorld, 100.0, pos, Vec2f(0.0f,0.0f), NPC_DUMMY, false)
 {
     if (planetaryWorld && planetaryWorld->GetCurrentPlanet()) {
         m_PlanetaryWorld = planetaryWorld->GetCurrentPlanet();
@@ -16,10 +16,10 @@ PlanetaryCharacterNPC::PlanetaryCharacterNPC(PlanetaryGameWorld *planetaryWorld,
     }
 }
 
-void PlanetaryCharacterNPC::Tick()
+void PlanetaryCharacterNPC::Tick(double seconds_elapsed)
 {
     if (!m_PlanetaryWorld) {
-        Character::Tick();
+        Character::Tick(seconds_elapsed);
         return;
     }
 
@@ -33,8 +33,8 @@ void PlanetaryCharacterNPC::Tick()
 
     m_PlanetaryPos = pc;
     // sync core pos so base logic has a sensible pos for rendering/collision
-    m_Core.Pos = m_PlanetaryPos.ToCartesian();
+    m_Core.pos = m_PlanetaryPos.ToCartesian();
 
     // call Character::Tick to process health, weapons, etc.
-    Character::Tick();
+    Character::Tick(seconds_elapsed);
 }

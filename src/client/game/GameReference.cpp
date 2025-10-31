@@ -9,9 +9,6 @@
 #include "client/game/entities/item/weapons/EntityGuns.h"
 #include "client/game/ui/menus/class_select/ClassSelectMenu.h"
 #include "client/game/ui/menus/class_select/GamemodeMenu.h"
-#include "client/game/entities/Projectile.h"
-#include "client/game/entities/Crate.h"
-#include "client/game/entities/Error.h"
 #include "client/game/ui/CommonUI.h"
 #include "client/core/Assets.h"
 
@@ -49,6 +46,14 @@ void GameData::ExitApplication()
 //{
 //	m_ClassSelectMenus.pop_back();
 //}
+
+void GameData::SetWorld(GameWorld *new_world, bool delete_old)
+{
+	if (delete_old)
+		DeleteWorld();
+
+	world = new_world;
+}
 
 void GameData::DeleteWorld()
 {
@@ -105,21 +110,21 @@ void GameData::InitializeSandbox()
 
 	for (int y = 0; y < 5; y++)
 		for (int x = 0; x < 5; x++)
-			new Crate(world, Vec2d(200 + 50 * x, 200 + 50 * y), DropType(rand() % 2));
+			new Crate(world, Vec2f(200 + 50 * x, 200 + 50 * y), DropType(rand() % 2));
 
 	for (int x = 0; x < NUM_ERROR_TYPES; x++)
-		new Error(world, Vec2d(50 + 50 * x, world->GetHeight() - 50), ErrorType(x));
+		new Error(world, Vec2f(50.0f + 50.0f * static_cast<float>(x), world->GetHeight() - 50.0f), (ErrorType)x);
 
 	for (int x = 0; x < NUM_AMMO_TYPES; x++)
-		new AmmoBox(world, AmmoType(x), Vec2d(50 + 50 * x, world->GetHeight() - 100), 1000);
+		new AmmoBox(world, AmmoType(x), Vec2f(50.0f + 50.0f * static_cast<float>(x), world->GetHeight() - 100.0f), 1000);
 
-	double WeaponsY = world->GetHeight() - 150;
-	new EntityGlock(world, nullptr, nullptr, Vec2d(100, WeaponsY));
-	new EntityShotgun(world, nullptr, nullptr, Vec2d(200, WeaponsY));
-	new EntityBurst(world, nullptr, nullptr, Vec2d(300, WeaponsY));
-	new EntityMinigun(world, nullptr, nullptr, Vec2d(400, WeaponsY));
-	new EntitySniper(world, nullptr, nullptr, Vec2d(500, WeaponsY));
-	new EntityPatersonNavy(world, nullptr, nullptr, Vec2d(600, WeaponsY));
+	float WeaponsY = world->GetHeight() - 150;
+	new EntityGlock(world, nullptr, nullptr, Vec2f(100, WeaponsY));
+	new EntityShotgun(world, nullptr, nullptr, Vec2f(200, WeaponsY));
+	new EntityBurst(world, nullptr, nullptr, Vec2f(300, WeaponsY));
+	new EntityMinigun(world, nullptr, nullptr, Vec2f(400, WeaponsY));
+	new EntitySniper(world, nullptr, nullptr, Vec2f(500, WeaponsY));
+	new EntityPatersonNavy(world, nullptr, nullptr, Vec2f(600, WeaponsY));
 
 //	auto Player1 = new Player(world, "Keyboard", m_PendingPlayerClasses[0]);
 //	auto Char1 = new Character(world,

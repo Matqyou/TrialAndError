@@ -3,19 +3,20 @@
 //
 
 #include "GameWorld.h"
-#include <client/game/players/Player.h>
-#include <client/game/entities/cartesian/Entity.h>
 #include <client/game/entities/cartesian/characters/character/Character.h>
 #include <client/game/entities/cartesian/characters/CharacterNPC.h>
 #include <client/game/world/planetary/PlanetaryGameWorld.h>
+#include <client/game/entities/cartesian/Entity.h>
+#include <client/game/players/Player.h>
 #include "client/game/ui/CommonUI.h"
+
 #include <cmath>
 
 GameWorld::GameWorld(int width, int height)
 {
 //	m_PauseMenu = new PauseMenu();
 //	m_LevelUpMenu = nullptr;
-	m_Particles = new Particles(); //
+	m_Particles = new Particles(this); //
 	m_Tiles = new TileMap(32, width, height);
 	m_Width = m_Tiles->TotalWidth();
 	m_Height = m_Tiles->TotalHeight();
@@ -129,9 +130,13 @@ void GameWorld::InitPlayers()
 		auto new_player_class_object = PlayerClass::CreateClass(preferred_class_type);
 
 		auto new_player = new Player(this, default_username, new_player_class_object);
-		auto new_character = new Character(this, new_player, 100.0,
-										   Vec2d(32 * 17.5, 32 * 17.5), Vec2d(10, 10),
-										   false);
+		auto new_character = new Character(
+			this,
+			new_player,
+			100.0,
+			Vec2f(32 * 17.5, 32 * 17.5),
+			Vec2f(10, 10),
+			false);
 	}
 }
 
@@ -216,8 +221,8 @@ void GameWorld::HandleEvent(const SDL_Event& sdl_event, EventContext& event_cont
 		else if (sdl_event.key.scancode == SDL_SCANCODE_O)
 		{
 			m_Tiles->LoadTilemap("assets/tilemaps/test_level");
-			m_Width = m_Tiles->TotalWidth();
-			m_Height = m_Tiles->TotalHeight();
+			m_Width = static_cast<float>(m_Tiles->TotalWidth());
+			m_Height = static_cast<float>(m_Tiles->TotalHeight());
 		}
 		else if (sdl_event.key.scancode == SDL_SCANCODE_P)
 			m_Tiles->SaveTilemap("assets/tilemaps/test_level");
@@ -236,7 +241,7 @@ void GameWorld::TickCamera(double elapsed_seconds)
 		return;
 
 	bool FirstIteration = true;
-	double minX, maxX, minY, maxY;
+	float minX, maxX, minY, maxY;
 
 	for (Entity *entity : entities_by_types[CHARACTER_ENTITY])
 	{
@@ -249,21 +254,21 @@ void GameWorld::TickCamera(double elapsed_seconds)
 		if (FirstIteration)
 		{
 			FirstIteration = false;
-			minX = entity_core.Pos.x;
-			maxX = entity_core.Pos.x;
-			minY = entity_core.Pos.y;
-			maxY = entity_core.Pos.y;
+			minX = entity_core.pos.x;
+			maxX = entity_core.pos.x;
+			minY = entity_core.pos.y;
+			maxY = entity_core.pos.y;
 		}
 		else
 		{
-			if (entity_core.Pos.x < minX)
-				minX = entity_core.Pos.x;
-			if (entity_core.Pos.x > maxX)
-				maxX = entity_core.Pos.x;
-			if (entity_core.Pos.y < minY)
-				minY = entity_core.Pos.y;
-			if (entity_core.Pos.y > maxY)
-				maxY = entity_core.Pos.y;
+			if (entity_core.pos.x < minX)
+				minX = entity_core.pos.x;
+			if (entity_core.pos.x > maxX)
+				maxX = entity_core.pos.x;
+			if (entity_core.pos.y < minY)
+				minY = entity_core.pos.y;
+			if (entity_core.pos.y > maxY)
+				maxY = entity_core.pos.y;
 		}
 	}
 
@@ -272,9 +277,9 @@ void GameWorld::TickCamera(double elapsed_seconds)
 
 		float CameraX = ((float)maxX + (float)minX) / 2.0f;
 		float CameraY = ((float)maxY + (float)minY) / 2.0f;
-		double ZoomX = Application.GetWidth() / (maxX - minX + 500);
-		double ZoomY = Application.GetHeight() / (maxY - minY + 500);
-		double Zoom = std::min(ZoomX, ZoomY);
+		float ZoomX = static_cast<float>(Application.GetWidth()) / (maxX - minX + 500);
+		float ZoomY = static_cast<float>(Application.GetHeight()) / (maxY - minY + 500);
+		float Zoom = std::min(ZoomX, ZoomY);
 
 		auto& camera = GameReference.GetCamera();
 		auto old_camera_pos = camera.GetPos();
@@ -282,7 +287,7 @@ void GameWorld::TickCamera(double elapsed_seconds)
 									old_camera_pos.y + 0.1f * (CameraY - old_camera_pos.y));
 		camera.SetPos(new_camera_pos);
 
-		double old_camera_zoom = camera.GetZoom();
+		float old_camera_zoom = camera.GetZoom();
 		camera.SetZoom(old_camera_zoom + 0.1 * (Zoom - old_camera_zoom));
 	}
 }
@@ -302,35 +307,39 @@ void GameWorld::TickSpawner(double elapsed_seconds)
 	m_ScoreText->SetText(msg);
 	m_ScoreText->FlagForUpdate();
 
-	double Width2 = m_Width / 2.0;
-	double Height2 = m_Height / 2.0;
+	float Width2 = m_Width / 2.0f;
+	float Height2 = m_Height / 2.0f;
 
 	// Boss every 10 rounds
 	if (m_Round % 10 == 0)
 	{
-		double Angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
-		Vec2d SpawnPos = Vec2d(Width2 + std::cos(Angle) * Width2, Height2 + std::sin(Angle) * Height2);
-		auto NewNPC = new CharacterNPC(this,
-									   200.0 + m_Round * 10.0,
-									   SpawnPos,
-									   Vec2d(0.0, 0.0),
-									   NPC_TURRET,
-									   true);
+		float angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
+		Vec2f SpawnPos = Vec2f(Width2 + std::cos(angle) * Width2, Height2 + std::sin(angle) * Height2);
+		auto NewNPC = new CharacterNPC(
+			this,
+			200.0 + m_Round * 10.0,
+			SpawnPos,
+			Vec2f(0.0, 0.0),
+			NPC_TURRET,
+			true
+		);
 		NewNPC->GiveWeapon(new WeaponMinigun(nullptr));
 	}
 
 	// Wave enemies
 	for (int i = 0; i < m_NumEnemiesPerWave; i++)
 	{
-		double Angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
-		Vec2d SpawnPos = Vec2d(Width2 + std::cos(Angle) * Width2, Height2 + std::sin(Angle) * Height2);
+		float angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
+		Vec2f SpawnPos = Vec2f(Width2 + std::cos(angle) * Width2, Height2 + std::sin(angle) * Height2);
 		double Health = std::pow(m_Round, 1.0 / 3) * 10.0;
-		auto NewNPC = new CharacterNPC(this,
-									   Health,
-									   SpawnPos,
-									   Vec2d(0.0, 0.0),
-									   NPC_TURRET,
-									   false);
+		auto NewNPC = new CharacterNPC(
+			this,
+			Health,
+			SpawnPos,
+			Vec2f(0.0, 0.0),
+			NPC_TURRET,
+			false
+		);
 
 		int Weaponizer = rand() % 100;
 		if (m_Round >= 15)
@@ -364,38 +373,35 @@ void GameWorld::TickEntities(double elapsed_seconds)
 		entity->Tick(elapsed_seconds);
 }
 
-void GameWorld::TickDestroy()
+void GameWorld::TickDestroy(double seconds_elapsed)
 {
-	std::vector<Entity*> to_delete;
-	for (Entity* entity : entities)
+	std::vector<Entity *> to_delete;
+	for (Entity *entity : entities)
 	{
 		if (!entity->IsAlive())
 			to_delete.push_back(entity);
 	}
 
 	// Delete them (this will call RemoveEntity for each)
-	for (Entity* entity : to_delete)
+	for (Entity *entity : to_delete)
 		delete entity;
 }
 
-void GameWorld::TickBackground()
+void GameWorld::TickBackground(double seconds_elapsed)
 {
 	for (int i = 0; i < 3; i++)
 	{
-		auto random_position = Vec2d(rand() % m_GameWindow->GetWidth(), rand() % m_GameWindow->GetHeight());
-		auto duration = 1500.0;
-		m_Stars.emplace_back(random_position, Vec2d(0.0, 0.0), duration);
+		auto random_position = Vec2f(rand() % Application.GetWidth(), rand() % Application.GetHeight());
+		float duration = 1500.0f;
+		m_Stars.emplace_back(random_position, Vec2f(0.0, 0.0), duration);
 	}
 
-	Vec2i MousePosition;
-	SDL_GetMouseState(&MousePosition.x, &MousePosition.y);
-	auto MousePositionD = Vec2d(MousePosition.x, MousePosition.y);
-
+	Vec2f mouse_poition = Application.GetMousePosition();
 	for (int i = m_Stars.size() - 1; i >= 0; --i)
 	{
-		auto &[position, velocity, duration] = m_Stars[i];
+		auto& [position, velocity, duration] = m_Stars[i];
 
-		auto direction = position - MousePositionD;
+		Vec2f direction = position - mouse_poition;
 		double distance = direction.Length();
 		velocity += direction.Normalize() / distance * 0.15;
 		velocity.x += (sin((position.x + position.y * 2) / 50)) * 0.0015;
@@ -404,10 +410,10 @@ void GameWorld::TickBackground()
 
 		position.x += velocity.x;
 		position.y += velocity.y;
-		if (position.x > m_GameWindow->GetWidth())
-			position.x -= m_GameWindow->GetWidth();
-		if (position.y > m_GameWindow->GetHeight())
-			position.y -= m_GameWindow->GetHeight();
+		if (position.x > Application.GetWidth())
+			position.x -= Application.GetWidth();
+		if (position.y > Application.GetHeight())
+			position.y -= Application.GetHeight();
 
 		duration -= 1;
 		if (duration <= 0.0)
@@ -425,11 +431,11 @@ void GameWorld::Tick(double elapsed_seconds)
 
 	TickSpawner(elapsed_seconds);
 	TickEntities(elapsed_seconds);
-	TickDestroy();
+	TickDestroy(elapsed_seconds);
 
 	m_Particles->Tick();
 	TickCamera(elapsed_seconds);
-	TickBackground();
+	TickBackground(elapsed_seconds);
 
 	m_CurrentTick++;
 }
@@ -444,7 +450,7 @@ void GameWorld::Draw()
 	drawing->SetColor(200, 200, 200, 255);
 	for (int i = m_Stars.size() - 1; i >= 0; --i)
 	{
-		auto &[position, velocity, duration] = m_Stars[i];
+		auto& [position, velocity, duration] = m_Stars[i];
 
 		auto size = (int)duration / 750.0;
 		for (int j = 0; j < size; j++)
@@ -461,9 +467,9 @@ void GameWorld::Draw()
 	// Stop drawing when the game has been triggered as over
 	if (!m_GameOver)
 	{
-		SDL_Rect DrawRect = {0, 0, int(m_Width), int(m_Height)};
+		SDL_FRect DrawRect = { 0, 0, m_Width, m_Height };
 		drawing->SetColor(100, 100, 100, 255);
-		drawing->DrawRectCamera(DrawRect);
+		drawing->DrawRect(DrawRect, false, GameReference.GetCamera());
 
 		m_Particles->Draw();
 		for (auto& entities_by_type : entities_by_types)
@@ -474,9 +480,9 @@ void GameWorld::Draw()
 
 	// Draw the score value
 	Texture *ScoreTexture = m_ScoreText->RequestUpdate();
-	int ScoreWidth = int(ScoreTexture->GetWidth() * 2.5);
-	int ScoreHeight = int(ScoreTexture->GetHeight() * 2.5);
-	SDL_Rect ScoreRect = {0, int(Application.GetHeight() - ScoreHeight), ScoreWidth, ScoreHeight};
+	float ScoreWidth = ScoreTexture->GetWidth() * 2.5f;
+	float ScoreHeight = ScoreTexture->GetHeight() * 2.5f;
+	SDL_FRect ScoreRect = { 0, Application.GetHeight() - ScoreHeight, ScoreWidth, ScoreHeight };
 	if (!m_GameOver)
 	{
 		drawing->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
@@ -485,72 +491,76 @@ void GameWorld::Draw()
 	{
 		// Render a semi-opaque dark overlay
 		drawing->SetColor(0, 0, 0, 200);
-		SDL_Rect full = {0, 0, m_GameWindow->GetWidth(), m_GameWindow->GetHeight()};
+		SDL_FRect full = { 0, 0, (float)Application.GetWidth(), (float)Application.GetHeight() };
 		SDL_RenderFillRect(drawing->Renderer(), &full);
 
 		// Panel dimensions
-		int pw = (int)(m_GameWindow->GetWidth() * 0.6);
-		int ph = (int)(m_GameWindow->GetHeight() * 0.6);
-		int px = (m_GameWindow->GetWidth() - pw) / 2;
-		int py = (m_GameWindow->GetHeight() - ph) / 2;
-		m_DeathPanelRect = {px, py, pw, ph};
+		float pw = (Application.GetWidth() * 0.6);
+		float ph = (Application.GetHeight() * 0.6);
+		float px = (Application.GetWidth() - pw) / 2;
+		float py = (Application.GetHeight() - ph) / 2;
+		m_DeathPanelRect = { px, py, pw, ph };
 
 		// Panel background
 		drawing->SetColor(20, 20, 30, 230);
-		SDL_RenderFillRect(renderer, &m_DeathPanelRect);
+		drawing->DrawRect(m_DeathPanelRect, true);
+//		SDL_RenderFillRect(renderer, &m_DeathPanelRect);
 
 		// Title: You Died
 		drawing->SetColor(220, 40, 40, 255);
-		TextSurface titleTex(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), "You Died", {220, 40, 40});
+		TextSurface titleTex(CommonUI::fontDefault, "You Died", { 220, 40, 40 });
 		Texture *tTex = titleTex.RequestUpdate();
-		int tw = tTex->GetWidth() * 3;
-		int th = tTex->GetHeight() * 3;
-		SDL_Rect titleRect = {px + (pw - tw) / 2, py + 20, tw, th};
+		float tw = tTex->GetWidth() * 3.0f;
+		float th = tTex->GetHeight() * 3.0f;
+		SDL_FRect titleRect = { px + (pw - tw) / 2.0f, py + 20, tw, th };
 		drawing->RenderTexture(tTex->SDLTexture(), nullptr, titleRect);
 
 		// Stats: Score + Playtime
 		drawing->SetColor(200, 200, 200, 255);
 		char buf[256];
 		std::snprintf(buf, sizeof(buf), "Score: %u", m_Score);
-		TextSurface scoreLine(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), buf, {200, 200, 200});
+		TextSurface scoreLine(CommonUI::fontDefault, buf, { 200, 200, 200 });
 		Texture *sLineTex = scoreLine.RequestUpdate();
-		SDL_Rect sRect = {px + 40, py + 100, (int)(sLineTex->GetWidth() * 2.0), (int)(sLineTex->GetHeight() * 2.0)};
+		SDL_FRect sRect = { px + 40, py + 100, sLineTex->GetWidth() * 2.0f, sLineTex->GetHeight() * 2.0f };
 		drawing->RenderTexture(sLineTex->SDLTexture(), nullptr, sRect);
 
 		// Playtime: if Clock exists
 		double seconds = 0.0;
-		if (m_GameWindow->Timer())
-			seconds = (double)m_CurrentTick / std::max(1.0, (double)m_GameWindow->Timer()->GetFramerate());
+//		if (m_GameWindow->Timer())
+		seconds = (double)m_CurrentTick / std::max(1.0, (double)Application.GetClock()->GetFramerate());
 		int mins = (int)seconds / 60;
 		int secs = (int)seconds % 60;
 		std::snprintf(buf, sizeof(buf), "Playtime: %02d:%02d", mins, secs);
-		TextSurface timeLine(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), buf, {200, 200, 200});
+		TextSurface timeLine(CommonUI::fontDefault, buf, { 200, 200, 200 });
 		Texture *tLineTex = timeLine.RequestUpdate();
-		SDL_Rect tRect = {px + 40, py + 140, (int)(tLineTex->GetWidth() * 2.0), (int)(tLineTex->GetHeight() * 2.0)};
+		SDL_FRect tRect = { px + 40, py + 140, tLineTex->GetWidth() * 2.0f, tLineTex->GetHeight() * 2.0f };
 		drawing->RenderTexture(tLineTex->SDLTexture(), nullptr, tRect);
 
 		// Additional stats could go here (kills, accuracy, etc.) if you track them.
 
 		// Back to Menu button
-		int buttonWidth = 300;
-		int buttonHeight = 80;
-		int buttonX = px + (pw - buttonWidth) / 2;
-		int buttonY = py + ph - buttonHeight - 40;
-		m_DeathBackButtonRect = {buttonX, buttonY, buttonWidth, buttonHeight};
+		float buttonWidth = 300.0f;
+		float buttonHeight = 80.0f;
+		float buttonX = px + (pw - buttonWidth) / 2.0f;
+		float buttonY = py + ph - buttonHeight - 40.0f;
+		m_DeathBackButtonRect = { buttonX, buttonY, buttonWidth, buttonHeight };
 
 		// Button background
 		if (m_DeathBackHover)
 			drawing->SetColor(100, 200, 255, 255);
 		else
 			drawing->SetColor(80, 180, 230, 255);
-		SDL_RenderFillRect(renderer, &m_DeathBackButtonRect);
+		drawing->DrawRect(m_DeathBackButtonRect, true);
+//		SDL_RenderFillRect(renderer, &m_DeathBackButtonRect);
 
 		// Button text
-		TextSurface backTextSurface(m_GameWindow->Assetz(), m_GameWindow->Assetz()->TextHandler()->GetMainFont(), "Back to Menu", {10, 10, 10});
+		TextSurface backTextSurface(CommonUI::fontDefault, "Back to Menu", { 10, 10, 10 });
 		Texture *buttonTexture = backTextSurface.RequestUpdate();
-		SDL_Rect buttonTextRect = {buttonX + (buttonWidth - (int)(buttonTexture->GetWidth() * 1.5)) / 2,
-								   buttonY + (buttonHeight - (int)(buttonTexture->GetHeight() * 1.5)) / 2,
-								   (int)(buttonTexture->GetWidth() * 1.5), (int)(buttonTexture->GetHeight() * 1.5)};
+		SDL_FRect buttonTextRect = {
+			buttonX + (buttonWidth - buttonTexture->GetWidth() * 1.5f) / 2.0f,
+			buttonY + (buttonHeight - buttonTexture->GetHeight() * 1.5f) / 2.0f,
+			buttonTexture->GetWidth() * 1.5f, buttonTexture->GetHeight() * 1.5f
+		};
 		drawing->RenderTexture(buttonTexture->SDLTexture(), nullptr, buttonTextRect);
 	}
 }

@@ -30,6 +30,7 @@ protected:
 	Randomizer *randomizer;
 
 	Vec2i resolution;
+	Vec2f half_resolution;
 	static void PrintVersions();
 
 	Status status;
@@ -39,7 +40,7 @@ public:
 	void Initialize(const char *title,
 					const char *version,
 					const char *identifier,
-					const Vec2i& resolution,
+					const Vec2i& window_resolution,
 					double framerate, double idle_framerate,
 					const char *renderer_backend = nullptr);
 	void Destroy();
@@ -54,10 +55,13 @@ public:
 	[[nodiscard]] Randomizer *GetRandomizer() const { return randomizer; }
 
 	[[nodiscard]] Vec2i GetResolution() const { return resolution; }
+	[[nodiscard]] Vec2f GetHalfResolution() const { return half_resolution; }
 	[[nodiscard]] int GetWidth() const { return resolution.x; }
 	[[nodiscard]] int GetHeight() const { return resolution.y; }
 	[[nodiscard]] int GetWidth2() const { return resolution.x / 2; }
 	[[nodiscard]] int GetHeight2() const { return resolution.y / 2; }
+
+	[[nodiscard]] Vec2f GetMousePosition() const;
 
 	// Ticking
 	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_context);

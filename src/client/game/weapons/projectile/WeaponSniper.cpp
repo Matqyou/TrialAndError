@@ -11,8 +11,8 @@ static LinkTexture sTextureProjectile("entity.projectile.sniper");
 static LinkSound sShootSound("weapon.shotgun.shoot2");
 static LinkSound sClickSound("weapon.sniper.fail_reload");
 static LinkSound sReloadSound("weapon.sniper.reload");
-Vec2d WeaponSniper::sHoldPosition(1.0, 0.0);
-std::pair<Vec2d, Vec2d> WeaponSniper::sHandPositions = {{ 80.0, -3.0 }, { 20.0, 2.0 }};
+Vec2f WeaponSniper::sHoldPosition(1.0, 0.0);
+std::pair<Vec2f, Vec2f> WeaponSniper::sHandPositions = {{ 80.0, -3.0 }, { 20.0, 2.0 }};
 
 WeaponSniper::WeaponSniper(DirectionalEntity *parent)
 	: ProjectileWeapon(parent,
@@ -50,25 +50,25 @@ void WeaponSniper::Tick()
 		if (CurrentTick - m_LastShotAt <= m_TickCooldown)
 			return;
 
-		m_LastShot = m_Ammo == 1;
+		m_LastShot = (m_Ammo == 1);
 		if (m_Ammo)
 		{
 			m_Ammo--;
 			m_LastShotAt = CurrentTick;
 			sShootSound.GetSound()->PlaySound();
 
-			Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
+			Vec2f ProjectileVelocity = ShooterCore.direction * m_ProjectileSpeed;
 			new Projectile(World,
 						   m_Parent,
 						   WEAPON_SNIPER,
 						   sTextureProjectile.GetTexture(),
 						   m_Damage,
-						   ShooterCore.Pos,
+						   ShooterCore.pos,
 						   ProjectileVelocity);
 
-			double recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ? m_RecoilForce * 3.0
-																								   : m_RecoilForce;
-			Vec2d recoil_acceleration = ShooterCore.Direction * -recoil;
+			float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
+						   m_RecoilForce * 3.0f : m_RecoilForce;
+			Vec2f recoil_acceleration = ShooterCore.direction * -recoil;
 			m_Parent->Accelerate(recoil_acceleration);
 		}
 		else

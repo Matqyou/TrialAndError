@@ -37,8 +37,9 @@ void Particle::Draw() const
 	drawing->RenderTextureRotated(m_Texture->SDLTexture(), nullptr, rect, m_Orientation, nullptr, SDL_FLIP_NONE, GameReference.GetCamera());
 }
 
-Particles::Particles()
+Particles::Particles(GameWorld *parent_world)
 {
+	world = parent_world;
 	m_CreateParticleIndex = 0;
 
 	for (auto& particle : m_Particles)

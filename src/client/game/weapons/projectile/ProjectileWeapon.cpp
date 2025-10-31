@@ -9,28 +9,30 @@
 
 static LinkSound sNoAmmoSound("weapon.no_ammo");
 
-double ProjectileWeapon::GenerateSpreadAngle() const
+float ProjectileWeapon::GenerateSpreadAngle() const
 {
-	return (double(rand() % m_FullRandomSpread) - m_HalfRandomSpread) / m_RandomSpreadDivisor;
+	return (float(rand() % m_FullRandomSpread) - m_HalfRandomSpread) / m_RandomSpreadDivisor;
 }
 
-double ProjectileWeapon::GenerateRandomProjectileSpeed() const
+float ProjectileWeapon::GenerateRandomProjectileSpeed() const
 {
 	return m_ProjectileSpeed + ((rand() % m_FullRandomProjectileSpeed)
 		- m_NegativeRandomProjectileSpeed) / m_RandomProjectileSpeedDivisor;
 }
 
-ProjectileWeapon::ProjectileWeapon(DirectionalEntity *owner,
-								   WeaponType type,
-								   Texture *texture,
-								   Sound *reload_sound, // Has default
-								   Vec2d *hold_position, // Has default
-								   std::pair<Vec2d, Vec2d> *hand_positions, // Has default
-								   int tick_cooldown,
-								   int ammo_capacity,
-								   int total_ammo_capacity,
-								   double projectile_speed,
-								   bool automatic)
+ProjectileWeapon::ProjectileWeapon(
+	DirectionalEntity *owner,
+	WeaponType type,
+	Texture *texture,
+	Sound *reload_sound, // Has default
+	Vec2f *hold_position, // Has default
+	std::pair<Vec2f, Vec2f> *hand_positions, // Has default
+	int tick_cooldown,
+	int ammo_capacity,
+	int total_ammo_capacity,
+	double projectile_speed,
+	bool automatic
+)
 {
 	m_Parent = owner;
 	m_Type = type;
@@ -55,10 +57,10 @@ ProjectileWeapon::ProjectileWeapon(DirectionalEntity *owner,
 	m_Parent = nullptr;
 
 	// Defaults
-	m_ReloadSound = reload_sound == nullptr ? Assets.GetSound("weapon.default.reload") : reload_sound;
-	m_HoldPosition = hold_position == nullptr ? Vec2d(5.0, 0.0) : *hold_position;
-	m_LeftHandPosition = hand_positions == nullptr ? Vec2d(0, -10.0) : hand_positions->first;
-	m_RightHandPosition = hand_positions == nullptr ? Vec2d(0, 10.0) : hand_positions->second;
+	m_ReloadSound = (reload_sound == nullptr) ? Assets.GetSound("weapon.default.reload") : reload_sound;
+	m_HoldPosition = (hold_position == nullptr) ? Vec2f(5.0f, 0.0f) : *hold_position;
+	m_LeftHandPosition = (hand_positions == nullptr) ? Vec2f(0.0f, -10.0f) : hand_positions->first;
+	m_RightHandPosition = (hand_positions == nullptr) ? Vec2f(0.0f, 10.0f) : hand_positions->second;
 }
 
 void ProjectileWeapon::TickTrigger()
@@ -75,8 +77,8 @@ void ProjectileWeapon::TickTrigger()
 	}
 #endif
 
-	bool Shoot = ((Character *)(m_Parent))->m_Input.m_Shooting;
-	bool LastShoot = ((Character *)(m_Parent))->m_LastInput.m_Shooting;
+	bool Shoot = ((Character *)(m_Parent))->input.shooting;
+	bool LastShoot = ((Character *)(m_Parent))->m_LastInput.shooting;
 
 	m_Triggered = Shoot && !LastShoot;  // Always trigger on semi
 	if (!m_Triggered)

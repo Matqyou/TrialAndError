@@ -225,6 +225,10 @@ public:
 
 extern AssetsClass Assets;
 
+// when creating the LinkTexture object, it saves the key you provide
+//  and returns an object which can be retrieved with either *object
+//  or by using object.GetTexture() / object.GetSDLTexture()
+// the value is only assigned at startup
 class LinkTexture
 {
 private:
@@ -244,10 +248,7 @@ public:
 	// Getting
 	[[nodiscard]] const std::string& Key() const { return m_Key; }
 	[[nodiscard]] Texture *GetTexture() const { return m_Texture; } // todo: error handling
-	[[nodiscard]] SDL_Texture *GetSDLTexture() const
-	{ // todo: error handling
-		return m_Texture->SDLTexture();
-	}
+	[[nodiscard]] SDL_Texture *GetSDLTexture() const { return m_Texture->SDLTexture(); } // todo: error handling
 
 };
 

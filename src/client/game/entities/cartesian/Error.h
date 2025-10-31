@@ -5,7 +5,7 @@
 
 enum ErrorType {
     HEALERS_PARADISE,
-    DISORIANTED,
+    DISORIENTED,
     INVINCIBLE,
     DANGEROUS_RECOIL,
     SPIKY,
@@ -26,18 +26,18 @@ protected:
     void TickPickup(double x, double y);
 
 public:
-//    static LoadedTexture sTextureErrorDisorianted;
-//    static LoadedTexture sTextureErrorSpiky;
-//    static LoadedTexture sTextureErrorConfusingHP;
-//    static LoadedTexture sTextureErrorInvincible;
-//    static LoadedTexture sTextureErrorHealersParadise;
-//    static LoadedTexture sTextureErrorRanged;
-//    static LoadedTexture sTextureErrorSlowDown;
-//    static LoadedTexture sTextureErrorDangerousRecoil;
-//    static LoadedTexture sTextureMagicParticle;
-//    static LoadedSound ms_PickupSounds[7];
+    static LinkTexture sTextureErrorDisorianted;
+    static LinkTexture sTextureErrorSpiky;
+    static LinkTexture sTextureErrorConfusingHP;
+    static LinkTexture sTextureErrorInvincible;
+    static LinkTexture sTextureErrorHealersParadise;
+    static LinkTexture sTextureErrorRanged;
+    static LinkTexture sTextureErrorSlowDown;
+    static LinkTexture sTextureErrorDangerousRecoil;
+    static LinkTexture sTextureMagicParticle;
+    static LinkSound ms_PickupSounds[7];
 
-    Error(GameWorld* world, const Vec2d& start_pos, int typeID);
+    Error(GameWorld* world, const Vec2f& start_pos, int typeID);
 
     // Ticking
     void Tick(double elapsed_seconds) override;

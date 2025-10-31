@@ -6,22 +6,22 @@
 class Planet : public Entity
 {
 protected:
-    double m_Radius;
-    SDL_Color m_Color;
-    std::string m_TextureKey;
-    Texture *m_Texture{nullptr};
-    double m_Rotation = 0.0; // radians
+	float m_Radius;
+	SDL_Color m_Color;
+	std::string m_TextureKey;
+	Texture *m_Texture{ nullptr };
+	float m_Rotation = 0.0; // radians
 
 public:
-    void SetRotation(double r) { m_Rotation = r; }
-    [[nodiscard]] double Rotation() const { return m_Rotation; }
+	void SetRotation(float r) { m_Rotation = r; }
+	[[nodiscard]] float Rotation() const { return m_Rotation; }
 
 public:
-    Planet(GameWorld *world, const Vec2d &pos, double radius, SDL_Color color = {120,120,255,255}, const std::string &textureKey = "");
-    ~Planet() override;
+	Planet(GameWorld *world, const Vec2f& pos, float radius, SDL_Color color = { 120, 120, 255, 255 }, std::string texture_key = "");
+	~Planet() override;
 
-    [[nodiscard]] double Radius() const { return m_Radius; }
+	[[nodiscard]] float Radius() const { return m_Radius; }
 
-    void Tick() override;
-    void Draw() override;
+	void Tick(double elapsed_seconds) override;
+	void Draw() override;
 };

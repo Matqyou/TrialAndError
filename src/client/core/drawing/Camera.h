@@ -11,27 +11,45 @@ class Camera
 {
 private:
 	Vec2f pos;
-	double zoom;
+	float zoom;
 
 public:
 	Camera();
-	explicit Camera(Vec2f start_pos);
-	Camera(Vec2f start_pos, double start_zoom);
+	explicit Camera(const Vec2f& start_pos);
+	Camera(const Vec2f& start_pos, float start_zoom);
 	~Camera();
 
 	// Getting
 	[[nodiscard]] Vec2f GetPos() const { return pos; }
-	[[nodiscard]] double GetZoom() const { return zoom; }
+	[[nodiscard]] float GetZoom() const { return zoom; }
 
-	// Generating
-	float DetranslateX(float x) const;
-	float DetranslateY(float y) const;
-	float TranslateX(float x) const;
-	float TranslateY(float y) const;
-	SDL_FRect TranslateRect(const SDL_FRect& rect) const;
+	// Calculations
+	[[nodiscard]] float CameraToScreenX(float x) const;
+	[[nodiscard]] float CameraToScreenY(float y) const;
+	[[nodiscard]] float ScreenToCameraX(float x) const;
+	[[nodiscard]] float ScreenToCameraY(float y) const;
+
+	template <class T>
+	[[nodiscard]] Vec2f CameraToScreenPoint(Vec2<T> point) const
+	{
+		return {
+			CameraToScreenX(point.x),
+			CameraToScreenY(point.y)
+		};
+	}
+
+	template <class T>
+	[[nodiscard]] Vec2f ScreenToCameraPoint(Vec2<T> point) const
+	{
+		return {
+			ScreenToCameraX(point.x),
+			ScreenToCameraY(point.y)
+		};
+	}
+	[[nodiscard]] SDL_FRect ScreenToCameraRect(const SDL_FRect& rect) const;
 
 	// Manipulating
 	void SetPos(const Vec2f& new_pos) { pos = new_pos; }
-	void SetZoom(double new_zoom) { zoom = new_zoom; }
+	void SetZoom(float new_zoom) { zoom = new_zoom; }
 
 };

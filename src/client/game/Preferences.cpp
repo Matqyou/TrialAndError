@@ -3,7 +3,7 @@
 //
 
 #include "Preferences.h"
-#include "client/game/classes/PlayerClass.h"
+#include "client/game/players/classes/PlayerClass.h"
 
 Preferences::Preferences()
 {

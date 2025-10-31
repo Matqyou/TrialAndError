@@ -9,10 +9,8 @@
 Hook::Hook(Character *parent)
 {
 	m_Parent = parent;
-	m_x = 0.0;
-	m_y = 0.0;
-	m_xvel = 0.0;
-	m_yvel = 0.0;
+	pos = Vec2f(0.0f, 0.0f);
+	vel = Vec2f(0.0f, 0.0f);
 	m_MaxLength = 300.0;
 	m_HookTravelSpeed = 35.0;
 	m_WallDragForce = 0.55;
@@ -46,29 +44,25 @@ void Hook::Unhook()
 // Set the hook as grabbed to the wall
 void Hook::HookWall()
 {
-	m_xvel = 0.0;
-	m_yvel = 0.0;
+	vel = Vec2f(0.0f, 0.0f);
 	m_Grabbed = GRABBED_WALL;
 }
 
 void Hook::Tick(double elapsed_seconds)
 {
-	GameWorld *World = m_Parent->World();
-	bool Hooking = m_Parent->GetInput().m_Hooking;
-	bool LastHooking = m_Parent->GetLastInput().m_Hooking;
-	double LookX = m_Parent->GetInput().m_LookingX;
-	double LookY = m_Parent->GetInput().m_LookingY;
-	EntityCore& CharCore = m_Parent->GetCore();
+	GameWorld *world = m_Parent->World();
+	bool hooking = m_Parent->GetInput().hooking;
+	bool last_hooking = m_Parent->GetLastInput().hooking;
+	Vec2f looking_direction = m_Parent->GetInput().looking_direction;
+	EntityCore& character_core = m_Parent->GetCore();
 
-	if (!m_Deployed && Hooking && !LastHooking)
+	if (!m_Deployed && hooking && !last_hooking)
 	{
 		m_Deployed = true;
-		m_x = CharCore.Pos.x;
-		m_y = CharCore.Pos.y;
-		m_xvel = LookX * m_HookTravelSpeed;
-		m_yvel = LookY * m_HookTravelSpeed;
+		pos = character_core.pos;
+		vel = looking_direction * m_HookTravelSpeed;
 	}
-	else if (m_Deployed && !Hooking && LastHooking)
+	else if (m_Deployed && !hooking && last_hooking)
 	{  // Instant retraction for now
 		Unhook();
 	}
@@ -77,49 +71,40 @@ void Hook::Tick(double elapsed_seconds)
 		return;
 
 	if (m_Grabbed == GRABBED_NONE)
-	{
-		m_x += m_xvel;
-		m_y += m_yvel;
-	}
+		pos += vel;
 
-	double TravelX = m_x - CharCore.Pos.x;
-	double TravelY = m_y - CharCore.Pos.y;
-	double Length = std::sqrt(std::pow(TravelX, 2) + std::pow(TravelY, 2));
-	if (Length != 0.0)
-	{
-		TravelX /= Length;
-		TravelY /= Length;
-	}
+	Vec2f travel_direction = pos - character_core.pos;
+	float length = travel_direction.LengthF();
+	if (length != 0.0f)
+		travel_direction /= length;
 
 	if (m_Grabbed == GRABBED_NONE)
 	{
 		// Make sure hook isn't longer than it is allowed to be
-		if (Length > m_MaxLength)
+		if (length > m_MaxLength)
 		{
-			m_x = CharCore.Pos.x + TravelX * m_MaxLength;
-			m_y = CharCore.Pos.y + TravelY * m_MaxLength;
-			m_xvel -= TravelX * 2.0;
-			m_yvel -= TravelY * 2.0;
+			pos = character_core.pos + travel_direction * m_MaxLength;
+			vel -= travel_direction * 2.0f;
 		}
 
 		// Hook snaps to player - idk if its good or not cus i havent made it yet
-		for (Entity* entity : World->GetEntitiesByType(CHARACTER_ENTITY))
+		for (Entity *entity : world->GetEntitiesByType(CHARACTER_ENTITY))
 		{
-			auto character = (Character*)entity;
+			auto character = (Character *)entity;
 			if (character == m_Parent)
 				continue;
 
-			if (character->PointCollides(Vec2d(m_x, m_y)))
+			if (character->PointCollides(pos))
 			{
 				m_Grabbed = GRABBED_ENTITY;
 				m_GrabbedEntity = character;
 				break;
 			}
 		}
-		for (Entity* entity : World->GetEntitiesByType(CRATE_ENTITY))
+		for (Entity *entity : world->GetEntitiesByType(CRATE_ENTITY))
 		{
-			auto crate = (Crate*)entity;
-			if (crate->PointCollides(Vec2d(m_x, m_y)))
+			auto crate = (Crate *)entity;
+			if (crate->PointCollides(pos))
 			{
 				m_Grabbed = GRABBED_ENTITY;
 				m_GrabbedEntity = crate;
@@ -130,24 +115,24 @@ void Hook::Tick(double elapsed_seconds)
 		if (m_Grabbed == GRABBED_NONE)
 		{
 			// Hook snaps to wall - fix later cus ugly, prob fix when adding tiles and stuff cus doesnt rly matter tbh
-			if (m_x < 0.0)
+			if (pos.x < 0.0f)
 			{
-				m_x = 0.0;
+				pos.x = 0.0f;
 				HookWall();
 			}
-			else if (m_y < 0.0)
+			else if (pos.y < 0.0f)
 			{
-				m_y = 0.0;
+				pos.y = 0.0f;
 				HookWall();
 			}
-			else if (m_x > World->GetWidth())
+			else if (pos.x > world->GetWidth())
 			{
-				m_x = World->GetWidth();
+				pos.x = world->GetWidth();
 				HookWall();
 			}
-			else if (m_y > World->GetHeight())
+			else if (pos.y > world->GetHeight())
 			{
-				m_y = World->GetHeight();
+				pos.y = world->GetHeight();
 				HookWall();
 			}
 		}
@@ -155,33 +140,35 @@ void Hook::Tick(double elapsed_seconds)
 	else if (m_Grabbed == GRABBED_ENTITY)
 	{
 		EntityCore& GrabbedCore = m_GrabbedEntity->GetCore();
-		if (Length > m_MaxLength)
+		if (length > m_MaxLength)
 		{
-			double Slice = (Length - m_MaxLength) / 2;
-			GrabbedCore.Pos.x -= TravelX * Slice;
-			GrabbedCore.Pos.y -= TravelY * Slice;
-			CharCore.Pos.x += TravelX * Slice;
-			CharCore.Pos.y += TravelY * Slice;
+			float Slice = (length - m_MaxLength) / 2.0f;
+			Vec2f impulse = travel_direction * Slice;
+			GrabbedCore.pos -= impulse;
+			character_core.pos += impulse;
 		}
-		m_x = GrabbedCore.Pos.x;
-		m_y = GrabbedCore.Pos.y;
+		pos = GrabbedCore.pos;
+//		m_x = GrabbedCore.pos.x;
+//		m_y = GrabbedCore.pos.y;
 		if (m_GrabbedEntity->GetType() == CHARACTER_ENTITY)
 		{
-			auto Player = (Character *)(m_GrabbedEntity);
-			double Acceleration = m_HookStrength * Length / m_MaxLength * (1 - m_HookerInfluenceRatio);
-			double Influence = m_HookStrength * Length / m_MaxLength * m_HookerInfluenceRatio;
-			Player->Accelerate(Vec2d(TravelX, TravelY) * -Acceleration);
-			m_Parent->Accelerate(Vec2d(TravelX, TravelY) * Influence);
+			auto other = (Character *)m_GrabbedEntity;
+			float other_acceleration = m_HookStrength * length / m_MaxLength * (1 - m_HookerInfluenceRatio);
+			float self_influence = m_HookStrength * length / m_MaxLength * m_HookerInfluenceRatio;
+			other->Accelerate(travel_direction * -other_acceleration);
+			m_Parent->Accelerate(travel_direction * self_influence);
 		}
 	}
 	else if (m_Grabbed == GRABBED_WALL)
 	{
-		if (Length > m_MaxLength)
+		if (length > m_MaxLength)
 		{
-			CharCore.Pos.x = m_x + -TravelX * m_MaxLength;
-			CharCore.Pos.y = m_y + -TravelY * m_MaxLength;
+			character_core.pos = pos + travel_direction * -m_MaxLength;
+//			character_core.pos.x = m_x + -TravelX * m_MaxLength;
+//			character_core.pos.y = m_y + -TravelY * m_MaxLength;
 		}
-		CharCore.Vel.x += TravelX * m_WallDragForce;
-		CharCore.Vel.y += TravelY * m_WallDragForce;
+		character_core.vel += travel_direction * m_WallDragForce;
+//		character_core.vel.x += TravelX * m_WallDragForce;
+//		character_core.vel.y += TravelY * m_WallDragForce;
 	}
 }

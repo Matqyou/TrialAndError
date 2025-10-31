@@ -130,7 +130,7 @@ void ErrorStatuses::DrawIngame()
 	auto current_tick = GameReference.World()->GetTick();
 	auto directional = (DirectionalEntity *)m_Parent;
 	auto
-		parent_offset = directional->GetDirectionalCore().Pos + Vec2d(directional->GetDirectionalCore().sizeRatio, 0.0);
+		parent_offset = directional->GetDirectionalCore().pos + Vec2f(directional->GetDirectionalCore().size_ratio, 0.0);
 
 	auto effects_it = m_Effects.begin();
 	auto frames_it = m_Frames.Frames.begin();

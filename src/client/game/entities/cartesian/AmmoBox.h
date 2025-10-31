@@ -2,7 +2,6 @@
 #pragma once
 
 #include <client/game/entities/cartesian/Entity.h>
-#include "SDL.h"
 
 enum AmmoType
 {
@@ -25,24 +24,24 @@ protected:
     void TickPickup();
 
 public:
-    static LoadedTexture sTextureGlock;
-    static LoadedTexture sTextureShotgun;
-    static LoadedTexture sTextureBurst;
-    static LoadedTexture sTextureMinigun;
-    static LoadedTexture sTextureSniper;
+    static LinkTexture sTextureGlock;
+    static LinkTexture sTextureShotgun;
+    static LinkTexture sTextureBurst;
+    static LinkTexture sTextureMinigun;
+    static LinkTexture sTextureSniper;
 
     AmmoBox(GameWorld *world,
             AmmoType type,
-            const Vec2d& start_pos,
+            const Vec2f& start_pos,
             unsigned int AmmoCount);
 
     // Getting
     [[nodiscard]] AmmoType Type() const { return m_Type; }
 
     // Manipulating
-    unsigned int TakeAmmo(unsigned int request);
+    unsigned int TakeAmmo(unsigned int amount);
 
     // Ticking
-    void Tick() override;
+    void Tick(double elapsed_seconds) override;
     void Draw() override;
 };

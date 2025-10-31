@@ -20,7 +20,7 @@
 #include "client/game/ui/Interface.h"
 #include "client/game/Preferences.h"
 #include "client/core/Application.h"
-#include "client/game/GameWorld.h"
+#include "client/game/world/GameWorld.h"
 #include "shared/utility/Vec2.h"
 #include "client/core/Assets.h"
 #include "client/core/Clock.h"
@@ -63,11 +63,12 @@ public:
 //	void AddPlayerClassMenu();
 //	void AddPendingClass(PlayerClass *playerClass);
 //	void RemovePlayerClassMenu();
+	void SetWorld(GameWorld *new_world, bool delete_old = true);
 	void DeleteWorld();
 	void StartGame(Gamemode mode);
 	void InitializeSandbox();
 	void InitializeInfinite();
-	void InitializeLevelMode(int level);
+	void InitializeLevelMode(int level); // ?
 
 	// Ticking
 	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_context);

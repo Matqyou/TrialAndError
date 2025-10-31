@@ -17,17 +17,17 @@ protected:
     void TickWallCollision();
 
 public:
-    static LoadedTexture sTextureSpark;
-    static LoadedSound sMetalImpactSounds[2];
+    static LinkTexture sTextureSpark;
+    static LinkSound sMetalImpactSounds[2];
 
     Projectile(GameWorld *world,
                Entity *shooter,
                WeaponType weapon_type,
                Texture *projectile_texture,
                double damage,
-               const Vec2d& start_pos,
-               const Vec2d& start_vel);
+               const Vec2f& start_pos,
+               const Vec2f& start_vel);
 
-    void Tick() override;
+    void Tick(double seconds_elapsed) override;
     void Draw() override;
 };

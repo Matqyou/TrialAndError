@@ -16,20 +16,15 @@
 #endif
 
 #include <client/game/entities/cartesian/characters/CharacterNPC.h>
-#include <client/game/indicators/TextSurface.h>
 #include <client/game/entities/cartesian/Projectile.h>
-#include <client/game/interface/PauseMenu.h>
-#include <client/game/interface/MainMenu.h>
-#include <client/core/TextManager.h>
 #include <client/game/entities/cartesian/AmmoBox.h>
-#include "GameData.h"
-#include "game/entities/characters/CharacterNPC.h"
-#include "client/game/ui/menus/Menus.h"
-#include "client/game/GameReference.h"
-#include "client/utility/Debugging.h"
-#include "game/entities/Projectile.h"
-#include "client/core/TextManager.h"
-#include "client/Protocol.h"
+#include <client/game/indicators/TextSurface.h>
+#include <client/game/ui/menus/Menus.h>
+#include <client/game/GameReference.h>
+#include <client/utility/Debugging.h>
+#include <client/core/TextManager.h>
+#include <client/Protocol.h>
+
 #include <SDL3/SDL_main.h>
 #include <iostream>
 #include <cstdlib>
@@ -130,12 +125,14 @@ int main()
 	Menus.InitMenus();
 	Menus.main_menu->SwitchToThisMenu();
 
-	Texture *Vignette = Assets.GetTexture("backgrounds.vignette")
+	Texture *Vignette = Assets.GetTexture("backgrounds.vignette");
 	if (Vignette)
 		Vignette->SetAlphaMod(200);
 
-	MainMenu mainMenu(&GameReference);
-	mainMenu.InitialShow();
+	MainMenu mainMenu;
+	mainMenu.SwitchToThisMenu();
+//	GameReference.Get
+//	mainMenu.InitialShow();
 
 //	PauseMenu *PauseMenu;
 	while (true)

@@ -11,8 +11,8 @@ static LinkTexture sTextureProjectile("entity.projectile.glock");
 static LinkSound sShootSound("weapon.glock.shoot2");
 static LinkSound sClickSound("weapon.glock.fail_reload");
 static LinkSound sReloadSound("weapon.glock.reload");
-Vec2d WeaponGlock::sHoldPosition(10.0, 0.0);
-std::pair<Vec2d, Vec2d> WeaponGlock::sHandPositions = {{ 5.0, -5.0 }, { 10.0, 2.0 }};
+Vec2f WeaponGlock::sHoldPosition(10.0, 0.0);
+std::pair<Vec2f, Vec2f> WeaponGlock::sHandPositions = {{ 5.0, -5.0 }, { 10.0, 2.0 }};
 
 WeaponGlock::WeaponGlock(DirectionalEntity *parent)
 	: ProjectileWeapon(parent,
@@ -55,18 +55,18 @@ void WeaponGlock::Tick()
 			m_LastShotAt = CurrentTick;
 			sShootSound.GetSound()->PlaySound();
 
-			Vec2d ProjectileVelocity = ShooterCore.Direction * m_ProjectileSpeed;
+			Vec2f ProjectileVelocity = ShooterCore.direction * m_ProjectileSpeed;
 			new Projectile(World,
 						   m_Parent,
 						   WEAPON_GLOCK,
 						   sTextureProjectile.GetTexture(),
 						   m_Damage,
-						   ShooterCore.Pos,
+						   ShooterCore.pos,
 						   ProjectileVelocity);
 
-			double recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ? m_RecoilForce * 3.0
-																								   : m_RecoilForce;
-			Vec2d recoil_acceleration = ShooterCore.Direction * -recoil;
+			float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
+				m_RecoilForce * 3.0f : m_RecoilForce;
+			Vec2f recoil_acceleration = ShooterCore.direction * -recoil;
 			m_Parent->Accelerate(recoil_acceleration);
 		}
 		else

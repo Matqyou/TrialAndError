@@ -2,8 +2,8 @@
 #pragma once
 
 #include <client/game/entities/cartesian/Entity.h>
-#include "SDL.h"
 #include <client/game/entities/cartesian/AmmoBox.h>
+#include <client/core/Assets.h>
 
 enum DropType
 {
@@ -21,14 +21,14 @@ protected:
     Texture *m_Texture;
 
 public:
-    static LoadedSound sHitSound[3];
-    static LoadedSound sBoxSound;
-    static LoadedTexture sBoxTexture;
-    static LoadedTexture sBreakingBox1Texture;
-    static LoadedTexture sBreakingBox2Texture;
+    static LinkSound sHitSound[3];
+    static LinkSound sBoxSound;
+    static LinkTexture sBoxTexture;
+    static LinkTexture sBreakingBox1Texture;
+    static LinkTexture sBreakingBox2Texture;
 
     Crate(GameWorld *world,
-          const Vec2d& start_pos,
+          const Vec2f& start_pos,
           DropType RandomDrop);
     ~Crate() override;
 
@@ -40,6 +40,6 @@ public:
     void Heal(double value);
 
     // Ticking
-    void Tick() override;
+    void Tick(double elapsed_seconds) override;
     void Draw() override;
 };

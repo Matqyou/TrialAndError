@@ -57,14 +57,14 @@ void ItemEntity::SetTexture(ItemType item_type)
 ItemEntity::ItemEntity(GameWorld *world,
 					   ItemType item_type,
 					   Entity *dropper,
-					   const Vec2d& start_pos,
-					   const Vec2d& start_size)
+					   const Vec2f& start_pos,
+					   const Vec2f& start_size)
 	: Entity(world,
 			 NORMAL_ENTITY,
 			 ITEM_ENTITY,
 			 start_pos,
 			 start_size,
-			 Vec2d(0.0, 0.0),
+			 Vec2f(0.0, 0.0),
 			 0.95,
 			 false)
 {
@@ -102,8 +102,8 @@ void ItemEntity::TickPickup()
 		// really he can do about this situation
 		// Todo: think of some connected/smart pointers cuz that is the next big thing i need to learn
 		if (!character->IsAlive() || (character == m_Dropper && m_World->GetTick() - m_DroppedSince < m_PickupCooldown)) continue;
-		double Distance = DistanceVec2d(m_Core.Pos, character->GetCore().Pos);
-		if (Distance > m_Core.sizeRatio + character->GetCore().sizeRatio) continue;
+		float Distance = DistanceVec2f(m_Core.pos, character->GetCore().pos);
+		if (Distance > m_Core.size_ratio + character->GetCore().size_ratio) continue;
 
 		EventPickup(*character);
 		break;
@@ -134,10 +134,10 @@ void ItemEntity::Draw()
 		return;
 
 	auto drawing = Application.GetDrawing();
-	SDL_FRect DrawRect = {float(m_Core.Pos.x - m_Core.Size.x / 2.0),
-						  float(m_Core.Pos.y - m_Core.Size.y / 2.0),
-						  float(m_Core.Size.x),
-						  float(m_Core.Size.y) };
+	SDL_FRect DrawRect = {float(m_Core.pos.x - m_Core.size.x / 2.0),
+						  float(m_Core.pos.y - m_Core.size.y / 2.0),
+						  float(m_Core.size.x),
+						  float(m_Core.size.y) };
 
 	drawing->RenderTextureRotated(m_Texture->SDLTexture(),
 								  nullptr, DrawRect,

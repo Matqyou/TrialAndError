@@ -13,7 +13,7 @@ struct PlanetaryEntityCore
     double BaseDamping{0};
     double sizeRatio{0};
 
-    Vec2d ToCartesian() const { return Pos.ToCartesian(); }
+    Vec2f ToCartesian() const { return Pos.ToCartesian(); }
 };
 
 struct PlanetaryDirectionalCore : public PlanetaryEntityCore

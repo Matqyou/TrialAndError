@@ -11,7 +11,6 @@
 class HealthBar
 {
 private:
-	GameData *m_GameWindow;
 	HasHealth *m_HealthComponent; // Might stay unused outside of constructor
 	double *m_HealthReference, *m_MaxHealthReference;
 	int m_Width, m_Height, m_SpacingW, m_SpacingH;

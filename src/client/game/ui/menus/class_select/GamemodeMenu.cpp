@@ -1,12 +1,12 @@
 // src/game/interface/GameModeMenu.cpp
 
 #include "GamemodeMenu.h"
-#include "client/game/classes/PlayerClass.h"
-#include "ClassSelectMenu.h"
-#include "client/game/ui/elements/Button.h"
 #include "client/game/ui/advanced_elements/StarBackground.h"
+#include "client/game/players/classes/PlayerClass.h"
+#include "client/game/ui/elements/Button.h"
 #include "client/game/ui/CommonUI.h"
 #include "client/game/ui/menus/Menus.h"
+#include "ClassSelectMenu.h"
 
 static LinkTexture sMenuTexture("interface.menu");
 static LinkTexture sTextureTitle("ui.gamemodemenu.title");
