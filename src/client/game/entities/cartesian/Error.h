@@ -37,7 +37,7 @@ public:
     static LinkTexture sTextureMagicParticle;
     static LinkSound ms_PickupSounds[7];
 
-    Error(GameWorld* world, const Vec2f& start_pos, int typeID);
+    Error(const Vec2f& start_pos, int typeID);
 
     // Ticking
     void Tick(double elapsed_seconds) override;

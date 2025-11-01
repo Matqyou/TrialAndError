@@ -15,28 +15,27 @@ enum NPCType
 class CharacterNPC : public Character
 {
 protected:
-	bool m_IsBoss;
-	Player *m_LastAttacker;
-	NPCType m_AIType;
+	bool is_boss;
+	Player *last_attacker;
+	NPCType ai_type;
 
 	// Listening & Ticking
 	void EventDeath() override;
 	void TickControls() override;
 
 public:
-	CharacterNPC(GameWorld *world,
-				 double max_health,
+	CharacterNPC(double max_health,
 				 const Vec2f& start_pos,
 				 const Vec2f& start_vel,
 				 NPCType npc_type,
-				 bool is_boss);
+				 bool npc_is_boss);
 	~CharacterNPC() override;
 
 	// Getting
-	[[nodiscard]] bool IsBoss() const { return m_IsBoss; }
+	[[nodiscard]] bool IsBoss() const { return is_boss; }
 	[[nodiscard]] const char *toString() const override;
 
 	// Manipulating
-	void UpdateAttacker(Player *attacker);
+	void UpdateAttacker(Player *new_attacker);
 
 };

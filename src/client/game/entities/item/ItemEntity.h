@@ -37,8 +37,7 @@ protected:
 	void TickPickup();
 
 public:
-	ItemEntity(GameWorld *world,
-			   ItemType item_type,
+	ItemEntity(ItemType item_type,
 			   Entity *dropper,
 			   const Vec2f& start_pos,
 			   const Vec2f& start_size);

@@ -23,10 +23,11 @@ PlanetaryWorld::PlanetaryWorld(const PlanetConfig& config)
 	  m_RenderSegments(64), m_LastCameraAngle(0)
 {
 	m_Config = config;
+	m_PlanetTexture = nullptr;
+	m_AtmosphereTexture = nullptr;
+
 	if (config.texture_path)
-	{
 		LoadPlanetTexture(config.texture_path);
-	}
 }
 
 PlanetaryWorld::~PlanetaryWorld()
@@ -361,7 +362,7 @@ void PlanetaryGameWorld::TickPlanetaryCamera()
 		return;
 
 //	PlanetaryCharacter *player = dynamic_cast<PlanetaryCharacter *>(FirstCharacter());
-	auto player = (PlanetaryCharacter *)entities_by_types[CHARACTER_ENTITY].front();
+	auto player = (PlanetaryCharacter *)entities_by_types[ENTITY_CHARACTER].front();
 	if (!player || player->IsNPC())
 		return;
 

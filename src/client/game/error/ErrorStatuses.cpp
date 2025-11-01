@@ -39,7 +39,6 @@ void ErrorFrames::CreateFrames(std::vector<ErrorStatusEffect *>& group)
 
 void ErrorFrames::CreateFramesUI(std::vector<ErrorStatusEffect *>& group)
 {
-	auto num_elements = (int)group.size();
 	const int spacing = 1;
 	const int frame_size = 64;
 	const int iterate_size = frame_size + spacing;

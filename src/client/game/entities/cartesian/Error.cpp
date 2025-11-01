@@ -23,15 +23,14 @@ LinkSound Error::ms_PickupSounds[7] = {
     LinkSound("entity.error.pickup"),
 };
 
-Error::Error(GameWorld *world, const Vec2f& start_pos, int typeID)
-    : Entity(world,
-             NORMAL_ENTITY,
-             ERROR_ENTITY,
-             start_pos,
-             Vec2f(45, 45),
-             Vec2f(0.0, 0.0),
-             0.95,
-             false)
+Error::Error(const Vec2f& start_pos, int typeID)
+    : Entity(NORMAL_ENTITY,
+			 ENTITY_ERROR,
+			 start_pos,
+			 Vec2f(45, 45),
+			 Vec2f(0.0, 0.0),
+			 0.95,
+			 false)
 {
     m_Type = static_cast<ErrorType>(typeID);
     if (m_Type == SPIKY) m_Texture = sTextureErrorSpiky.GetTexture();
@@ -46,15 +45,15 @@ Error::Error(GameWorld *world, const Vec2f& start_pos, int typeID)
 
 void Error::TickPickup(double x, double y)
 {
-	auto characters = m_World->GetEntitiesByType(CHARACTER_ENTITY);
+	auto characters = world->GetEntitiesByType(ENTITY_CHARACTER);
 	for (Entity* entity : characters)
 	{
 		Character* Char = (Character*)entity;
 		auto& core = Char->GetDirectionalCore();
-		bool Collides = (core.pos.x - core.size.x / 2 - m_Core.size_ratio < x) &&
-			(core.pos.x + core.size.x / 2 + m_Core.size_ratio > x) &&
-			(core.pos.y - core.size.y / 2 - m_Core.size_ratio < y) &&
-			(core.pos.y + core.size.y / 2 + m_Core.size_ratio > y);
+		bool Collides = (core.pos.x - core.size.x / 2 - core.size_ratio < x) &&
+			(core.pos.x + core.size.x / 2 + core.size_ratio > x) &&
+			(core.pos.y - core.size.y / 2 - core.size_ratio < y) &&
+			(core.pos.y + core.size.y / 2 + core.size_ratio > y);
 
 		if (!Collides)
 			continue;
@@ -67,7 +66,7 @@ void Error::TickPickup(double x, double y)
 			{ Char->GetErrorStatuses().Disoriented.Activate(); }
 			else
 			{
-				for (Entity* entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
+				for (Entity* entity : world->GetEntitiesByType(ENTITY_CHARACTER))
 				{
 					Character* character = (Character*)entity;
 					if (!character->IsNPC()) continue;
@@ -77,36 +76,36 @@ void Error::TickPickup(double x, double y)
 			}
 		}
 		// (rest omitted for brevity in the copy - assume identical behavior)
-		m_Alive = false;
+		alive = false;
 	}
 }
 
 void Error::Tick(double seconds_elapsed)
 {
-    TickPickup(m_Core.pos.x, m_Core.pos.y);
+    TickPickup(core.pos.x, core.pos.y);
     TickWalls();
 
-    if (m_World->GetTick() % (30 + rand() % 30) != 0)
+    if (world->GetTick() % (30 + rand() % 30) != 0)
         return;
 
-    m_World->GetParticles()->PlayParticle(Particle(sTextureMagicParticle.GetTexture(),
-                                                   m_Core.pos,
-                                                   Vec2f(5.0, 5.0),
-                                                   Vec2f((float)(rand() % 10 - 5) / 10.0f, -1.0f),
-                                                   1.0,
-                                                   0.0,
-                                                   0.0,
-                                                   1.0,
-                                                   60));
+    world->GetParticles()->PlayParticle(Particle(sTextureMagicParticle.GetTexture(),
+												 core.pos,
+												 Vec2f(5.0, 5.0),
+												 Vec2f((float)(rand() % 10 - 5) / 10.0f, -1.0f),
+												 1.0,
+												 0.0,
+												 0.0,
+												 1.0,
+												 60));
 }
 
 void Error::Draw()
 {
 	Drawing* drawing = Application.GetDrawing();
-    SDL_FRect draw_rect = { float(m_Core.pos.x) - float(m_Core.size.x / 2.0),
-							float(m_Core.pos.y) - float(m_Core.size.y / 2.0),
-							float(m_Core.size.x),
-							float(m_Core.size.y) };
+    SDL_FRect draw_rect = { float(core.pos.x) - float(core.size.x / 2.0),
+							float(core.pos.y) - float(core.size.y / 2.0),
+							float(core.size.x),
+							float(core.size.y) };
 
     drawing->RenderTexture(m_Texture->SDLTexture(), nullptr, draw_rect, GameReference.GetCamera());
 }

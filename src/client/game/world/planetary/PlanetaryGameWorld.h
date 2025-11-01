@@ -76,9 +76,9 @@ public:
 	void UpdateCamera(const Vec2f& target_pos, float zoom_level = 1.0f);
 
 	// Utility
-	PlanetaryCoords WorldToPlanetary(const Vec2f& world_pos) const;
-	Vec2f PlanetaryToWorld(const PlanetaryCoords& coords) const;
-	float GetDistanceFromSurface(const Vec2f& world_pos) const;
+	[[nodiscard]] PlanetaryCoords WorldToPlanetary(const Vec2f& world_pos) const;
+	[[nodiscard]] Vec2f PlanetaryToWorld(const PlanetaryCoords& coords) const;
+	[[nodiscard]] float GetDistanceFromSurface(const Vec2f& world_pos) const;
 };
 
 // Enhanced GameWorld with planetary support
@@ -102,12 +102,13 @@ protected:
 
 public:
 	PlanetaryGameWorld(int width, int height);
-	~PlanetaryGameWorld();
+	~PlanetaryGameWorld() override;
+
+	[[nodiscard]] PlanetaryWorld *GetCurrentPlanet() const { return m_CurrentPlanet; }
 
 	// Planet management
 	void SetCurrentPlanet(int planet_index);
 	void AddPlanetConfig(const PlanetConfig& config);
-	PlanetaryWorld *GetCurrentPlanet() const { return m_CurrentPlanet; }
 
 	// Level progression
 	void NextPlanet();

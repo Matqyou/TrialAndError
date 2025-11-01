@@ -21,8 +21,8 @@ public:
     Button(Texture* texture, Texture* pressed_texture);
 
     // Options
-    Button* SetCallback(Callback callback) {
-        this->callback = std::move(callback);
+    Button* SetCallback(Callback new_callback) {
+        this->callback = std::move(new_callback);
         return this;
     }
     Button* SetClickable(bool new_clickable) {

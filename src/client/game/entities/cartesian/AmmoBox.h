@@ -30,8 +30,7 @@ public:
     static LinkTexture sTextureMinigun;
     static LinkTexture sTextureSniper;
 
-    AmmoBox(GameWorld *world,
-            AmmoType type,
+    AmmoBox(AmmoType type,
             const Vec2f& start_pos,
             unsigned int AmmoCount);
 

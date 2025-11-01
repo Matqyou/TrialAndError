@@ -23,23 +23,22 @@ protected:
     void TickCollision();
 
 public:
-    PlanetaryCharacter(PlanetaryGameWorld *planetary_world,
-                       Player *player,
+    PlanetaryCharacter(Player *player,
                        double max_health,
                        const Vec2f& start_pos,
                        const Vec2f& start_vel,
                        bool is_npc);
     // Planetary-specific getters
-    PlanetaryWorld* GetPlanetaryWorld() const { return m_PlanetaryWorld; }
-    const PlanetaryCoords& GetPlanetaryPos() const { return m_PlanetaryPos; }
+    [[nodiscard]] PlanetaryWorld* GetPlanetaryWorld() const { return m_PlanetaryWorld; }
+    [[nodiscard]] const PlanetaryCoords& GetPlanetaryPos() const { return m_PlanetaryPos; }
 
     // Planetary-specific setters
     void SetPlanetaryWorld(PlanetaryWorld* world);
     void SetPlanetaryPosition(const PlanetaryCoords& coords);
 
     // Movement utilities
-    Vec2f GetUpDirection() const;
-    Vec2f GetRightDirection() const;
+    [[nodiscard]] Vec2f GetUpDirection() const;
+    [[nodiscard]] Vec2f GetRightDirection() const;
 
     // Override base methods
     void Draw() override;

@@ -9,7 +9,8 @@ enum DropType
 {
     AMMO,
     ERROR,
-    NUM_DROPS
+	WEAPON,
+    NUM_DROP_TYPES,
 };
 
 class Crate : public Entity
@@ -27,9 +28,7 @@ public:
     static LinkTexture sBreakingBox1Texture;
     static LinkTexture sBreakingBox2Texture;
 
-    Crate(GameWorld *world,
-          const Vec2f& start_pos,
-          DropType RandomDrop);
+    Crate(const Vec2f& start_pos, DropType RandomDrop);
     ~Crate() override;
 
     // Getting

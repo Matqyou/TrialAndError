@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include "ProjectileWeapon.h"
+#include "client/game/weapons/projectile/base/ProjectileWeapon.h"
 #include <client/game/entities/cartesian/Entity.h>
 
 class WeaponGlock : public ProjectileWeapon
 {
 private:
-	double m_RecoilForce;
+	float m_RecoilForce;
 	double m_Damage;
 
 public:

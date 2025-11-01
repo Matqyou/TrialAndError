@@ -39,7 +39,7 @@ WeaponShotgun::WeaponShotgun(Character *owner)
 
 void WeaponShotgun::Tick()
 {
-	if (m_Parent->GetType() != CHARACTER_ENTITY)
+	if (m_Parent->GetType() != ENTITY_CHARACTER)
 	{
 		std::printf("Warning: Weapon holder is not a characters (no support for error powerups)");
 		return;
@@ -62,19 +62,19 @@ void WeaponShotgun::Tick()
 			m_LastShotAt = CurrentTick;
 			sShootSound.GetSound()->PlaySound();
 
-			double LookAngle = ShooterCore.direction.Atan2();
+			float LookAngle = ShooterCore.direction.Atan2();
 			for (int i = 0; i < m_PelletCount; i++)
 			{
 				float ProjectileAngle = LookAngle + GenerateSpreadAngle();
 				float ProjectileSpeed = GenerateRandomProjectileSpeed();
 				Vec2f ProjectileVelocity = FromAngleVec2f(ProjectileAngle) * ProjectileSpeed;
-				new Projectile(World,
-							   m_Parent,
+				auto new_projectile = new Projectile(m_Parent,
 							   WEAPON_SHOTGUN,
 							   sTextureProjectile.GetTexture(),
 							   m_Damage,
 							   ShooterCore.pos,
 							   ProjectileVelocity);
+				World->AddEntity(new_projectile, true);
 			}
 
 			float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?

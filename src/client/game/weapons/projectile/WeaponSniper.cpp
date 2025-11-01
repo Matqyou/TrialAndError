@@ -34,7 +34,7 @@ WeaponSniper::WeaponSniper(DirectionalEntity *parent)
 
 void WeaponSniper::Tick()
 {
-	if (m_Parent->GetType() != CHARACTER_ENTITY)
+	if (m_Parent->GetType() != ENTITY_CHARACTER)
 	{
 		std::printf("Warning: Weapon holder is not a characters (no support for error powerups)");
 		return;
@@ -58,13 +58,13 @@ void WeaponSniper::Tick()
 			sShootSound.GetSound()->PlaySound();
 
 			Vec2f ProjectileVelocity = ShooterCore.direction * m_ProjectileSpeed;
-			new Projectile(World,
-						   m_Parent,
-						   WEAPON_SNIPER,
-						   sTextureProjectile.GetTexture(),
-						   m_Damage,
-						   ShooterCore.pos,
-						   ProjectileVelocity);
+			auto new_projectile = new Projectile(m_Parent,
+												 WEAPON_SNIPER,
+												 sTextureProjectile.GetTexture(),
+												 m_Damage,
+												 ShooterCore.pos,
+												 ProjectileVelocity);
+			World->AddEntity(new_projectile, true);
 
 			float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
 						   m_RecoilForce * 3.0f : m_RecoilForce;

@@ -6,14 +6,14 @@
 #include <shared/utility/Vec2.h>
 #include <iostream>
 
-PlanetaryCharacterNPC::PlanetaryCharacterNPC(PlanetaryGameWorld *planetaryWorld, const Vec2f &pos)
-    : CharacterNPC((GameWorld *)planetaryWorld, 100.0, pos, Vec2f(0.0f,0.0f), NPC_DUMMY, false)
+PlanetaryCharacterNPC::PlanetaryCharacterNPC(const Vec2f &pos)
+    : CharacterNPC(100.0, pos, Vec2f(0.0f,0.0f), NPC_DUMMY, false)
 {
-    if (planetaryWorld && planetaryWorld->GetCurrentPlanet()) {
-        m_PlanetaryWorld = planetaryWorld->GetCurrentPlanet();
-        m_PlanetaryPos = m_PlanetaryWorld->WorldToPlanetary(pos);
-        std::cout << "[PlanetaryNPC] Spawned at lon=" << m_PlanetaryPos.longitude << " lat=" << m_PlanetaryPos.latitude << "\n";
-    }
+//    if (planetaryWorld && planetaryWorld->GetCurrentPlanet()) {
+//        m_PlanetaryWorld = planetaryWorld->GetCurrentPlanet();
+//        m_PlanetaryPos = m_PlanetaryWorld->WorldToPlanetary(pos);
+//        std::cout << "[PlanetaryNPC] Spawned at lon=" << m_PlanetaryPos.longitude << " lat=" << m_PlanetaryPos.latitude << "\n";
+//    }
 }
 
 void PlanetaryCharacterNPC::Tick(double seconds_elapsed)
@@ -33,7 +33,7 @@ void PlanetaryCharacterNPC::Tick(double seconds_elapsed)
 
     m_PlanetaryPos = pc;
     // sync core pos so base logic has a sensible pos for rendering/collision
-    m_Core.pos = m_PlanetaryPos.ToCartesian();
+    core.pos = m_PlanetaryPos.ToCartesian();
 
     // call Character::Tick to process health, weapons, etc.
     Character::Tick(seconds_elapsed);

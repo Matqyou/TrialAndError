@@ -28,24 +28,26 @@ Camera::~Camera()
 
 }
 
+// Camera → Screen (multiply by zoom, add offset)
 float Camera::CameraToScreenX(float x) const
-{
-	return (x - static_cast<float>(Application.GetWidth2())) / zoom + pos.x;
-}
-
-float Camera::CameraToScreenY(float y) const
-{
-	return (y - static_cast<float>(Application.GetHeight2())) / zoom + pos.y;
-}
-
-float Camera::ScreenToCameraX(float x) const
 {
 	return (x - pos.x) * zoom + static_cast<float>(Application.GetWidth2());
 }
 
-float Camera::ScreenToCameraY(float y) const
+float Camera::CameraToScreenY(float y) const
 {
 	return (y - pos.y) * zoom + static_cast<float>(Application.GetHeight2());
+}
+
+// Screen → Camera (subtract offset, divide by zoom)
+float Camera::ScreenToCameraX(float x) const
+{
+	return (x - static_cast<float>(Application.GetWidth2())) / zoom + pos.x;
+}
+
+float Camera::ScreenToCameraY(float y) const
+{
+	return (y - static_cast<float>(Application.GetHeight2())) / zoom + pos.y;
 }
 
 //template <class T>
@@ -66,10 +68,18 @@ float Camera::ScreenToCameraY(float y) const
 //	};
 //}
 
+SDL_FRect Camera::CameraToScreenRect(const SDL_FRect& rect) const
+{
+	return { float(CameraToScreenX(rect.x)),
+			 float(CameraToScreenY(rect.y)),
+			 float(rect.w * zoom),
+			 float(rect.h * zoom) };
+}
+
 SDL_FRect Camera::ScreenToCameraRect(const SDL_FRect& rect) const
 {
 	return { float(ScreenToCameraX(rect.x)),
 			 float(ScreenToCameraY(rect.y)),
-			 float(rect.w * zoom),
-			 float(rect.h * zoom) };
+			 float(rect.w / zoom),
+			 float(rect.h / zoom) };
 }

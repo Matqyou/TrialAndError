@@ -39,7 +39,9 @@ private:
 	Interface *interface;
 
 	// Picked class, etc.
+	std::vector<Player*> players;
 	std::vector<Preferences> player_preferences;
+	size_t next_player_id;
 
 	Callback exit_callback;
 
@@ -53,8 +55,11 @@ public:
 	[[nodiscard]] Camera& GetCamera() { return camera; }
 	[[nodiscard]] GameWorld *World() const { return world; }
 	[[nodiscard]] Interface *GetInterface() const { return interface; }
+	[[nodiscard]] std::vector<Player*>& GetPlayers() { return players; }
 	[[nodiscard]] Preferences& GetPlayerPreferences(int index) { return player_preferences[index]; }
-	[[nodiscard]] size_t NumExpectedPlayers() const { return player_preferences.size(); }
+	[[nodiscard]] size_t NextPlayerID();
+	[[nodiscard]] Player* GetPlayerFromID(size_t player_id);
+//	[[nodiscard]] size_t NumExpectedPlayers() const { return player_preferences.size(); }
 
 	// Manipulating
 	void SetExitApplicationCallback(Callback callback);
@@ -63,6 +68,8 @@ public:
 //	void AddPlayerClassMenu();
 //	void AddPendingClass(PlayerClass *playerClass);
 //	void RemovePlayerClassMenu();
+	void AddPlayer(Player* new_player);
+	void RemovePlayer(Player* player);
 	void SetWorld(GameWorld *new_world, bool delete_old = true);
 	void DeleteWorld();
 	void StartGame(Gamemode mode);

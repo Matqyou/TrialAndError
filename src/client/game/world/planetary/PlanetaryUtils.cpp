@@ -1,6 +1,7 @@
 // PlanetarySystem.cpp
 
 #include "PlanetaryUtils.h"
+#include <algorithm>
 #include <random>
 
 #ifndef M_PI
@@ -8,7 +9,6 @@
 #endif
 
 // Planetary coordinate system
-
 PlanetaryCoords::PlanetaryCoords(float lon, float lat, float r)
 	: longitude(lon), latitude(lat), planet_radius(r)
 {

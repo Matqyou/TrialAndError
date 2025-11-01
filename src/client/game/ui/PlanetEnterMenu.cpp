@@ -150,8 +150,9 @@ void PlanetEnterMenu::Draw()
 					delete oldChar;
 
 				// Create a new planetary character in the new world and restore controller
-				Vec2f worldCenter(new_world->GetWidth() / 2.0f, new_world->GetHeight() / 2.0f);
-				auto newChar = new PlanetaryCharacter(new_world, player, 100.0, worldCenter, Vec2f(10.0f, 10.0f), false);
+				Vec2f world_center(new_world->GetWidth() / 2.0f, new_world->GetHeight() / 2.0f);
+				auto new_character = new PlanetaryCharacter(player, 100.0, world_center, Vec2f(10.0f, 10.0f), false);
+				new_world->AddEntity(new_character);
 //				if (oldController && newChar)
 //					newChar->SetGameController(oldController);
 			}

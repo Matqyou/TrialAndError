@@ -6,9 +6,8 @@
 
 #include <utility>
 #include "client/game/entities/characters/character/Character.h"
-#include "client/game/entities/item/weapons/EntityGuns.h"
-#include "client/game/ui/menus/class_select/ClassSelectMenu.h"
 #include "client/game/ui/menus/class_select/GamemodeMenu.h"
+#include "client/game/entities/item/weapons/EntityGuns.h"
 #include "client/game/ui/CommonUI.h"
 #include "client/core/Assets.h"
 
@@ -19,11 +18,27 @@ GameData::GameData()
 	world = nullptr;
 	interface = nullptr;
 	exit_callback = { };
+
+	next_player_id = 0;
 }
 
 GameData::~GameData()
 {
 	Deinitialize(false);
+}
+
+size_t GameData::NextPlayerID()
+{
+	return next_player_id++;
+}
+
+Player* GameData::GetPlayerFromID(size_t player_id)
+{
+	for (Player* player : players)
+		if (player->GetPlayerID() == player_id)
+			return player;
+
+	return nullptr;  // Player not found
 }
 
 void GameData::SetExitApplicationCallback(Callback callback)
@@ -47,6 +62,16 @@ void GameData::ExitApplication()
 //	m_ClassSelectMenus.pop_back();
 //}
 
+void GameData::AddPlayer(Player* new_player)
+{
+	players.push_back(new_player);
+}
+
+void GameData::RemovePlayer(Player* player)
+{
+	players.erase(std::remove(players.begin(), players.end(), player), players.end());
+}
+
 void GameData::SetWorld(GameWorld *new_world, bool delete_old)
 {
 	if (delete_old)
@@ -66,6 +91,7 @@ bool GameData::Initialize()
 	interface = new Interface();
 
 	// Creates 1 player preferences object
+	AddPlayer(new Player("DefaultPlayer"));
 	player_preferences.emplace_back();
 
 	return true;
@@ -106,25 +132,37 @@ void GameData::InitializeSandbox()
 {
 	world = new GameWorld(50, 30);
 	world->SetTestingMode(true); // stop waves
-	Character::ms_BotNamePlate = new TextSurface(CommonUI::fontDefault, "Bot User", { 255, 150, 150, 255 });
+	Character::sBotNameplate = new TextSurface(CommonUI::fontDefault, "Bot User", { 255, 150, 150, 255 });
 
 	for (int y = 0; y < 5; y++)
 		for (int x = 0; x < 5; x++)
-			new Crate(world, Vec2f(200 + 50 * x, 200 + 50 * y), DropType(rand() % 2));
+		{
+			auto new_crate = new Crate(
+				Vec2f(200 + 50 * static_cast<float>(x), 200 + 50 * static_cast<float>(y)),
+				DropType(Application.GetRandomizer()->Int() % NUM_DROP_TYPES)
+				);
+			world->AddEntity(new_crate, false);
+		}
 
 	for (int x = 0; x < NUM_ERROR_TYPES; x++)
-		new Error(world, Vec2f(50.0f + 50.0f * static_cast<float>(x), world->GetHeight() - 50.0f), (ErrorType)x);
+	{
+		auto new_error = new Error(Vec2f(50.0f + 50.0f * static_cast<float>(x), world->GetHeight() - 50.0f), (ErrorType)x);
+		world->AddEntity(new_error, false);
+	}
 
 	for (int x = 0; x < NUM_AMMO_TYPES; x++)
-		new AmmoBox(world, AmmoType(x), Vec2f(50.0f + 50.0f * static_cast<float>(x), world->GetHeight() - 100.0f), 1000);
+	{
+		auto new_ammo_box = new AmmoBox(AmmoType(x), Vec2f(50.0f + 50.0f * static_cast<float>(x), world->GetHeight() - 100.0f), 1000);
+		world->AddEntity(new_ammo_box, false);
+	}
 
 	float WeaponsY = world->GetHeight() - 150;
-	new EntityGlock(world, nullptr, nullptr, Vec2f(100, WeaponsY));
-	new EntityShotgun(world, nullptr, nullptr, Vec2f(200, WeaponsY));
-	new EntityBurst(world, nullptr, nullptr, Vec2f(300, WeaponsY));
-	new EntityMinigun(world, nullptr, nullptr, Vec2f(400, WeaponsY));
-	new EntitySniper(world, nullptr, nullptr, Vec2f(500, WeaponsY));
-	new EntityPatersonNavy(world, nullptr, nullptr, Vec2f(600, WeaponsY));
+	world->AddEntity(new EntityGlock(nullptr, nullptr, Vec2f(100, WeaponsY)), false);
+	world->AddEntity(new EntityShotgun(nullptr, nullptr, Vec2f(200, WeaponsY)), false);
+	world->AddEntity(new EntityBurst(nullptr, nullptr, Vec2f(300, WeaponsY)), false);
+	world->AddEntity(new EntityMinigun(nullptr, nullptr, Vec2f(400, WeaponsY)), false);
+	world->AddEntity(new EntitySniper(nullptr, nullptr, Vec2f(500, WeaponsY)), false);
+	world->AddEntity(new EntityPatersonNavy(nullptr, nullptr, Vec2f(600, WeaponsY)), false);
 
 //	auto Player1 = new Player(world, "Keyboard", m_PendingPlayerClasses[0]);
 //	auto Char1 = new Character(world,
@@ -139,15 +177,14 @@ void GameData::InitializeSandbox()
 void GameData::InitializeInfinite()
 {
 	world = new GameWorld(50, 30);
-	Character::ms_BotNamePlate = new TextSurface(CommonUI::fontDefault, "Bot User", { 255, 150, 150, 255 });
+	Character::sBotNameplate = new TextSurface(CommonUI::fontDefault, "Bot User", { 255, 150, 150, 255 });
 
-	world->InitPlayers();
+//	world->InitPlayers();
 }
 
 void GameData::HandleEvent(const SDL_Event& sdl_event, EventContext& event_context)
 {
-	if (GameReference.World())
-		GameReference.World()->HandleEvent(sdl_event, event_context);
+	if (world) world->HandleEvent(sdl_event, event_context);
 }
 
 GameData GameReference;

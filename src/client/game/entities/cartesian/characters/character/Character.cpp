@@ -2,13 +2,11 @@
 // Created by 11dpjgailis on 16.03.2023.
 //
 #include <client/game/entities/cartesian/characters/character/Character.h>
-#include <client/game/entities/cartesian/characters/CharacterNPC.h>
 #include <client/game/entities/item/weapons/EntityGuns.h>
 #include <client/game/entities/cartesian/Projectile.h>
 #include <client/game/ui/CommonUI.h>
 
 #include <iostream>
-#include <vector>
 #include <cmath>
 
 #ifndef M_SQRT1_2
@@ -46,21 +44,19 @@ LinkSound Character::sThrowItemSound("weapon.throw");
 LinkSound Character::sPickupItemSound("weapon.pickup");
 
 // Other
-TextSurface *Character::ms_BotNamePlate = nullptr;
-const int Character::ms_DefaultControls[NUM_CONTROLS] = { SDL_SCANCODE_W,
-														  SDL_SCANCODE_D,
-														  SDL_SCANCODE_S,
-														  SDL_SCANCODE_A,
-														  SDL_SCANCODE_LSHIFT };
+TextSurface *Character::sBotNameplate = nullptr;
+const int Character::sDefaultControls[NUM_CONTROLS] = { SDL_SCANCODE_W,
+														SDL_SCANCODE_D,
+														SDL_SCANCODE_S,
+														SDL_SCANCODE_A,
+														SDL_SCANCODE_LSHIFT };
 
-Character::Character(GameWorld *world,
-					 Player *player,
+Character::Character(Player *our_player,
 					 double max_health,
 					 const Vec2f& start_pos,
 					 const Vec2f& start_vel,
-					 bool is_npc)
-	: DirectionalEntity(world,
-						CHARACTER_ENTITY,
+					 bool character_is_npc)
+	: DirectionalEntity(ENTITY_CHARACTER,
 						start_pos,
 						Vec2f(35, 35),
 						start_vel,
@@ -68,97 +64,96 @@ Character::Character(GameWorld *world,
 						0.93,
 						true,
 						max_health),
-	  m_BaseAcceleration(0.45),
-	  m_Hands(this, 10.0),
-	  m_Hook(this),
-	  m_HealthBar(&m_HealthComponent, 75, 15, 2, 2),
+	  base_acceleration(0.45),
+	  hands(this, 10.0),
+	  hook(this),
+	  health_bar(&health_component, 75, 15, 2, 2),
 	  input(),
-	  m_LastInput(),
-	  m_ErrorStatuses(GameReference.GetInterface(), this, !is_npc)
+	  last_input(),
+	  error_statuses(GameReference.GetInterface(), this, !character_is_npc)
 {
-	m_Player = player;
-	m_ColorHue = m_Player ? 60.0 - double(m_Player->GetIndex() * 30) : 0.0;
+	player = our_player;
+	color_hue = player ? 60.0 - double(player->GetPlayerID() * 30) : 0.0;
 
-	m_BaseDamage = 10;
-	m_DamageAmp = 1;
-	if (m_Player)
+	base_damage = 10;
+	damage_amplifier = 1.0;
+	if (player)
 	{
-		m_Player->SetCharacter(this);
-		m_BaseDamage = m_Player->GetBaseDamage();
-		m_DamageAmp = m_Player->GetDamageAmp();
+		player->SetCharacter(this);
+		base_damage = player->GetBaseDamage();
+		damage_amplifier = player->GetDamageAmp();
 	}
 
-	m_CurrentWeapon = nullptr; // Start by holding nothing
-	memset(m_Weapons, 0, sizeof(m_Weapons));
+	current_weapon = nullptr; // Start by holding nothing
+	memset(weapons, 0, sizeof(weapons));
 
-	m_PassiveRegeneration = 0.03; // health per tick when in combat
-	m_ActiveRegeneration = 0.1;   // health per tick out of combat
-	m_TicksOfCombatUntilRegeneration = (unsigned long long)(10 * Application.GetClock()->GetFramerate()); // todo: implement world tickrate
-	m_LastInCombat = 0;
+	passive_regeneration_rate = 0.03; // health per tick when in combat
+	active_regeneration_rate = 0.1;   // health per tick out of combat
+	ticks_combat_until_regeneration = (unsigned long long)(10 * Application.GetClock()->GetFramerate()); // todo: implement world tickrate
+	last_combat_timestamp = 0;
 
-	m_SelectedWeaponIndex = -1;
+	selected_weapon_index = -1;
 //	m_GameController = nullptr;
-	memset(m_Movement, 0, sizeof(m_Movement));
+	memset(movement, 0, sizeof(movement));
 
-	m_NPC = is_npc;
+	is_npc = character_is_npc;
 
-	m_AmmoCount = new TextSurface(CommonUI::fontDefault, "0", { 255, 255, 255 });
+	ammo_count_plate = new TextSurface(CommonUI::fontDefault, "0", { 255, 255, 255 });
 
 	auto CoordinateText = FString("Spawned [%ix, %iy]", int(start_pos.x), int(start_pos.y));
-	m_CoordinatePlate = new TextSurface(CommonUI::fontDefault, CoordinateText, { 255, 255, 255 });
+	coordinate_plate = new TextSurface(CommonUI::fontDefault, CoordinateText, { 255, 255, 255 });
 
-	m_HealthInt = new TextSurface(CommonUI::fontDefault, "0", { 0, 0, 0 });
+	health_amount_plate = new TextSurface(CommonUI::fontDefault, "0", { 0, 0, 0 });
 
-	m_HitTicks = 0;
-	m_CharacterColor = { 255, 255, 255, 255 };
-	m_HookColor = { 255, 255, 255, 255 };
-	m_HealthbarColor = { 255, 255, 255, 255 };
-	m_HandColor = { 255, 255, 255, 255 };
-	m_NameplateColor = { 255, 255, 255, 255 };
-	m_HealthRed = { 255, 0, 0, 255 };
-	m_HealthBlack = { 0, 0, 0, 255 };
+	hit_ticks = 0;
+	character_color = { 255, 255, 255, 255 };
+	hook_color = { 255, 255, 255, 255 };
+	healthbar_color = { 255, 255, 255, 255 };
+	hand_color = { 255, 255, 255, 255 };
+	nameplate_color = { 255, 255, 255, 255 };
+	health_red_color = { 255, 0, 0, 255 };
+	health_black_color = { 0, 0, 0, 255 };
 
-	m_ErrorText = new TextSurface(CommonUI::fontDefault, "m_ErrorText", { 255, 255, 255 });
+	error_notification_text = new TextSurface(CommonUI::fontDefault, "m_ErrorText", { 255, 255, 255 });
 	// TODO: make vector of weapons instead of array
 }
 
 Character::~Character()
 {
-	delete m_CoordinatePlate;
-	delete m_ErrorText;
+	delete coordinate_plate;
+	delete error_notification_text;
 
-	auto characters = m_World->GetEntitiesByType(CHARACTER_ENTITY);
-	for (Entity *entity : characters)
+	for (Entity *other_entity : world->GetEntitiesByType(ENTITY_CHARACTER))
 	{
-		Character *Char = (Character *)entity;
-		Hook *TargetHook = Char->GetHook();
-		if (TargetHook->m_GrabbedEntity == this)
-			TargetHook->Unhook();
+		Character *other_character = (Character *)other_entity;
+		Hook *other_hook = other_character->GetHook();
+		if (other_hook->grabbed_entity == this)
+			other_hook->Unhook();
 	}
 }
 
 void Character::LevelupStats(unsigned int level)
 {
-	m_HealthComponent.m_MaxHealth *= m_Player->GetMaxHealthAmp();
-	m_HealthComponent.m_MaxHealth += 10 + (1000 - m_HealthComponent.m_MaxHealth) / 10;
-	m_HealthComponent.HealFully();
+	health_component.m_MaxHealth *= player->GetMaxHealthAmp();
+	health_component.m_MaxHealth += 10 + (1000 - health_component.m_MaxHealth) / 10;
+	health_component.HealFully();
 }
 
 void Character::Damage(double damage, Entity *damager)
 {
-	if (!m_ErrorStatuses.Invincible.IsActive())
+	if (!error_statuses.Invincible.IsActive())
 	{
-		if (m_ErrorStatuses.HealersParadise.IsActive())
+		if (error_statuses.HealersParadise.IsActive())
 		{
 			double HealBack = damage;
 			if (HealBack > 10) HealBack = 10;
-			m_HealthComponent.ChangeHealthBy(+HealBack);
+			health_component.ChangeHealthBy(+HealBack);
 		}
 
-		m_HealthComponent.ChangeHealthBy(-damage);
-		m_HitTicks = 7;
+		health_component.ChangeHealthBy(-damage);
+		hit_ticks = 7;
 
-		Sound *HurtSound = sHitSounds[rand() % 3].GetSound();
+		Sound *HurtSound = sHitSounds[Application.GetRandomizer()->Int() % 3].GetSound();
 		HurtSound->PlaySound();
 	}
 	else
@@ -168,116 +163,78 @@ void Character::Damage(double damage, Entity *damager)
 
 	if (damager != nullptr)
 	{
-		m_HealthComponent.UpdateDamager(damager);
-		m_LastInCombat = m_World->GetTick();
+		health_component.UpdateDamager(damager);
+		last_combat_timestamp = world->GetTick();
 	}
 }
 
 void Character::Heal(double value)
 {
-	m_HealthComponent.ChangeHealthBy(+value);
+	health_component.ChangeHealthBy(+value);
 }
 
 void Character::DropWeapon()
 {
-	if (!m_CurrentWeapon)
+	if (!current_weapon)
 		return;
 
-	WeaponType WepType = m_CurrentWeapon->WepType();
-	ItemEntity *NewWeapon;
-	switch (WepType)
-	{
-		case WEAPON_GLOCK:
-		{
-			NewWeapon = new EntityGlock(m_World, this, (WeaponGlock *)m_Weapons[WEAPON_GLOCK], m_Core.pos);
-			m_Weapons[WEAPON_GLOCK] = nullptr;
-			break;
-		}
-		case WEAPON_BURST:
-		{
-			NewWeapon = new EntityBurst(m_World, this, (WeaponBurst *)m_Weapons[WEAPON_BURST], m_Core.pos);
-			m_Weapons[WepType] = nullptr;
-			break;
-		}
-		case WEAPON_SHOTGUN:
-		{
-			NewWeapon = new EntityShotgun(m_World, this, (WeaponShotgun *)m_Weapons[WEAPON_SHOTGUN], m_Core.pos);
-			m_Weapons[WepType] = nullptr;
-			break;
-		}
-		case WEAPON_MINIGUN:
-		{
-			NewWeapon = new EntityMinigun(m_World, this, (WeaponMinigun *)m_Weapons[WEAPON_MINIGUN], m_Core.pos);
-			m_Weapons[WepType] = nullptr;
-			break;
-		}
-		case WEAPON_SNIPER:
-		{
-			NewWeapon = new EntitySniper(m_World, this, (WeaponSniper *)m_Weapons[WEAPON_SNIPER], m_Core.pos);
-			m_Weapons[WepType] = nullptr;
-			break;
-		}
-		case WEAPON_PATERSONNAVY:
-		{
-			NewWeapon = new EntityPatersonNavy(m_World, this, (PatersonNavy *)m_Weapons[WEAPON_PATERSONNAVY], m_Core.pos);
-			m_Weapons[WepType] = nullptr;
-			break;
-		}
-	}
-
-	NewWeapon->Accelerate(m_DirectionalCore.direction * 20);
-	NewWeapon->SetRotation(m_DirectionalCore.direction.Atan2());
-	NewWeapon->AccelerateRotation(std::fmod(Application.GetRandomizer()->Float(), 0.7f) - 0.35f);
-	m_CurrentWeapon = nullptr;
+	ItemEntity *new_weapon_entity = EntityGuns::CreateItemEntityFromWeaponData(this, current_weapon, core.pos);
+	world->AddEntity(new_weapon_entity, true);
+	new_weapon_entity->Accelerate(directional_core.direction * 20.0f);
+	new_weapon_entity->SetRotation(directional_core.direction.Atan2());
+	new_weapon_entity->AccelerateRotation(std::fmod(Application.GetRandomizer()->Double(), 0.7) - 0.35);
+	current_weapon = nullptr;
 }
 
 void Character::SwitchWeapon(WeaponType type)
 {
 	// npcs are constantly swapping -_-
-	if (!m_Weapons[type] ||
-		m_CurrentWeapon == m_Weapons[type])
+	if (!weapons[type] || current_weapon == weapons[type])
 	{
-		m_CurrentWeapon = nullptr;
+		current_weapon = nullptr;
 	}
 	else
 	{
 		sItemSwitchSound.GetSound()->PlaySound();
 
-		m_CurrentWeapon = m_Weapons[type];
-		m_AmmoCount->FlagForUpdate();
-		m_CurrentWeapon->OnSelected();
+		current_weapon = weapons[type];
+		ammo_count_plate->FlagForUpdate();
+		current_weapon->OnSelected();
 	}
 }
 
 void Character::RemoveCombat()
 {
-	auto CurrentTick = m_World->GetTick();
-	if (m_TicksOfCombatUntilRegeneration > CurrentTick)
-		m_LastInCombat = 0;
+	auto CurrentTick = world->GetTick();
+	if (ticks_combat_until_regeneration > CurrentTick)
+		last_combat_timestamp = 0;
 	else
-		m_LastInCombat = CurrentTick - m_TicksOfCombatUntilRegeneration;
+		last_combat_timestamp = CurrentTick - ticks_combat_until_regeneration;
 }
 
-void Character::GiveWeapon(ProjectileWeapon *proj_weapon)
+void Character::GiveWeapon(ProjectileWeapon *new_weapon)
 {
-	WeaponType WepType = proj_weapon->WepType();
-	bool HoldingType = m_CurrentWeapon == m_Weapons[WepType];
+	if (!new_weapon)
+		return;
 
-	if (m_Weapons[WepType])
+	WeaponType weapon_type = new_weapon->GetWeaponType();
+	bool HoldingType = current_weapon == weapons[weapon_type];
+
+	if (weapons[weapon_type])
 	{ // Already has this type
-		auto Remaining = m_Weapons[WepType]->AddMagAmmo(proj_weapon->GetFullAmmo());
-		m_Weapons[WepType]->AddTrueAmmo(Remaining); // The remaining ammo from here gets sent to shadow realm
-		delete proj_weapon;
+		auto Remaining = weapons[weapon_type]->AddMagAmmo(new_weapon->GetFullAmmo());
+		weapons[weapon_type]->AddTrueAmmo(Remaining); // The remaining ammo from here gets sent to shadow realm
+		delete new_weapon;
 
 		if (HoldingType)
-			m_AmmoCount->FlagForUpdate();
+			ammo_count_plate->FlagForUpdate();
 	}
 	else
 	{
-		m_Weapons[WepType] = proj_weapon;
-		proj_weapon->SetParent(this);
-		m_CurrentWeapon = proj_weapon;
-		m_AmmoCount->FlagForUpdate();
+		weapons[weapon_type] = new_weapon;
+		new_weapon->SetParent(this);
+		current_weapon = new_weapon;
+		ammo_count_plate->FlagForUpdate();
 	}
 }
 
@@ -297,37 +254,38 @@ void Character::AmmoPickup(AmmoBox *ammo_box)
 	else
 		return; // AmmoBox type has no matching gun type
 
-	if (!m_Weapons[ReloadWeapon])
+	if (!weapons[ReloadWeapon])
 		return;
 
-	auto AmmoNeeded = m_Weapons[ReloadWeapon]->NeededTrueAmmo();
+	auto AmmoNeeded = weapons[ReloadWeapon]->NeededTrueAmmo();
 	auto TakenAmmo = ammo_box->TakeAmmo(AmmoNeeded);
-	m_Weapons[ReloadWeapon]->AddTrueAmmo(TakenAmmo);
+	weapons[ReloadWeapon]->AddTrueAmmo(TakenAmmo);
 	if (TakenAmmo > 0)
 		sAmmoPickupSound.GetSound()->PlaySound();
 
-	if (m_CurrentWeapon == m_Weapons[ReloadWeapon])
-		m_AmmoCount->FlagForUpdate();
+	if (current_weapon == weapons[ReloadWeapon])
+		ammo_count_plate->FlagForUpdate();
 }
 
 void Character::EventDeath()
 {
 	// Play a toned down version particle effect :)
 	sTextureBlood.GetTexture()->SetColorMod(255, 0, 0); //
-	auto particles = m_World->GetParticles();
+	Particles *particles = world->GetParticles();
+	Randomizer *randomizer = Application.GetRandomizer();
 	for (int i = 0; i < 50; i++)
 	{
 		Vec2f vel = {
-			m_Core.vel.x * (float)(rand()) / (float)RAND_MAX + 2.0f * ((float)(rand()) / (float)RAND_MAX * 2.0f - 1.0f),
-			m_Core.vel.y * (float)(rand()) / (float)RAND_MAX + 2.0f * ((float)(rand()) / (float)RAND_MAX * 2.0f - 1.0f)
+			core.vel.x * randomizer->Float() + 2.0f * (randomizer->Float() * 2.0f - 1.0f),
+			core.vel.y * randomizer->Float() + 2.0f * (randomizer->Float() * 2.0f - 1.0f)
 		};
 
-		float size = 5.0f + (float)(rand()) / (float)RAND_MAX * 10.0f;
-		float orientation = (float)(rand()) / (float)RAND_MAX * 360.0f;
+		float size = 5.0f + randomizer->Float() * 10.0f;
+		float orientation = randomizer->Float() * 360.0f;
 		particles->PlayParticle(
 			Particle(
 				sTextureBlood.GetTexture(),
-				m_Core.pos,
+				core.pos,
 				Vec2f(size, size),
 				vel,
 				0.95,
@@ -341,106 +299,105 @@ void Character::EventDeath()
 
 	for (int i = 0; i < NUM_WEAPONS; i++)
 	{
-		if (!m_Weapons[i])
+		ProjectileWeapon *weapon_data = weapons[i];
+		if (!weapon_data)
 			continue;
 
 		// In this case the dropper is already dead... so there is no real point to get his address?
 		// or maybe there is? No idea man I'm just a bored programmear -_-
-		ItemEntity *NewWeapon;
-		if (i == WEAPON_GLOCK)
-		{
-			NewWeapon = new EntityGlock(m_World, this, (WeaponGlock *)m_Weapons[WEAPON_GLOCK], m_Core.pos);
-			m_Weapons[WEAPON_GLOCK] = nullptr;
-		}
-		else if (i == WEAPON_SHOTGUN)
-		{
-			NewWeapon = new EntityShotgun(m_World, this, (WeaponShotgun *)m_Weapons[WEAPON_SHOTGUN], m_Core.pos);
-			m_Weapons[WEAPON_SHOTGUN] = nullptr;
-		}
-		else if (i == WEAPON_BURST)
-		{
-			NewWeapon = new EntityBurst(m_World, this, (WeaponBurst *)m_Weapons[WEAPON_BURST], m_Core.pos);
-			m_Weapons[WEAPON_BURST] = nullptr;
-		}
-		else if (i == WEAPON_MINIGUN)
-		{
-			NewWeapon = new EntityMinigun(m_World, this, (WeaponMinigun *)m_Weapons[WEAPON_MINIGUN], m_Core.pos);
-			m_Weapons[WEAPON_MINIGUN] = nullptr;
-		}
-		else if (i == WEAPON_SNIPER)
-		{
-			NewWeapon = new EntitySniper(m_World, this, (WeaponSniper *)m_Weapons[WEAPON_SNIPER], m_Core.pos);
-			m_Weapons[WEAPON_SNIPER] = nullptr;
-		}
-		else if (i == WEAPON_PATERSONNAVY)
-		{
-			NewWeapon = new EntityPatersonNavy(m_World, this, (PatersonNavy *)m_Weapons[WEAPON_PATERSONNAVY], m_Core.pos);
-			m_Weapons[WEAPON_PATERSONNAVY] = nullptr;
-		}
-		else
-		{
-			throw std::runtime_error("Unhandled weapon drop on death (TODO)");
-		}
+		ItemEntity *new_weapon_entity = EntityGuns::CreateItemEntityFromWeaponData(this, weapon_data, core.pos);
+		world->AddEntity(new_weapon_entity, true);
+		weapons[i] = nullptr;
 
-		NewWeapon->Accelerate(m_DirectionalCore.direction * 5);
-		NewWeapon->SetRotation(m_DirectionalCore.direction.Atan2());
-		NewWeapon->AccelerateRotation(std::fmod(Application.GetRandomizer()->Float(), 0.35f) - 0.175f);
+		new_weapon_entity->Accelerate(directional_core.direction * 5);
+		new_weapon_entity->SetRotation(directional_core.direction.Atan2());
+		new_weapon_entity->AccelerateRotation(std::fmod(Application.GetRandomizer()->Float(), 0.35f) - 0.175f);
+
+//		if (i == WEAPON_GLOCK)
+//		{
+//			new_weapon_entity = new EntityGlock(m_World, this, (WeaponGlock *)weapons[WEAPON_GLOCK], core.pos);
+//			weapons[WEAPON_GLOCK] = nullptr;
+//		}
+//		else if (i == WEAPON_SHOTGUN)
+//		{
+//			new_weapon_entity = new EntityShotgun(m_World, this, (WeaponShotgun *)weapons[WEAPON_SHOTGUN], core.pos);
+//			weapons[WEAPON_SHOTGUN] = nullptr;
+//		}
+//		else if (i == WEAPON_BURST)
+//		{
+//			new_weapon_entity = new EntityBurst(m_World, this, (WeaponBurst *)weapons[WEAPON_BURST], core.pos);
+//			weapons[WEAPON_BURST] = nullptr;
+//		}
+//		else if (i == WEAPON_MINIGUN)
+//		{
+//			new_weapon_entity = new EntityMinigun(m_World, this, (WeaponMinigun *)weapons[WEAPON_MINIGUN], core.pos);
+//			weapons[WEAPON_MINIGUN] = nullptr;
+//		}
+//		else if (i == WEAPON_SNIPER)
+//		{
+//			new_weapon_entity = new EntitySniper(m_World, this, (WeaponSniper *)weapons[WEAPON_SNIPER], core.pos);
+//			weapons[WEAPON_SNIPER] = nullptr;
+//		}
+//		else if (i == WEAPON_PATERSONNAVY)
+//		{
+//			new_weapon_entity = new EntityPatersonNavy(m_World, this, (PatersonNavy *)weapons[WEAPON_PATERSONNAVY], core.pos);
+//			weapons[WEAPON_PATERSONNAVY] = nullptr;
+//		}
+//		else
+//		{
+//			throw std::runtime_error("Unhandled weapon drop on death (TODO)");
+//		}
+
+
 	}
 
-	if (!m_NPC)
+	if (!is_npc)
 	{ // todo: prob better place for this code
-		int NumRealCharacters = 0;
-		auto characters = m_World->GetEntitiesByType(CHARACTER_ENTITY);
-		for (Entity *entity : characters)
+		int num_real_characters = 0;
+		for (Entity *other_entity : world->GetEntitiesByType(ENTITY_CHARACTER))
 		{
-			Character *Char = (Character *)entity;
-			if (!Char->IsNPC())
-				NumRealCharacters++;
+			Character *other_character = (Character *)other_entity;
+			if (!other_character->IsNPC())
+				num_real_characters++;
 		}
-		if (NumRealCharacters == 1)
-			m_World->AlliesGone();
+		if (num_real_characters == 1)
+			world->AlliesGone();
 	}
 
-	m_Alive = false;
+	alive = false;
 	sDeathSound.GetSound()->PlaySound();
 }
 
 void Character::TickKeyboardControls()
 { // TODO: move to characterInput class
-	bool Horizontal = m_Movement[CONTROL_LEFT] ^ m_Movement[CONTROL_RIGHT];
-	bool Vertical = m_Movement[CONTROL_UP] != m_Movement[CONTROL_DOWN];
+	bool Horizontal = movement[CONTROL_LEFT] ^ movement[CONTROL_RIGHT];
+	bool Vertical = movement[CONTROL_UP] != movement[CONTROL_DOWN];
 	float Unit = Horizontal && Vertical ? M_SQRT1_2 : 1.0f;
 
 //	if (Horizontal || Vertical)
 //		m_Input.m_GoingLength = 1.0;
 
 	input.going_direction.x = Horizontal ?
-							  m_Movement[CONTROL_LEFT] ? -Unit : Unit
+							  movement[CONTROL_LEFT] ? -Unit : Unit
 										 : 0.0f;
 
 	input.going_direction.y = Vertical ?
-							  m_Movement[CONTROL_UP] ? -Unit : Unit
+							  movement[CONTROL_UP] ? -Unit : Unit
 									   : 0.0f;
 
 	// RequestUpdate look direction
-	Vec2f mouse_pos = Application.GetMousePosition();
+	Vec2f mouse_pos = ApplicationClass::GetMousePosition();
 
 	Camera& camera = GameReference.GetCamera();
-	float zoom = camera.GetZoom();
 
-	Vec2f world_mouse_pos = camera.ScreenToCameraPoint(mouse_pos);
-	Vec2f looking_direction = m_Core.pos - world_mouse_pos;
-//	auto looking_direction = camera.GetPos() - Vec2f(m_Core.pos) + (mouse_pos - Application.GetHalfResolution()) / zoom;
-
+	Vec2f screen_character_pos = camera.CameraToScreenPoint(core.pos);
+	Vec2f looking_direction = mouse_pos - screen_character_pos;
 	input.looking_direction = looking_direction.NormalizeF();
-//	m_Input.m_LookingX = drawing->GetCameraX() - m_Core.Pos.x + (mouse_x - m_World->GameWindow()->GetWidth2()) / zoom;
-//	m_Input.m_LookingY = drawing->GetCameraY() - m_Core.Pos.y + (mouse_y - m_World->GameWindow()->GetHeight2()) / zoom;
-//	m_Input.m_LookingLength = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY).Length();
 
-	auto MouseState = SDL_GetMouseState(nullptr, nullptr);
-	input.shooting = MouseState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT); // If clicked, shoot = true
-	input.hooking = MouseState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT);
-	input.sneaking = m_Movement[CONTROL_SNEAK];
+	auto mouse_state = SDL_GetMouseState(nullptr, nullptr);
+	input.shooting = mouse_state & SDL_BUTTON_MASK(SDL_BUTTON_LEFT); // If clicked, shoot = true
+	input.hooking = mouse_state & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT);
+	input.sneaking = movement[CONTROL_SNEAK];
 
 	// Switch weapons TODO mouse input class
 	// m_Input.m_NextItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
@@ -492,10 +449,10 @@ void Character::TickKeyboardControls()
 // When in combat heal differently than out of combat
 void Character::TickHealth()
 {
-	auto CurrentTick = m_World->GetTick();
-	bool ActiveRegeneration = CurrentTick - m_LastInCombat < m_TicksOfCombatUntilRegeneration;
-	m_HealthComponent.ChangeHealthBy(+(ActiveRegeneration ? m_PassiveRegeneration : m_ActiveRegeneration));
-	m_HealthComponent.LimitHealthToMax();
+	auto CurrentTick = world->GetTick();
+	bool ActiveRegeneration = CurrentTick - last_combat_timestamp < ticks_combat_until_regeneration;
+	health_component.ChangeHealthBy(+(ActiveRegeneration ? passive_regeneration_rate : active_regeneration_rate));
+	health_component.LimitHealthToMax();
 }
 
 void Character::TickControls()
@@ -518,59 +475,59 @@ void Character::TickProcessInputs()
 		// Checks if player is shifting (holding left stick)
 		// TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
 
-		float Acceleration = (input.sneaking ? m_BaseAcceleration / 3 : m_BaseAcceleration) *
-			(m_ErrorStatuses.Disoriented.IsActive() ? -1.0f : 1.0f) *
-			(m_ErrorStatuses.Slowdown.IsActive() ? 0.5f : 1.0f) *
-			(m_CurrentWeapon ? 0.9f : 1.0f);
+		float Acceleration = (input.sneaking ? base_acceleration / 3 : base_acceleration) *
+			(error_statuses.Disoriented.IsActive() ? -1.0f : 1.0f) *
+			(error_statuses.Slowdown.IsActive() ? 0.5f : 1.0f) *
+			(current_weapon ? 0.9f : 1.0f);
 		// Accelerate in that direction
-		m_Core.vel += input.going_direction * Acceleration;
+		core.vel += input.going_direction * Acceleration;
 	}
 
 	if (input.looking_direction.Length() >= 0.6)
-		m_DirectionalCore.direction = input.looking_direction * (m_ErrorStatuses.Disoriented.IsActive() ? -1.0f : 1.0f);
+		directional_core.direction = input.looking_direction * (error_statuses.Disoriented.IsActive() ? -1.0f : 1.0f);
 	else if (input.going_direction.Length() >= 0.2)
-		m_DirectionalCore.direction = input.going_direction * (m_ErrorStatuses.Disoriented.IsActive() ? -1.0f : 1.0f);
+		directional_core.direction = input.going_direction * (error_statuses.Disoriented.IsActive() ? -1.0f : 1.0f);
 
 	if (input.next_item ^ input.prev_item
 		^ input.deselect_item)
 	{ // I hope this works as intended, only 1 at a time | ignore if multiple inputs at the same time
 		if (input.deselect_item)
 		{
-			m_SelectedWeaponIndex = -1;
+			selected_weapon_index = -1;
 		}
 		else if (input.next_item)
 		{
-			m_SelectedWeaponIndex++;
-			if (m_SelectedWeaponIndex == NUM_WEAPONS)
-				m_SelectedWeaponIndex = -1;
+			selected_weapon_index++;
+			if (selected_weapon_index == NUM_WEAPONS)
+				selected_weapon_index = -1;
 		}
 		else
 		{
-			m_SelectedWeaponIndex--;
-			if (m_SelectedWeaponIndex == -2)
-				m_SelectedWeaponIndex = NUM_WEAPONS - 1;
+			selected_weapon_index--;
+			if (selected_weapon_index == -2)
+				selected_weapon_index = NUM_WEAPONS - 1;
 		}
 
-		if (m_SelectedWeaponIndex == -1)
+		if (selected_weapon_index == -1)
 		{
-			m_CurrentWeapon = nullptr;
+			current_weapon = nullptr;
 		}
 		else
 		{
-			SwitchWeapon((WeaponType)m_SelectedWeaponIndex);
+			SwitchWeapon((WeaponType)selected_weapon_index);
 		} // yeaaaaaaa
 	}
 }
 
 void Character::TickHook(double elapsed_seconds)
 {
-	m_Hook.Tick(elapsed_seconds);
+	hook.Tick(elapsed_seconds);
 }
 
 void Character::TickCollision()
 {
 	// Handle collision with other characters
-	auto characters = m_World->GetEntitiesByType(CHARACTER_ENTITY);
+	auto characters = world->GetEntitiesByType(ENTITY_CHARACTER);
 	for (Entity *entity : characters)
 	{
 		auto other_character = (Character *)entity;
@@ -578,14 +535,15 @@ void Character::TickCollision()
 			continue;
 
 		EntityCore& other_core = other_character->GetCore();
-		Vec2f difference = m_Core.pos - other_core.pos;
+		Vec2f difference = core.pos - other_core.pos;
 
 		float distance = difference.LengthF();
-		if (distance > m_Core.size_ratio + other_core.size_ratio)
+		if (distance > core.size_ratio + other_core.size_ratio)
 			continue;
 
 		if (distance == 0.0f)
 		{
+//			float radians = Application.GetRandomizer()->Float()
 			float radians = static_cast<float>(rand() % 360) / 180.0f * static_cast<float>(M_PI);
 			difference = FromAngleVec2f(radians); // 1.0f
 //			distance_x = cos(radians);
@@ -596,48 +554,48 @@ void Character::TickCollision()
 		Vec2f push = difference.Normalize() * 0.5f;
 //		double XPush = distance_x / Distance * 0.5;
 //		double YPush = distance_y / Distance * 0.5;
-		m_Core.Accelerate(push);
+		core.Accelerate(push);
 		other_core.Accelerate(-push);
 
-		if (m_ErrorStatuses.Spiky.IsActive() && m_NPC != other_character->IsNPC())
+		if (error_statuses.Spiky.IsActive() && is_npc != other_character->IsNPC())
 			other_character->Damage(3, this);
 	}
 
 	// Handle collision with crates
-	auto crates = m_World->GetEntitiesByType(CRATE_ENTITY);
+	auto crates = world->GetEntitiesByType(ENTITY_CRATE);
 	for (Entity *entity : crates)
 	{
 		Crate *crate = (Crate *)entity;
 		EntityCore& crate_core = crate->GetCore();
-		Vec2f difference = m_Core.pos - crate_core.pos;
+		Vec2f difference = core.pos - crate_core.pos;
 
 		float distance = difference.LengthF();
-		float closest_possible_distance = crate_core.size_ratio + m_Core.size_ratio;
+		float closest_possible_distance = crate_core.size_ratio + core.size_ratio;
 
 		if (distance > closest_possible_distance)
 			continue;
 
-		m_Core.pos = crate_core.pos + difference / distance * closest_possible_distance;
+		core.pos = crate_core.pos + difference / distance * closest_possible_distance;
 	}
 }
 
 void Character::TickCurrentWeapon()
 {
-	if (m_CurrentWeapon)
+	if (current_weapon)
 	{
-		auto TempAmmo = m_CurrentWeapon->GetMagAmmo();
-		if (input.reloading && !m_LastInput.reloading)
-			m_CurrentWeapon->Reload();
+		auto TempAmmo = current_weapon->GetMagAmmo();
+		if (input.reloading && !last_input.reloading)
+			current_weapon->Reload();
 
-		m_CurrentWeapon->Tick();
-		auto CurrentAmmo = m_CurrentWeapon->GetMagAmmo();
+		current_weapon->Tick();
+		auto CurrentAmmo = current_weapon->GetMagAmmo();
 		if (TempAmmo != CurrentAmmo)
 		{
-			m_AmmoCount->FlagForUpdate();
+			ammo_count_plate->FlagForUpdate();
 			if (!CurrentAmmo && TempAmmo)
-			{ m_AmmoCount->SetColor({ 255, 0, 0 }); }
+			{ ammo_count_plate->SetColor({ 255, 0, 0 }); }
 			else
-			{ m_AmmoCount->SetColor({ 255, 255, 255 }); }
+			{ ammo_count_plate->SetColor({ 255, 255, 255 }); }
 		}
 	}
 }
@@ -645,23 +603,23 @@ void Character::TickCurrentWeapon()
 // Function to draw icons for error pickup
 void Character::DrawErrorIcons()
 {
-	m_ErrorStatuses.Draw();
+	error_statuses.Draw();
 }
 
 void Character::DrawCharacter()
 {
 	Drawing *drawing = Application.GetDrawing();
 	SDL_FRect draw_rect = {
-		float(m_Core.pos.x) - float(m_Core.size.x / 2.0),
-		float(m_Core.pos.y) - float(m_Core.size.y / 2.0),
-		float(m_Core.size.x),
-		float(m_Core.size.y)
+		core.pos.x - core.size.x / 2.0f,
+		core.pos.y - core.size.y / 2.0f,
+		core.size.x,
+		core.size.y
 	};
 
 	sCharacterTexture.GetTexture()
-		->SetColorMod(m_CharacterColor.r, m_CharacterColor.g, m_CharacterColor.b);
+		->SetColorMod(character_color.r, character_color.g, character_color.b);
 
-	Vec2f pointing_direction = m_DirectionalCore.direction * 3.0f + m_Core.vel / 3.0f;
+	Vec2f pointing_direction = directional_core.direction * 3.0f + core.vel / 3.0f;
 	double pointing_angle = pointing_direction.Atan2() / M_PI * 180.0;
 	drawing->RenderTextureRotated(sCharacterTexture.GetTexture()->SDLTexture(),
 								  nullptr,
@@ -677,54 +635,54 @@ void Character::DrawHook()
 	Drawing *drawing = Application.GetDrawing();
 
 	// Draw hook
-	if (m_Hook.m_Deployed)
+	if (hook.deployed)
 	{
-		drawing->SetColor(m_HookColor.r, m_HookColor.g, m_HookColor.b, 255);
-		drawing->DrawLine(m_Core.pos, m_Hook.pos, GameReference.GetCamera());
+		drawing->SetColor(hook_color.r, hook_color.g, hook_color.b, 255);
+		drawing->DrawLine(core.pos, hook.pos, GameReference.GetCamera());
 	}
 }
 
 void Character::DrawHealthbar()
 {
-	if (m_NPC)
+	if (is_npc)
 		return;
 
 	Drawing *drawing = Application.GetDrawing();
 
 	// Render health bar
-	if (m_HealthComponent.IsFullHealth())
+	if (health_component.IsFullHealth())
 		return;
 
-	m_HealthBar.SetColor(m_HealthbarColor.r, m_HealthbarColor.g, m_HealthbarColor.b, m_HealthbarColor.a);
-	Texture *HealthPlate = m_ErrorStatuses.ConfusingHealth.IsActive() ?
-						   m_HealthBar.GetTexture() : m_HealthBar.UpdateTexture();
+	health_bar.SetColor(healthbar_color.r, healthbar_color.g, healthbar_color.b, healthbar_color.a);
+	Texture *HealthPlate = error_statuses.ConfusingHealth.IsActive() ?
+						   health_bar.GetTexture() : health_bar.UpdateTexture();
 
 	float bar_width = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
 	float bar_height = HealthPlate->GetHeight();
 	SDL_FRect healthplate_rect = {
-		m_Core.pos.x - bar_width / 2.0f + 10.0f, // Adjust position to the right
-		m_Core.pos.y + m_Core.size.y / 2.0f,
+		core.pos.x - bar_width / 2.0f + 10.0f, // Adjust position to the right
+		core.pos.y + core.size.y / 2.0f,
 		bar_width, bar_height
 	};
 
-	if (m_HealthInt->GetFlaggedForUpdate())
+	if (health_amount_plate->GetFlaggedForUpdate())
 	{
 		std::string HealthText;
-		if (!m_ErrorStatuses.ConfusingHealth.IsActive())
-			HealthText = FString("%i/%i", int(m_HealthComponent.m_Health), int(m_HealthComponent.m_MaxHealth));
+		if (!error_statuses.ConfusingHealth.IsActive())
+			HealthText = FString("%i/%i", int(health_component.m_Health), int(health_component.m_MaxHealth));
 		else
 			HealthText = FString("%i/%i", int(rand() % 999), int(rand() % 999));
 
-		m_HealthInt->SetText(HealthText);
-		m_HealthInt->SetColor(m_HealthComponent.GetHealthInPercentage() <= 0.25 ? m_HealthRed : m_HealthBlack);
+		health_amount_plate->SetText(HealthText);
+		health_amount_plate->SetColor(health_component.GetHealthInPercentage() <= 0.25 ? health_red_color : health_black_color);
 	}
 
-	Texture *HealthTexture = m_HealthInt->RequestUpdate();
+	Texture *HealthTexture = health_amount_plate->RequestUpdate();
 	float HealthTextureW = HealthTexture->GetWidth();
 	float HealthTextureH = HealthTexture->GetHeight();
 	SDL_FRect HealthIntRect = {
-		m_Core.pos.x - HealthTextureW / 4.0f + 10.0f, // Adjust position to the right
-		m_Core.pos.y + m_Core.size.y / 2.0f + HealthTextureH / 4.0f,
+		core.pos.x - HealthTextureW / 4.0f + 10.0f, // Adjust position to the right
+		core.pos.y + core.size.y / 2.0f + HealthTextureH / 4.0f,
 		HealthTextureW / 2.0f,
 		HealthTextureH / 2.0f
 	};
@@ -733,15 +691,15 @@ void Character::DrawHealthbar()
 	drawing->RenderTexture(HealthTexture->SDLTexture(), nullptr, HealthIntRect, GameReference.GetCamera());
 
 	// Draw level indicator
-	std::string LevelText = FString("LVL %i", m_Player->GetLevel()); // Use the level value directly
+	std::string LevelText = FString("LVL %i", player->GetLevel()); // Use the level value directly
 	TextSurface LevelSurface(CommonUI::fontSmall, LevelText, { 255, 255, 255 });
 
 	Texture *LevelTexture = LevelSurface.RequestUpdate();
 	float LevelTextureW = LevelTexture->GetWidth();
 	float LevelTextureH = LevelTexture->GetHeight();
 	SDL_FRect LevelRect = {
-		m_Core.pos.x - bar_width / 2.0f - LevelTextureW + 5.0f, // Position to the left of the health bar
-		m_Core.pos.y + m_Core.size.y / 2.0f + 3.0f,
+		core.pos.x - bar_width / 2.0f - LevelTextureW + 5.0f, // Position to the left of the health bar
+		core.pos.y + core.size.y / 2.0f + 3.0f,
 		LevelTextureW,
 		LevelTextureH
 	};
@@ -754,79 +712,81 @@ void Character::DrawHands()
 	Drawing *drawing = Application.GetDrawing();
 	auto camera = GameReference.GetCamera();
 
-	m_Hands.SetColor(m_HandColor);
-	m_Hands.Draw();
+	hands.SetColor(hand_color);
+	hands.Draw();
 
-	if (m_CurrentWeapon)
+	// Draw holding gun
+	if (!current_weapon)
+		return;
+
+	Texture *texture = current_weapon->GetTexture();
+	float Radians = directional_core.direction.Atan2F();
+	Vec2f HoldPosition = current_weapon->GetHoldPosition().RotateF(Radians);
+
+	SDL_FRect WeaponRect = { 0, 0, texture->GetWidth(), texture->GetHeight() };
+	WeaponRect.w *= 4.0f;
+	WeaponRect.h *= 4.0f;
+	WeaponRect.x = core.pos.x + HoldPosition.x;
+	WeaponRect.y = core.pos.y + HoldPosition.y - WeaponRect.h / 2.0f;
+	SDL_FPoint WeaponPivot = { 0, WeaponRect.h / 2.0f * camera.GetZoom() }; // ??? zoom
+
+	// Laser sight
+	if (current_weapon->GetWeaponType() == WeaponType::WEAPON_SNIPER)
 	{
-		const Texture *texture = m_CurrentWeapon->GetTexture();
-		float Radians = m_DirectionalCore.direction.Atan2F();
-		Vec2f HoldPosition = m_CurrentWeapon->GetHoldPosition().RotateF(Radians);
-
-		SDL_FRect WeaponRect = { 0, 0, texture->GetWidth(), texture->GetHeight() };
-		WeaponRect.w *= 4.0f;
-		WeaponRect.h *= 4.0f;
-		WeaponRect.x = m_Core.pos.x + HoldPosition.x;
-		WeaponRect.y = m_Core.pos.y + HoldPosition.y - WeaponRect.h / 2.0f;
-		SDL_FPoint WeaponPivot = { 0, WeaponRect.h / 2.0f * camera.GetZoom() }; // ??? zoom
-
-		// Laser sight
-		if (m_CurrentWeapon->WepType() == WeaponType::WEAPON_SNIPER)
+		auto direction = directional_core.direction;
+		Vec2f current_position = core.pos;
+		for (int i = 0; i < 10000; i++)
 		{
-			auto direction = m_DirectionalCore.direction;
-			Vec2f current_position = m_Core.pos;
-			for (int i = 0; i < 10000; i++)
+			current_position += direction;
+
+			// Check against walls
+			if (current_position.x < 0 ||
+				current_position.y < 0 ||
+				current_position.x > world->GetWidth() ||
+				current_position.y > world->GetHeight())
+				break;
+
+			// Check against entities
+			bool found = false;
+			for (Entity *entity : world->GetEntities())
 			{
-				current_position += direction;
+				if (entity == this || !entity->HasHealthComponent())
+					continue;
 
-				// Check against walls
-				if (current_position.x < 0 ||
-					current_position.y < 0 ||
-					current_position.x > m_World->GetWidth() ||
-					current_position.y > m_World->GetHeight())
-					break;
-
-				// Check against entities
-				bool found = false;
-				for (Entity *entity : m_World->GetEntities())
+				double distance = DistanceVec2f(current_position, entity->GetCore().pos);
+				if (distance <= entity->GetCore().size_ratio)
 				{
-					if (entity == this || !entity->HasHealthComponent())
-						continue;
-
-					double distance = DistanceVec2f(current_position, entity->GetCore().pos);
-					if (distance <= entity->GetCore().size_ratio)
-					{
-						found = true;
-						break;
-					}
+					found = true;
+					break;
 				}
-
-				if (found) break;
 			}
-			drawing->SetColor(255, 0, 0, 255);
-			drawing->DrawLine(m_Core.pos, current_position, GameReference.GetCamera());
-//			drawing->LineCamera(m_Core.pos.x, m_Core.pos.y, current_position.x, current_position.y);
-		}
 
-		drawing->RenderTextureRotated(texture->SDLTexture(),
-									  nullptr,
-									  WeaponRect,
-									  Radians / M_PI * 180.0,
-									  &WeaponPivot,
-									  SDL_FLIP_VERTICAL,
-									  GameReference.GetCamera());
+			if (found) break;
+		}
+		drawing->SetColor(255, 0, 0, 255);
+		drawing->DrawLine(core.pos, current_position, GameReference.GetCamera());
+//			drawing->LineCamera(m_Core.pos.x, m_Core.pos.y, current_position.x, current_position.y);
+	}
+
+	drawing->RenderTextureRotated(texture->SDLTexture(),
+								  nullptr,
+								  WeaponRect,
+								  Radians / M_PI * 180.0,
+								  &WeaponPivot,
+								  SDL_FLIP_VERTICAL,
+								  GameReference.GetCamera());
 //		drawing->RenderTextureExFCamera(texture->SDLTexture(),
 //										nullptr,
 //										WeaponRect,
 //										Radians / M_PI * 180.0,
 //										&WeaponPivot,
 //										SDL_FLIP_VERTICAL);
-	}
+
 }
 
 void Character::DrawNameplate()
 {
-	double NameVisibility = m_World->GetNamesShown();
+	double NameVisibility = world->GetNamesShown();
 	if (NameVisibility == 0.0)
 		return;
 
@@ -834,12 +794,12 @@ void Character::DrawNameplate()
 
 	Drawing *drawing = Application.GetDrawing();
 
-	Texture *NamePlateTexture = m_Player ? m_Player->GetNamePlate()->RequestUpdate() : ms_BotNamePlate->GetTexture();
+	Texture *NamePlateTexture = player ? player->GetNamePlate()->RequestUpdate() : sBotNameplate->GetTexture();
 	float NamePlateW = NamePlateTexture->GetWidth();
 	float NamePlateH = NamePlateTexture->GetHeight();
 	SDL_FRect NamePlateRect = {
-		m_Core.pos.x - NamePlateW / 2.0f,
-		m_Core.pos.y - m_Core.size.y / 2.0f - NamePlateH,
+		core.pos.x - NamePlateW / 2.0f,
+		core.pos.y - core.size.y / 2.0f - NamePlateH,
 		NamePlateW, NamePlateH
 	};
 
@@ -847,15 +807,15 @@ void Character::DrawNameplate()
 	drawing->RenderTexture(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect, GameReference.GetCamera());
 //	drawing->RenderTextureCamera(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect);
 
-	auto CoordinateText = FString("%ix, %iy", int(m_Core.pos.x), int(m_Core.pos.y));
-	m_CoordinatePlate->SetText(CoordinateText);
-	m_CoordinatePlate->SetColor(m_NameplateColor);
-	Texture *CoordinateTexture = m_CoordinatePlate->RequestUpdate();
+	auto CoordinateText = FString("%ix, %iy", int(core.pos.x), int(core.pos.y));
+	coordinate_plate->SetText(CoordinateText);
+	coordinate_plate->SetColor(nameplate_color);
+	Texture *CoordinateTexture = coordinate_plate->RequestUpdate();
 
 	float CoordinatePlateW = NamePlateTexture->GetWidth();
 	float CoordinatePlateH = NamePlateTexture->GetHeight();
 	SDL_FRect CoordinateRect = {
-		m_Core.pos.x - CoordinatePlateW / 2.0f,
+		core.pos.x - CoordinatePlateW / 2.0f,
 		NamePlateRect.y - CoordinatePlateH,
 		CoordinatePlateW, CoordinatePlateH
 	};
@@ -870,17 +830,17 @@ void Character::DrawAmmoCounter()
 	Camera& camera = GameReference.GetCamera();
 
 	char msg[64];
-	std::snprintf(msg, sizeof(msg), "%u/%u", m_CurrentWeapon->GetMagAmmo(), m_CurrentWeapon->GetTrueAmmo());
-	m_AmmoCount->SetText(msg);
-	if (m_CurrentWeapon->GetMagAmmo() == 0) m_AmmoCount->SetColor({ 255, 0, 0 });
-	else m_AmmoCount->SetColor({ 255, 255, 255 });
+	std::snprintf(msg, sizeof(msg), "%u/%u", current_weapon->GetMagAmmo(), current_weapon->GetTrueAmmo());
+	ammo_count_plate->SetText(msg);
+	if (current_weapon->GetMagAmmo() == 0) ammo_count_plate->SetColor({ 255, 0, 0 });
+	else ammo_count_plate->SetColor({ 255, 255, 255 });
 
-	Texture *AmmoTexture = m_AmmoCount->RequestUpdate();
+	Texture *AmmoTexture = ammo_count_plate->RequestUpdate();
 	float AmmoTextureW = AmmoTexture->GetWidth();
 	float AmmoTextureH = AmmoTexture->GetHeight();
 	SDL_FRect AmmoRect = {
-		m_Core.pos.x - AmmoTextureW / 2.0f,
-		m_Core.pos.y + m_Core.size.y / 2.0f + 20.0f,
+		core.pos.x - AmmoTextureW / 2.0f,
+		core.pos.y + core.size.y / 2.0f + 20.0f,
 		AmmoTextureW, AmmoTextureH
 	};
 	drawing->RenderTexture(AmmoTexture->SDLTexture(), nullptr, AmmoRect, camera);
@@ -889,24 +849,24 @@ void Character::DrawAmmoCounter()
 
 void Character::DrawErrorName()
 {
-	if (!m_ErrorStatuses.AnyActive(2.0))
+	if (!error_statuses.AnyActive(2.0))
 		return;
 
 	Drawing *drawing = Application.GetDrawing();
-	auto error_message = FString("Error %s activated", m_ErrorStatuses.GetLastActivated()->Name());
+	auto error_message = FString("Error %s activated", error_statuses.GetLastActivated()->Name());
 
-	if (m_ErrorText->GetText() != error_message)
+	if (error_notification_text->GetText() != error_message)
 	{
-		m_ErrorText->SetText(error_message);
-		m_ErrorText->FlagForUpdate();
+		error_notification_text->SetText(error_message);
+		error_notification_text->FlagForUpdate();
 	}
 
-	Texture *ErrorTexture = m_ErrorText->RequestUpdate();
+	Texture *ErrorTexture = error_notification_text->RequestUpdate();
 	float Text_w = ErrorTexture->GetWidth();
 	float Text_h = ErrorTexture->GetHeight();
 	SDL_FRect ErrorRect = {
-		m_Core.pos.x - Text_w / 2.0f,
-		m_Core.pos.y - 50.0f,
+		core.pos.x - Text_w / 2.0f,
+		core.pos.y - 50.0f,
 		Text_w, Text_h
 	};
 	drawing->RenderTexture(ErrorTexture->SDLTexture(), nullptr, ErrorRect, GameReference.GetCamera());
@@ -915,7 +875,7 @@ void Character::DrawErrorName()
 
 void Character::HandleEvent(const SDL_Event& currentEvent)
 {
-	if (m_NPC) // || m_GameController)
+	if (is_npc) // || m_GameController)
 		return;
 
 	if (currentEvent.type == SDL_EVENT_KEY_DOWN && currentEvent.key.repeat == 0 ||
@@ -927,7 +887,7 @@ void Character::HandleEvent(const SDL_Event& currentEvent)
 			int KeyCode = currentEvent.key.scancode;
 			if (KeyCode == SDL_SCANCODE_GRAVE)
 			{
-				m_CurrentWeapon = nullptr;
+				current_weapon = nullptr;
 			}
 			else if (KeyCode == SDL_SCANCODE_1)
 			{
@@ -964,8 +924,8 @@ void Character::HandleEvent(const SDL_Event& currentEvent)
 			input.reloading = State;
 
 		for (int i = 0; i < NUM_CONTROLS; i++)
-			if (currentEvent.key.scancode == ms_DefaultControls[i])
-				m_Movement[i] = State;
+			if (currentEvent.key.scancode == sDefaultControls[i])
+				movement[i] = State;
 	}
 }
 
@@ -976,8 +936,8 @@ void Character::Tick(double elapsed_seconds)
 	TickProcessInputs(); // Do stuff depending on the current held buttons
 	TickHook(elapsed_seconds);          // Move hook and or player etc.
 	TickCurrentWeapon(); // Shoot accelerate reload etc.
-	m_Hands.Tick();
-	m_ErrorStatuses.Tick();
+	hands.Tick();
+	error_statuses.Tick();
 //    TickErrorTimers(); // Ticks timer for errors
 	// Need every characters to get here..
 	// then we apply the accelerations of all
@@ -989,30 +949,30 @@ void Character::Tick(double elapsed_seconds)
 	TickWalls();    // Check if colliding with walls
 
 	// Check if health on screen needs updating
-	if ((int)(m_HealthComponent.m_Health) != (int)(m_HealthComponent.m_LastHealth))
-		m_HealthInt->FlagForUpdate();
+	if ((int)(health_component.m_Health) != (int)(health_component.m_LastHealth))
+		health_amount_plate->FlagForUpdate();
 
 	// Check if coordinate plate on screen needs updating
-	if (m_World->GetNamesShown() > 0.05 &&
-		((int)(m_Core.pos.x) != (int)(m_LastCore.pos.x) ||
-			(int)(m_Core.pos.y) != (int)(m_LastCore.pos.y)))
-		m_CoordinatePlate->FlagForUpdate();
+	if (world->GetNamesShown() > 0.05 &&
+		((int)(core.pos.x) != (int)(last_core.pos.x) ||
+			(int)(core.pos.y) != (int)(last_core.pos.y)))
+		coordinate_plate->FlagForUpdate();
 
-	m_HitTicks -= 1;
-	if (m_HitTicks < 0)
-		m_HitTicks = 0;
+	hit_ticks -= 1;
+	if (hit_ticks < 0)
+		hit_ticks = 0;
 
 	// Summarize the current tick
-	m_HealthComponent.TickUpdateLastHealth();
+	health_component.TickUpdateLastHealth();
 	TickUpdateLastCore();
-	memcpy(&m_LastInput, &input, sizeof(CharacterInput));
+	memcpy(&last_input, &input, sizeof(CharacterInput));
 
-	if (!m_HealthComponent.IsAlive())
+	if (!health_component.IsAlive())
 	{
 		// Extra life
-		if (m_Player && m_Player->GetExtraLifeStatus())
+		if (player && player->GetExtraLifeStatus())
 		{
-			m_Player->GetCharacter()->GetErrorStatuses().Invincible.Activate();
+			player->GetCharacter()->GetErrorStatuses().Invincible.Activate();
 			return;
 		}
 
@@ -1023,13 +983,13 @@ void Character::Tick(double elapsed_seconds)
 
 void Character::Draw()
 {
-	double HealthPercentage = m_HealthComponent.GetHealthInPercentage();
-	double Hue = m_HitTicks ? 0.0 : m_ColorHue;
-	m_CharacterColor = HSLtoRGB({ Hue, 1.0, 0.4 + HealthPercentage * 0.35 });
-	m_HookColor = HSLtoRGB({ Hue, 0.5, 1.0 });
-	m_HealthbarColor = m_CharacterColor;
-	m_HandColor = HSLtoRGB({ Hue, 1.0, 0.2 + HealthPercentage * 0.3 });
-	m_NameplateColor = m_HandColor;
+	double HealthPercentage = health_component.GetHealthInPercentage();
+	double Hue = hit_ticks ? 0.0 : color_hue;
+	character_color = HSLtoRGB({ Hue, 1.0, 0.4 + HealthPercentage * 0.35 });
+	hook_color = HSLtoRGB({ Hue, 0.5, 1.0 });
+	healthbar_color = character_color;
+	hand_color = HSLtoRGB({ Hue, 1.0, 0.2 + HealthPercentage * 0.3 });
+	nameplate_color = hand_color;
 
 	DrawHook();
 	DrawHands();
@@ -1038,7 +998,7 @@ void Character::Draw()
 	DrawNameplate();
 	DrawErrorIcons();
 
-	if (m_CurrentWeapon)
+	if (current_weapon)
 		DrawAmmoCounter();
 
 	DrawErrorName();

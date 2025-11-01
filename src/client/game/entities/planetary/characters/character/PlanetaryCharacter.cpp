@@ -7,13 +7,12 @@
 #include <random>
 
 // PlanetaryCharacter Implementation
-PlanetaryCharacter::PlanetaryCharacter(PlanetaryGameWorld *planetaryGameWorld,
-									   Player *player,
+PlanetaryCharacter::PlanetaryCharacter(Player *player,
 									   double max_health,
 									   const Vec2f& start_pos,
 									   const Vec2f& start_vel,
 									   bool is_npc)
-	: Character((GameWorld *)planetaryGameWorld, player, max_health, start_pos, start_vel, is_npc),
+	: Character(player, max_health, start_pos, start_vel, is_npc),
 	  m_PlanetaryWorld(planetaryGameWorld->GetCurrentPlanet())
 {
 	if (!m_PlanetaryWorld)
@@ -29,19 +28,19 @@ void PlanetaryCharacter::SetPlanetaryWorld(PlanetaryWorld *world)
 	m_PlanetaryWorld = world;
 	if (world)
 	{
-		m_PlanetaryPos = world->WorldToPlanetary(m_Core.pos);
+		m_PlanetaryPos = world->WorldToPlanetary(core.pos);
 	}
 }
 
 void PlanetaryCharacter::SetPlanetaryPosition(const PlanetaryCoords& coords)
 {
 	m_PlanetaryPos = coords;
-	m_Core.pos = coords.ToCartesian();
+	core.pos = coords.ToCartesian();
 }
 
 Vec2f PlanetaryCharacter::GetUpDirection() const
 {
-	return m_Core.pos.NormalizeF();
+	return core.pos.NormalizeF();
 }
 
 Vec2f PlanetaryCharacter::GetRightDirection() const
@@ -67,8 +66,8 @@ void PlanetaryCharacter::TickControls()
 
 void PlanetaryCharacter::TickPlanetaryKeyboardControls()
 {
-	PlanetaryGameWorld *world = dynamic_cast<PlanetaryGameWorld *>(m_World);
-	PlanetaryWorld *planet = world ? world->GetCurrentPlanet() : nullptr;
+	PlanetaryGameWorld *planetary_world = dynamic_cast<PlanetaryGameWorld *>(world); // todo: instead prevent adding planetary character to regular world
+	PlanetaryWorld *planet = planetary_world ? planetary_world->GetCurrentPlanet() : nullptr;
 	if (!planet)
 		return;
 
@@ -86,31 +85,30 @@ void PlanetaryCharacter::TickPlanetaryKeyboardControls()
 	float long_change = 0.0f;
 
 	// --- Keyboard input for movement ---
-	if (m_Movement[CONTROL_LEFT])
+	if (movement[CONTROL_LEFT])
 		long_change += move_speed;
-	if (m_Movement[CONTROL_RIGHT])
+	if (movement[CONTROL_RIGHT])
 		long_change -= move_speed;
-	if (m_Movement[CONTROL_UP])
+	if (movement[CONTROL_UP])
 		lat_change -= move_speed;
-	if (m_Movement[CONTROL_DOWN])
+	if (movement[CONTROL_DOWN])
 		lat_change += move_speed;
 
 	pos.latitude += lat_change;
 	pos.longitude += long_change;
 
-	world->GetCurrentPlanet()->AddAngles(-long_change, -lat_change);
+	planetary_world->GetCurrentPlanet()->AddAngles(-long_change, -lat_change);
 
 	m_PlanetaryPos = pos;
 
 	// --- Mouse aim direction (relative to camera) ---
-	Vec2f mouse_pos = Application.GetMousePosition();
+	Vec2f mouse_pos = ApplicationClass::GetMousePosition();
 
-	Drawing *drawing = Application.GetDrawing();
 	Camera& camera = GameReference.GetCamera();
 //	double zoom = drawing->GetZoom();
 
 	Vec2f world_mouse_pos = camera.ScreenToCameraPoint(mouse_pos);
-	input.looking_direction = (m_Core.pos - world_mouse_pos).NormalizeF();
+	input.looking_direction = (core.pos - world_mouse_pos).NormalizeF();
 //	input.m_LookingX = drawing->GetCameraX() - m_Core.pos.x + (mouseX - world->GameWindow()->GetWidth2()) / zoom;
 //	input.m_LookingY = drawing->GetCameraY() - m_Core.pos.y + (mouseY - world->GameWindow()->GetHeight2()) / zoom;
 //	input.m_LookingLength = Vec2d(input.m_LookingX, input.m_LookingY).Length();
@@ -130,7 +128,7 @@ void PlanetaryCharacter::TickPlanetaryKeyboardControls()
 	auto mouse_state = SDL_GetMouseState(nullptr, nullptr);
 	input.shooting = mouse_state & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 	input.hooking = mouse_state & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT);
-	input.sneaking = m_Movement[CONTROL_SNEAK];
+	input.sneaking = movement[CONTROL_SNEAK];
 }
 
 void PlanetaryCharacter::TickCollision()
@@ -142,14 +140,14 @@ void PlanetaryCharacter::Draw()
 {
 	// Use planetary coordinates for drawing so the character is rendered on the spherical surface
 	// without permanently changing the entity core used by physics.
-	Vec2f original_pos = m_Core.pos;
+	Vec2f original_pos = core.pos;
 	Vec2f cart = m_PlanetaryPos.ToCartesian();
-	m_Core.pos = cart;
+	core.pos = cart;
 
 	Character::Draw();
 
 	// Restore original position used for physics and other logic
-	m_Core.pos = original_pos;
+	core.pos = original_pos;
 }
 
 void PlanetaryCharacter::DrawNameplate()
@@ -157,19 +155,19 @@ void PlanetaryCharacter::DrawNameplate()
 	// Assume planetary characters always have a planet; draw lon/lat in the coordinate plate
 	Drawing *drawing = Application.GetDrawing();
 
-	double NameVisibility = m_World->GetNamesShown();
+	double NameVisibility = world->GetNamesShown();
 	if (NameVisibility == 0.0)
 		return;
 
 	int Opacity = int(NameVisibility * 255.0);
 
-	Texture *NamePlateTexture = m_Player ? m_Player->GetNamePlate()->RequestUpdate() : ms_BotNamePlate->GetTexture();
+	Texture *NamePlateTexture = player ? player->GetNamePlate()->RequestUpdate() : sBotNameplate->GetTexture();
 
 	float NamePlateW = NamePlateTexture->GetWidth();
 	float NamePlateH = NamePlateTexture->GetHeight();
 	SDL_FRect NamePlateRect = {
-		m_Core.pos.x - NamePlateW / 2.0f,
-		m_Core.pos.y - m_Core.size.y / 2.0f - NamePlateH,
+		core.pos.x - NamePlateW / 2.0f,
+		core.pos.y - core.size.y / 2.0f - NamePlateH,
 		NamePlateW, NamePlateH
 	};
 
@@ -182,14 +180,14 @@ void PlanetaryCharacter::DrawNameplate()
 	double lonDeg = pc.longitude * 180.0 / M_PI;
 	double latDeg = pc.latitude * 180.0 / M_PI;
 	auto CoordinateText = FString("%+.2fLon, %+.2fLat", lonDeg, latDeg);
-	m_CoordinatePlate->SetText(CoordinateText);
-	m_CoordinatePlate->SetColor(m_NameplateColor);
-	Texture *CoordinateTexture = m_CoordinatePlate->RequestUpdate();
+	coordinate_plate->SetText(CoordinateText);
+	coordinate_plate->SetColor(nameplate_color);
+	Texture *CoordinateTexture = coordinate_plate->RequestUpdate();
 
 	float CoordinatePlateW = NamePlateTexture->GetWidth();
 	float CoordinatePlateH = NamePlateTexture->GetHeight();
 	SDL_FRect CoordinateRect = {
-		m_Core.pos.x - CoordinatePlateW / 2.0f,
+		core.pos.x - CoordinatePlateW / 2.0f,
 		NamePlateRect.y - CoordinatePlateH,
 		CoordinatePlateW, CoordinatePlateH
 	};
@@ -204,7 +202,7 @@ void PlanetaryCharacter::Tick(double seconds_elapsed)
 	TickControls();
 	// Sync core pos
 	if (m_PlanetaryWorld)
-		m_Core.pos = m_PlanetaryPos.ToCartesian();
+		core.pos = m_PlanetaryPos.ToCartesian();
 
 	// Run base tick for animations, health, etc., but avoid applying Cartesian velocity
 	Character::Tick(seconds_elapsed);

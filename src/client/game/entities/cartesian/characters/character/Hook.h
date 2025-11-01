@@ -16,20 +16,20 @@ struct Hook
 		GRABBED_WALL
 	};
 
-	Character *m_Parent;
+	Character *parent;
 	Vec2f pos;
 	Vec2f vel;
-	float m_MaxLength;
-	float m_HookTravelSpeed;
-	float m_WallDragForce;
-	float m_HookStrength;
-	float m_HookerInfluenceRatio;
-	float m_HookistInfluenceRatio;
-	bool m_Deployed;
-	int m_Grabbed;
-	Entity *m_GrabbedEntity;
+	float max_length;
+	float hook_travel_speed;
+	float wall_drag_force;
+	float hook_strength;
+	float hooker_influence_ratio;
+	float hookist_influence_ratio;
+	bool deployed;
+	int grabbed;
+	Entity *grabbed_entity;
 
-	explicit Hook(Character *parent);
+	explicit Hook(Character *parent_character);
 
 	// Setting
 	void SetInfluenceRatio(double ratio);

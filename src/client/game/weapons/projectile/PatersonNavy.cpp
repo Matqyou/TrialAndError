@@ -24,7 +24,8 @@ PatersonNavy::PatersonNavy(DirectionalEntity *parent)
 					   60,
 					   6,
 					   6 * 6,
-					   45.0, false)
+					   45.0f,
+					   false)
 {
 	m_BaseRecoilForce = 5.0;
 	m_RecoilForce = m_BaseRecoilForce;
@@ -33,7 +34,7 @@ PatersonNavy::PatersonNavy(DirectionalEntity *parent)
 
 void PatersonNavy::Tick()
 {
-	if (m_Parent->GetType() != CHARACTER_ENTITY)
+	if (m_Parent->GetType() != ENTITY_CHARACTER)
 	{
 		std::printf("Warning: Weapon holder is not a characters (no support for error powerups)");
 		return;
@@ -57,13 +58,13 @@ void PatersonNavy::Tick()
 			sShootSound.GetSound()->PlaySound();
 
 			Vec2f ProjectileVelocity = ShooterCore.direction * m_ProjectileSpeed;
-			new Projectile(World,
-						   m_Parent,
+			auto new_projectile = new Projectile(m_Parent,
 						   WEAPON_GLOCK,
 						   sTextureProjectile.GetTexture(),
 						   m_Damage,
 						   ShooterCore.pos,
 						   ProjectileVelocity);
+			World->AddEntity(new_projectile, true);
 
 			float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
 						   m_RecoilForce * 3.0f : m_RecoilForce;

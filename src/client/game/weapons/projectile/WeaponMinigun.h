@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include "ProjectileWeapon.h"
+#include "client/game/weapons/projectile/base/ProjectileWeapon.h"
 
 class WeaponMinigun : public ProjectileWeapon
 {
 private:
-	double m_RecoilForce, m_BaseRecoilForce;
+	float m_RecoilForce, m_BaseRecoilForce;
 	double m_Damage;
 
 	double m_RateAcceleration;
@@ -32,4 +32,5 @@ public:
 	void Tick() override;
 	void Reload() override;
 	void OnSelected() override;
+
 };

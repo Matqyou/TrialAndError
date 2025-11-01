@@ -19,15 +19,14 @@ class Player;
 class Entity;
 class Character;
 class Crate;
-class PauseMenu;
-class LevelUpMenu;
+//class PauseMenu;
+//class LevelUpMenu;
 
 class GameWorld
 {
 protected:
-	GameData *m_GameWindow;
-	PauseMenu *m_PauseMenu;
-	LevelUpMenu *m_LevelUpMenu;
+//	PauseMenu *m_PauseMenu;
+//	LevelUpMenu *m_LevelUpMenu;
 	TileMap *m_Tiles;
 	Particles *m_Particles;
 	float m_Width, m_Height;
@@ -36,7 +35,8 @@ protected:
 	bool m_Paused;
 	bool m_GameOver;
 	bool m_LevelUpDelay;
-	std::vector<Player *> players;
+//	std::vector<Player *> players;
+	std::vector<Entity *> pending_entities; // added after current tick
 	std::vector<Entity *> entities;
 	std::vector<Entity *> entities_by_types[NUM_ENTITY_TYPES];
 	unsigned long long m_CurrentTick;
@@ -63,7 +63,8 @@ protected:
 	virtual void TickCamera(double elapsed_seconds);
 	virtual void TickSpawner(double elapsed_seconds);
 	virtual void TickEntities(double elapsed_seconds);
-	virtual void TickDestroy(double seconds_elapsed);
+	void TickPending();
+	void TickDestroy();
 	virtual void TickBackground(double seconds_elapsed);
 
 public:
@@ -79,8 +80,7 @@ public:
 	[[nodiscard]] double GetNamesShown() const { return m_ShowNamesVisibility < 0.1 ? 0.0 : m_ShowNamesVisibility; }
 	[[nodiscard]] bool GameOver() const { return m_GameOver; }
 	[[nodiscard]] unsigned long long GetTick() const { return m_CurrentTick; }
-	[[nodiscard]] unsigned int GetNextPlayerIndex() const;
-	[[nodiscard]] std::vector<Player *>& GetPlayers() { return players; }
+//	[[nodiscard]] std::vector<Player *>& GetPlayers() { return players; }
 	[[nodiscard]] std::vector<Entity *>& GetEntities() { return entities; }
 	[[nodiscard]] std::vector<Entity *>& GetEntitiesByType(int entity_type) { return entities_by_types[entity_type]; }
 	[[nodiscard]] bool GetDelay() const { return m_LevelUpDelay; }
@@ -97,7 +97,7 @@ public:
 	void CheckLevelUps();
 
 	// Manipulating
-	void InitPlayers();
+//	void InitPlayers();
 	void AddScore(unsigned int score);
 //	void DestroyPlayerByController(GameController *DeletedController) const;
 //	void DestroyCharacterByController(GameController *DeletedController) const;
@@ -105,9 +105,7 @@ public:
 	void SetTestingMode(bool testing_mode) { m_TestingMode = testing_mode; }
 
 	// Managing
-	Player *AddPlayer(Player *player);
-	Entity *AddEntity(Entity *entity);
-	void RemovePlayer(Player *player);
+	Entity *AddEntity(Entity *new_entity, bool add_next_tick = true);
 	void RemoveEntity(Entity *entity);
 
 	// Ticking

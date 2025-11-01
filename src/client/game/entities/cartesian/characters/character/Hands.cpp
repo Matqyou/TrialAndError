@@ -80,7 +80,7 @@ void Hands::Tick()
 		for (Entity *entity : World->GetEntities())
 		{
 			if (entity == m_Parent) continue;
-			if (entity->GetType() == CHARACTER_ENTITY &&
+			if (entity->GetType() == ENTITY_CHARACTER &&
 				m_Parent->IsNPC() == ((Character *)entity)->IsNPC())
 				continue;
 
@@ -91,13 +91,13 @@ void Hands::Tick()
 			if (Distance > m_FistingRadius)
 				continue;
 
-			if (!m_Parent->IsNPC() && entity->GetType() == CRATE_ENTITY)
+			if (!m_Parent->IsNPC() && entity->GetType() == ENTITY_CRATE)
 			{
 				((Crate *)entity)->Damage(5, nullptr);
 				continue;
 			}
 
-			if (entity->GetType() != CHARACTER_ENTITY)
+			if (entity->GetType() != ENTITY_CHARACTER)
 				continue;
 
 			Vec2f boost_direction = m_Parent->GetInput().looking_direction;

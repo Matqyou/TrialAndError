@@ -18,8 +18,8 @@ GameWorld::GameWorld(int width, int height)
 //	m_LevelUpMenu = nullptr;
 	m_Particles = new Particles(this); //
 	m_Tiles = new TileMap(32, width, height);
-	m_Width = m_Tiles->TotalWidth();
-	m_Height = m_Tiles->TotalHeight();
+	m_Width = static_cast<float>(m_Tiles->TotalWidth());
+	m_Height = static_cast<float>(m_Tiles->TotalHeight());
 	m_ShowNamesVisibility = 0.0;
 	m_ShowNames = false;
 	m_Paused = false;
@@ -52,8 +52,8 @@ GameWorld::~GameWorld()
 	delete m_Tiles;
 	delete m_Particles;
 
-	for (auto player : players)
-		delete player;
+//	for (auto player : players)
+//		delete player;
 	for (auto entity : entities)
 		delete entity;
 }
@@ -91,23 +91,23 @@ void GameWorld::CheckLevelUps()
 //		m_LevelUpMenu->Show();
 }
 
-unsigned int GameWorld::GetNextPlayerIndex() const
-{
-	unsigned int Index = 0;
-
-	while (true)
-	{
-		bool Used = false;
-		for (auto player : players)
-			if (player->GetIndex() == Index)
-				Used = true;
-
-		if (!Used)
-			return Index;
-
-		Index++;
-	}
-}
+//unsigned int GameWorld::GetNextPlayerIndex() const
+//{
+//	unsigned int Index = 0;
+//
+//	while (true)
+//	{
+//		bool Used = false;
+//		for (auto player : players)
+//			if (player->GetIndex() == Index)
+//				Used = true;
+//
+//		if (!Used)
+//			return Index;
+//
+//		Index++;
+//	}
+//}
 
 void GameWorld::AddScore(unsigned int score)
 {
@@ -118,27 +118,28 @@ void GameWorld::AddScore(unsigned int score)
 	m_ScoreText->FlagForUpdate();
 }
 
-void GameWorld::InitPlayers()
-{
-	auto num_expected_players = GameReference.NumExpectedPlayers();
-	for (int i = 0; i < num_expected_players; i++)
-	{
-		const char *default_username = i == 0 ? "Keyboard" : "Controller";
-
-		auto preferences = GameReference.GetPlayerPreferences(i);
-		auto preferred_class_type = preferences.GetPlayerClassType();
-		auto new_player_class_object = PlayerClass::CreateClass(preferred_class_type);
-
-		auto new_player = new Player(this, default_username, new_player_class_object);
-		auto new_character = new Character(
-			this,
-			new_player,
-			100.0,
-			Vec2f(32 * 17.5, 32 * 17.5),
-			Vec2f(10, 10),
-			false);
-	}
-}
+//void GameWorld::InitPlayers()
+//{
+//	auto num_expected_players = GameReference.NumExpectedPlayers();
+//	for (int i = 0; i < num_expected_players; i++)
+//	{
+//		const char *default_username = i == 0 ? "Keyboard" : "Controller";
+//
+//		auto preferences = GameReference.GetPlayerPreferences(i);
+//		auto preferred_class_type = preferences.GetPlayerClassType();
+//		auto new_player_class_object = PlayerClass::CreateClass(preferred_class_type);
+//
+////		auto new_player = new Player default_username, new_player_class_object);
+//		auto new_character = new Character(
+//			new_player,
+//			100.0,
+//			Vec2f(32 * 17.5, 32 * 17.5),
+//			Vec2f(10, 10),
+//			false
+//			);
+//		AddEntity(new_character, false);
+//	}
+//}
 
 void GameWorld::EnemiesKilled()
 {
@@ -155,51 +156,66 @@ void GameWorld::AlliesGone()
 	m_ScoreText->FlagForUpdate();
 }
 
-Player *GameWorld::AddPlayer(Player *player)
-{
-	players.push_back(player);
-//	if (!m_FirstPlayer)
-//	{
-//		m_FirstPlayer = player;
-//		m_LastPlayer = player;
-//		player->m_Prev = nullptr;
-//		player->m_Next = nullptr;
-//	}
-//	else
-//	{
-//		m_LastPlayer->m_Next = player;
-//		player->m_Prev = m_LastPlayer;
-//		m_LastPlayer = player;
-//	}
-
-	return player;
-}
+//Player *GameWorld::AddPlayer(Player *player)
+//{
+//	players.push_back(player);
+////	if (!m_FirstPlayer)
+////	{
+////		m_FirstPlayer = player;
+////		m_LastPlayer = player;
+////		player->m_Prev = nullptr;
+////		player->m_Next = nullptr;
+////	}
+////	else
+////	{
+////		m_LastPlayer->m_Next = player;
+////		player->m_Prev = m_LastPlayer;
+////		m_LastPlayer = player;
+////	}
+//
+//	return player;
+//}
 
 // ::RemovePlayer() doesn't reset players Previous and Next player pointers
-void GameWorld::RemovePlayer(Player *player)
+//void GameWorld::RemovePlayer(Player *player)
+//{
+//	players.erase(std::remove(players.begin(), players.end(), player), players.end());
+//}
+
+// add_next_tick is important, when iterating through entities, any new entity will cause a crash
+Entity *GameWorld::AddEntity(Entity *new_entity, bool add_next_tick)
 {
-	players.erase(std::remove(players.begin(), players.end(), player), players.end());
+	new_entity->world = this;
+	if (add_next_tick)
+	{
+		pending_entities.push_back(new_entity);
+		new_entity->pending = true;
+	}
+	else
+	{
+		entities.push_back(new_entity);
+		entities_by_types[new_entity->GetType()].push_back(new_entity);
+		new_entity->pending = false;
+	}
+
+	return new_entity;
 }
 
-Entity *GameWorld::AddEntity(Entity *entity)
-{
-	entities.push_back(entity);
-
-	auto entity_type = entity->GetType();
-	entities_by_types[entity_type].push_back(entity);
-
-	return entity;
-}
-
-// ::RemoveEntity() doesn't reset entities Previous and Next entity pointers
 void GameWorld::RemoveEntity(Entity *entity)
 {
-	entities.erase(std::remove(entities.begin(), entities.end(), entity), entities.end());
+	if (entity->pending)
+	{
+		pending_entities.erase(std::remove(entities.begin(), entities.end(), entity), entities.end());
+	}
+	else
+	{
+		entities.erase(std::remove(entities.begin(), entities.end(), entity), entities.end());
 
-	auto entity_type = entity->GetType();
-	auto& entities_with_this_type = entities_by_types[entity_type];
-	entities_with_this_type.erase(std::remove(entities_with_this_type.begin(), entities_with_this_type.end(), entity),
-								  entities_with_this_type.end());
+		auto entity_type = entity->GetType();
+		auto& entities_with_this_type = entities_by_types[entity_type];
+		entities_with_this_type.erase(std::remove(entities_with_this_type.begin(), entities_with_this_type.end(), entity),
+									  entities_with_this_type.end());
+	}
 }
 
 void GameWorld::ToggleShowNames()
@@ -228,7 +244,7 @@ void GameWorld::HandleEvent(const SDL_Event& sdl_event, EventContext& event_cont
 			m_Tiles->SaveTilemap("assets/tilemaps/test_level");
 	}
 
-	for (Entity *entity : entities_by_types[CHARACTER_ENTITY])
+	for (Entity *entity : entities_by_types[ENTITY_CHARACTER])
 	{
 		auto character = (Character *)entity;
 		character->HandleEvent(sdl_event);
@@ -237,13 +253,13 @@ void GameWorld::HandleEvent(const SDL_Event& sdl_event, EventContext& event_cont
 
 void GameWorld::TickCamera(double elapsed_seconds)
 {
-	if (entities_by_types[CHARACTER_ENTITY].empty())
+	if (entities_by_types[ENTITY_CHARACTER].empty())
 		return;
 
 	bool FirstIteration = true;
 	float minX, maxX, minY, maxY;
 
-	for (Entity *entity : entities_by_types[CHARACTER_ENTITY])
+	for (Entity *entity : entities_by_types[ENTITY_CHARACTER])
 	{
 		auto character = (Character *)entity;
 		if (character->IsNPC())
@@ -274,12 +290,11 @@ void GameWorld::TickCamera(double elapsed_seconds)
 
 	if (!FirstIteration)
 	{
-
 		float CameraX = ((float)maxX + (float)minX) / 2.0f;
 		float CameraY = ((float)maxY + (float)minY) / 2.0f;
-		float ZoomX = static_cast<float>(Application.GetWidth()) / (maxX - minX + 500);
-		float ZoomY = static_cast<float>(Application.GetHeight()) / (maxY - minY + 500);
-		float Zoom = std::min(ZoomX, ZoomY);
+		float ZoomX = static_cast<float>(Application.GetWidth()) / (maxX - minX + 600);
+		float ZoomY = static_cast<float>(Application.GetHeight()) / (maxY - minY + 600);
+		float zoom = std::min(ZoomX, ZoomY);
 
 		auto& camera = GameReference.GetCamera();
 		auto old_camera_pos = camera.GetPos();
@@ -288,7 +303,7 @@ void GameWorld::TickCamera(double elapsed_seconds)
 		camera.SetPos(new_camera_pos);
 
 		float old_camera_zoom = camera.GetZoom();
-		camera.SetZoom(old_camera_zoom + 0.1 * (Zoom - old_camera_zoom));
+		camera.SetZoom(old_camera_zoom + 0.1f * (zoom - old_camera_zoom));
 	}
 }
 
@@ -315,15 +330,17 @@ void GameWorld::TickSpawner(double elapsed_seconds)
 	{
 		float angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
 		Vec2f SpawnPos = Vec2f(Width2 + std::cos(angle) * Width2, Height2 + std::sin(angle) * Height2);
-		auto NewNPC = new CharacterNPC(
-			this,
+		auto new_npc = new CharacterNPC(
 			200.0 + m_Round * 10.0,
 			SpawnPos,
 			Vec2f(0.0, 0.0),
 			NPC_TURRET,
 			true
 		);
-		NewNPC->GiveWeapon(new WeaponMinigun(nullptr));
+		AddEntity(new_npc, true);
+
+		ProjectileWeapon *boss_minigun = ProjectileWeapon::CreateWeaponFromWeaponType(WEAPON_MINIGUN);
+		new_npc->GiveWeapon(boss_minigun);
 	}
 
 	// Wave enemies
@@ -332,36 +349,44 @@ void GameWorld::TickSpawner(double elapsed_seconds)
 		float angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
 		Vec2f SpawnPos = Vec2f(Width2 + std::cos(angle) * Width2, Height2 + std::sin(angle) * Height2);
 		double Health = std::pow(m_Round, 1.0 / 3) * 10.0;
-		auto NewNPC = new CharacterNPC(
-			this,
+		auto new_npc = new CharacterNPC(
 			Health,
 			SpawnPos,
 			Vec2f(0.0, 0.0),
 			NPC_TURRET,
 			false
 		);
+		AddEntity(new_npc, true);
 
 		int Weaponizer = rand() % 100;
 		if (m_Round >= 15)
 		{
+			WeaponType give_weapon_type = WEAPON_NONE;
 			if (Weaponizer < 10)
-				NewNPC->GiveWeapon(new WeaponGlock(nullptr));
+				give_weapon_type = WEAPON_GLOCK;
 			else if (Weaponizer < 20)
-				NewNPC->GiveWeapon(new WeaponShotgun(nullptr));
+				give_weapon_type = WEAPON_SHOTGUN;
 			else if (Weaponizer < 30)
-				NewNPC->GiveWeapon(new WeaponBurst(nullptr));
+				give_weapon_type = WEAPON_BURST;
+
+			ProjectileWeapon *new_weapon = ProjectileWeapon::CreateWeaponFromWeaponType(give_weapon_type); // todo: probably bad memory leak if we already have one
+			new_npc->GiveWeapon(new_weapon);
 		}
 		else if (m_Round >= 10)
 		{
+			WeaponType give_weapon_type = WEAPON_NONE;
 			if (Weaponizer < 10)
-				NewNPC->GiveWeapon(new WeaponGlock(nullptr));
+				give_weapon_type = WEAPON_GLOCK;
 			else if (Weaponizer < 20)
-				NewNPC->GiveWeapon(new WeaponShotgun(nullptr));
+				give_weapon_type = WEAPON_SHOTGUN;
+
+			ProjectileWeapon *new_weapon = ProjectileWeapon::CreateWeaponFromWeaponType(give_weapon_type);
+			new_npc->GiveWeapon(new_weapon);
 		}
 		else if (m_Round >= 5)
 		{
 			if (Weaponizer < 10)
-				NewNPC->GiveWeapon(new WeaponGlock(nullptr));
+				new_npc->GiveWeapon(ProjectileWeapon::CreateWeaponFromWeaponType(WEAPON_GLOCK));
 		}
 	}
 }
@@ -373,14 +398,19 @@ void GameWorld::TickEntities(double elapsed_seconds)
 		entity->Tick(elapsed_seconds);
 }
 
-void GameWorld::TickDestroy(double seconds_elapsed)
+void GameWorld::TickPending()
+{
+	for (Entity *new_entity : pending_entities)
+		AddEntity(new_entity, false);
+	pending_entities.clear();
+}
+
+void GameWorld::TickDestroy()
 {
 	std::vector<Entity *> to_delete;
 	for (Entity *entity : entities)
-	{
 		if (!entity->IsAlive())
 			to_delete.push_back(entity);
-	}
 
 	// Delete them (this will call RemoveEntity for each)
 	for (Entity *entity : to_delete)
@@ -396,15 +426,15 @@ void GameWorld::TickBackground(double seconds_elapsed)
 		m_Stars.emplace_back(random_position, Vec2f(0.0, 0.0), duration);
 	}
 
-	Vec2f mouse_poition = Application.GetMousePosition();
+	Vec2f mouse_poition = ApplicationClass::GetMousePosition();
 	for (int i = m_Stars.size() - 1; i >= 0; --i)
 	{
 		auto& [position, velocity, duration] = m_Stars[i];
 
 		Vec2f direction = position - mouse_poition;
-		double distance = direction.Length();
+		float distance = direction.LengthF();
 		velocity += direction.Normalize() / distance * 0.15;
-		velocity.x += (sin((position.x + position.y * 2) / 50)) * 0.0015;
+		velocity.x += (sinf((position.x + position.y * 2) / 50.0f)) * 0.0015f;
 
 		velocity *= 0.98;
 
@@ -431,7 +461,8 @@ void GameWorld::Tick(double elapsed_seconds)
 
 	TickSpawner(elapsed_seconds);
 	TickEntities(elapsed_seconds);
-	TickDestroy(elapsed_seconds);
+	TickPending();
+	TickDestroy();
 
 	m_Particles->Tick();
 	TickCamera(elapsed_seconds);

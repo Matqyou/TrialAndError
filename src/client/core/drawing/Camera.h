@@ -46,6 +46,7 @@ public:
 			ScreenToCameraY(point.y)
 		};
 	}
+	[[nodiscard]] SDL_FRect CameraToScreenRect(const SDL_FRect& rect) const;
 	[[nodiscard]] SDL_FRect ScreenToCameraRect(const SDL_FRect& rect) const;
 
 	// Manipulating

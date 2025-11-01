@@ -83,112 +83,108 @@ void HasHealth::TickUpdateLastHealth()
 	m_LastHealth = m_Health;
 }
 
-Entity::Entity(GameWorld *world,
-			   EntityFormFactor form_factor,
-			   EntityType entity_type,
+Entity::Entity(EntityFormFactor form_factor,
+			   EntityType type,
 			   const Vec2f& start_pos,
 			   const Vec2f& start_size,
 			   const Vec2f& start_vel,
-			   double base_damping,
+			   float base_damping,
 			   bool has_health_component,
 			   double max_health)
-	: m_pUnknownCore(form_factor == DIRECTIONAL_ENTITY ? new DirectionalEntityCore() : new EntityCore()),
-	  m_pLastUnknownCore(form_factor == DIRECTIONAL_ENTITY ? new DirectionalEntityCore() : new EntityCore()),
-	  m_Core(*m_pUnknownCore),
-	  m_LastCore(*m_pLastUnknownCore),
-	  m_HasHealthComponent(has_health_component),
-	  m_HealthComponent(*this, max_health)
+	: unknown_core((form_factor == DIRECTIONAL_ENTITY) ? new DirectionalEntityCore() : new EntityCore()),
+//	  m_pLastUnknownCore((form_factor == DIRECTIONAL_ENTITY) ? new DirectionalEntityCore() : new EntityCore()),
+	  core(*unknown_core),
+	  last_core(core),
+	  has_health_component(has_health_component),
+	  health_component(*this, max_health)
 {
-	m_World = world;
+	world = nullptr;
 
-	m_PrevType = nullptr;
-	m_NextType = nullptr;
-	m_Prev = nullptr;
-	m_Next = nullptr;
-	m_EntityType = entity_type;
-	m_Alive = true;
-	m_Core = *m_pUnknownCore;
-	m_LastCore = *m_pLastUnknownCore;
-	m_Core.pos = start_pos;
-	m_Core.size = start_size;
-	m_Core.vel = start_vel;
-	m_Core.base_damping = base_damping;
-	m_Core.size_ratio = (m_Core.size.x + m_Core.size.y) / 4.0;
-	m_SpawnedTick = m_World->GetTick();
+	entity_type = type;
+	pending = false;
+	alive = true;
+//	core = *m_pUnknownCore;
+//	last_core = *m_pLastUnknownCore;
+	core.pos = start_pos;
+	core.size = start_size;
+	core.vel = start_vel;
+	core.base_damping = base_damping;
+	core.size_ratio = (core.size.x + core.size.y) / 4.0f;
 	TickUpdateLastCore();
 
-	m_World->AddEntity(this);
+//	our_world->AddEntity(this);
 }
 
 Entity::~Entity()
 {
-	delete m_pUnknownCore;
-	delete m_pLastUnknownCore;
-	m_World->RemoveEntity(this);
+	delete unknown_core;
+
+	if (world)
+		world->RemoveEntity(this);
 }
 
 void Entity::TickUpdateLastCore()
 {
-	memcpy(&m_LastCore, &m_Core, sizeof(EntityCore));
+	memcpy(&last_core, &core, sizeof(EntityCore));
 }
 
 void Entity::TickVelocity(double seconds_elapsed)
 {
-	m_Core.vel.x *= m_Core.base_damping;
-	m_Core.vel.y *= m_Core.base_damping;
+	core.vel.x *= core.base_damping;
+	core.vel.y *= core.base_damping;
 
-	m_Core.pos.x += m_Core.vel.x;
-	m_Core.pos.y += m_Core.vel.y;
+	core.pos.x += core.vel.x;
+	core.pos.y += core.vel.y;
 }
 
 void Entity::TickWalls()
 {
-	double w2 = m_Core.size.x / 2.0;
-	double h2 = m_Core.size.y / 2.0;
+	float w2 = core.size.x / 2.0f;
+	float h2 = core.size.y / 2.0f;
 
-	double XWall = m_World->GetWidth() - w2;
-	double YWall = m_World->GetHeight() - h2;
+	float XWall = world->GetWidth() - w2;
+	float YWall = world->GetHeight() - h2;
 
-	if (m_Core.pos.x < w2)
+	if (core.pos.x < w2)
 	{
-		m_Core.pos.x = w2;
-		m_Core.vel.x = 0.0;
+		core.pos.x = w2;
+		core.vel.x = 0.0;
 	}
-	if (m_Core.pos.x > XWall)
+	if (core.pos.x > XWall)
 	{
-		m_Core.pos.x = XWall;
-		m_Core.vel.x = 0.0;
+		core.pos.x = XWall;
+		core.vel.x = 0.0;
 	}
-	if (m_Core.pos.y < h2)
+	if (core.pos.y < h2)
 	{
-		m_Core.pos.y = h2;
-		m_Core.vel.y = 0.0;
+		core.pos.y = h2;
+		core.vel.y = 0.0;
 	}
-	if (m_Core.pos.y > YWall)
+	if (core.pos.y > YWall)
 	{
-		m_Core.pos.y = YWall;
-		m_Core.vel.y = 0.0;
+		core.pos.y = YWall;
+		core.vel.y = 0.0;
 	}
 }
 
 bool Entity::PointCollides(const Vec2f& point) const
 {
-	float w2 = m_Core.size.x / 2.0f;
-	float h2 = m_Core.size.y / 2.0f;
-	return !(point.x < m_Core.pos.x - w2 ||
-		point.x > m_Core.pos.x + w2 ||
-		point.y < m_Core.pos.y - h2 ||
-		point.y > m_Core.pos.y + h2);
+	float w2 = core.size.x / 2.0f;
+	float h2 = core.size.y / 2.0f;
+	return !(point.x < core.pos.x - w2 ||
+		point.x > core.pos.x + w2 ||
+		point.y < core.pos.y - h2 ||
+		point.y > core.pos.y + h2);
 }
 
 const char *Entity::toString() const
 {
-	return ENTITY_NAMES[m_EntityType];
+	return ENTITY_NAMES[entity_type];
 }
 
 void Entity::Accelerate(const Vec2f& direction)
 {
-	m_Core.vel += direction;
+	core.vel += direction;
 }
 
 void Entity::Tick(double elapsed_seconds)
@@ -201,28 +197,27 @@ void Entity::Draw()
 	Drawing *Render = Application.GetDrawing();
 
 	Render->SetColor(255, 255, 255, 255);
-	SDL_FRect DrawRect = { float(m_Core.pos.x) - float(m_Core.size.x / 2),
-						   float(m_Core.pos.y) - float(m_Core.size.y / 2),
-						   float(m_Core.size.x),
-						   float(m_Core.size.y) };
+	SDL_FRect DrawRect = { float(core.pos.x) - float(core.size.x / 2),
+						   float(core.pos.y) - float(core.size.y / 2),
+						   float(core.size.x),
+						   float(core.size.y) };
 	Render->DrawRect(DrawRect, true, GameReference.GetCamera());
 }
 
 void DirectionalEntity::TickUpdateLastCore()
 {
-	memcpy(&m_LastDirectionalCore, &m_DirectionalCore, sizeof(DirectionalEntityCore));
+	memcpy(&last_directional_core, &directional_core, sizeof(DirectionalEntityCore));
 }
 
-DirectionalEntity::DirectionalEntity(GameWorld *world, EntityType entity_type,
+DirectionalEntity::DirectionalEntity(EntityType entity_type,
 									 const Vec2f& start_pos,
 									 const Vec2f& start_size,
 									 const Vec2f& start_vel,
 									 const Vec2f& start_direction,
-									 double base_damping,
+									 float base_damping,
 									 bool has_health_component,
 									 double max_health)
-	: Entity(world,
-			 DIRECTIONAL_ENTITY,
+	: Entity(DIRECTIONAL_ENTITY,
 			 entity_type,
 			 start_pos,
 			 start_size,
@@ -230,10 +225,10 @@ DirectionalEntity::DirectionalEntity(GameWorld *world, EntityType entity_type,
 			 base_damping,
 			 has_health_component,
 			 max_health),
-	  m_DirectionalCore(*(DirectionalEntityCore *)(m_pUnknownCore)),
-	  m_LastDirectionalCore(*(DirectionalEntityCore *)(m_pLastUnknownCore))
+	  directional_core(*(DirectionalEntityCore *)(unknown_core)),
+	  last_directional_core(directional_core)
 {
-	m_DirectionalCore.direction = start_direction;
+	directional_core.direction = start_direction;
 	TickUpdateLastCore();
 }
 

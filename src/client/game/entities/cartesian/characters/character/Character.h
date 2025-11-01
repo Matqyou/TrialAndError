@@ -2,10 +2,11 @@
 
 #include <client/game/entities/cartesian/characters/character/Hook.h>
 #include <client/game/entities/cartesian/characters/character/Hands.h>
-#include <client/game/weapons/projectile/WeaponShotgun.h>
-#include <client/game/weapons/projectile/WeaponMinigun.h>
-#include <client/game/weapons/projectile/WeaponGlock.h>
-#include <client/game/weapons/projectile/WeaponBurst.h>
+#include <client/game/weapons/projectile/base/ProjectileWeapon.h>
+//#include <client/game/weapons/projectile/WeaponShotgun.h>
+//#include <client/game/weapons/projectile/WeaponMinigun.h>
+//#include <client/game/weapons/projectile/WeaponGlock.h>
+//#include <client/game/weapons/projectile/WeaponBurst.h>
 #include <client/game/entities/cartesian/AmmoBox.h>
 #include <client/game/entities/cartesian/Entity.h>
 #include <client/game/entities/cartesian/Crate.h>
@@ -56,40 +57,40 @@ public:
 		friend class ProjectileWeapon;
 		friend class Projectile; //
 		friend class Hands;
-		Player *m_Player;
+		Player *player;
 //		Vec2d m_CameraTarget;
-		TextSurface *m_CoordinatePlate;
-		TextSurface *m_AmmoCount;
-		TextSurface *m_HealthInt;
-		double m_ColorHue;
-		int m_SelectedWeaponIndex;
+		TextSurface *coordinate_plate;
+		TextSurface *ammo_count_plate;
+		TextSurface *health_amount_plate;
+		double color_hue;
+		int selected_weapon_index;
 //		GameController *m_GameController;
-		bool m_Movement[NUM_CONTROLS];
-		bool m_NPC;
-		CharacterInput input, m_LastInput;
-		Hands m_Hands;
-		ProjectileWeapon *m_Weapons[NUM_WEAPONS];
-		ProjectileWeapon *m_CurrentWeapon;
-		double m_ActiveRegeneration, m_PassiveRegeneration;
-		unsigned long long m_TicksOfCombatUntilRegeneration;
-		unsigned long long m_LastInCombat;
-		static const int ms_DefaultControls[NUM_CONTROLS];
+		bool movement[NUM_CONTROLS];
+		bool is_npc;
+		CharacterInput input, last_input;
+		Hands hands;
+		ProjectileWeapon *weapons[NUM_WEAPONS];
+		ProjectileWeapon *current_weapon;
+		double active_regeneration_rate, passive_regeneration_rate;
+		unsigned long long ticks_combat_until_regeneration;
+		unsigned long long last_combat_timestamp;
+		static const int sDefaultControls[NUM_CONTROLS];
 
-		const float m_BaseAcceleration;
-		double m_DamageAmp;
-		Hook m_Hook;
-		int m_HitTicks;
-		int m_BaseDamage;
-		HealthBar m_HealthBar;
-		ErrorStatuses m_ErrorStatuses;
+		const float base_acceleration;
+		double damage_amplifier;
+		Hook hook;
+		int hit_ticks;
+		int base_damage;
+		HealthBar health_bar;
+		ErrorStatuses error_statuses;
 
-		SDL_Color m_CharacterColor;
-		SDL_Color m_HookColor;
-		SDL_Color m_HealthbarColor;
-		SDL_Color m_HandColor;
-		SDL_Color m_NameplateColor;
-		SDL_Color m_HealthRed;
-		SDL_Color m_HealthBlack;
+		SDL_Color character_color;
+		SDL_Color hook_color;
+		SDL_Color healthbar_color;
+		SDL_Color hand_color;
+		SDL_Color nameplate_color;
+		SDL_Color health_red_color;
+		SDL_Color health_black_color;
 
 		// Listening & Ticking
 		virtual void EventDeath();
@@ -120,11 +121,10 @@ public:
 	static LinkSound sItemSwitchSound;
 	static LinkSound sThrowItemSound;
 	static LinkSound sPickupItemSound;
-	static TextSurface *ms_BotNamePlate;
-	TextSurface *m_ErrorText;
+	static TextSurface *sBotNameplate;
+	TextSurface *error_notification_text;
 
-	Character(GameWorld *world,
-			  Player *player,
+	Character(Player *player,
 			  double max_health,
 			  const Vec2f& start_pos,
 			  const Vec2f& start_vel,
@@ -132,23 +132,23 @@ public:
 	~Character() override;
 
 	// Getting
-	[[nodiscard]] Hook *GetHook() { return &m_Hook; }
-	[[nodiscard]] Player *GetPlayer() const { return m_Player; }
+	[[nodiscard]] Hook *GetHook() { return &hook; }
+	[[nodiscard]] Player *GetPlayer() const { return player; }
 //	[[nodiscard]] GameController *GetGameController() const { return m_GameController; }
-	[[nodiscard]] ProjectileWeapon *GetCurrentWeapon() const { return m_CurrentWeapon; }
+	[[nodiscard]] ProjectileWeapon *GetCurrentWeapon() const { return current_weapon; }
 	[[nodiscard]] CharacterInput& GetInput() { return input; }
-	[[nodiscard]] CharacterInput& GetLastInput() { return m_LastInput; }
-	[[nodiscard]] ErrorStatuses& GetErrorStatuses() { return m_ErrorStatuses; }
+	[[nodiscard]] CharacterInput& GetLastInput() { return last_input; }
+	[[nodiscard]] ErrorStatuses& GetErrorStatuses() { return error_statuses; }
 //	[[nodiscard]] Vec2d GetCameraTarget() const { return m_CameraTarget; }
-	[[nodiscard]] bool IsNPC() const { return m_NPC; }
-	[[nodiscard]] int GetBaseDamage() const { return m_Player ? m_Player->GetBaseDamage() : m_BaseDamage; }
-	[[nodiscard]] double GetDamageAmp() const { return m_Player ? m_Player->GetDamageAmp() : m_DamageAmp; }
+	[[nodiscard]] bool IsNPC() const { return is_npc; }
+	[[nodiscard]] int GetBaseDamage() const { return player ? player->GetBaseDamage() : base_damage; }
+	[[nodiscard]] double GetDamageAmp() const { return player ? player->GetDamageAmp() : damage_amplifier; }
 
 	// Setting
 //	void SetGameController(GameController *game_controller) { m_GameController = game_controller; }
 //	void SetCameraTarget(Vec2d cameraTarget) { m_CameraTarget = cameraTarget; }
 	void RemoveCombat();
-	void GiveWeapon(ProjectileWeapon *proj_weapon);
+	void GiveWeapon(ProjectileWeapon *new_weapon);
 	void AmmoPickup(AmmoBox *ammo_box);
 	void Damage(double damage, Entity *damager);
 	void Heal(double value);

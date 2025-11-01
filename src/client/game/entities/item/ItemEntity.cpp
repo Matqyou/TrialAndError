@@ -54,14 +54,12 @@ void ItemEntity::SetTexture(ItemType item_type)
 	}
 }
 
-ItemEntity::ItemEntity(GameWorld *world,
-					   ItemType item_type,
+ItemEntity::ItemEntity(ItemType item_type,
 					   Entity *dropper,
 					   const Vec2f& start_pos,
 					   const Vec2f& start_size)
-	: Entity(world,
-			 NORMAL_ENTITY,
-			 ITEM_ENTITY,
+	: Entity(NORMAL_ENTITY,
+			 ENTITY_ITEM,
 			 start_pos,
 			 start_size,
 			 Vec2f(0.0, 0.0),
@@ -69,7 +67,7 @@ ItemEntity::ItemEntity(GameWorld *world,
 			 false)
 {
 	m_Dropper = dropper;
-	m_DroppedSince = m_World->GetTick();
+	m_DroppedSince = world->GetTick();
 	m_PickupCooldown = (unsigned long long)(Application.GetClock()->GetFramerate());
 	m_ItemType = item_type;
 	m_Texture = nullptr;
@@ -83,15 +81,15 @@ ItemEntity::ItemEntity(GameWorld *world,
 
 void ItemEntity::EventPickup(Character& picker_char)
 {
-	m_Alive = false;
+	alive = false;
 }
 
 void ItemEntity::TickPickup()
 {
-	if (!m_Alive)
+	if (!alive)
 		return;
 
-	for (Entity* entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
+	for (Entity* entity : world->GetEntitiesByType(ENTITY_CHARACTER))
 	{
 		auto character = (Character*)entity;
 		// The code below makes me think what if the m_Dropper entity was dead a long time ago and now
@@ -101,9 +99,9 @@ void ItemEntity::TickPickup()
 		// Eh theres probably a way for that entity to reincarnate, but if there isn't there's nothing
 		// really he can do about this situation
 		// Todo: think of some connected/smart pointers cuz that is the next big thing i need to learn
-		if (!character->IsAlive() || (character == m_Dropper && m_World->GetTick() - m_DroppedSince < m_PickupCooldown)) continue;
-		float Distance = DistanceVec2f(m_Core.pos, character->GetCore().pos);
-		if (Distance > m_Core.size_ratio + character->GetCore().size_ratio) continue;
+		if (!character->IsAlive() || (character == m_Dropper && world->GetTick() - m_DroppedSince < m_PickupCooldown)) continue;
+		float Distance = DistanceVec2f(core.pos, character->GetCore().pos);
+		if (Distance > core.size_ratio + character->GetCore().size_ratio) continue;
 
 		EventPickup(*character);
 		break;
@@ -134,10 +132,10 @@ void ItemEntity::Draw()
 		return;
 
 	auto drawing = Application.GetDrawing();
-	SDL_FRect DrawRect = {float(m_Core.pos.x - m_Core.size.x / 2.0),
-						  float(m_Core.pos.y - m_Core.size.y / 2.0),
-						  float(m_Core.size.x),
-						  float(m_Core.size.y) };
+	SDL_FRect DrawRect = {float(core.pos.x - core.size.x / 2.0),
+						  float(core.pos.y - core.size.y / 2.0),
+						  float(core.size.x),
+						  float(core.size.y) };
 
 	drawing->RenderTextureRotated(m_Texture->SDLTexture(),
 								  nullptr, DrawRect,

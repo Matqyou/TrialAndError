@@ -3,8 +3,14 @@
 //
 
 #include "ProjectileWeapon.h"
-#include <client/game/entities/cartesian/characters/character/Character.h>
-#include <client/game/entities/cartesian/Projectile.h>
+#include "client/game/entities/cartesian/characters/character/Character.h"
+#include <client/game/weapons/projectile/WeaponShotgun.h>
+#include <client/game/weapons/projectile/WeaponMinigun.h>
+#include <client/game/weapons/projectile/WeaponGlock.h>
+#include <client/game/weapons/projectile/WeaponBurst.h>
+#include <client/game/weapons/projectile/WeaponSniper.h>
+#include <client/game/weapons/projectile/PatersonNavy.h>
+#include "client/game/entities/cartesian/Projectile.h"
 #include <cmath>
 
 static LinkSound sNoAmmoSound("weapon.no_ammo");
@@ -16,8 +22,7 @@ float ProjectileWeapon::GenerateSpreadAngle() const
 
 float ProjectileWeapon::GenerateRandomProjectileSpeed() const
 {
-	return m_ProjectileSpeed + ((rand() % m_FullRandomProjectileSpeed)
-		- m_NegativeRandomProjectileSpeed) / m_RandomProjectileSpeedDivisor;
+	return m_ProjectileSpeed + (static_cast<float>(rand() % m_FullRandomProjectileSpeed) - m_NegativeRandomProjectileSpeed) / m_RandomProjectileSpeedDivisor;
 }
 
 ProjectileWeapon::ProjectileWeapon(
@@ -30,7 +35,7 @@ ProjectileWeapon::ProjectileWeapon(
 	int tick_cooldown,
 	int ammo_capacity,
 	int total_ammo_capacity,
-	double projectile_speed,
+	float projectile_speed,
 	bool automatic
 )
 {
@@ -63,6 +68,27 @@ ProjectileWeapon::ProjectileWeapon(
 	m_RightHandPosition = (hand_positions == nullptr) ? Vec2f(0.0f, 10.0f) : hand_positions->second;
 }
 
+ProjectileWeapon* ProjectileWeapon::CreateWeaponFromWeaponType(WeaponType weapon_type)
+{
+	if (weapon_type == WEAPON_NONE)
+		return nullptr;
+	else if (weapon_type == WEAPON_GLOCK)
+		return new WeaponGlock(nullptr);
+	else if (weapon_type == WEAPON_SHOTGUN)
+		return new WeaponShotgun(nullptr);
+	else if (weapon_type == WEAPON_BURST)
+		return new WeaponBurst(nullptr);
+	else if (weapon_type == WEAPON_MINIGUN)
+		return new WeaponMinigun(nullptr);
+	else if (weapon_type == WEAPON_SNIPER)
+		return new WeaponSniper(nullptr);
+	else if (weapon_type == WEAPON_PATERSONNAVY)
+		return new PatersonNavy(nullptr);
+
+	dbg_msg("ProjectileWeapon::CreateWeaponFromWeaponType() Invalid weapon type: %i\n", (int)weapon_type);
+	return nullptr;
+}
+
 void ProjectileWeapon::TickTrigger()
 {
 #ifndef NDEBUG
@@ -71,19 +97,19 @@ void ProjectileWeapon::TickTrigger()
 		throw std::runtime_error("ProjectileWeapon Parent is nullptr");
 	}
 
-	if (m_Parent->GetType() != CHARACTER_ENTITY)
+	if (m_Parent->GetType() != ENTITY_CHARACTER)
 	{
 		throw std::runtime_error("ProjectileWeapon Parent is non character");
 	}
 #endif
 
 	bool Shoot = ((Character *)(m_Parent))->input.shooting;
-	bool LastShoot = ((Character *)(m_Parent))->m_LastInput.shooting;
+	bool LastShoot = ((Character *)(m_Parent))->last_input.shooting;
 
-	m_Triggered = Shoot && !LastShoot;  // Always trigger on semi
+	m_Triggered = (Shoot && !LastShoot);  // Always trigger on semi
 	if (!m_Triggered)
 	{
-		bool Auto = Shoot && m_Automatic;
+		bool Auto = (Shoot && m_Automatic);
 		m_Triggered = Auto && (m_Ammo || m_LastShot);
 	}
 }

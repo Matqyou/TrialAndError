@@ -10,18 +10,16 @@ LinkTexture AmmoBox::sTextureBurst("entity.ammo_box.burst");
 LinkTexture AmmoBox::sTextureMinigun("entity.ammo_box.minigun");
 LinkTexture AmmoBox::sTextureSniper("entity.ammo_box.sniper");
 
-AmmoBox::AmmoBox(GameWorld *world,
-                 AmmoType type,
+AmmoBox::AmmoBox(AmmoType type,
                  const Vec2f& start_pos,
                  unsigned int AmmoCount)
-    : Entity(world,
-             NORMAL_ENTITY,
-             AMMO_BOX_ENTITY,
-             start_pos,
-             Vec2f(40, 28),
-             Vec2f(0.0, 0.0),
-             0.95,
-             false)
+    : Entity(NORMAL_ENTITY,
+			 ENTITY_AMMO_BOX,
+			 start_pos,
+			 Vec2f(40, 28),
+			 Vec2f(0.0, 0.0),
+			 0.95,
+			 false)
 {
     m_AmmoCount = AmmoCount;
     m_Type = type;
@@ -34,14 +32,14 @@ AmmoBox::AmmoBox(GameWorld *world,
 }
 void AmmoBox::TickPickup()
 {
-    auto characters = m_World->GetEntitiesByType(CHARACTER_ENTITY);
+    auto characters = world->GetEntitiesByType(ENTITY_CHARACTER);
     for (Entity* entity : characters)
     {
 		Character* character = (Character*)entity;
         EntityCore& CharCore = character->GetCore();
 
-        float Distance = DistanceVec2f(m_Core.pos, CharCore.pos);
-        if (Distance > m_Core.size_ratio + character->GetCore().size_ratio)
+        float Distance = DistanceVec2f(core.pos, CharCore.pos);
+        if (Distance > core.size_ratio + character->GetCore().size_ratio)
 			continue;
 
         character->AmmoPickup(this);
@@ -64,16 +62,16 @@ void AmmoBox::Tick(double elapsed_seconds)
     TickVelocity(elapsed_seconds);
     TickWalls();
 
-    if (m_AmmoCount <= 0) m_Alive = false;
+    if (m_AmmoCount <= 0) alive = false;
 }
 
 void AmmoBox::Draw()
 {
     Drawing *drawing = Application.GetDrawing();
 
-    SDL_FRect DrawRect = { float(m_Core.pos.x) - float(m_Core.size.x / 2.0),
-                           float(m_Core.pos.y) - float(m_Core.size.y / 2.0),
-                           float(m_Core.size.x),
-                           float(m_Core.size.y) };
+    SDL_FRect DrawRect = { float(core.pos.x) - float(core.size.x / 2.0),
+                           float(core.pos.y) - float(core.size.y / 2.0),
+                           float(core.size.x),
+                           float(core.size.y) };
     drawing->RenderTexture(m_Texture->SDLTexture(), nullptr, DrawRect, GameReference.GetCamera());
 }

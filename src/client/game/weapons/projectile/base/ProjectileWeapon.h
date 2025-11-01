@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include <client/game/world/GameWorld.h>
+#include "client/game/world/GameWorld.h"
 
 enum WeaponType
 {
+	WEAPON_NONE = -1,
 	WEAPON_GLOCK,
 	WEAPON_SHOTGUN,
 	WEAPON_BURST,
@@ -25,17 +26,17 @@ protected:
 	unsigned long long m_TickCooldown;
 	unsigned int m_Ammo, m_AmmoCapacity;
 	unsigned int m_TrueAmmo, m_TrueAmmoCapacity;
-	double m_ProjectileSpeed;
+	float m_ProjectileSpeed;
 	bool m_Automatic;
 	bool m_Triggered;
 	bool m_LastShot;
 
-	double m_RandomSpreadDivisor;
-	double m_HalfRandomSpread;
+	float m_RandomSpreadDivisor;
+	float m_HalfRandomSpread;
 	int m_FullRandomSpread;
 
-	double m_RandomProjectileSpeedDivisor;
-	double m_NegativeRandomProjectileSpeed;
+	float m_RandomProjectileSpeedDivisor;
+	float m_NegativeRandomProjectileSpeed;
 	int m_FullRandomProjectileSpeed;
 
 	DirectionalEntity *m_Parent;
@@ -63,11 +64,13 @@ public:
 					 int tick_cooldown,
 					 int ammo_capacity,
 					 int total_ammo_capacity,
-					 double projectile_speed,
+					 float projectile_speed,
 					 bool automatic);
 
+	static ProjectileWeapon* CreateWeaponFromWeaponType(WeaponType weapon_type);
+
 	// Getting
-	[[nodiscard]] WeaponType WepType() const { return m_Type; }
+	[[nodiscard]] WeaponType GetWeaponType() const { return m_Type; }
 	[[nodiscard]] Texture *GetTexture() const { return m_Texture; }
 	[[nodiscard]] bool IsAutomatic() const { return m_Automatic; }
 	[[nodiscard]] unsigned int GetMagAmmo() const { return m_Ammo; }

@@ -12,7 +12,7 @@ protected:
     PlanetaryCoords m_PlanetaryPos;
 
 public:
-    PlanetaryCharacterNPC(PlanetaryGameWorld *planetaryWorld, const Vec2f &pos);
+    explicit PlanetaryCharacterNPC(const Vec2f &pos);
     ~PlanetaryCharacterNPC() override = default;
 
 	// Getting

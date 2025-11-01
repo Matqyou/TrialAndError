@@ -108,8 +108,8 @@ public:
     [[nodiscard]] bool PointCollides(int x, int y) const;
 
     // Options
-    Element* SetChildren(const std::vector<Element*>& children);
-    Element* AddChildren(const std::vector<Element*>& children);
+    Element* SetChildren(const std::vector<Element*>& new_children);
+    Element* AddChildren(const std::vector<Element*>& new_children);
     Element* SetEnabled(bool enabled) {
         this->enabled = enabled;
         return this;

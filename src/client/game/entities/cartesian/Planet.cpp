@@ -12,10 +12,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-Planet::Planet(GameWorld *world, const Vec2f& pos, float radius, SDL_Color color, std::string texture_key)
-	: Entity(world,
-			 NORMAL_ENTITY,
-			 ERROR_ENTITY,
+Planet::Planet(const Vec2f& pos, float radius, SDL_Color color, std::string texture_key)
+	: Entity(NORMAL_ENTITY,
+			 ENTITY_ERROR,
 			 pos,
 			 Vec2f(radius * 2, radius * 2),
 			 Vec2f(0, 0),
@@ -47,7 +46,7 @@ void Planet::Draw()
 	SDL_Renderer *renderer = drawing->Renderer();
 
 	auto camera = GameReference.GetCamera();
-	Vec2f screen_center = GameReference.GetCamera().ScreenToCameraPoint(m_Core.pos);
+	Vec2f screen_center = GameReference.GetCamera().ScreenToCameraPoint(core.pos);
 
 	double radius = m_Radius * camera.GetZoom();
 

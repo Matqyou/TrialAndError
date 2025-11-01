@@ -61,7 +61,7 @@ public:
 	[[nodiscard]] int GetWidth2() const { return resolution.x / 2; }
 	[[nodiscard]] int GetHeight2() const { return resolution.y / 2; }
 
-	[[nodiscard]] Vec2f GetMousePosition() const;
+	[[nodiscard]] static Vec2f GetMousePosition() ;
 
 	// Ticking
 	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_context);

@@ -27,6 +27,10 @@ void ApplicationClass::PrintVersions()
 
 ApplicationClass::ApplicationClass()
 {
+	window = nullptr;
+	renderer = nullptr;
+	drawing = nullptr;
+	randomizer = nullptr;
 	status = Status::UNINITIALIZED;
 }
 
@@ -112,12 +116,9 @@ void ApplicationClass::Initialize(const char *title,
 	if (!renderer)
 		throw std::runtime_error(Strings::FString("Error while creating the renderer %s\n", SDL_GetError()));
 
-	std::wcout
-		<< Strings::FStringColorsW(L"[Application] &eUsed renderer: %s\n", SDL_GetRendererName(renderer));
+	std::cout << Strings::FStringColors("[Application] &eUsed renderer: %s\n", SDL_GetRendererName(renderer));
 
-	bool init_audio = true;
 	drawing = new Drawing(renderer);
-
 	randomizer = new Randomizer();
 
 	Cursors::Initialize();
@@ -157,7 +158,7 @@ ApplicationClass::~ApplicationClass()
 	Destroy();
 }
 
-Vec2f ApplicationClass::GetMousePosition() const
+Vec2f ApplicationClass::GetMousePosition()
 {
 	Vec2f position;
 	SDL_GetMouseState(&position.x, &position.y);

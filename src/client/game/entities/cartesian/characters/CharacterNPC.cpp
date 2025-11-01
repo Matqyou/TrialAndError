@@ -5,23 +5,21 @@
 #include "CharacterNPC.h"
 #include <cmath>
 
-CharacterNPC::CharacterNPC(GameWorld *world,
-						   double max_health,
+CharacterNPC::CharacterNPC(double max_health,
 						   const Vec2f& start_pos,
 						   const Vec2f& start_vel,
 						   NPCType npc_type,
-						   bool is_boss)
-	: Character(world,
-				nullptr,
+						   bool npc_is_boss)
+	: Character(nullptr,
 				max_health,
 				start_pos,
 				start_vel,
 				true)
 {
-	m_LastAttacker = nullptr;
-	m_AIType = npc_type;
-	m_IsBoss = is_boss;
-	m_ColorHue = is_boss ? 250.0 + (rand() % 90) - 45 : 120.0 + (rand() % 90) - 45;
+	last_attacker = nullptr;
+	ai_type = npc_type;
+	is_boss = npc_is_boss;
+	color_hue = is_boss ? 250.0 + (rand() % 90) - 45 : 120.0 + (rand() % 90) - 45;
 }
 
 CharacterNPC::~CharacterNPC() = default;
@@ -30,18 +28,22 @@ void CharacterNPC::EventDeath()
 {
 	Character::EventDeath();
 
-	m_World->AddScore(m_IsBoss ? 20 * 5 : 20);
+	world->AddScore(is_boss ? 20 * 5 : 20);
 
-	Character *killer = (Character *)m_HealthComponent.GetDamager();
+	Character *killer = (Character *)health_component.GetDamager();
 	Player *KillerPlayer = killer->GetPlayer();
 	if (KillerPlayer)
-		m_World->EnemyKilled(KillerPlayer, this);
+		world->EnemyKilled(KillerPlayer, this);
 
-	if (rand() % 100 <= 20)
-		new Crate(m_World, m_Core.pos, DropType(rand() % 2));
+	Randomizer *random = Application.GetRandomizer();
+	if (random->Float() <= 0.2f)
+	{
+		Crate* new_crate = new Crate(core.pos, DropType(random->Int() % NUM_DROP_TYPES));
+		world->AddEntity(new_crate, true);
+	}
 
 	int num_npcs_alive = 0;
-	for (Entity *entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
+	for (Entity *entity : world->GetEntitiesByType(ENTITY_CHARACTER))
 	{
 		auto character = (Character *)entity;
 		if (character->IsNPC() && character->IsAlive())
@@ -50,34 +52,34 @@ void CharacterNPC::EventDeath()
 
 	if (num_npcs_alive == 0)
 	{
-		m_World->EnemiesKilled();
-		for (Entity *entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
+		world->EnemiesKilled();
+		for (Entity *entity : world->GetEntitiesByType(ENTITY_CHARACTER))
 			((Character *)entity)->RemoveCombat();
 	}
 }
 
-void CharacterNPC::UpdateAttacker(Player *attacker)
+void CharacterNPC::UpdateAttacker(Player *new_attacker)
 {
-	m_LastAttacker = attacker;
+	last_attacker = new_attacker;
 }
 
 void CharacterNPC::TickControls()
 {
-	if (m_AIType == NPC_DUMMY)
+	if (ai_type == NPC_DUMMY)
 		return;
 
-	auto CurrentTick = m_World->GetTick();
+	auto CurrentTick = world->GetTick();
 
 	Character *ClosestChar = nullptr;
 	double Closest = -1;
-	for (Entity *entity : m_World->GetEntitiesByType(CHARACTER_ENTITY))
+	for (Entity *entity : world->GetEntitiesByType(ENTITY_CHARACTER))
 	{
 		auto character = (Character *)entity;
 		if (character == this || character->IsNPC())
 			continue;
 
 		auto& core = character->GetDirectionalCore();
-		float distance = DistanceVec2f(m_Core.pos, core.pos);
+		float distance = DistanceVec2f(core.pos, core.pos);
 		if (distance < 1000.0 && (!ClosestChar || distance < Closest))
 		{
 			Closest = distance;
@@ -103,16 +105,16 @@ void CharacterNPC::TickControls()
 	else
 	{
 		EntityCore& ClosestCore = ClosestChar->GetCore();
-		Vec2f travel_direction = (ClosestCore.pos - m_Core.pos).Normalize();
-		input.going_direction = travel_direction * (m_CurrentWeapon ? 1.0f : 0.5f);
+		Vec2f travel_direction = (ClosestCore.pos - core.pos).Normalize();
+		input.going_direction = travel_direction * (current_weapon ? 1.0f : 0.5f);
 		input.looking_direction = travel_direction;
 
 		input.reloading = false;
 
-		if (!m_CurrentWeapon)
+		if (!current_weapon)
 		{
 			input.next_item = true;
-			if (CurrentTick - m_Hands.LastFisted() > 20)
+			if (CurrentTick - hands.LastFisted() > 20)
 				input.shooting = true;
 		}
 		else
@@ -120,9 +122,9 @@ void CharacterNPC::TickControls()
 			if (Closest <= 300.0)
 				input.going_direction = Vec2f(0.0f, 0.0f);
 
-			if (!m_CurrentWeapon->GetMagAmmo())
+			if (!current_weapon->GetMagAmmo())
 			{
-				if (m_CurrentWeapon->GetTrueAmmo())
+				if (current_weapon->GetTrueAmmo())
 				{
 					input.reloading = true;
 				}
@@ -133,7 +135,7 @@ void CharacterNPC::TickControls()
 			}
 			else
 			{
-				if (m_CurrentWeapon->IsAutomatic() || CurrentTick - m_CurrentWeapon->LastShot() > (unsigned long long)((double(m_CurrentWeapon->TickCooldown()) - 1500.0 / Closest) * 10))
+				if (current_weapon->IsAutomatic() || CurrentTick - current_weapon->LastShot() > (unsigned long long)((double(current_weapon->TickCooldown()) - 1500.0 / Closest) * 10))
 				{
 					input.shooting = true;
 				}
