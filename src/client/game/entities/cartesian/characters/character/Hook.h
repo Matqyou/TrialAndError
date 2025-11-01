@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <client/game/entities/cartesian/Entity.h>
+#include "client/game/entities/cartesian/base/Entity.h"
 
 class Character;
 struct Hook

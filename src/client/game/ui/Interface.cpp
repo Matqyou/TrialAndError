@@ -18,15 +18,26 @@ Interface::Interface()
 
 }
 
+Interface::~Interface()
+{
+//	for (InterfaceElement* element : foreground_elements)
+//		delete element;
+//	foreground_elements.clear();
+//
+//	for (InterfaceElement* element : background_elements)
+//		delete element;
+//	background_elements.clear();
+}
+
 void Interface::AddElement(InterfaceElement *element)
 {
-	if (element->IsForeground()) m_ForegroundElements.push_back(element);
-	else m_BackgroundElements.push_back(element);
+	if (element->IsForeground()) foreground_elements.push_back(element);
+	else background_elements.push_back(element);
 }
 
 void Interface::DrawBackground()
 {
-	for (auto element : m_ForegroundElements)
+	for (auto element : foreground_elements)
 	{
 		if (!element->IsActive())
 			continue;
@@ -37,7 +48,7 @@ void Interface::DrawBackground()
 
 void Interface::DrawForeground()
 {
-	for (auto element : m_ForegroundElements)
+	for (auto element : foreground_elements)
 	{
 		if (!element->IsActive())
 			continue;

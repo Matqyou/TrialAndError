@@ -1,7 +1,7 @@
 // Copied Entity.cpp into cartesian folder
-#include "Entity.h"
-#include <client/core/Application.h>
-#include <client/game/GameReference.h>
+#include "client/game/entities/cartesian/base/Entity.h"
+#include "client/core/Application.h"
+#include "client/game/GameReference.h"
 
 #include <format>
 

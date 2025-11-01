@@ -15,7 +15,7 @@ FullscreenMenu::FullscreenMenu()
 	this->SetDraw(DRAW_RECT);
 }
 
-void FullscreenMenu::FullscreenEvent(const SDL_Event& sdl_event, EventContext& event_summary)
+void FullscreenMenu::FullscreenMenuEvent(const SDL_Event& sdl_event, EventContext& event_summary)
 {
 	// When multiple menus are stacked, the oldest one will prevent events from passing onto lower menus
 	event_summary.rapid_context.event_captured = true;
@@ -33,7 +33,7 @@ void FullscreenMenu::FullscreenEvent(const SDL_Event& sdl_event, EventContext& e
 void FullscreenMenu::HandleEvent(const SDL_Event& sdl_event, EventContext& event_summary)
 {
 	HandleEventChildren(sdl_event, event_summary);
-	FullscreenEvent(sdl_event, event_summary);
+	FullscreenMenuEvent(sdl_event, event_summary);
 }
 
 void FullscreenMenu::RefreshMenu()

@@ -8,12 +8,12 @@
 //#include <client/game/weapons/projectile/WeaponGlock.h>
 //#include <client/game/weapons/projectile/WeaponBurst.h>
 #include <client/game/entities/cartesian/AmmoBox.h>
-#include <client/game/entities/cartesian/Entity.h>
+#include "client/game/entities/cartesian/base/Entity.h"
 #include <client/game/entities/cartesian/Crate.h>
 #include <client/game/indicators/TextSurface.h>
 #include <client/game/indicators/HealthBar.h>
 #include <client/game/error/ErrorStatuses.h>
-#include <client/core/GameControllers.h>
+#include <client/core/Gamepads.h>
 #include <client/game/players/Player.h>
 #include <client/core/Assets.h>
 
@@ -75,6 +75,7 @@ public:
 		unsigned long long ticks_combat_until_regeneration;
 		unsigned long long last_combat_timestamp;
 		static const int sDefaultControls[NUM_CONTROLS];
+		int gamepad_index;
 
 		const float base_acceleration;
 		double damage_amplifier;
@@ -95,7 +96,7 @@ public:
 		// Listening & Ticking
 		virtual void EventDeath();
 		virtual void TickKeyboardControls();
-//		virtual void TickGameControllerControls();
+		virtual void TickGameControllerControls();
 		void TickHealth();
 		virtual void TickControls();
 		void TickProcessInputs();

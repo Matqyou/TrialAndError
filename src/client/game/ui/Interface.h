@@ -34,15 +34,15 @@ public:
 
 };
 
-class GameData;
 class Interface
 {
 private:
-	std::vector<InterfaceElement *> m_ForegroundElements;
-	std::vector<InterfaceElement *> m_BackgroundElements;
+	std::vector<InterfaceElement *> foreground_elements;
+	std::vector<InterfaceElement *> background_elements;
 
 public:
 	Interface();
+	~Interface();
 
 	// Manipulating
 	void AddElement(InterfaceElement *element);

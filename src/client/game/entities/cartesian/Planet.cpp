@@ -2,7 +2,6 @@
 #include "Planet.h"
 #include "client/core/Application.h"
 #include "client/game/GameReference.h"
-#include <client/game/world/planetary/PlanetaryUtils.h>
 #include <client/core/Assets.h>
 
 #include <utility>

@@ -1,7 +1,7 @@
 // Copied Planet.h into cartesian
 #pragma once
 
-#include "Entity.h"
+#include "client/game/entities/cartesian/base/Entity.h"
 
 class Planet : public Entity
 {

@@ -2,8 +2,8 @@
 // Created by Matq on 04/06/2023.
 //
 
-#include "EntityGuns.h"
-#include <client/game/entities/cartesian/characters/character/Character.h>
+#include "client/game/entities/cartesian/item/weapons/EntityGuns.h"
+#include "client/game/entities/cartesian/characters/character/Character.h"
 
 namespace EntityGuns
 {

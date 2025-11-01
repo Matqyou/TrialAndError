@@ -6,6 +6,8 @@
 #include <client/game/entities/cartesian/characters/character/Character.h>
 #include "client/game/ui/CommonUI.h"
 
+#include <SDL3/SDL.h>
+
 Player::Player(const std::string& username, PlayerClass *player_class)
 	: character(nullptr),
 	  username(),
@@ -19,17 +21,33 @@ Player::Player(const std::string& username, PlayerClass *player_class)
 	max_health_amplifier = 1;
 	extra_life = false;
 	SetUsername(username);
-	player_id = -1;
 	player_id = GameReference.NextPlayerID();
 	nameplate = new TextSurface(CommonUI::fontDefault, username, { 255, 255, 255, 255 });
-//	world->AddPlayer(this);
+
+	wants_gamepad_index = -1;
+	gamepad_subscription_id = -1;
+	if (true) // player wants to use controller
+		wants_gamepad_index = GameReference.GetAvailableGamepadIndex();
+	dbg_msg("Player %s looking for controller #%i\n", username.c_str(), wants_gamepad_index);
+
 	GameReference.AddPlayer(this);
 }
 
 Player::~Player()
 {
 	delete nameplate;
-//	world->RemovePlayer(this);
+
+	if (wants_gamepad_index == 0)
+		GamepadsClass::sGamepadOneUpdated.Unsubscribe(gamepad_subscription_id);
+	else if (wants_gamepad_index == 1)
+		GamepadsClass::sGamepadTwoUpdated.Unsubscribe(gamepad_subscription_id);
+	else if (wants_gamepad_index == 2)
+		GamepadsClass::sGamepadThreeUpdated.Unsubscribe(gamepad_subscription_id);
+	else if (wants_gamepad_index == 3)
+		GamepadsClass::sGamepadFourUpdated.Unsubscribe(gamepad_subscription_id);
+
+	wants_gamepad_index = -1;
+	gamepad_subscription_id = -1;
 }
 
 void Player::GainXP(unsigned int amount)
@@ -73,9 +91,48 @@ int Player::GetPowerupUpgradeCount(Powerup type)
 void Player::SetCharacter(Character *new_character)
 {
 	if (character && new_character)
-		std::printf("Player `%s` already has a character.\n", username.c_str());
+		dbg_msg("Player `%s` already has a character.\n", username.c_str());
 	else
 		character = new_character;
+
+	// no character or doesn't want gamepad, return
+	if (!character || wants_gamepad_index == -1)
+		return;
+
+	// subscribe to controller adding / removing
+	auto gamepad_update_callback = [this](int index, bool added)
+	{
+		dbg_msg("Gamepad index #%i, added %s\n", index, added ? "true" : "false");
+		if (added)
+			character->gamepad_index = index;
+		else
+			character->gamepad_index = -1;
+	};
+
+	// todo: cursed, change to array or vector
+	if (wants_gamepad_index == 0)
+		gamepad_subscription_id = GamepadsClass::sGamepadOneUpdated.Subscribe(gamepad_update_callback);
+	else if (wants_gamepad_index == 1)
+		gamepad_subscription_id = GamepadsClass::sGamepadTwoUpdated.Subscribe(gamepad_update_callback);
+	else if (wants_gamepad_index == 2)
+		gamepad_subscription_id = GamepadsClass::sGamepadThreeUpdated.Subscribe(gamepad_update_callback);
+	else if (wants_gamepad_index == 3)
+		gamepad_subscription_id = GamepadsClass::sGamepadFourUpdated.Subscribe(gamepad_update_callback);
+}
+
+void Player::CharacterRemoving()
+{
+	if (wants_gamepad_index == 0)
+		GamepadsClass::sGamepadOneUpdated.Unsubscribe(gamepad_subscription_id);
+	else if (wants_gamepad_index == 1)
+		GamepadsClass::sGamepadTwoUpdated.Unsubscribe(gamepad_subscription_id);
+	else if (wants_gamepad_index == 2)
+		GamepadsClass::sGamepadThreeUpdated.Unsubscribe(gamepad_subscription_id);
+	else if (wants_gamepad_index == 3)
+		GamepadsClass::sGamepadFourUpdated.Unsubscribe(gamepad_subscription_id);
+
+//	wants_gamepad_index = -1; // we still want this controller, it just disconnected
+	gamepad_subscription_id = -1;
 }
 
 // If username is longer than the limit,
@@ -83,14 +140,6 @@ void Player::SetCharacter(Character *new_character)
 // the length of MAX_USERNAME_LENGTH.
 void Player::SetUsername(const std::string& new_username)
 {
-	if (new_username.length() > MAX_USERNAME_LENGTH)
-	{
-		username = new_username.substr(0, MAX_USERNAME_LENGTH);
-	}
-	else
-	{
-		// TODO: something not makin sense here
-		std::cout << FStringColors("[Player] &8Setting username to: &f") << player_class->GetName() << std::endl;
-		username = Strings::FString("%s - %s", player_class->GetName(), username.c_str());
-	}
+	username = FString("%s - %s", player_class->GetName(), new_username.substr(0, MAX_USERNAME_LENGTH).c_str());
+	dbg_msg("[Player] &8Setting username to: &f%s\n", username.c_str());
 }

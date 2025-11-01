@@ -23,7 +23,7 @@ class Character;
 class Player
 {
 private:
-	friend class GameWorld;
+	friend class GameData;
 	unsigned int xp;
 	unsigned int level;
 
@@ -31,7 +31,7 @@ private:
 	PlayerClass *player_class;
 //	LevelupMenu *m_LevelUpMenu;
 	std::string username;
-	size_t player_id;
+	int player_id;
 
 	int base_damage;
 	double damage_amplifier;
@@ -42,16 +42,19 @@ private:
 //	std::queue<LevelUpMenu *> m_levelUpMenuQueue;
 	int upgrade_counts[(size_t)Powerup::NUM_POWERUPS];
 
+	int wants_gamepad_index;
+	int gamepad_subscription_id;
+
 public:
-	explicit Player(const std::string& username, PlayerClass *player_class = nullptr);
+	explicit Player(const std::string& index, PlayerClass *player_class = nullptr);
 	~Player();
 
 	// Getting
 	[[nodiscard]] Character *GetCharacter() const { return character; }
 	[[nodiscard]] const std::string& GetUsername() const { return username; }
-	[[nodiscard]] size_t GetPlayerID() const { return player_id; }
-//	[[nodiscard]] LevelupMenu *GetLevelUpMenu() const { return m_LevelUpMenu; }
+	[[nodiscard]] int GetPlayerID() const { return player_id; }
 	[[nodiscard]] TextSurface *GetNamePlate() const { return nameplate; }
+//	[[nodiscard]] LevelupMenu *GetLevelUpMenu() const { return m_LevelUpMenu; }
 //	[[nodiscard]] std::queue<LevelUpMenu *> GetLevelUpMenuQueue() const { return m_levelUpMenuQueue; }
 	[[nodiscard]] unsigned int GetXP() const { return xp; }
 	[[nodiscard]] int GetBaseDamage() const { return base_damage; }
@@ -68,7 +71,8 @@ public:
 	void IncreaseBossDamageAmp(double DamageAmp) { boss_damage_amplifier += DamageAmp; };
 	void IncreaseMaxHealthAmp(double HealthAmp) { max_health_amplifier += HealthAmp; };
 	void SetExtraLife(bool ExtraLife) { extra_life = ExtraLife; };
-	void SetCharacter(Character *character);
+	void SetCharacter(Character *new_character);
+	void CharacterRemoving();
 	void SetUsername(const std::string& username);
 //	void SetLevelUpMenuQueue(std::queue<LevelUpMenu *> MenuQueue) { m_levelUpMenuQueue = MenuQueue; };
 //	void SetGameWorld(GameWorld *game_world) { world = game_world; }

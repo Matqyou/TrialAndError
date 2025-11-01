@@ -4,12 +4,12 @@
 
 #include "GameReference.h"
 
-#include <utility>
-#include "client/game/entities/characters/character/Character.h"
+#include "client/game/entities/cartesian/characters/character/Character.h"
+#include "client/game/entities/cartesian/item/weapons/EntityGuns.h"
 #include "client/game/ui/menus/class_select/GamemodeMenu.h"
-#include "client/game/entities/item/weapons/EntityGuns.h"
 #include "client/game/ui/CommonUI.h"
 #include "client/core/Assets.h"
+#include <utility>
 
 LinkSound sQuitSound("ui.quit");
 
@@ -27,18 +27,32 @@ GameData::~GameData()
 	Deinitialize(false);
 }
 
-size_t GameData::NextPlayerID()
+int GameData::NextPlayerID()
 {
 	return next_player_id++;
 }
 
-Player* GameData::GetPlayerFromID(size_t player_id)
+Player* GameData::GetPlayerFromID(int player_id)
 {
 	for (Player* player : players)
 		if (player->GetPlayerID() == player_id)
 			return player;
 
 	return nullptr;  // Player not found
+}
+
+int GameData::GetAvailableGamepadIndex()
+{
+	int available_gamepad_index = 0;
+	for (Player* other : players)
+	{
+		if (other->wants_gamepad_index != available_gamepad_index)
+			break;
+
+		available_gamepad_index++;
+	}
+
+	return available_gamepad_index;
 }
 
 void GameData::SetExitApplicationCallback(Callback callback)
@@ -97,11 +111,14 @@ bool GameData::Initialize()
 	return true;
 }
 
-void GameData::Deinitialize(bool play_quit_sound)
+void GameData::Deinitialize(bool play_quit_sound) // todo: may trigger twice
 {
 	Assets.PauseMusic();
+
 	delete interface;
+	interface = nullptr;
 	delete world;
+	world = nullptr;
 }
 
 //void GameData::AddPendingClass(PlayerClass *playerClass)
@@ -179,7 +196,9 @@ void GameData::InitializeInfinite()
 	world = new GameWorld(50, 30);
 	Character::sBotNameplate = new TextSurface(CommonUI::fontDefault, "Bot User", { 255, 150, 150, 255 });
 
-//	world->InitPlayers();
+	auto new_character = new Character(GameReference.GetPlayerFromID(0), 100.0, Vec2f(100.0f, 100.0f), Vec2f(0.0f, 0.0f), false);
+	world->AddEntity(new_character, false);
+	//	world->InitPlayers();
 }
 
 void GameData::HandleEvent(const SDL_Event& sdl_event, EventContext& event_context)

@@ -62,7 +62,7 @@ void ApplicationClass::Initialize(const char *title,
 
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 
-	bool init_sdl = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
+	bool init_sdl = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD);
 	if (!init_sdl)
 		throw std::runtime_error(Strings::FString("Error while initializing sdl %s\n", SDL_GetError()));
 
@@ -177,6 +177,11 @@ void ApplicationClass::HandleEvent(const SDL_Event& sdl_event, EventContext& eve
 			half_resolution = Vec2f(resolution) / 2.f;
 			break;
 		}
+//		case SDL_EVENT_GAMEPAD_ADDED:
+//		{
+//			dbg_msg("Controller added, Event: %i\n", sdl_event.type);
+//			break;
+//		}
 	}
 }
 

@@ -7,7 +7,7 @@
 #include <client/game/ui/menus/pause/PauseMenu.h>
 #include <client/game/indicators/TextSurface.h>
 #include <client/game/collision/TileMap.h>
-#include <client/core/GameControllers.h>
+#include <client/core/Gamepads.h>
 #include <client/game/ui/Particles.h>
 //#include <client/GameData.h>
 #include <client/Protocol.h>

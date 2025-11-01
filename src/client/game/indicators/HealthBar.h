@@ -6,7 +6,7 @@
 
 //#include <client/GameData.h>
 #include "client/game/GameReference.h"
-#include <client/game/entities/cartesian/Entity.h>
+#include "client/game/entities/cartesian/base/Entity.h"
 
 class HealthBar
 {

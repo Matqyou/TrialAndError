@@ -11,7 +11,7 @@ public:
     FullscreenMenu();
 
     // Ticking
-    void FullscreenEvent(const SDL_Event& sdl_event, EventContext& event_summary);
+    void FullscreenMenuEvent(const SDL_Event& sdl_event, EventContext& event_summary);
     void HandleEvent(const SDL_Event& sdl_event, EventContext& event_summary) override;
 
     // Manipulation

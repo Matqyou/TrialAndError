@@ -2,8 +2,8 @@
 // Created by Matq on 03/06/2023.
 //
 
-#include "ItemEntity.h"
-#include <client/game/entities/cartesian/characters/character/Character.h>
+#include "client/game/entities/cartesian/item/ItemEntity.h"
+#include "client/game/entities/cartesian/characters/character/Character.h"
 
 static LinkTexture sTextureGlock("entity.items.glock");
 static LinkTexture sTextureShotgun("entity.items.shotgun");
@@ -51,6 +51,8 @@ void ItemEntity::SetTexture(ItemType item_type)
 			m_Texture = sTexturePatersonNavy.GetTexture();
 			break;
 		}
+		default:
+			break;
 	}
 }
 
@@ -67,7 +69,7 @@ ItemEntity::ItemEntity(ItemType item_type,
 			 false)
 {
 	m_Dropper = dropper;
-	m_DroppedSince = world->GetTick();
+	m_DroppedSince = 0;
 	m_PickupCooldown = (unsigned long long)(Application.GetClock()->GetFramerate());
 	m_ItemType = item_type;
 	m_Texture = nullptr;
@@ -75,6 +77,11 @@ ItemEntity::ItemEntity(ItemType item_type,
 	m_Rotation = 0.0;
 	m_RotationalVelocity = 0;
 	m_RotationalDamping = 0.95;
+
+	// runs when world->AddEntity(...) is called
+	entity_added_event.Subscribe([this](GameWorld* our_world) {
+		m_DroppedSince = our_world->GetTick();
+	});
 
 	SetTexture(item_type);
 }

@@ -84,11 +84,13 @@ void MainMenu::HandleEvent(const SDL_Event& sdl_event, EventContext& event_summa
 	if (!m_Intro)
 	{
 		HandleEventChildren(sdl_event, event_summary);
-		FullscreenEvent(sdl_event, event_summary);
+		FullscreenMenuEvent(sdl_event, event_summary);
 		return;
 	}
 	else
-	{ FullscreenEvent(sdl_event, event_summary); }
+	{
+		FullscreenMenuEvent(sdl_event, event_summary);
+	}
 
 	if (sdl_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && sdl_event.button.button == SDL_BUTTON_LEFT)
 	{

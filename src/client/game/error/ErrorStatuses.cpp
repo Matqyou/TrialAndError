@@ -207,9 +207,9 @@ void ErrorStatuses::DrawAsGUI()
 			(float)(frame.Size.x),
 			(float)(frame.Size.y * percentage),
 		};
-		m_Drawing->RenderTexture(sTextureErrorBackground.GetTexture()->SDLTexture(), nullptr, frame_rect, GameReference.GetCamera());
-		m_Drawing->RenderTexture(effect->GetTexture()->SDLTexture(), &source, effect_rect, GameReference.GetCamera());
-		m_Drawing->RenderTexture(sTextureErrorFrame.GetTexture()->SDLTexture(), nullptr, frame_rect, GameReference.GetCamera());
+		m_Drawing->RenderTexture(sTextureErrorBackground.GetTexture()->SDLTexture(), nullptr, frame_rect);
+		m_Drawing->RenderTexture(effect->GetTexture()->SDLTexture(), &source, effect_rect);
+		m_Drawing->RenderTexture(sTextureErrorFrame.GetTexture()->SDLTexture(), nullptr, frame_rect);
 
 		frames_it++;
 	}

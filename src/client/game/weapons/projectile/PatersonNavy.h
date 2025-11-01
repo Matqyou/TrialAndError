@@ -5,7 +5,7 @@
 #pragma once
 
 #include "client/game/weapons/projectile/base/ProjectileWeapon.h"
-#include <client/game/entities/cartesian/Entity.h>
+#include "client/game/entities/cartesian/base/Entity.h"
 
 class PatersonNavy : public ProjectileWeapon
 {

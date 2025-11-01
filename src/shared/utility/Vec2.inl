@@ -197,7 +197,7 @@ template<class T>
 Vec2<T> Vec2<T>::NormalizeF() const
 {
 	float len = LengthF();
-	constexpr double epsilon = 1e-10;
+	constexpr float epsilon = 1e-10f;
 
 	if (len > epsilon)
 	{
@@ -209,6 +209,18 @@ Vec2<T> Vec2<T>::NormalizeF() const
 	}
 	return { x, y };
 }
+
+//template<class T>
+//Vec2<T> Vec2<T>::NormalizeAt(double max) const
+//{
+//
+//}
+//
+//template<class T>
+//Vec2<T> Vec2<T>::NormalizeAtF(float max) const
+//{
+//
+//}
 
 template<class T>
 Vec2<T> Vec2<T>::SetLength(double length) const

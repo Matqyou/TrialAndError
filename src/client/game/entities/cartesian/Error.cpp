@@ -48,8 +48,8 @@ void Error::TickPickup(double x, double y)
 	auto characters = world->GetEntitiesByType(ENTITY_CHARACTER);
 	for (Entity* entity : characters)
 	{
-		Character* Char = (Character*)entity;
-		auto& core = Char->GetDirectionalCore();
+		Character* character = (Character*)entity;
+		auto& core = character->GetDirectionalCore();
 		bool Collides = (core.pos.x - core.size.x / 2 - core.size_ratio < x) &&
 			(core.pos.x + core.size.x / 2 + core.size_ratio > x) &&
 			(core.pos.y - core.size.y / 2 - core.size_ratio < y) &&
@@ -62,20 +62,77 @@ void Error::TickPickup(double x, double y)
 
 		if (m_Type == DISORIENTED)
 		{
-			if (Char->IsNPC())
-			{ Char->GetErrorStatuses().Disoriented.Activate(); }
+			if (character->IsNPC())
+			{ character->GetErrorStatuses().Disoriented.Activate(); }
 			else
 			{
-				for (Entity* entity : world->GetEntitiesByType(ENTITY_CHARACTER))
+				for (Entity* other_entity : world->GetEntitiesByType(ENTITY_CHARACTER))
 				{
-					Character* character = (Character*)entity;
-					if (!character->IsNPC()) continue;
+					Character* other_character = (Character*)other_entity;
+					if (character == other_character) continue;
+					if (!other_character->IsNPC()) continue;
 
-					character->GetErrorStatuses().Disoriented.Activate();
+					other_character->GetErrorStatuses().Disoriented.Activate();
 				}
 			}
 		}
-		// (rest omitted for brevity in the copy - assume identical behavior)
+		else if (m_Type == CONFUSING_HP)
+		{
+			for (Entity* other_entity : world->GetEntitiesByType(ENTITY_CHARACTER))
+			{
+				Character* other_character = (Character*)other_entity;
+				other_character->GetErrorStatuses().ConfusingHealth.Activate();
+			}
+		}
+		else if (m_Type == INVINCIBLE)
+		{
+			character->GetErrorStatuses().Invincible.Activate();
+		}
+		else if (m_Type == SPIKY)
+		{
+			character->GetErrorStatuses().Spiky.Activate();
+		}
+		else if (m_Type == HEALERS_PARADISE)
+		{
+			if (character->IsNPC())
+			{
+				character->GetErrorStatuses().HealersParadise.Activate();
+			}
+			else
+			{
+				for (Entity* other_entity : world->GetEntitiesByType(ENTITY_CHARACTER))
+				{
+					Character* other_character = (Character*)other_entity;
+					if (other_character->IsNPC()) continue;
+					other_character->GetErrorStatuses().HealersParadise.Activate();
+				}
+			}
+		}
+		else if (m_Type == RANGED)
+		{
+			character->GetErrorStatuses().RangedFists.Activate();
+		}
+		else if (m_Type == SLOW_DOWN)
+		{
+			if (character->IsNPC())
+			{
+				character->GetErrorStatuses().Slowdown.Activate();
+			}
+			else
+			{
+				for (Entity* other_entity : world->GetEntitiesByType(ENTITY_CHARACTER))
+				{
+					Character* other_character = (Character*)other_entity;
+					if (!other_character->IsNPC()) continue;
+					other_character->GetErrorStatuses().Slowdown.Activate();
+				}
+			}
+		}
+		else if (m_Type == DANGEROUS_RECOIL)
+		{
+			character->GetErrorStatuses().DangerousRecoil.Activate();
+		}
+
 		alive = false;
 	}
 }

@@ -2,6 +2,7 @@
 // Created by Mat on 12/3/2024.
 //
 
+#include "Assets.h"
 #include "client/core/Application.h"
 #include <unordered_set>
 #include <filesystem>
@@ -9,7 +10,7 @@
 #include <fstream>
 #include <cstring>
 #include <utility>
-#include "Assets.h"
+#include <cassert>
 
 using namespace Strings;
 
@@ -936,7 +937,7 @@ LinkTexture::LinkTexture(std::string texture_key, TextureCallback load_callback)
 	AssetsClass::LinkPreloadedTexture(this);
 }
 
-PregenerateTexture::PregenerateTexture(std::string  texture_key, TextureCallback generate_callback)
+PregenerateTexture::PregenerateTexture(std::string texture_key, TextureCallback generate_callback)
 	: m_Key(std::move(texture_key)), m_GenerateCallback(std::move(generate_callback))
 {
 	m_Texture = nullptr;
@@ -996,12 +997,15 @@ Font *PreloadFont::GetFont() const
 
 TTF_Font *PreloadFont::GetTTFFont() const
 {
-	if (m_Font == nullptr)
-		throw std::runtime_error(FString("[Font] GetTTFFont - m_Font '%s' was nullptr", m_Key.c_str()));
+	bool assets_linked = Assets.GetStatus() == AssetsClass::Status::ASSETS_LINKED;
+	assert(assets_linked && "PreloadFont::GetTTFFont() - Assets have not been linked yet");
+
+	bool font_linked = m_Font != nullptr;
+	assert(font_linked && FString("PreloadFont::GetTTFFont() - m_Font '%s' was nullptr", m_Key.c_str()).c_str());
 
 	TTF_Font *ttf_font = m_Font->TTFFont();
-	if (ttf_font == nullptr)
-		throw std::runtime_error(FString("[Font] GetTTFFont - TTF_Font '%s' was nullptr", m_Key.c_str()));
+	bool ttf_font_linked = ttf_font != nullptr;
+	assert(ttf_font_linked && FString("PreloadFont::GetTTFFont() - TTF_Font '%s' was nullptr", m_Key.c_str()).c_str());
 
 	return ttf_font;
 }

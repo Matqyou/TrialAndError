@@ -14,7 +14,7 @@
 #include "client/game/ui/menus/pause/PauseMenu.h"
 #include "client/game/ui/menus/main/MainMenu.h"
 #include "client/core/drawing/Drawing.h"
-#include "client/core/GameControllers.h"
+#include "client/core/Gamepads.h"
 #include "shared/utility/Randomizer.h"
 #include "client/core/AssetsManager.h"
 #include "client/game/ui/Interface.h"
@@ -41,7 +41,7 @@ private:
 	// Picked class, etc.
 	std::vector<Player*> players;
 	std::vector<Preferences> player_preferences;
-	size_t next_player_id;
+	int next_player_id;
 
 	Callback exit_callback;
 
@@ -57,9 +57,9 @@ public:
 	[[nodiscard]] Interface *GetInterface() const { return interface; }
 	[[nodiscard]] std::vector<Player*>& GetPlayers() { return players; }
 	[[nodiscard]] Preferences& GetPlayerPreferences(int index) { return player_preferences[index]; }
-	[[nodiscard]] size_t NextPlayerID();
-	[[nodiscard]] Player* GetPlayerFromID(size_t player_id);
-//	[[nodiscard]] size_t NumExpectedPlayers() const { return player_preferences.size(); }
+	[[nodiscard]] int NextPlayerID();
+	[[nodiscard]] Player* GetPlayerFromID(int player_id);
+	[[nodiscard]] int GetAvailableGamepadIndex();
 
 	// Manipulating
 	void SetExitApplicationCallback(Callback callback);

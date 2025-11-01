@@ -5,8 +5,7 @@
 #include "GameWorld.h"
 #include <client/game/entities/cartesian/characters/character/Character.h>
 #include <client/game/entities/cartesian/characters/CharacterNPC.h>
-#include <client/game/world/planetary/PlanetaryGameWorld.h>
-#include <client/game/entities/cartesian/Entity.h>
+#include "client/game/entities/cartesian/base/Entity.h"
 #include <client/game/players/Player.h>
 #include "client/game/ui/CommonUI.h"
 
@@ -56,6 +55,7 @@ GameWorld::~GameWorld()
 //		delete player;
 	for (auto entity : entities)
 		delete entity;
+	entities.clear();
 }
 
 void GameWorld::EnemyKilled(Player *player, Character *enemy)
@@ -198,6 +198,7 @@ Entity *GameWorld::AddEntity(Entity *new_entity, bool add_next_tick)
 		new_entity->pending = false;
 	}
 
+	new_entity->entity_added_event.Invoke(this); // connect any custom events to this
 	return new_entity;
 }
 

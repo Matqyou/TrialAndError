@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <client/game/weapons/projectile/WeaponShotgun.h>
-#include <client/game/weapons/projectile/WeaponMinigun.h>
-#include <client/game/weapons/projectile/WeaponSniper.h>
-#include <client/game/weapons/projectile/PatersonNavy.h>
-#include <client/game/weapons/projectile/WeaponBurst.h>
-#include <client/game/weapons/projectile/WeaponGlock.h>
-#include <client/game/entities/item/ItemEntity.h>
+#include "client/game/weapons/projectile/WeaponShotgun.h"
+#include "client/game/weapons/projectile/WeaponMinigun.h"
+#include "client/game/weapons/projectile/WeaponSniper.h"
+#include "client/game/weapons/projectile/PatersonNavy.h"
+#include "client/game/weapons/projectile/WeaponBurst.h"
+#include "client/game/weapons/projectile/WeaponGlock.h"
+#include "client/game/entities/cartesian/item/ItemEntity.h"
 
 namespace EntityGuns
 {

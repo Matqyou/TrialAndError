@@ -67,7 +67,6 @@ int main()
 						   "com.tae.trial_and_error",
 						   Vec2i(1280, 720),
 						   60.0, 10.0);
-	GameReference.Initialize();
 
 	auto clock = Application.GetClock();
 	auto drawing = Application.GetDrawing();
@@ -121,6 +120,9 @@ int main()
 		}
 	} while (Assets.IsLoading());
 
+	Gamepads.AddMissingGamepads();
+	GameReference.Initialize();
+
 	// Do this after assets have been loaded because it uses them
 	Menus.InitMenus();
 	Menus.main_menu->SwitchToThisMenu();
@@ -145,6 +147,7 @@ int main()
 		{
 			event_context.ResetRapidContext(); // Per event context
 
+			Gamepads.HandleEvent(sdl_event, event_context);
 			Application.HandleEvent(sdl_event, event_context);
 			Menus.HandleEvent(sdl_event, event_context);
 			GameReference.HandleEvent(sdl_event, event_context);
@@ -229,6 +232,7 @@ int main()
 			if (GameReference.World())
 				GameReference.World()->Tick(elapsed_seconds);
 			Menus.Tick(elapsed_seconds);
+			Gamepads.TickLast();
 
 			// Drawing
 			if (GameReference.World())

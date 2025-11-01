@@ -2,7 +2,7 @@
 // Created by 11dpjgailis on 16.03.2023.
 //
 #include <client/game/entities/cartesian/characters/character/Character.h>
-#include <client/game/entities/item/weapons/EntityGuns.h>
+#include "client/game/entities/cartesian/item/weapons/EntityGuns.h"
 #include <client/game/entities/cartesian/Projectile.h>
 #include <client/game/ui/CommonUI.h>
 
@@ -74,15 +74,10 @@ Character::Character(Player *our_player,
 {
 	player = our_player;
 	color_hue = player ? 60.0 - double(player->GetPlayerID() * 30) : 0.0;
+	color_hue = player ? 60.0 - double(player->GetPlayerID() * 30) : 0.0;
 
 	base_damage = 10;
 	damage_amplifier = 1.0;
-	if (player)
-	{
-		player->SetCharacter(this);
-		base_damage = player->GetBaseDamage();
-		damage_amplifier = player->GetDamageAmp();
-	}
 
 	current_weapon = nullptr; // Start by holding nothing
 	memset(weapons, 0, sizeof(weapons));
@@ -91,6 +86,7 @@ Character::Character(Player *our_player,
 	active_regeneration_rate = 0.1;   // health per tick out of combat
 	ticks_combat_until_regeneration = (unsigned long long)(10 * Application.GetClock()->GetFramerate()); // todo: implement world tickrate
 	last_combat_timestamp = 0;
+	gamepad_index = -1;
 
 	selected_weapon_index = -1;
 //	m_GameController = nullptr;
@@ -116,6 +112,13 @@ Character::Character(Player *our_player,
 
 	error_notification_text = new TextSurface(CommonUI::fontDefault, "m_ErrorText", { 255, 255, 255 });
 	// TODO: make vector of weapons instead of array
+
+	if (player)
+	{
+		player->SetCharacter(this);
+		base_damage = player->GetBaseDamage();
+		damage_amplifier = player->GetDamageAmp();
+	}
 }
 
 Character::~Character()
@@ -130,6 +133,9 @@ Character::~Character()
 		if (other_hook->grabbed_entity == this)
 			other_hook->Unhook();
 	}
+
+	if (player)
+		player->CharacterRemoving();
 }
 
 void Character::LevelupStats(unsigned int level)
@@ -312,43 +318,6 @@ void Character::EventDeath()
 		new_weapon_entity->Accelerate(directional_core.direction * 5);
 		new_weapon_entity->SetRotation(directional_core.direction.Atan2());
 		new_weapon_entity->AccelerateRotation(std::fmod(Application.GetRandomizer()->Float(), 0.35f) - 0.175f);
-
-//		if (i == WEAPON_GLOCK)
-//		{
-//			new_weapon_entity = new EntityGlock(m_World, this, (WeaponGlock *)weapons[WEAPON_GLOCK], core.pos);
-//			weapons[WEAPON_GLOCK] = nullptr;
-//		}
-//		else if (i == WEAPON_SHOTGUN)
-//		{
-//			new_weapon_entity = new EntityShotgun(m_World, this, (WeaponShotgun *)weapons[WEAPON_SHOTGUN], core.pos);
-//			weapons[WEAPON_SHOTGUN] = nullptr;
-//		}
-//		else if (i == WEAPON_BURST)
-//		{
-//			new_weapon_entity = new EntityBurst(m_World, this, (WeaponBurst *)weapons[WEAPON_BURST], core.pos);
-//			weapons[WEAPON_BURST] = nullptr;
-//		}
-//		else if (i == WEAPON_MINIGUN)
-//		{
-//			new_weapon_entity = new EntityMinigun(m_World, this, (WeaponMinigun *)weapons[WEAPON_MINIGUN], core.pos);
-//			weapons[WEAPON_MINIGUN] = nullptr;
-//		}
-//		else if (i == WEAPON_SNIPER)
-//		{
-//			new_weapon_entity = new EntitySniper(m_World, this, (WeaponSniper *)weapons[WEAPON_SNIPER], core.pos);
-//			weapons[WEAPON_SNIPER] = nullptr;
-//		}
-//		else if (i == WEAPON_PATERSONNAVY)
-//		{
-//			new_weapon_entity = new EntityPatersonNavy(m_World, this, (PatersonNavy *)weapons[WEAPON_PATERSONNAVY], core.pos);
-//			weapons[WEAPON_PATERSONNAVY] = nullptr;
-//		}
-//		else
-//		{
-//			throw std::runtime_error("Unhandled weapon drop on death (TODO)");
-//		}
-
-
 	}
 
 	if (!is_npc)
@@ -406,45 +375,43 @@ void Character::TickKeyboardControls()
 	//    && !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
 }
 
-//void Character::TickGameControllerControls()
-//{
-//	// Sneaking
-//	m_Input.m_Sneaking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
-//
-//	// Check for current joystick values
-//	m_GameController->GetJoystick1(m_Input.m_GoingX, m_Input.m_GoingY);
-//
-//	// AxisX**2 + AxisY**2 <= 1 (keep direction length of 1)
-//	m_Input.m_GoingLength = Vec2d(m_Input.m_GoingX, m_Input.m_GoingY).Length();
-//	m_Input.m_GoingX /= m_Input.m_GoingLength;
-//	m_Input.m_GoingY /= m_Input.m_GoingLength;
-//
-//	// RequestUpdate look direction
-//	double LookingX, LookingY;
-//	m_GameController->GetJoystick2(LookingX, LookingY);
-//
-//	m_Input.m_LookingLength = Vec2d(m_Input.m_LookingX, m_Input.m_LookingY).Length();
-//	if (m_Input.m_LookingLength >= 0.6)
-//	{
-//		m_Input.m_LookingX = LookingX / m_Input.m_LookingLength;
-//		m_Input.m_LookingY = LookingY / m_Input.m_LookingLength;
-//	}
-//
-//	// Shooting
-//	m_Input.m_Shooting = m_GameController->GetRightTrigger() > 0.7;
-//	m_Input.m_Hooking = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-//	m_Input.m_Reloading = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_X);
-//
-//	// Switch weapons
-//	m_Input.m_NextItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
-//		&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-//	m_Input.m_PrevItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)
-//		&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-//	m_Input.m_DeselectItem = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP)
-//		&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_UP) ||
-//		m_GameController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)
-//			&& !m_GameController->GetLastButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-//}
+void Character::TickGameControllerControls()
+{
+	Gamepad* gamepad = Gamepads.GetGamepadFromIndex(gamepad_index);
+
+	// Sneaking
+	input.sneaking = gamepad->GetButton(SDL_GAMEPAD_BUTTON_LEFT_STICK); // m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
+
+	Vec2f left_joystick = gamepad->GetJoystickLeft();
+	if (left_joystick.LengthF() > 1.0f) // todo: check out if there is a better way to calibrate analog stick rather than adding deadzone
+		left_joystick = left_joystick.NormalizeF();
+	input.going_direction = left_joystick;
+
+	Vec2f right_joystick = gamepad->GetJoystickRight();
+	if (right_joystick.Length() >= 0.6)
+	{
+		if (right_joystick.LengthF() > 1.0f)
+			right_joystick = right_joystick.NormalizeF();
+		input.looking_direction = right_joystick;
+	} else {
+		input.looking_direction = left_joystick;
+	}
+
+	// Shooting
+	input.shooting = gamepad->GetRightTrigger() > 0.1;
+	input.hooking = gamepad->GetButton(SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER);
+	input.reloading = gamepad->GetButton(SDL_GAMEPAD_BUTTON_WEST);
+
+	// Switch weapons
+	input.next_item = gamepad->GetButton(SDL_GAMEPAD_BUTTON_DPAD_RIGHT)
+		&& !gamepad->GetLastButton(SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+	input.prev_item = gamepad->GetButton(SDL_GAMEPAD_BUTTON_DPAD_LEFT)
+		&& !gamepad->GetLastButton(SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+	input.deselect_item = gamepad->GetButton(SDL_GAMEPAD_BUTTON_DPAD_UP)
+		&& !gamepad->GetLastButton(SDL_GAMEPAD_BUTTON_DPAD_UP) ||
+		gamepad->GetButton(SDL_GAMEPAD_BUTTON_DPAD_DOWN)
+			&& !gamepad->GetLastButton(SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+}
 
 // When in combat heal differently than out of combat
 void Character::TickHealth()
@@ -457,10 +424,10 @@ void Character::TickHealth()
 
 void Character::TickControls()
 {
-//	if (m_GameController)
-//		TickGameControllerControls();
-//	else
-	TickKeyboardControls();
+	if (gamepad_index != -1)
+		TickGameControllerControls();
+	else
+		TickKeyboardControls();
 
 	if (input.looking_direction.Length() <= 0.6 && input.going_direction.Length() > 0.2)
 		input.looking_direction = input.going_direction;
@@ -775,13 +742,6 @@ void Character::DrawHands()
 								  &WeaponPivot,
 								  SDL_FLIP_VERTICAL,
 								  GameReference.GetCamera());
-//		drawing->RenderTextureExFCamera(texture->SDLTexture(),
-//										nullptr,
-//										WeaponRect,
-//										Radians / M_PI * 180.0,
-//										&WeaponPivot,
-//										SDL_FLIP_VERTICAL);
-
 }
 
 void Character::DrawNameplate()

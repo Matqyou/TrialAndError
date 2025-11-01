@@ -1,7 +1,7 @@
 // Copied Crate.cpp into cartesian
 #include "Crate.h"
 #include <client/game/entities/cartesian/characters/character/Character.h>
-#include <client/game/entities/item/weapons/EntityGuns.h>
+#include "client/game/entities/cartesian/item/weapons/EntityGuns.h"
 #include <iostream>
 
 LinkSound Crate::sHitSound[] = {

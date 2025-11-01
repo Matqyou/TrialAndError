@@ -1,7 +1,7 @@
 // Copied Crate.h into cartesian
 #pragma once
 
-#include <client/game/entities/cartesian/Entity.h>
+#include "client/game/entities/cartesian/base/Entity.h"
 #include <client/game/entities/cartesian/AmmoBox.h>
 #include <client/core/Assets.h>
 

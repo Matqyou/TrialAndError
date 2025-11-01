@@ -1,8 +1,8 @@
 // Copied Entity.h into cartesian folder for cartesian-specific entities
 #pragma once
 
-#include <client/game/world/GameWorld.h>
-#include <shared/utility/Vec2.h>
+#include "client/game/world/GameWorld.h"
+#include "shared/utility/Vec2.h"
 
 struct EntityCore
 {
@@ -78,6 +78,9 @@ protected:
 	bool alive;
 
 	const bool has_health_component;
+
+	// added into world
+	Streamer<GameWorld*> entity_added_event;
 
 	virtual void TickUpdateLastCore();
 	virtual void TickVelocity(double seconds_elapsed);

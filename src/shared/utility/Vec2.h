@@ -55,6 +55,8 @@ public:
 	[[nodiscard]] Vec2 RotateF(float radians) const;
 	[[nodiscard]] Vec2 Normalize() const;
 	[[nodiscard]] Vec2 NormalizeF() const;
+//	[[nodiscard]] Vec2 NormalizeAt(double max) const;
+//	[[nodiscard]] Vec2 NormalizeAtF(float max) const;
 	[[nodiscard]] Vec2 SetLength(double length) const;
 	[[nodiscard]] Vec2 SetLengthF(float length) const;
 
