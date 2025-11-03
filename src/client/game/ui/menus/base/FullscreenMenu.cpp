@@ -10,7 +10,7 @@
 FullscreenMenu::FullscreenMenu()
 	: Element()
 {
-	this->name = L"FullscreenMenu";
+	this->name = "FullscreenMenu";
 
 	this->SetDraw(DRAW_RECT);
 }

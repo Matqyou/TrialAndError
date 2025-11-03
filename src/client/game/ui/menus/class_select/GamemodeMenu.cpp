@@ -21,8 +21,6 @@ GamemodeMenu::GamemodeMenu()
 {
 	auto set_gamemode = [](Gamemode gamemode)
 	{
-//		GameReference.GetClassMenus().front()->SetGamemode(gamemode);
-//		GameReference.GetClassMenus().front()->SwitchToThisMenu();
 		Menus.classselect_menu->SetGamemode(gamemode);
 		Menus.classselect_menu->SwitchToThisMenu();
 
@@ -56,27 +54,27 @@ GamemodeMenu::GamemodeMenu()
 					  });
 
 	auto back = (Button *)(new Button(sTextureBack, sTextureBack))
-		->SetSize(Vec2i(160, 80))
+		->SetSize(Vec2i(200, 100))
 		->SetAlign(Align::CENTER, Align::DONT);
 	back->SetCallback([]() { Menus.main_menu->SwitchToThisMenu(); });
 
 	auto top_buttons = (new Element())
 		->SetAdaptive(true, true)
-		->SetFlex(Flex::WIDTH, 30)
+		->SetFlex(Flex::WIDTH, 40)
 		->AddChildren({ solo, pvp });
 	auto bottom_buttons = (new Element())
 		->SetAdaptive(true, true)
-		->SetFlex(Flex::WIDTH, 30)
+		->SetFlex(Flex::WIDTH, 40)
 		->AddChildren({ sandbox, coop });
 
 	auto classes_frame = (new Element())
 		->SetAdaptive(true, true)
-		->SetFlex(Flex::HEIGHT, 30)
+		->SetFlex(Flex::HEIGHT, 40)
 		->AddChildren({ top_buttons, bottom_buttons });
 	auto frame = (new Element())
 		->SetAdaptive(true, true)
 		->SetAlign(Align::CENTER, Align::CENTER)
-		->SetFlex(Flex::HEIGHT, 20)
+		->SetFlex(Flex::HEIGHT, 80)
 		->AddChildren({ classes_frame, back });
 
 	SetName("GamemodeMenu");

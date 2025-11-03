@@ -5,6 +5,7 @@
 #include "Player.h"
 #include <client/game/entities/cartesian/characters/character/Character.h>
 #include "client/game/ui/CommonUI.h"
+#include "client/game/ui/menus/Menus.h"
 
 #include <SDL3/SDL.h>
 
@@ -19,6 +20,7 @@ Player::Player(const std::string& username, PlayerClass *player_class)
 	base_damage = 10;
 	damage_amplifier = 1;
 	max_health_amplifier = 1;
+	pendingPowerupSelection = false;
 	extra_life = false;
 	SetUsername(username);
 	player_id = GameReference.NextPlayerID();
@@ -53,11 +55,11 @@ Player::~Player()
 void Player::GainXP(unsigned int amount)
 {
 	xp += amount;
-	unsigned int m_xpForNextLevel = level * 100;
+	unsigned int m_xpForNextLevel = level * 10;
 	while (xp >= m_xpForNextLevel)
 	{
 		xp -= m_xpForNextLevel;
-		m_xpForNextLevel = level * 100;
+		m_xpForNextLevel = level * 10;
 		LevelUp();
 	}
 }
@@ -67,7 +69,9 @@ void Player::LevelUp()
 	level++;
 	if (character)
 	{
-//		m_levelUpMenuQueue.push(this->GetLevelUpMenu());
+		// TODO: Change the selectPowerUp to happen every 10 lvls later on
+		pendingPowerupSelection = true;
+		Menus.levelup_menu->SwitchToThisMenu();
 		player_class->LevelupStats(this);
 		character->LevelupStats(level);
 	}
@@ -76,10 +80,42 @@ void Player::LevelUp()
 
 void Player::AddPowerupUpgrade(Powerup type, int times)
 {
-	// Cast to size_t because Powerup is an enum class
 	auto type_index = static_cast<size_t>(type);
+
+	pendingPowerupSelection = false;
 	upgrade_counts[type_index] += times;
+
+	switch (type)
+	{
+	case Powerup::ALL_STATS:
+		break;
+	case Powerup::BOMBS:
+		break;
+	case Powerup::DOUBLE_DAMAGE:
+		IncreaseDamageAmp(2.0);
+		break;
+	case Powerup::BOSS_DAMAGE:
+		IncreaseBossDamageAmp(0.2);
+		break;
+	case Powerup::EXPLOSIVE_AMMO:
+		break;
+	case Powerup::EXTRA_LIVES:
+		SetExtraLife(true);
+		break;
+	case Powerup::SPEED:
+		break;
+	case Powerup::SPIKY:
+		break;
+	case Powerup::HEALTH:
+		IncreaseMaxHealthAmp(1.1);
+		break;
+	case Powerup::INFINITE_GLOCK_AMMO:
+		break;
+	default:
+		break;
+	}
 }
+
 
 int Player::GetPowerupUpgradeCount(Powerup type)
 {

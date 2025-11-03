@@ -15,6 +15,7 @@ static LinkTexture sPowerupTextures[(size_t)Powerup::NUM_POWERUPS] = {
 	LinkTexture("interface.permanenterrors.spiky"),
 	LinkTexture("interface.permanenterrors.health"),
 	LinkTexture("interface.permanenterrors.infiniteglockammo"),
+	LinkTexture("interface.permanenterrors.health"),
 };
 static LinkTexture sTextureErrorOutline("interface.permanenterrors.regularoutlinefull");
 

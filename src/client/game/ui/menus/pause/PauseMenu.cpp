@@ -4,32 +4,45 @@
 
 #include "PauseMenu.h"
 #include "client/game/ui/elements/Button.h"
+#include "client/game/ui/menus/Menus.h"
 #include "client/game/GameReference.h"
+#include "client/game/ui/CommonUI.h"
+#include "client/core/Application.h"
 
 static LinkTexture sTextureResume("interface.resume");
 static LinkTexture sTextureBack("interface.back");
 
 PauseMenu::PauseMenu()
 {
-	m_Paused = false;
-
-	auto resume_button = (Button*)(new Button())
+	auto resume_button = (Button *)(new Button(sTextureResume, sTextureResume))
 		->SetSize(Vec2i(200, 70))
 		->SetAlign(Align::CENTER, Align::DONT)
 		->SetDraw(DRAW_TEXTURE)
-		->SetTexture(sTextureResume)
 		->SetName("Resume");
 
-	auto back_button = (Button*)(new Button())
+	auto back_button = (Button *)(new Button(sTextureBack, sTextureBack))
 		->SetSize(Vec2i(200, 70))
 		->SetAlign(Align::CENTER, Align::DONT)
 		->SetDraw(DRAW_TEXTURE)
-		->SetTexture(sTextureBack)
 		->SetName("Back");
+
+	resume_button->SetCallback([]()
+	{
+		CommonUI::soundUiPitchLow.GetSound()->PlaySound();
+		GameReference.World()->SetPaused(false);
+		Menus.SetCurrentMenu(nullptr);
+	});
+
+	back_button->SetCallback([]()
+	{
+		CommonUI::soundUiPitchMid.GetSound()->PlaySound();
+		GameReference.DeleteWorld();
+		Menus.main_menu->SwitchToThisMenu();
+	});
 
 	auto frame = (new Element())
 		->SetAdaptive(true, true)
-		->SetFlex(Flex::HEIGHT, 10)
+		->SetFlex(Flex::HEIGHT, 20)
 		->SetAlign(Align::CENTER, Align::CENTER)
 		->AddChildren({ resume_button, back_button });
 
@@ -38,101 +51,34 @@ PauseMenu::PauseMenu()
 	AddChildren({ frame });
 }
 
-PauseMenu::~PauseMenu()
+PauseMenu::~PauseMenu() = default;
+
+void PauseMenu::SwitchToThisMenu()
 {
-	// Clean up textures if necessary
+	GameReference.World()->SetPaused(true);
+	Menus.SetCurrentMenu(this);
+	RefreshMenu();
 }
 
-//void PauseMenu::Show()
-//{
-//	SetAsCurrentMenu();
-//	GameReference.World()->SetPaused(true);
-//	m_Paused = true;
-//}
+void PauseMenu::HandleEvent(const SDL_Event &sdl_event, EventContext &event_summary)
+{
+    if (sdl_event.type == SDL_EVENT_KEY_DOWN && sdl_event.key.scancode == SDL_SCANCODE_ESCAPE && !event_summary.rapid_context.event_captured)
+    {
+        event_summary.rapid_context.event_captured = true;
+        CommonUI::soundUiPitchLow.GetSound()->PlaySound();
+        GameReference.World()->SetPaused(false);
+        Menus.SetCurrentMenu(nullptr);
+        return;
+    }
+	HandleEventChildren(sdl_event, event_summary);
+    FullscreenMenuEvent(sdl_event, event_summary);
+}
+void PauseMenu::Tick(double elapsed_seconds)
+{
+	TickChildren(elapsed_seconds);
+}
 
-//void PauseMenu::Event(const SDL_Event& event)
-//{
-//	switch (event.type)
-//	{
-////		case SDL_EVENT_QUIT:
-////		{
-////			Application.Deinitialize(true);
-////
-////			while (Mix_Playing(-1))
-////			{
-////			} // wait until last sound is done playing
-////			delete m_GameWindow;
-////			break;
-////		}
-//		case SDL_EVENT_MOUSE_BUTTON_DOWN:
-//			if (event.button.button == SDL_BUTTON_LEFT)
-//			{
-//				SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT));
-//				int x = event.button.x;
-//				int y = event.button.y;
-//				if (x >= m_ResumeButtonRect.x && x < m_ResumeButtonRect.x + m_ResumeButtonRect.w &&
-//					y >= m_ResumeButtonRect.y && y < m_ResumeButtonRect.y + m_ResumeButtonRect.h)
-//				{
-//					Assets.GetSound("ui.pitch.low")->PlaySound();
-//					m_Paused = false;
-//					GameReference.World()->SetPaused(false);
-//				}
-//				else if (x >= m_BackToMenuButtonRect.x && x < m_BackToMenuButtonRect.x + m_BackToMenuButtonRect.w &&
-//					y >= m_BackToMenuButtonRect.y && y < m_BackToMenuButtonRect.y + m_BackToMenuButtonRect.h)
-//				{
-//					Assets.GetSound("ui.pitch.mid")->PlaySound();
-//					m_Paused = false;
-//					GameReference.DeleteWorld();
-//					GameReference.Menu()->Show();
-//				}
-//			}
-//			break;
-//		case SDL_EVENT_MOUSE_MOTION:
-//		{
-//			int x = event.motion.x;
-//			int y = event.motion.y;
-//			bool hovering = false;
-//			if ((x >= m_ResumeButtonRect.x && x < m_ResumeButtonRect.x + m_ResumeButtonRect.w &&
-//				y >= m_ResumeButtonRect.y && y < m_ResumeButtonRect.y + m_ResumeButtonRect.h) ||
-//				(x >= m_BackToMenuButtonRect.x && x < m_BackToMenuButtonRect.x + m_BackToMenuButtonRect.w &&
-//					y >= m_BackToMenuButtonRect.y && y < m_BackToMenuButtonRect.y + m_BackToMenuButtonRect.h))
-//				hovering = true;
-//			if (hovering)
-//				SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER));
-//			else
-//				SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT));
-//		}
-//			break;
-//		case SDL_EVENT_WINDOW_RESIZED:
-//		{
-//			m_ResumeButtonRect = { float(Application.GetWidth2()) - 100,
-//								   float(Application.GetHeight2()) - 150,
-//								   200, 70 };
-//			m_BackToMenuButtonRect = { float(Application.GetWidth2()) - 100,
-//									   float(Application.GetHeight2()) + 50,
-//									   200, 70 };
-//			Application.GetDrawing()->UpdateWindow();
-//			break;
-//		}
-//		case SDL_EVENT_KEY_DOWN:
-//		{
-//			SDL_Scancode ScancodeKey = event.key.scancode;
-//			if (ScancodeKey == SDL_SCANCODE_ESCAPE)
-//			{
-//				Assets.GetSound("ui.pitch.low")->PlaySound();
-//				m_Paused = false;
-//				GameReference.World()->SetPaused(false);
-//				return;
-//			}
-//			break;
-//		}
-//	}
-//}
-//
-//void PauseMenu::Render()
-//{
-//	auto drawing = Application.GetDrawing();
-//	drawing->RenderTexture(m_TextureResume->SDLTexture(), nullptr, m_ResumeButtonRect);
-//	drawing->RenderTexture(m_TextureBack->SDLTexture(), nullptr, m_BackToMenuButtonRect);
-//	drawing->UpdateWindow();
-//}
+void PauseMenu::Render()
+{
+	RenderChildren();
+}

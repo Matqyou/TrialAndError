@@ -29,17 +29,16 @@ private:
 
 	Character *character;
 	PlayerClass *player_class;
-//	LevelupMenu *m_LevelUpMenu;
 	std::string username;
 	int player_id;
 
+	bool pendingPowerupSelection;
 	int base_damage;
 	double damage_amplifier;
 	double boss_damage_amplifier;
 	double max_health_amplifier;
 	bool extra_life;
 	TextSurface *nameplate;
-//	std::queue<LevelUpMenu *> m_levelUpMenuQueue;
 	int upgrade_counts[(size_t)Powerup::NUM_POWERUPS];
 
 	int wants_gamepad_index;
@@ -54,15 +53,13 @@ public:
 	[[nodiscard]] const std::string& GetUsername() const { return username; }
 	[[nodiscard]] int GetPlayerID() const { return player_id; }
 	[[nodiscard]] TextSurface *GetNamePlate() const { return nameplate; }
-//	[[nodiscard]] LevelupMenu *GetLevelUpMenu() const { return m_LevelUpMenu; }
-//	[[nodiscard]] std::queue<LevelUpMenu *> GetLevelUpMenuQueue() const { return m_levelUpMenuQueue; }
 	[[nodiscard]] unsigned int GetXP() const { return xp; }
 	[[nodiscard]] int GetBaseDamage() const { return base_damage; }
 	[[nodiscard]] double GetDamageAmp() const { return damage_amplifier; }
 	[[nodiscard]] double GetBossDamageAmp() const { return boss_damage_amplifier; }
 	[[nodiscard]] double GetMaxHealthAmp() const { return max_health_amplifier; }
 	[[nodiscard]] bool GetExtraLifeStatus() const { return extra_life; }
-
+	[[nodiscard]] bool PowerupToBeSelected() const { return pendingPowerupSelection; }
 	[[nodiscard]] unsigned int GetLevel() const { return level; }
 
 	// Setting
@@ -74,8 +71,8 @@ public:
 	void SetCharacter(Character *new_character);
 	void CharacterRemoving();
 	void SetUsername(const std::string& username);
-//	void SetLevelUpMenuQueue(std::queue<LevelUpMenu *> MenuQueue) { m_levelUpMenuQueue = MenuQueue; };
 //	void SetGameWorld(GameWorld *game_world) { world = game_world; }
+
 	// XP and Leveling
 	void GainXP(unsigned int amount);
 	void LevelUp();

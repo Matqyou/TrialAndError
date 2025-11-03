@@ -5,6 +5,7 @@
 #include "GameWorld.h"
 #include <client/game/entities/cartesian/characters/character/Character.h>
 #include <client/game/entities/cartesian/characters/CharacterNPC.h>
+#include "client/game/ui/menus/Menus.h"
 #include "client/game/entities/cartesian/base/Entity.h"
 #include <client/game/players/Player.h>
 #include "client/game/ui/CommonUI.h"
@@ -13,8 +14,8 @@
 
 GameWorld::GameWorld(int width, int height)
 {
-//	m_PauseMenu = new PauseMenu();
-//	m_LevelUpMenu = nullptr;
+	//	m_PauseMenu = new PauseMenu();
+	//	m_LevelUpMenu = nullptr;
 	m_Particles = new Particles(this); //
 	m_Tiles = new TileMap(32, width, height);
 	m_Width = static_cast<float>(m_Tiles->TotalWidth());
@@ -27,12 +28,12 @@ GameWorld::GameWorld(int width, int height)
 
 	m_TestingMode = false;
 
-//	m_First = nullptr;
-//	m_Last = nullptr;
-//	memset(m_FirstType, 0, sizeof(m_FirstType));
-//	memset(m_LastType, 0, sizeof(m_LastType));
-//	m_FirstPlayer = nullptr;
-//	m_LastPlayer = nullptr;
+	//	m_First = nullptr;
+	//	m_Last = nullptr;
+	//	memset(m_FirstType, 0, sizeof(m_FirstType));
+	//	memset(m_LastType, 0, sizeof(m_LastType));
+	//	m_FirstPlayer = nullptr;
+	//	m_LastPlayer = nullptr;
 
 	background_texture = Assets.GetTexture("backgrounds.background_pattern");
 	m_BackgroundW = (int)background_texture->GetWidth();
@@ -43,7 +44,7 @@ GameWorld::GameWorld(int width, int height)
 	m_NumEnemiesPerWave = 1;
 	m_Round = 0;
 	m_Score = 0;
-	m_ScoreText = new TextSurface(CommonUI::fontDefault, "Score: 0", { 150, 150, 0 });
+	m_ScoreText = new TextSurface(CommonUI::fontDefault, "Score: 0", {150, 150, 0});
 }
 
 GameWorld::~GameWorld()
@@ -51,8 +52,8 @@ GameWorld::~GameWorld()
 	delete m_Tiles;
 	delete m_Particles;
 
-//	for (auto player : players)
-//		delete player;
+	//	for (auto player : players)
+	//		delete player;
 	for (auto entity : entities)
 		delete entity;
 	entities.clear();
@@ -74,24 +75,24 @@ void GameWorld::EnemyKilled(Player *player, Character *enemy)
 
 void GameWorld::CheckLevelUps()
 {
-//	for (auto player = GameReference.World()->FirstPlayer(); player != nullptr; player = player->Next())
-//	{
-//		std::queue<LevelUpMenu *> playerQueue = player->GetLevelUpMenuQueue();
-//		if (!playerQueue.empty())
-//		{
-//			m_LevelUpMenu = (playerQueue.front());
-//			playerQueue.pop();
-//			player->SetLevelUpMenuQueue(playerQueue);
-//		}
-//		else
-//			m_LevelUpMenu = nullptr;
-//	}
-//
-//	if (m_LevelUpMenu != nullptr)
-//		m_LevelUpMenu->Show();
+	//	for (auto player = GameReference.World()->FirstPlayer(); player != nullptr; player = player->Next())
+	//	{
+	//		std::queue<LevelUpMenu *> playerQueue = player->GetLevelUpMenuQueue();
+	//		if (!playerQueue.empty())
+	//		{
+	//			m_LevelUpMenu = (playerQueue.front());
+	//			playerQueue.pop();
+	//			player->SetLevelUpMenuQueue(playerQueue);
+	//		}
+	//		else
+	//			m_LevelUpMenu = nullptr;
+	//	}
+	//
+	//	if (m_LevelUpMenu != nullptr)
+	//		m_LevelUpMenu->Show();
 }
 
-//unsigned int GameWorld::GetNextPlayerIndex() const
+// unsigned int GameWorld::GetNextPlayerIndex() const
 //{
 //	unsigned int Index = 0;
 //
@@ -107,7 +108,7 @@ void GameWorld::CheckLevelUps()
 //
 //		Index++;
 //	}
-//}
+// }
 
 void GameWorld::AddScore(unsigned int score)
 {
@@ -118,7 +119,7 @@ void GameWorld::AddScore(unsigned int score)
 	m_ScoreText->FlagForUpdate();
 }
 
-//void GameWorld::InitPlayers()
+// void GameWorld::InitPlayers()
 //{
 //	auto num_expected_players = GameReference.NumExpectedPlayers();
 //	for (int i = 0; i < num_expected_players; i++)
@@ -156,7 +157,7 @@ void GameWorld::AlliesGone()
 	m_ScoreText->FlagForUpdate();
 }
 
-//Player *GameWorld::AddPlayer(Player *player)
+// Player *GameWorld::AddPlayer(Player *player)
 //{
 //	players.push_back(player);
 ////	if (!m_FirstPlayer)
@@ -177,7 +178,7 @@ void GameWorld::AlliesGone()
 //}
 
 // ::RemovePlayer() doesn't reset players Previous and Next player pointers
-//void GameWorld::RemovePlayer(Player *player)
+// void GameWorld::RemovePlayer(Player *player)
 //{
 //	players.erase(std::remove(players.begin(), players.end(), player), players.end());
 //}
@@ -213,7 +214,7 @@ void GameWorld::RemoveEntity(Entity *entity)
 		entities.erase(std::remove(entities.begin(), entities.end(), entity), entities.end());
 
 		auto entity_type = entity->GetType();
-		auto& entities_with_this_type = entities_by_types[entity_type];
+		auto &entities_with_this_type = entities_by_types[entity_type];
 		entities_with_this_type.erase(std::remove(entities_with_this_type.begin(), entities_with_this_type.end(), entity),
 									  entities_with_this_type.end());
 	}
@@ -226,7 +227,7 @@ void GameWorld::ToggleShowNames()
 		m_ShowNamesVisibility = 1.0;
 }
 
-void GameWorld::HandleEvent(const SDL_Event& sdl_event, EventContext& event_context)
+void GameWorld::HandleEvent(const SDL_Event &sdl_event, EventContext &event_summary)
 {
 	if (m_Paused)
 		return;
@@ -235,6 +236,11 @@ void GameWorld::HandleEvent(const SDL_Event& sdl_event, EventContext& event_cont
 	{
 		if (sdl_event.key.scancode == SDL_SCANCODE_SPACE)
 			ToggleShowNames();
+		else if (sdl_event.key.scancode == SDL_SCANCODE_ESCAPE && !event_summary.rapid_context.event_captured)
+		{
+			event_summary.rapid_context.event_captured = true;
+			Menus.pause_menu->SwitchToThisMenu();
+		}
 		else if (sdl_event.key.scancode == SDL_SCANCODE_O)
 		{
 			m_Tiles->LoadTilemap("assets/tilemaps/test_level");
@@ -245,13 +251,15 @@ void GameWorld::HandleEvent(const SDL_Event& sdl_event, EventContext& event_cont
 			m_Tiles->SaveTilemap("assets/tilemaps/test_level");
 	}
 
-	for (Entity *entity : entities_by_types[ENTITY_CHARACTER])
+	if (!event_summary.rapid_context.event_captured)
 	{
-		auto character = (Character *)entity;
-		character->HandleEvent(sdl_event);
+		for (Entity *entity : entities_by_types[ENTITY_CHARACTER])
+		{
+			auto character = (Character *)entity;
+			character->HandleEvent(sdl_event);
+		}
 	}
 }
-
 void GameWorld::TickCamera(double elapsed_seconds)
 {
 	if (entities_by_types[ENTITY_CHARACTER].empty())
@@ -267,7 +275,7 @@ void GameWorld::TickCamera(double elapsed_seconds)
 			if (!character->GetCurrentWeapon())
 				continue;
 
-		EntityCore& entity_core = character->GetCore();
+		EntityCore &entity_core = character->GetCore();
 		if (FirstIteration)
 		{
 			FirstIteration = false;
@@ -297,7 +305,7 @@ void GameWorld::TickCamera(double elapsed_seconds)
 		float ZoomY = static_cast<float>(Application.GetHeight()) / (maxY - minY + 600);
 		float zoom = std::min(ZoomX, ZoomY);
 
-		auto& camera = GameReference.GetCamera();
+		auto &camera = GameReference.GetCamera();
 		auto old_camera_pos = camera.GetPos();
 		auto new_camera_pos = Vec2f(old_camera_pos.x + 0.1f * (CameraX - old_camera_pos.x),
 									old_camera_pos.y + 0.1f * (CameraY - old_camera_pos.y));
@@ -336,8 +344,7 @@ void GameWorld::TickSpawner(double elapsed_seconds)
 			SpawnPos,
 			Vec2f(0.0, 0.0),
 			NPC_TURRET,
-			true
-		);
+			true);
 		AddEntity(new_npc, true);
 
 		ProjectileWeapon *boss_minigun = ProjectileWeapon::CreateWeaponFromWeaponType(WEAPON_MINIGUN);
@@ -355,8 +362,7 @@ void GameWorld::TickSpawner(double elapsed_seconds)
 			SpawnPos,
 			Vec2f(0.0, 0.0),
 			NPC_TURRET,
-			false
-		);
+			false);
 		AddEntity(new_npc, true);
 
 		int Weaponizer = rand() % 100;
@@ -430,7 +436,7 @@ void GameWorld::TickBackground(double seconds_elapsed)
 	Vec2f mouse_poition = ApplicationClass::GetMousePosition();
 	for (int i = m_Stars.size() - 1; i >= 0; --i)
 	{
-		auto& [position, velocity, duration] = m_Stars[i];
+		auto &[position, velocity, duration] = m_Stars[i];
 
 		Vec2f direction = position - mouse_poition;
 		float distance = direction.LengthF();
@@ -482,7 +488,7 @@ void GameWorld::Draw()
 	drawing->SetColor(200, 200, 200, 255);
 	for (int i = m_Stars.size() - 1; i >= 0; --i)
 	{
-		auto& [position, velocity, duration] = m_Stars[i];
+		auto &[position, velocity, duration] = m_Stars[i];
 
 		auto size = (int)duration / 750.0;
 		for (int j = 0; j < size; j++)
@@ -499,22 +505,22 @@ void GameWorld::Draw()
 	// Stop drawing when the game has been triggered as over
 	if (!m_GameOver)
 	{
-		SDL_FRect DrawRect = { 0, 0, m_Width, m_Height };
+		SDL_FRect DrawRect = {0, 0, m_Width, m_Height};
 		drawing->SetColor(100, 100, 100, 255);
 		drawing->DrawRect(DrawRect, false, GameReference.GetCamera());
 
 		m_Particles->Draw();
-		for (auto& entities_by_type : entities_by_types)
+		for (auto &entities_by_type : entities_by_types)
 			for (Entity *entity : entities_by_type)
 				entity->Draw();
-//		m_Tiles->Draw();
+		//		m_Tiles->Draw();
 	}
 
 	// Draw the score value
 	Texture *ScoreTexture = m_ScoreText->RequestUpdate();
 	float ScoreWidth = ScoreTexture->GetWidth() * 2.5f;
 	float ScoreHeight = ScoreTexture->GetHeight() * 2.5f;
-	SDL_FRect ScoreRect = { 0, Application.GetHeight() - ScoreHeight, ScoreWidth, ScoreHeight };
+	SDL_FRect ScoreRect = {0, Application.GetHeight() - ScoreHeight, ScoreWidth, ScoreHeight};
 	if (!m_GameOver)
 	{
 		drawing->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
@@ -523,7 +529,7 @@ void GameWorld::Draw()
 	{
 		// Render a semi-opaque dark overlay
 		drawing->SetColor(0, 0, 0, 200);
-		SDL_FRect full = { 0, 0, (float)Application.GetWidth(), (float)Application.GetHeight() };
+		SDL_FRect full = {0, 0, (float)Application.GetWidth(), (float)Application.GetHeight()};
 		SDL_RenderFillRect(drawing->Renderer(), &full);
 
 		// Panel dimensions
@@ -531,41 +537,41 @@ void GameWorld::Draw()
 		float ph = (Application.GetHeight() * 0.6);
 		float px = (Application.GetWidth() - pw) / 2;
 		float py = (Application.GetHeight() - ph) / 2;
-		m_DeathPanelRect = { px, py, pw, ph };
+		m_DeathPanelRect = {px, py, pw, ph};
 
 		// Panel background
 		drawing->SetColor(20, 20, 30, 230);
 		drawing->DrawRect(m_DeathPanelRect, true);
-//		SDL_RenderFillRect(renderer, &m_DeathPanelRect);
+		//		SDL_RenderFillRect(renderer, &m_DeathPanelRect);
 
 		// Title: You Died
 		drawing->SetColor(220, 40, 40, 255);
-		TextSurface titleTex(CommonUI::fontDefault, "You Died", { 220, 40, 40 });
+		TextSurface titleTex(CommonUI::fontDefault, "You Died", {220, 40, 40});
 		Texture *tTex = titleTex.RequestUpdate();
 		float tw = tTex->GetWidth() * 3.0f;
 		float th = tTex->GetHeight() * 3.0f;
-		SDL_FRect titleRect = { px + (pw - tw) / 2.0f, py + 20, tw, th };
+		SDL_FRect titleRect = {px + (pw - tw) / 2.0f, py + 20, tw, th};
 		drawing->RenderTexture(tTex->SDLTexture(), nullptr, titleRect);
 
 		// Stats: Score + Playtime
 		drawing->SetColor(200, 200, 200, 255);
 		char buf[256];
 		std::snprintf(buf, sizeof(buf), "Score: %u", m_Score);
-		TextSurface scoreLine(CommonUI::fontDefault, buf, { 200, 200, 200 });
+		TextSurface scoreLine(CommonUI::fontDefault, buf, {200, 200, 200});
 		Texture *sLineTex = scoreLine.RequestUpdate();
-		SDL_FRect sRect = { px + 40, py + 100, sLineTex->GetWidth() * 2.0f, sLineTex->GetHeight() * 2.0f };
+		SDL_FRect sRect = {px + 40, py + 100, sLineTex->GetWidth() * 2.0f, sLineTex->GetHeight() * 2.0f};
 		drawing->RenderTexture(sLineTex->SDLTexture(), nullptr, sRect);
 
 		// Playtime: if Clock exists
 		double seconds = 0.0;
-//		if (m_GameWindow->Timer())
+		//		if (m_GameWindow->Timer())
 		seconds = (double)m_CurrentTick / std::max(1.0, (double)Application.GetClock()->GetFramerate());
 		int mins = (int)seconds / 60;
 		int secs = (int)seconds % 60;
 		std::snprintf(buf, sizeof(buf), "Playtime: %02d:%02d", mins, secs);
-		TextSurface timeLine(CommonUI::fontDefault, buf, { 200, 200, 200 });
+		TextSurface timeLine(CommonUI::fontDefault, buf, {200, 200, 200});
 		Texture *tLineTex = timeLine.RequestUpdate();
-		SDL_FRect tRect = { px + 40, py + 140, tLineTex->GetWidth() * 2.0f, tLineTex->GetHeight() * 2.0f };
+		SDL_FRect tRect = {px + 40, py + 140, tLineTex->GetWidth() * 2.0f, tLineTex->GetHeight() * 2.0f};
 		drawing->RenderTexture(tLineTex->SDLTexture(), nullptr, tRect);
 
 		// Additional stats could go here (kills, accuracy, etc.) if you track them.
@@ -575,7 +581,7 @@ void GameWorld::Draw()
 		float buttonHeight = 80.0f;
 		float buttonX = px + (pw - buttonWidth) / 2.0f;
 		float buttonY = py + ph - buttonHeight - 40.0f;
-		m_DeathBackButtonRect = { buttonX, buttonY, buttonWidth, buttonHeight };
+		m_DeathBackButtonRect = {buttonX, buttonY, buttonWidth, buttonHeight};
 
 		// Button background
 		if (m_DeathBackHover)
@@ -583,16 +589,15 @@ void GameWorld::Draw()
 		else
 			drawing->SetColor(80, 180, 230, 255);
 		drawing->DrawRect(m_DeathBackButtonRect, true);
-//		SDL_RenderFillRect(renderer, &m_DeathBackButtonRect);
+		//		SDL_RenderFillRect(renderer, &m_DeathBackButtonRect);
 
 		// Button text
-		TextSurface backTextSurface(CommonUI::fontDefault, "Back to Menu", { 10, 10, 10 });
+		TextSurface backTextSurface(CommonUI::fontDefault, "Back to Menu", {10, 10, 10});
 		Texture *buttonTexture = backTextSurface.RequestUpdate();
 		SDL_FRect buttonTextRect = {
 			buttonX + (buttonWidth - buttonTexture->GetWidth() * 1.5f) / 2.0f,
 			buttonY + (buttonHeight - buttonTexture->GetHeight() * 1.5f) / 2.0f,
-			buttonTexture->GetWidth() * 1.5f, buttonTexture->GetHeight() * 1.5f
-		};
+			buttonTexture->GetWidth() * 1.5f, buttonTexture->GetHeight() * 1.5f};
 		drawing->RenderTexture(buttonTexture->SDLTexture(), nullptr, buttonTextRect);
 	}
 }

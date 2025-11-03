@@ -9,21 +9,16 @@
 
 class PauseMenu : public FullscreenMenu
 {
-private:
-	bool m_Paused;
-
 public:
 	PauseMenu();
 	~PauseMenu();
 
-	// Sense
-	[[nodiscard]] bool Paused() const { return m_Paused; }
-
 	// Manipulating
-//	void Show() override;
+	void SwitchToThisMenu() override;
 
 	// Ticking
-//	void Event(const SDL_Event& sdl_event) override;
-//	void Render() override;
+	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_summary) override;
+	void Tick(double elapsed_seconds) override;
+	void Render() override;
 
 };

@@ -39,19 +39,19 @@ ClassSelectMenu::ClassSelectMenu()
 	};
 
 	auto human = (Button *)(new Button())
-		->SetSize(Vec2i(320, 72))
+		->SetSize(Vec2i(360, 80))
 		->SetDraw(DRAW_TEXTURE)
 		->SetTexture(sTextureClassButton1);
 	auto zombie = (Button *)(new Button())
-		->SetSize(Vec2i(320, 72))
+		->SetSize(Vec2i(360, 80))
 		->SetDraw(DRAW_TEXTURE)
 		->SetTexture(sTextureClassButton2);
 	auto cyborg = (Button *)(new Button())
-		->SetSize(Vec2i(320, 72))
+		->SetSize(Vec2i(360, 80))
 		->SetDraw(DRAW_TEXTURE)
 		->SetTexture(sTextureClassButton3);
 	auto vampire = (Button *)(new Button())
-		->SetSize(Vec2i(320, 72))
+		->SetSize(Vec2i(360, 80))
 		->SetDraw(DRAW_TEXTURE)
 		->SetTexture(sTextureClassButton4);
 	human->SetCallback([&set_class]()
@@ -76,27 +76,27 @@ ClassSelectMenu::ClassSelectMenu()
 						 });
 
 	auto back = (Button *)(new Button(sTextureBack, sTextureBack))
-		->SetSize(Vec2i(160, 80))
+		->SetSize(Vec2i(200, 100))
 		->SetAlign(Align::CENTER, Align::DONT);
 	back->SetCallback([]() { Menus.gamemode_menu->SwitchToThisMenu(); });
 
 	auto top_buttons = (new Element())
 		->SetAdaptive(true, true)
-		->SetFlex(Flex::WIDTH, 10)
+		->SetFlex(Flex::WIDTH, 40)
 		->AddChildren({ human, zombie });
 	auto bottom_buttons = (new Element())
 		->SetAdaptive(true, true)
-		->SetFlex(Flex::WIDTH, 10)
+		->SetFlex(Flex::WIDTH, 40)
 		->AddChildren({ cyborg, vampire });
 
 	auto classes_frame = (new Element())
 		->SetAdaptive(true, true)
-		->SetFlex(Flex::HEIGHT, 10)
+		->SetFlex(Flex::HEIGHT, 40)
 		->AddChildren({ top_buttons, bottom_buttons });
 	auto frame = (new Element())
 		->SetAdaptive(true, true)
 		->SetAlign(Align::CENTER, Align::CENTER)
-		->SetFlex(Flex::HEIGHT, 10)
+		->SetFlex(Flex::HEIGHT, 80)
 		->AddChildren({ classes_frame, back });
 
 	SetName("ClassMenu");

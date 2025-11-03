@@ -61,7 +61,6 @@ void MenusClass::HandleEvent(const SDL_Event& sdl_event, EventContext& event_con
 				render_debug = !render_debug;
 			else if (scancode == SDL_SCANCODE_F3)
 				Menus.GetCurrentMenu()->DebugPrint();
-
 			break;
 		}
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:

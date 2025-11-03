@@ -5,6 +5,7 @@
 #include "client/game/ui/menus/base/FullscreenMenu.h"
 //#include "client/game/GameWorld.h"
 #include "SDL3/SDL.h"
+#include <client/game/powerups/PowerupManager.h>
 
 class Player;
 class LevelupMenu : public FullscreenMenu
@@ -26,6 +27,7 @@ private:
 //	void ApplySpiky();
 //	void ApplyHealth();
 //	void ApplyInfiniteGlockAmmo();
+	void ApplySelectedPowerup(Player* player, Powerup powerup);
 
 public:
 	LevelupMenu();
@@ -36,10 +38,11 @@ public:
 
 	// Manipulating
 	void SwitchToThisMenu() override;
-//	void Show() override;
 
 	// Ticking
-//	void Event(const SDL_Event& event);
-//	void Render();
+	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_summary) override;
+	void Tick(double elapsed_seconds) override;
+	void Render() override;
+
 
 };

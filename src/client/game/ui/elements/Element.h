@@ -64,7 +64,7 @@ public:
     Vec2i relative, pos, size, edge;
     ElementDraw draw;
     VisualTextureInstance texture_instance;
-    std::wstring name;
+    std::string name;
 
     bool enabled;
     bool flex_involved_horizontal, flex_involved_vertical;
@@ -161,10 +161,6 @@ public:
         return this;
     }
     Element* SetName(const char* name) {
-        this->name = Strings::FStringW(L"%s", name);
-        return this;
-    }
-    Element* SetName(const wchar_t* name) {
         this->name = name;
         return this;
     }

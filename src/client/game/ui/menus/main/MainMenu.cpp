@@ -10,8 +10,9 @@
 
 static LinkMusic sElevatorMusic("intro");
 static LinkTexture sMenuTexture("interface.menu");
-static LinkTexture sTextureTitle("ui.main.title2");
+static LinkTexture sTextureTitle("ui.main.title3");
 static LinkTexture sTexturePlay("ui.main.playbutton2");
+static LinkTexture sTextureTraining("ui.main.trainingbutton");
 static LinkTexture sTextureExit("ui.main.exit2");
 
 MainMenu::MainMenu()
@@ -19,17 +20,22 @@ MainMenu::MainMenu()
 {
 
 	auto title = (new Element())
-		->SetSize(Vec2i(600, 300))
-		->SetAlign(Align::CENTER, Align::DONT)
+		->SetSize(Vec2i(700, 250))
+		->SetAlign(Align::CENTER, Align::TOP)
 		->SetDraw(DRAW_TEXTURE)
 		->SetTexture(sTextureTitle)
 		->SetName("Title");
 
 	auto play_button = (Button *)(new Button(sTexturePlay, sTexturePlay))
 		->SetSize(Vec2i(360, 80))
-		->SetAlign(Align::CENTER, Align::DONT)
 		->SetDraw(DRAW_TEXTURE)
 		->SetName("Play");
+
+	auto training_button = (Button *)(new Button(sTextureTraining, sTextureTraining))
+		->SetSize(Vec2i(360, 80))
+		->SetDraw(DRAW_TEXTURE)
+		->SetName("Training");
+
 	auto exit_button = (Button *)(new Button(sTextureExit, sTextureExit))
 		->SetSize(Vec2i(360, 80))
 		->SetAlign(Align::CENTER, Align::DONT)
@@ -42,17 +48,25 @@ MainMenu::MainMenu()
 								 CommonUI::soundUiPitchLow.GetSound()->PlaySound();
 								 Menus.gamemode_menu->SwitchToThisMenu();
 							 });
+	training_button->SetCallback([]()
+							 {
+								// TODO: Once merged update this to start a planetaryTrial
+							 });
 	exit_button->SetCallback([]()
 							 {
 								 CommonUI::soundUiPitchLow.GetSound()->PlaySound();
 								 GameReference.ExitApplication();
 							 });
 
+	auto top_buttons = (new Element())
+		->SetAdaptive(true, true)
+		->SetFlex(Flex::WIDTH, 40)
+		->AddChildren({ play_button, training_button });
 	auto frame = (new Element())
 		->SetAdaptive(true, true)
-		->SetAlign(Align::CENTER, Align::CENTER)
-		->SetFlex(Flex::HEIGHT, 10)
-		->AddChildren({ title, play_button, exit_button });
+		->SetAlign(Align::CENTER, Align::TOP)
+		->SetFlex(Flex::HEIGHT, 40)
+		->AddChildren({ title, top_buttons, exit_button });
 
 	m_Opened = std::chrono::steady_clock::now();
 	m_Intro = true;

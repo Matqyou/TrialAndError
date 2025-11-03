@@ -31,7 +31,7 @@ void Element::DestroyElements()
 }
 
 Element::Element()
-	: name(L"Element"),
+	: name("Element"),
 	  texture_instance(nullptr)
 {
 	this->parent = nullptr;
@@ -422,22 +422,21 @@ std::string WStringToUTF8(const std::wstring& wstr)
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 	return converter.to_bytes(wstr);
 }
-
 void Element::DebugPrint(std::vector<bool> level, bool last_child)
 {
 	// Initialize the indentation string
-	std::wstring indent;
+	std::string indent;
 
 	// Build the indentation for current level
 	for (size_t i = 0; i < level.size(); ++i)
 	{
 		if (i < level.size() - 1)
 		{
-			indent += !level[i + 1] ? L" │  " : L"    "; // Draw vertical line or space // level[i] && !level[i + 1]
+			indent += !level[i + 1] ? " │  " : "    "; // Draw vertical line or space
 		}
 		else
 		{
-			indent += last_child ? L" └─>" : L" ├─>"; // Draw branch or last branch
+			indent += last_child ? " └─>" : " ├─>"; // Draw branch or last branch
 		}
 	}
 
@@ -445,53 +444,44 @@ void Element::DebugPrint(std::vector<bool> level, bool last_child)
 	level.push_back(last_child);
 
 	// Print the current element
-	std::wstring output_element = Strings::FStringColorsW(L"%ls\"%ls&r\"", indent.c_str(), name.c_str());
+	std::string output_element = Strings::FStringColors("%s\"%s&r\"", indent.c_str(), name.c_str());
 
 	if (relative.x != 0 || relative.y != 0)
 	{
-		const wchar_t *x_sign = relative.x > 0 ? L"+" : L"";
-		const wchar_t *y_sign = relative.y > 0 ? L"+" : L"";
-		output_element += Strings::FStringColorsW(L" (&d%ls%ix&r,&d%ls%iy&r)", x_sign, relative.x, y_sign, relative.y);
+		const char *x_sign = relative.x > 0 ? "+" : "";
+		const char *y_sign = relative.y > 0 ? "+" : "";
+		output_element += Strings::FStringColors(" (&d%s%i&r,&d%s%i&r)", x_sign, relative.x, y_sign, relative.y);
 	}
-	const wchar_t *x_color = parent != nullptr && parent->flex == Flex::WIDTH ? L"&5" : L"&6";
-	const wchar_t *y_color = parent != nullptr && parent->flex == Flex::HEIGHT ? L"&5" : L"&6";
-	const wchar_t *x_suffix = align_horizontal == Align::DONT ? L"x" :
-							  align_horizontal == Align::LEFT ? L"←" :
-							  align_horizontal == Align::RIGHT ? L"→" :
-							  L"⇆";
-	const wchar_t *y_suffix = align_vertical == Align::DONT ? L"y" :
-							  align_vertical == Align::TOP ? L"↑" :
-							  align_vertical == Align::BOTTOM ? L"↓" :
-							  L"⇅";
+	const char *x_color = parent != nullptr && parent->flex == Flex::WIDTH ? "&5" : "&6";
+	const char *y_color = parent != nullptr && parent->flex == Flex::HEIGHT ? "&5" : "&6";
+	const char *x_suffix = align_horizontal == Align::DONT ? "x" :
+						   align_horizontal == Align::LEFT ? "←" :
+						   align_horizontal == Align::RIGHT ? "→" :
+						   "⇆";
+	const char *y_suffix = align_vertical == Align::DONT ? "y" :
+						   align_vertical == Align::TOP ? "↑" :
+						   align_vertical == Align::BOTTOM ? "↓" :
+						   "⇅";
 	output_element +=
-		Strings::FStringColorsW(L" (%ls%i%ls&r,%ls%i%ls&r)", x_color, pos.x, x_suffix, y_color, pos.y, y_suffix);
-	if (flex == Flex::WIDTH) output_element += L"←→";
-	else if (flex == Flex::HEIGHT) output_element += L" ↕ ";
-	else output_element += L" ";
-	std::wstring width_color =
-		flex != Flex::DONT && adaptive_width ? L"&d" : occupy_width ? L"&5" : occupy_fully_width ? L"&c" : L"&6";
-	std::wstring height_color =
-		flex != Flex::DONT && adaptive_height ? L"&d" : occupy_height ? L"&5" : occupy_fully_height ? L"&c" : L"&6";
+		Strings::FStringColors(" (%s%i%s&r,%s%i%s&r)", x_color, pos.x, x_suffix, y_color, pos.y, y_suffix);
+	if (flex == Flex::WIDTH) output_element += "←→";
+	else if (flex == Flex::HEIGHT) output_element += " ↕ ";
+	else output_element += " ";
+	std::string width_color =
+		flex != Flex::DONT && adaptive_width ? "&d" : occupy_width ? "&5" : occupy_fully_width ? "&c" : "&6";
+	std::string height_color =
+		flex != Flex::DONT && adaptive_height ? "&d" : occupy_height ? "&5" : occupy_fully_height ? "&c" : "&6";
 	output_element +=
-		Strings::FStringColorsW(L"(%ls%iw&r,%ls%ih&r)", width_color.c_str(), size.x, height_color.c_str(), size.y);
+		Strings::FStringColors("(%s%iw&r,%s%ih&r)", width_color.c_str(), size.x, height_color.c_str(), size.y);
 
-	const wchar_t *output_draw = draw == DRAW_RECT ? L"&aRECT □" :
-								 draw == DRAW_TEXTURE ? L"&aVISUAL ■" :
-								 L"&c□";
-	output_element += Strings::FStringColorsW(L" %ls", output_draw);
+	const char *output_draw = draw == DRAW_RECT ? "&aRECT □" :
+							  draw == DRAW_TEXTURE ? "&aVISUAL ■" :
+							  "&c□";
+	output_element += Strings::FStringColors(" %s", output_draw);
 
-//    output_element += Strings::FStringColorsW(L" (&b%d&r, &b%d&r)", edge.x, edge.y);
+	output_element += Strings::FStringColors("%s", has_focus ? " &bFOCUSED" : "");
 
-	output_element += Strings::FStringColorsW(L"%s", has_focus ? " &bFOCUSED" : "");
-
-//    std::wstring level_output;
-//    for (auto num : level)
-//        level_output += num ? L"1" : L"0";
-//    output_element = level_output + L"\t" + output_element;
-
-//    std::wcout << output_element << L"\n";
-	std::string utf8_output = WStringToUTF8(output_element);
-	std::cout << utf8_output << "\n"; // Output as UTF-8
+	std::cout << output_element << "\n";
 
 	// Recurse into children
 	int index = 0;

@@ -133,10 +133,6 @@ int main()
 
 	MainMenu mainMenu;
 	mainMenu.SwitchToThisMenu();
-//	GameReference.Get
-//	mainMenu.InitialShow();
-
-//	PauseMenu *PauseMenu;
 	while (true)
 	{
 		// This part of the loop runs with no delay
@@ -152,12 +148,6 @@ int main()
 			Menus.HandleEvent(sdl_event, event_context);
 			GameReference.HandleEvent(sdl_event, event_context);
 
-//			if (pauseMenuOpen)
-//			{
-//				PauseMenu->Event(sdl_event);
-//				break;
-//			}
-//
 //			if (GameReference.World()->LvlMenu() != nullptr)
 //			{
 //				GameReference.World()->LvlMenu()->Event(sdl_event);
@@ -202,21 +192,15 @@ int main()
 					clock->ResetFramerate();
 					break;
 				}
-//				case SDL_EVENT_KEY_DOWN:
-//				{
-//					SDL_Scancode scancode = sdl_event.key.scancode;
-////					if (scancode == SDL_SCANCODE_ESCAPE)
-////						GameReference.GetPauseMenu()->SwitchToThisMenu();
-//					if (sdl_event.key.scancode == SDL_SCANCODE_F2)
-//						render_debug = !render_debug;
-//					else if (sdl_event.key.scancode == SDL_SCANCODE_F3)
-//						Menus.GetCurrentMenu()->DebugPrint();
-////					else if (scancode == SDL_SCANCODE_Z)
-////						new CharacterNPC(GameReference.World(), 50.0,
-////										 Vec2d(32 * 30, 32), Vec2d(0, 10),
-////										 NPC_TURRET, true);
-//					break;
-//				}
+				case SDL_EVENT_KEY_DOWN:
+				{
+					SDL_Scancode scancode = sdl_event.key.scancode;
+					// else if (scancode == SDL_SCANCODE_Z)
+					// 	new CharacterNPC(GameReference.World(), 50.0,
+					// 					 Vec2d(32 * 30, 32), Vec2d(0, 10),
+					// 					 NPC_TURRET, true);
+					break;
+				}
 			}
 			Element::DestroyElements();
 		}
@@ -243,17 +227,8 @@ int main()
 
 			Menus.Render();
 
-			// Render one of the levelupmenus in queue if any
-//			if (GameReference.World()->LvlMenu())
-//				GameReference.World()->LvlMenu()->Render();
-//			else
-//				GameReference.World()->CheckLevelUps();
-
 			GameReference.GetInterface()->DrawForeground();
 			drawing->UpdateWindow();
-
-//			if (GameReference.World()->GetDelay() && (GameReference.World()->LvlMenu() != nullptr))
-//				GameReference.World()->SetDelay(false); // Reset the delay flag after the delay
 		}
 
 		total_frame_duration = clock->GetTimeElapsedNanoNow();

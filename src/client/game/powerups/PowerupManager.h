@@ -15,6 +15,7 @@ enum class Powerup
 	SPIKY,
 	HEALTH,
 	INFINITE_GLOCK_AMMO,
+	EXTRA_LIVES,
 	NUM_POWERUPS
 };
 

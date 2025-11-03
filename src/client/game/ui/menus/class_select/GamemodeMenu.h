@@ -13,5 +13,4 @@ private:
 public:
 	GamemodeMenu();
 	~GamemodeMenu();
-
 };
