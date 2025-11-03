@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "shared/utility/Rectangles.h"
+#include "shared/geometry/Rectangles.h"
 #include <string>
 
 class HitboxFile {

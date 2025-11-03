@@ -6,7 +6,7 @@
 
 #include <shared/utility/Colors.h>
 #include <client/core/Assets.h>
-#include <shared/utility/Vec2.h>
+#include "shared/math/Vec2.h"
 #include <client/core/Assets.h>
 
 class Character;

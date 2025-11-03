@@ -18,7 +18,6 @@
 #include <client/game/entities/cartesian/characters/CharacterNPC.h>
 #include <client/game/entities/cartesian/Projectile.h>
 #include <client/game/entities/cartesian/AmmoBox.h>
-#include <client/game/indicators/TextSurface.h>
 #include <client/game/ui/menus/Menus.h>
 #include <client/game/GameReference.h>
 #include <client/utility/Debugging.h>
@@ -31,6 +30,7 @@
 #include <vector>
 #include <random>
 
+LinkTexture sPlanetTexture("backgrounds.planet2");
 LinkSound sConnectedSound("ui.pitch.mid");
 LinkSound sDisconnectedSound("ui.pitch.low");
 
@@ -49,6 +49,32 @@ void exit_application()
 	Application.Destroy();
 	dbg_msg("Graceful exit\n");
 	exit(0);
+}
+
+// Generate points uniformly distributed on a sphere
+std::vector<Vec3f> GenerateSpherePoints(float radius, int numPoints)
+{
+	std::vector<Vec3f> points;
+	points.reserve(numPoints);
+
+	// Using Fibonacci sphere algorithm for uniform distribution
+	float goldenRatio = (1.0f + std::sqrt(5.0f)) / 2.0f;
+	float angleIncrement = 2.0f * M_PI * goldenRatio;
+
+	for (int i = 0; i < numPoints; i++)
+	{
+		float t = static_cast<float>(i) / static_cast<float>(numPoints);
+		float inclination = std::acos(1.0f - 2.0f * t);
+		float azimuth = angleIncrement * i;
+
+		float x = radius * std::sin(inclination) * std::cos(azimuth);
+		float y = radius * std::sin(inclination) * std::sin(azimuth);
+		float z = radius * std::cos(inclination);
+
+		points.push_back(Vec3f(x, y, z));
+	}
+
+	return points;
 }
 
 int main()
@@ -137,6 +163,34 @@ int main()
 //	mainMenu.InitialShow();
 
 //	PauseMenu *PauseMenu;
+
+	Vec3f cubes_at = Vec3f(0.0f, 0.0f, 100.0f);
+	std::vector<Mesh> shapes;
+	for (int x = 0; x < 3; x++)
+		for (int y = 0; y < 3; y++)
+			for (int z = 0; z < 3; z++)
+			{
+				Mesh new_cube = MeshPresets::CreateCube(10.0f);
+				new_cube.position = Vec3f(
+					-15.0f + x * 15.0f,
+					-15.0f + y * 15.0f,
+					-15.0f + z * 15.f
+				) + cubes_at;
+				shapes.push_back(new_cube);
+			}
+
+	Mesh sphere = MeshPresets::CreateSphere(30.0f, 30, 50);
+	sphere.position = Vec3f(70.0f, 0.0f, 0.0f) + cubes_at;
+	shapes.push_back(sphere);
+
+//	Mesh ground = MeshPresets::CreateGround(1000.0f, 100);
+//	shapes.push_back(ground);
+
+	Scene scene;
+	DirectionLight direction_light(Vec3f(-0.5f, 1.0f, -0.5f), Vec3f(1.0f, 1.0f, 1.0f), 0.5f);
+
+//	Mesh& ground_mesh = shapes.back(); // safe while vector is not reallocated
+
 	while (true)
 	{
 		// This part of the loop runs with no delay
@@ -151,18 +205,6 @@ int main()
 			Application.HandleEvent(sdl_event, event_context);
 			Menus.HandleEvent(sdl_event, event_context);
 			GameReference.HandleEvent(sdl_event, event_context);
-
-//			if (pauseMenuOpen)
-//			{
-//				PauseMenu->Event(sdl_event);
-//				break;
-//			}
-//
-//			if (GameReference.World()->LvlMenu() != nullptr)
-//			{
-//				GameReference.World()->LvlMenu()->Event(sdl_event);
-//				break;
-//			}
 
 			switch (sdl_event.type)
 			{
@@ -202,21 +244,11 @@ int main()
 					clock->ResetFramerate();
 					break;
 				}
-//				case SDL_EVENT_KEY_DOWN:
-//				{
-//					SDL_Scancode scancode = sdl_event.key.scancode;
-////					if (scancode == SDL_SCANCODE_ESCAPE)
-////						GameReference.GetPauseMenu()->SwitchToThisMenu();
-//					if (sdl_event.key.scancode == SDL_SCANCODE_F2)
-//						render_debug = !render_debug;
-//					else if (sdl_event.key.scancode == SDL_SCANCODE_F3)
-//						Menus.GetCurrentMenu()->DebugPrint();
-////					else if (scancode == SDL_SCANCODE_Z)
-////						new CharacterNPC(GameReference.World(), 50.0,
-////										 Vec2d(32 * 30, 32), Vec2d(0, 10),
-////										 NPC_TURRET, true);
-//					break;
-//				}
+				case SDL_EVENT_KEY_DOWN:
+				{
+
+					break;
+				}
 			}
 			Element::DestroyElements();
 		}
@@ -238,6 +270,74 @@ int main()
 			if (GameReference.World())
 				GameReference.World()->Draw();
 			GameReference.GetInterface()->DrawBackground();
+
+			{ // 3d stuff
+				Camera3D& camera = GameReference.GetCamera3D();
+
+				// move 3d camera controller
+				if (!Gamepads.GetGamepads().empty())
+				{
+					Gamepad *gamepad = Gamepads.GetGamepads().front();
+					Vec2f left_joystick = gamepad->GetJoystickLeft();
+					Vec2f right_joystick = gamepad->GetJoystickRight();
+					float triggers = gamepad->GetLeftTrigger() - gamepad->GetRightTrigger();
+
+					// Movement (using left stick)
+					float move_speed = 50.0f;
+					bool go_up = gamepad->GetButton(SDL_GAMEPAD_BUTTON_DPAD_UP);
+					bool go_down = gamepad->GetButton(SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+					float forward = -left_joystick.y * move_speed * elapsed_seconds;
+					float strafe = left_joystick.x * move_speed * elapsed_seconds;
+					float vertical = static_cast<float>(-go_down + go_up) * move_speed * elapsed_seconds;
+					camera.MoveRelative(forward, strafe, vertical);
+
+					// Rotation (using right stick)
+					float look_sensitivity = 2.0f;
+					if (right_joystick.x != 0.0f || right_joystick.y != 0.0f || triggers != 0.0f)
+					{
+						float yaw = right_joystick.x * look_sensitivity * elapsed_seconds;
+						float pitch = right_joystick.y * look_sensitivity * elapsed_seconds;
+						float roll = triggers * look_sensitivity * elapsed_seconds;
+
+						// Get current local axes
+						Vec3f up_axis = camera.GetUp();
+						Vec3f right_axis = camera.GetRight();
+						Vec3f forward_axis = camera.GetLook();
+
+						// Create rotation quaternions around LOCAL axes
+						Quaternion yaw_rot = Quaternion::FromAxisAngle(up_axis, yaw);
+						Quaternion pitch_rot = Quaternion::FromAxisAngle(right_axis, pitch);
+						Quaternion roll_rot = Quaternion::FromAxisAngle(forward_axis, roll);
+
+						// Apply rotations: BOTH from the left
+						Quaternion current = camera.GetRotation();
+						Quaternion new_rotation = (roll_rot * pitch_rot * yaw_rot * current).Normalize();
+						camera.SetRotation(new_rotation);
+					}
+
+				}
+
+//				drawing->SetColor(200, 200, 200, 255);
+//				drawing->Clear();
+
+//				ground_mesh.position = Vec3f(camera.GetPosition().x, 0.0f, camera.GetPosition().z);
+
+				scene.Clear();
+				for (const Mesh& shape : shapes)
+					scene.ProjectMesh(shape, camera, &direction_light);
+				scene.SortAndCommit();
+//				drawing->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+				drawing->RenderScene(scene, sPlanetTexture);
+//				drawing->SetDrawBlendMode(SDL_BLENDMODE_NONE);
+
+				// wireframe
+//				drawing->SetColor(255, 255, 255, 50);
+//				drawing->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+//				for (const Mesh& cube : shapes)
+//					drawing->RenderMeshWireframe(cube, camera);
+//				drawing->SetDrawBlendMode(SDL_BLENDMODE_NONE);
+			}
+
 			if (Vignette)
 				drawing->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
 

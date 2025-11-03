@@ -14,8 +14,8 @@ private:
 	std::mt19937 m_32Generator;
 	std::uniform_int_distribution<unsigned int> m_UIntDist;
 	std::uniform_int_distribution<int> m_IntDist;
-	std::uniform_real_distribution<float> m_FloatDist;
-	std::uniform_real_distribution<float> m_FloatPercentageDist;
+	std::uniform_real_distribution<float> m_FloatDist; // these two might be the same thing
+	std::uniform_real_distribution<float> m_FloatPercentageDist; // these two might be the same thing
 
 	// 64-Bit
 	std::mt19937_64 m_64Generator;

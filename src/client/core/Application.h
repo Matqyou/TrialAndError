@@ -5,7 +5,7 @@
 #pragma once
 
 #include <iostream>
-#include "shared/utility/Vec2.h"
+#include "shared/math/Vec2.h"
 #include "client/core/drawing/Drawing.h"
 #include "client/core/Clock.h"
 #include "client/core/Assets.h"
@@ -56,12 +56,13 @@ public:
 
 	[[nodiscard]] Vec2i GetResolution() const { return resolution; }
 	[[nodiscard]] Vec2f GetHalfResolution() const { return half_resolution; }
+	[[nodiscard]] float GetAspectRatio() const { return static_cast<float>(resolution.x) / static_cast<float>(resolution.y); }
 	[[nodiscard]] int GetWidth() const { return resolution.x; }
 	[[nodiscard]] int GetHeight() const { return resolution.y; }
 	[[nodiscard]] int GetWidth2() const { return resolution.x / 2; }
 	[[nodiscard]] int GetHeight2() const { return resolution.y / 2; }
 
-	[[nodiscard]] static Vec2f GetMousePosition() ;
+	[[nodiscard]] static Vec2f GetMousePosition();
 
 	// Ticking
 	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_context);

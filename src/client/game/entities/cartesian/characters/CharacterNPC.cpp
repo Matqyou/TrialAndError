@@ -79,7 +79,7 @@ void CharacterNPC::TickControls()
 			continue;
 
 		auto& core = character->GetDirectionalCore();
-		float distance = DistanceVec2f(core.pos, core.pos);
+		float distance = (core.pos, core.pos).LengthF();
 		if (distance < 1000.0 && (!ClosestChar || distance < Closest))
 		{
 			Closest = distance;

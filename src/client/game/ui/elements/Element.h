@@ -7,7 +7,7 @@
 #include "client/core/texture/visual/VisualTexture.h"
 #include "client/game/ui/EventContext.h"
 #include "client/core/drawing/Drawing.h"
-#include "shared/utility/Rectangles.h"
+#include "shared/geometry/Rectangles.h"
 #include "SDL3/SDL.h"
 
 enum class Flex {
@@ -64,7 +64,7 @@ public:
     Vec2i relative, pos, size, edge;
     ElementDraw draw;
     VisualTextureInstance texture_instance;
-    std::wstring name;
+    std::string name;
 
     bool enabled;
     bool flex_involved_horizontal, flex_involved_vertical;
@@ -161,10 +161,6 @@ public:
         return this;
     }
     Element* SetName(const char* name) {
-        this->name = Strings::FStringW(L"%s", name);
-        return this;
-    }
-    Element* SetName(const wchar_t* name) {
         this->name = name;
         return this;
     }

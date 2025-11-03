@@ -9,7 +9,7 @@
 Button::Button()
 	: Element(), pressed_texture_instance(nullptr)
 {
-	this->name = L"Button";
+	this->name = "Button";
 	this->callback = { };
 	this->clickable = true;
 	this->pressed_down = false;
@@ -20,7 +20,7 @@ Button::Button()
 Button::Button(Texture *texture, Texture *pressed_texture)
 	: Element(), pressed_texture_instance(pressed_texture)
 {
-	this->name = L"Button";
+	this->name = "Button";
 	this->callback = { };
 	this->clickable = true;
 	this->pressed_down = false;

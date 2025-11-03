@@ -6,7 +6,7 @@
 
 #include "client/game/ui/EventContext.h"
 #include "SDL3/SDL_events.h"
-#include "shared/utility/Vec2.h"
+#include "shared/math/Vec2.h"
 
 class MainMenu;
 class PauseMenu;

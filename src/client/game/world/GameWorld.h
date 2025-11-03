@@ -12,7 +12,7 @@
 //#include <client/GameData.h>
 #include <client/Protocol.h>
 
-#include <shared/utility/Vec2.h>
+#include "shared/math/Vec2.h"
 #include <chrono>
 
 class Player;

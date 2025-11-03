@@ -13,18 +13,19 @@
 #include "client/game/ui/menus/levelup/LevelupMenu.h"
 #include "client/game/ui/menus/pause/PauseMenu.h"
 #include "client/game/ui/menus/main/MainMenu.h"
+#include "client/game/world/GameWorld.h"
 #include "client/core/drawing/Drawing.h"
-#include "client/core/Gamepads.h"
-#include "shared/utility/Randomizer.h"
 #include "client/core/AssetsManager.h"
 #include "client/game/ui/Interface.h"
 #include "client/game/Preferences.h"
 #include "client/core/Application.h"
-#include "client/game/world/GameWorld.h"
-#include "shared/utility/Vec2.h"
+#include "client/core/Gamepads.h"
 #include "client/core/Assets.h"
 #include "client/core/Clock.h"
 #include "client/Protocol.h"
+
+#include <shared/utility/Randomizer.h>
+#include "shared/math/Vec2.h"
 #include <vector>
 
 class MainMenu;
@@ -35,6 +36,7 @@ class GameData
 {
 private:
 	Camera camera;
+	Camera3D camera_3d;
 	GameWorld *world;
 	Interface *interface;
 
@@ -53,6 +55,7 @@ public:
 
 	// Getting
 	[[nodiscard]] Camera& GetCamera() { return camera; }
+	[[nodiscard]] Camera3D& GetCamera3D() { return camera_3d; }
 	[[nodiscard]] GameWorld *World() const { return world; }
 	[[nodiscard]] Interface *GetInterface() const { return interface; }
 	[[nodiscard]] std::vector<Player*>& GetPlayers() { return players; }

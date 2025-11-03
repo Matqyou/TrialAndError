@@ -107,7 +107,7 @@ void ItemEntity::TickPickup()
 		// really he can do about this situation
 		// Todo: think of some connected/smart pointers cuz that is the next big thing i need to learn
 		if (!character->IsAlive() || (character == m_Dropper && world->GetTick() - m_DroppedSince < m_PickupCooldown)) continue;
-		float Distance = DistanceVec2f(core.pos, character->GetCore().pos);
+		float Distance = (core.pos - character->GetCore().pos).LengthF();
 		if (Distance > core.size_ratio + character->GetCore().size_ratio) continue;
 
 		EventPickup(*character);

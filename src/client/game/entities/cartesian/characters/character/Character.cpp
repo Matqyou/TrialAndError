@@ -397,6 +397,11 @@ void Character::TickGameControllerControls()
 		input.looking_direction = left_joystick;
 	}
 
+//	Vec2f fixed_right = SquareToCircle(right_joystick);
+//	dbg_msg("\n");
+//	dbg_msg("Before: %.1fx, %.1fy\n", right_joystick.x, right_joystick.y);
+//	dbg_msg("After: %.1fx, %.1fy\n", fixed_right.x, fixed_right.y);
+
 	// Shooting
 	input.shooting = gamepad->GetRightTrigger() > 0.1;
 	input.hooking = gamepad->GetButton(SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER);
@@ -720,7 +725,7 @@ void Character::DrawHands()
 				if (entity == this || !entity->HasHealthComponent())
 					continue;
 
-				double distance = DistanceVec2f(current_position, entity->GetCore().pos);
+				double distance = (current_position - entity->GetCore().pos).LengthF();
 				if (distance <= entity->GetCore().size_ratio)
 				{
 					found = true;

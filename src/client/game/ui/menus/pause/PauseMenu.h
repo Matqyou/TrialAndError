@@ -4,7 +4,7 @@
 
 #include "client/game/ui/menus/base/FullscreenMenu.h"
 #include "client/core/texture/Texture.h"
-#include "shared/utility/Functions.h"
+#include "shared/code/Functions.h"
 #include "SDL3/SDL.h"
 
 class PauseMenu : public FullscreenMenu

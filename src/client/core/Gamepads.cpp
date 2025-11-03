@@ -3,7 +3,8 @@
 //
 
 #include "Gamepads.h"
-#include <shared/utility/Strings.h>
+#include <client/core/Application.h>
+#include "shared/string/Strings.h"
 #include <algorithm>
 
 Gamepad::Gamepad()
@@ -19,6 +20,23 @@ Gamepad::Gamepad()
 	metadata_version = 0;
 	metadata_type = SDL_GAMEPAD_TYPE_UNKNOWN;
 
+	visual_of_joystick_left = nullptr;
+	visual_of_joystick_right = nullptr;
+
+	// If any timing issues, we should delay this
+	visual_of_joystick_left = Assets.CreateTexture(SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 50, 50)
+		->SetScaleMode(SDL_SCALEMODE_NEAREST);
+	visual_of_joystick_right = Assets.CreateTexture(SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 50, 50)
+		->SetScaleMode(SDL_SCALEMODE_NEAREST);
+
+	Drawing* drawing = Application.GetDrawing();
+	drawing->SetColor(0, 0, 0, 0);
+	drawing->SetRenderTarget(visual_of_joystick_left);
+	drawing->Clear();
+	drawing->SetRenderTarget(visual_of_joystick_right);
+	drawing->Clear();
+	drawing->SetRenderTarget(nullptr); //
+
 	for (auto& one_axis : axis)
 		one_axis = 0;
 	for (bool& button : buttons)
@@ -28,6 +46,9 @@ Gamepad::Gamepad()
 Gamepad::~Gamepad()
 {
 	CloseGamepad();
+
+	delete visual_of_joystick_left;
+	delete visual_of_joystick_right;
 }
 
 Vec2f Gamepad::GetJoystickLeft()
@@ -123,6 +144,29 @@ void Gamepad::TickLast()
 {
 	memcpy(&last_buttons, &buttons, sizeof(last_buttons));
 }
+
+//void Gamepad::Draw()
+//{
+//	Drawing* drawing = Application.GetDrawing();
+//	drawing->SetColor(255, 0, 0, 255);
+//
+//	drawing->SetRenderTarget(visual_of_joystick_left);
+//	Vec2f left = SquareToCircle(GetJoystickLeft());
+//	SDL_RenderPoint(drawing->Renderer(), 25.0f + left.x * 24.0f, 25.0f + left.y * 24.0f);
+//
+//	drawing->SetRenderTarget(visual_of_joystick_right);
+//	Vec2f right = SquareToCircle(GetJoystickRight());
+//	SDL_RenderPoint(drawing->Renderer(), 25.0f + right.x * 24.0f, 25.0f + right.y * 24.0f);
+//
+//	dbg_msg("Drawing %f %f\n", left.x, left.y);
+//
+//	drawing->SetRenderTarget(nullptr);
+//
+//	SDL_FRect left_rect = { 0.0f, 0.0f, 200.0f, 200.0f };
+//	SDL_FRect right_rect = { 200.0f, 0.0f, 200.0f, 200.0f };
+//	drawing->RenderTexture(visual_of_joystick_left->SDLTexture(), nullptr, left_rect);
+//	drawing->RenderTexture(visual_of_joystick_right->SDLTexture(), nullptr, right_rect);
+//}
 
 Streamer<int, bool> GamepadsClass::sGamepadOneUpdated;
 Streamer<int, bool> GamepadsClass::sGamepadTwoUpdated;

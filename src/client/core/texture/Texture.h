@@ -6,7 +6,7 @@
 
 #include <SDL3/SDL.h>
 #include "SDL3_image/SDL_image.h"
-#include "shared/utility/Rectangles.h"
+#include "shared/geometry/Rectangles.h"
 
 struct TextureInfo
 {

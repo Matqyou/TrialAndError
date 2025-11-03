@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Vec2.h"
+#include "shared/math/Vec2.h"
 #include "SDL3/SDL_rect.h"
 
 template<class T>

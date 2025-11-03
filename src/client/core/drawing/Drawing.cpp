@@ -3,10 +3,11 @@
 //
 
 #include "Drawing.h"
+#include <client/core/Application.h>
 
-Drawing::Drawing(SDL_Renderer *renderer)
+Drawing::Drawing(SDL_Renderer *drawing_renderer)
 {
-	m_Renderer = renderer;
+	renderer = drawing_renderer;
 }
 
 Drawing::~Drawing() = default;
@@ -19,24 +20,24 @@ void Drawing::SetRenderTarget(Texture *target)
 
 void Drawing::SetRenderTargetSDL(SDL_Texture *target)
 {
-	SDL_SetRenderTarget(m_Renderer, target);
+	SDL_SetRenderTarget(renderer, target);
 }
 
 void Drawing::DrawRect(const SDL_FRect& rect, bool fill)
 {
 	if (fill)
-		SDL_RenderFillRect(m_Renderer, &rect);
+		SDL_RenderFillRect(renderer, &rect);
 	else
-		SDL_RenderRect(m_Renderer, &rect);
+		SDL_RenderRect(renderer, &rect);
 }
 
 void Drawing::DrawRect(const SDL_FRect& rect, bool fill, const Camera& camera)
 {
 	SDL_FRect MovedRect = camera.CameraToScreenRect(rect);
 	if (fill)
-		SDL_RenderFillRect(m_Renderer, &MovedRect);
+		SDL_RenderFillRect(renderer, &MovedRect);
 	else
-		SDL_RenderRect(m_Renderer, &MovedRect);
+		SDL_RenderRect(renderer, &MovedRect);
 }
 
 void Drawing::FillCircle(const Vec2f& center, float radius, SDL_FColor color)
@@ -62,18 +63,18 @@ void Drawing::FillCircle(const Vec2f& center, float radius, SDL_FColor color)
 			{{ x2, y2 }, color, { 0, 0 }}
 		};
 
-		SDL_RenderGeometry(m_Renderer, nullptr, vertices, 3, nullptr, 0);
+		SDL_RenderGeometry(renderer, nullptr, vertices, 3, nullptr, 0);
 	}
 }
 
 void Drawing::DrawLine(const Vec2f& start, const Vec2f& end)
 {
-	SDL_RenderLine(m_Renderer, start.x, start.y, end.x, end.y);
+	SDL_RenderLine(renderer, start.x, start.y, end.x, end.y);
 }
 
 void Drawing::DrawLine(const Vec2f& start, const Vec2f& end, const Camera& camera)
 {
-	SDL_RenderLine(m_Renderer,
+	SDL_RenderLine(renderer,
 				   camera.CameraToScreenX(start.x), camera.CameraToScreenY(start.y),
 				   camera.CameraToScreenX(end.x), camera.CameraToScreenY(end.y));
 }
@@ -106,7 +107,7 @@ void Drawing::DrawLine(const Vec2f& start, const Vec2f& end, float size, SDL_FCo
 		0, 2, 3   // Second triangle (p1 -> p3 -> p4)
 	};
 
-	SDL_RenderGeometry(m_Renderer, nullptr, vertices, 4, indices, 6);
+	SDL_RenderGeometry(renderer, nullptr, vertices, 4, indices, 6);
 
 	// Draw the rounded caps
 	FillCircle(start, half_thickness, color);
@@ -124,13 +125,13 @@ void Drawing::DrawLine(const Vec2f& start, const Vec2f& end, float size, SDL_FCo
 
 void Drawing::RenderTexture(SDL_Texture *texture, SDL_FRect *srcrect, const SDL_FRect& dstrect)
 {
-	SDL_RenderTexture(m_Renderer, texture, srcrect, &dstrect);
+	SDL_RenderTexture(renderer, texture, srcrect, &dstrect);
 }
 
 void Drawing::RenderTexture(SDL_Texture *texture, SDL_FRect *srcrect, const SDL_FRect& dstrect, const Camera& camera)
 {
 	SDL_FRect MovedRect = camera.CameraToScreenRect(dstrect);
-	SDL_RenderTexture(m_Renderer, texture, srcrect, &MovedRect);
+	SDL_RenderTexture(renderer, texture, srcrect, &MovedRect);
 }
 
 void Drawing::RenderTextureRotated(SDL_Texture *texture,
@@ -138,7 +139,7 @@ void Drawing::RenderTextureRotated(SDL_Texture *texture,
 								   double angle, SDL_FPoint *center,
 								   SDL_FlipMode flip)
 {
-	SDL_RenderTextureRotated(m_Renderer, texture, srcrect, &dstrect, angle, center, flip);
+	SDL_RenderTextureRotated(renderer, texture, srcrect, &dstrect, angle, center, flip);
 }
 
 void Drawing::RenderTextureRotated(SDL_Texture *texture,
@@ -147,25 +148,73 @@ void Drawing::RenderTextureRotated(SDL_Texture *texture,
 								   SDL_FlipMode flip, const Camera& camera)
 {
 	SDL_FRect MovedRect = camera.CameraToScreenRect(dstrect);
-	SDL_RenderTextureRotated(m_Renderer, texture, srcrect, &MovedRect, angle, center, flip);
+	SDL_RenderTextureRotated(renderer, texture, srcrect, &MovedRect, angle, center, flip);
 }
 
 void Drawing::RenderTextureFullscreen(SDL_Texture *texture, SDL_FRect *srcrect)
 {
-	SDL_RenderTexture(m_Renderer, texture, srcrect, nullptr);
+	SDL_RenderTexture(renderer, texture, srcrect, nullptr);
 }
 
 void Drawing::Clear()
 {
-	SDL_RenderClear(m_Renderer);
+	SDL_RenderClear(renderer);
 }
 
 void Drawing::FillAll()
 {
-	SDL_RenderFillRect(m_Renderer, nullptr);
+	SDL_RenderFillRect(renderer, nullptr);
 }
 
 void Drawing::UpdateWindow()
 {
-	SDL_RenderPresent(m_Renderer);
+	SDL_RenderPresent(renderer);
+}
+
+void Drawing::RenderScene(Scene& scene, SDL_Texture* texture)
+{
+	SDL_RenderGeometry(renderer,
+					   texture,  // texture
+					   scene.GetVertices().data(),
+					   static_cast<int>(scene.GetVertices().size()),
+					   scene.GetIndices().data(),
+					   static_cast<int>(scene.GetIndices().size()));
+}
+void Drawing::RenderMeshWireframe(const Mesh& mesh, const Camera3D& camera)
+{
+	// Process triangles using indices (every 3 indices = 1 triangle)
+	for (size_t i = 0; i < mesh.indices.size(); i += 3)
+	{
+		// Get the 3 vertex indices for this triangle
+		int idx0 = mesh.indices[i];
+		int idx1 = mesh.indices[i + 1];
+		int idx2 = mesh.indices[i + 2];
+
+		// Look up the actual vertex positions from the vertices array
+		Vec3f worldV0 = mesh.vertices[idx0] + mesh.position;
+		Vec3f worldV1 = mesh.vertices[idx1] + mesh.position;
+		Vec3f worldV2 = mesh.vertices[idx2] + mesh.position;
+
+		// BACKFACE CULLING: Check if triangle faces camera
+		Vec3f face_normal = mesh.face_normals[i / 3];
+		Vec3f to_camera = (camera.GetPosition() - worldV0).NormalizeF();
+		float facing = DotProductVec3(face_normal, to_camera);
+
+		if (facing <= 0.0f)
+			continue; // Skip back-facing triangles
+
+		// Project to screen
+		bool visible0, visible1, visible2;
+		Vec2f s0 = camera.CameraToScreen(worldV0, visible0, Vec2f(Application.GetResolution()));
+		Vec2f s1 = camera.CameraToScreen(worldV1, visible1, Vec2f(Application.GetResolution()));
+		Vec2f s2 = camera.CameraToScreen(worldV2, visible2, Vec2f(Application.GetResolution()));
+
+		if (visible0 || visible1 || visible2)
+		{
+			// Draw triangle edges (wireframe)
+			DrawLine(s0, s1);
+			DrawLine(s1, s2);
+			DrawLine(s2, s0);
+		}
+	}
 }

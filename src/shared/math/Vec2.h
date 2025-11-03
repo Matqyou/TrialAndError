@@ -49,6 +49,8 @@ public:
 	[[nodiscard]] bool operator!=(const Vec2& v);
 	[[nodiscard]] double Length() const;
 	[[nodiscard]] float LengthF() const;
+	[[nodiscard]] double LengthSquared() const;
+	[[nodiscard]] float LengthSquaredF() const;
 	[[nodiscard]] double Atan2() const;
 	[[nodiscard]] float Atan2F() const;
 	[[nodiscard]] Vec2 Rotate(double radians) const;
@@ -65,10 +67,6 @@ public:
 typedef Vec2<int> Vec2i;
 typedef Vec2<float> Vec2f;
 typedef Vec2<double> Vec2d;
-
-[[nodiscard]] static float DistanceVec2i(const Vec2i& v1, const Vec2i& v2);
-[[nodiscard]] static float DistanceVec2f(const Vec2f& v1, const Vec2f& v2);
-[[nodiscard]] static double DistanceVec2d(const Vec2d& v1, const Vec2d& v2);
 
 [[nodiscard]] static Vec2f FromAngleVec2f(float radians);
 [[nodiscard]] static Vec2d FromAngleVec2d(double radians);

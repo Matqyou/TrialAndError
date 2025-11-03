@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Rectangles.h"
+#include "shared/geometry/Rectangles.h"
 
 template<class T>
 Rect4<T>::Rect4() : x(T()), y(T()), w(T()), h(T()) { }

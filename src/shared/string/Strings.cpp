@@ -2,7 +2,7 @@
 // Created by Matq on 19/12/2024.
 //
 
-#include "Strings.h"
+#include "shared/string/Strings.h"
 #include <memory>
 #include <mutex>
 #include <vector>

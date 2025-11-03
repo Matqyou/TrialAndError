@@ -4,7 +4,7 @@
 
 #include "Cursors.h"
 
-#include "shared/utility/Strings.h"
+#include "shared/string/Strings.h"
 
 namespace Cursors {
 SDL_Cursor* sCursorSystemText = nullptr;

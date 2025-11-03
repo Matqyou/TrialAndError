@@ -14,6 +14,7 @@
 LinkSound sQuitSound("ui.quit");
 
 GameData::GameData()
+	: camera_3d(Vec3f(), 120.0f, 16.0f/9.0f)
 {
 	world = nullptr;
 	interface = nullptr;
@@ -32,9 +33,9 @@ int GameData::NextPlayerID()
 	return next_player_id++;
 }
 
-Player* GameData::GetPlayerFromID(int player_id)
+Player *GameData::GetPlayerFromID(int player_id)
 {
-	for (Player* player : players)
+	for (Player *player : players)
 		if (player->GetPlayerID() == player_id)
 			return player;
 
@@ -44,7 +45,7 @@ Player* GameData::GetPlayerFromID(int player_id)
 int GameData::GetAvailableGamepadIndex()
 {
 	int available_gamepad_index = 0;
-	for (Player* other : players)
+	for (Player *other : players)
 	{
 		if (other->wants_gamepad_index != available_gamepad_index)
 			break;
@@ -76,12 +77,12 @@ void GameData::ExitApplication()
 //	m_ClassSelectMenus.pop_back();
 //}
 
-void GameData::AddPlayer(Player* new_player)
+void GameData::AddPlayer(Player *new_player)
 {
 	players.push_back(new_player);
 }
 
-void GameData::RemovePlayer(Player* player)
+void GameData::RemovePlayer(Player *player)
 {
 	players.erase(std::remove(players.begin(), players.end(), player), players.end());
 }
@@ -157,7 +158,7 @@ void GameData::InitializeSandbox()
 			auto new_crate = new Crate(
 				Vec2f(200 + 50 * static_cast<float>(x), 200 + 50 * static_cast<float>(y)),
 				DropType(Application.GetRandomizer()->Int() % NUM_DROP_TYPES)
-				);
+			);
 			world->AddEntity(new_crate, false);
 		}
 

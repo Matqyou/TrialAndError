@@ -5,7 +5,7 @@
 #pragma once
 
 #include <client/core/Assets.h>
-#include <shared/utility/Vec2.h>
+#include "shared/math/Vec2.h"
 
 struct Particle
 {

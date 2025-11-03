@@ -5,8 +5,9 @@
 #pragma once
 
 #include "client/game/ui/EventContext.h"
-#include <shared/utility/Streamer.h>
-#include <shared/utility/Vec2.h>
+#include "shared/code/Streamer.h"
+#include "shared/math/Vec2.h"
+#include "client/core/Assets.h"
 
 #include <SDL3/SDL.h>
 #include <string>
@@ -32,6 +33,9 @@ private:
 	float axis[SDL_GAMEPAD_AXIS_COUNT];
 	bool buttons[SDL_GAMEPAD_BUTTON_COUNT];
 	bool last_buttons[SDL_GAMEPAD_BUTTON_COUNT];
+
+	Texture* visual_of_joystick_left;
+	Texture* visual_of_joystick_right;
 
 public:
 	Gamepad();
@@ -60,6 +64,7 @@ public:
 	// Listening & Ticking
 	void Event(const SDL_Event& event);
 	void TickLast();
+
 };
 
 class GamepadsClass

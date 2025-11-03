@@ -5,7 +5,7 @@
 #pragma once
 
 #include "client/game/ui/elements/Element.h"
-#include "shared/utility/Functions.h"
+#include "shared/code/Functions.h"
 #include <utility>
 
 class Button : public Element {

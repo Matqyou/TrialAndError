@@ -2,7 +2,7 @@
 #pragma once
 
 #include "client/game/world/GameWorld.h"
-#include "shared/utility/Vec2.h"
+#include "shared/math/Vec2.h"
 
 struct EntityCore
 {

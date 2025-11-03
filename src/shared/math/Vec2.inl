@@ -3,7 +3,6 @@
 //
 
 #include <cmath>
-#include "Vec2.h"
 
 template<class T>
 Vec2<T>::Vec2() : x(T()), y(T()) { }
@@ -210,23 +209,11 @@ Vec2<T> Vec2<T>::NormalizeF() const
 	return { x, y };
 }
 
-//template<class T>
-//Vec2<T> Vec2<T>::NormalizeAt(double max) const
-//{
-//
-//}
-//
-//template<class T>
-//Vec2<T> Vec2<T>::NormalizeAtF(float max) const
-//{
-//
-//}
-
 template<class T>
 Vec2<T> Vec2<T>::SetLength(double length) const
 {
 	double len = Length();
-	if (len != 0)
+	if (len != 0.0)
 	{
 		return {
 			static_cast<T>(x / len * length),
@@ -240,7 +227,7 @@ template<class T>
 Vec2<T> Vec2<T>::SetLengthF(float length) const
 {
 	float len = LengthF();
-	if (len != 0)
+	if (len != 0.0f)
 	{
 		return {
 			static_cast<T>(x / len * length),
@@ -281,6 +268,21 @@ float Vec2<T>::LengthF() const
 }
 
 template<class T>
+double Vec2<T>::LengthSquared() const
+{
+	return static_cast<double>(x) * static_cast<double>(x) +
+		static_cast<double>(y) * static_cast<double>(y);
+
+}
+
+template<class T>
+float Vec2<T>::LengthSquaredF() const
+{
+	return static_cast<float>(x) * static_cast<float>(x) +
+		static_cast<float>(y) * static_cast<float>(y);
+}
+
+template<class T>
 double Vec2<T>::Atan2() const
 {
 	return std::atan2(static_cast<double>(y), static_cast<double>(x));
@@ -290,21 +292,6 @@ template<class T>
 float Vec2<T>::Atan2F() const
 {
 	return atan2f(static_cast<float>(y), static_cast<float>(x));
-}
-
-float DistanceVec2i(const Vec2i& v1, const Vec2i& v2)
-{
-	return (v1 - v2).LengthF();
-}
-
-float DistanceVec2f(const Vec2f& v1, const Vec2f& v2)
-{
-	return (v1 - v2).LengthF();
-}
-
-double DistanceVec2d(const Vec2d& v1, const Vec2d& v2)
-{
-	return (v1 - v2).Length();
 }
 
 Vec2f FromAngleVec2f(float radians)

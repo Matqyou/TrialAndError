@@ -5,7 +5,7 @@
 #pragma once
 
 #include "client/game/entities/cartesian/base/Entity.h"
-#include <shared/utility/Streamer.h>
+#include "shared/code/Streamer.h"
 
 enum ItemType
 {

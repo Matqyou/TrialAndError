@@ -6,9 +6,9 @@
 
 //#include "ui/structures/visual_texture/files/HitboxFile.h"
 #include "client/core/texture/visual/VisualTexture.h"
-#include "shared/utility/Strings.h"
+#include "shared/string/Strings.h"
 #include "SDL3_mixer/SDL_mixer.h"
-#include "shared/utility/Vec2.h"
+#include "shared/math/Vec2.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include <unordered_map>
 #include <functional>

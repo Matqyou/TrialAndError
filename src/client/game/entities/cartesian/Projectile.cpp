@@ -36,7 +36,7 @@ void Projectile::TickCollision()
 {
 	Vec2f CurrentPosition = core.pos;
 	Vec2f LastPosition = last_core.pos;
-	float distance_traveled = DistanceVec2f(CurrentPosition, LastPosition);
+	float distance_traveled = (CurrentPosition - LastPosition).LengthF();
 	if (distance_traveled <= 0.0)
 		return;
 
