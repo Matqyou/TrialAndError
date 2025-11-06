@@ -6,8 +6,8 @@
 #include <cmath>
 
 CharacterNPC::CharacterNPC(double max_health,
-						   const Vec2f& start_pos,
-						   const Vec2f& start_vel,
+						   const Vec3f& start_pos,
+						   const Vec3f& start_vel,
 						   NPCType npc_type,
 						   bool npc_is_boss)
 	: Character(nullptr,
@@ -92,20 +92,16 @@ void CharacterNPC::TickControls()
 
 	if (!ClosestChar)
 	{
-//		input.m_GoingLength = 0.0;
-//		input.m_LookingLength = 1.0;
-		const float one_degree = static_cast<float>(rand() % 10 - 5) / 180.0f * static_cast<float>(M_PI);
-		float angle = input.looking_direction.Atan2F() + one_degree;
-		input.looking_direction = FromAngleVec2f(angle);
-//		double Angle = std::atan2(input.m_LookingY, input.m_LookingX) + OneDegree;
-//		input.m_LookingX = cos(Angle);
-//		input.m_LookingY = sin(Angle);
+		// todo: 3d
+//		const float one_degree = static_cast<float>(rand() % 10 - 5) / 180.0f * static_cast<float>(M_PI);
+//		float angle = input.looking_direction.Atan2F() + one_degree;
+//		input.looking_direction = FromAngleVec2f(angle);
 		input.shooting = false;
 	}
 	else
 	{
 		EntityCore& ClosestCore = ClosestChar->GetCore();
-		Vec2f travel_direction = (ClosestCore.pos - core.pos).Normalize();
+		Vec3f travel_direction = (ClosestCore.pos - core.pos).NormalizeF();
 		input.going_direction = travel_direction * (current_weapon ? 1.0f : 0.5f);
 		input.looking_direction = travel_direction;
 
@@ -120,7 +116,7 @@ void CharacterNPC::TickControls()
 		else
 		{
 			if (Closest <= 300.0)
-				input.going_direction = Vec2f(0.0f, 0.0f);
+				input.going_direction = Vec3f(0.0f, 0.0f, 0.0f);
 
 			if (!current_weapon->GetMagAmmo())
 			{

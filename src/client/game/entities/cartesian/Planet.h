@@ -17,7 +17,7 @@ public:
 	[[nodiscard]] float Rotation() const { return m_Rotation; }
 
 public:
-	Planet(const Vec2f& pos, float radius, SDL_Color color = { 120, 120, 255, 255 }, std::string texture_key = "");
+	Planet(const Vec3f& pos, float radius, SDL_Color color = { 120, 120, 255, 255 }, std::string texture_key = "");
 	~Planet() override;
 
 	[[nodiscard]] float Radius() const { return m_Radius; }

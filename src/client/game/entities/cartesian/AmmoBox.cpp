@@ -4,20 +4,20 @@
 #include <cmath>
 #include <iostream>
 
-LinkTexture AmmoBox::sTextureGlock("entity.ammo_box.glock");
-LinkTexture AmmoBox::sTextureShotgun("entity.ammo_box.shotgun");
-LinkTexture AmmoBox::sTextureBurst("entity.ammo_box.burst");
-LinkTexture AmmoBox::sTextureMinigun("entity.ammo_box.minigun");
-LinkTexture AmmoBox::sTextureSniper("entity.ammo_box.sniper");
+LoadTexture AmmoBox::sTextureGlock("entity.ammo_box.glock", AssetsClass::TexturePurpose::GUI_ELEMENT);
+LoadTexture AmmoBox::sTextureShotgun("entity.ammo_box.shotgun", AssetsClass::TexturePurpose::GUI_ELEMENT);
+LoadTexture AmmoBox::sTextureBurst("entity.ammo_box.burst", AssetsClass::TexturePurpose::GUI_ELEMENT);
+LoadTexture AmmoBox::sTextureMinigun("entity.ammo_box.minigun", AssetsClass::TexturePurpose::GUI_ELEMENT);
+LoadTexture AmmoBox::sTextureSniper("entity.ammo_box.sniper", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 AmmoBox::AmmoBox(AmmoType type,
-                 const Vec2f& start_pos,
+                 const Vec3f& start_pos,
                  unsigned int AmmoCount)
     : Entity(NORMAL_ENTITY,
 			 ENTITY_AMMO_BOX,
 			 start_pos,
-			 Vec2f(40, 28),
-			 Vec2f(0.0, 0.0),
+			 Vec3f(40, 0, 28),
+			 Vec3f(0, 0, 0),
 			 0.95,
 			 false)
 {
@@ -67,11 +67,11 @@ void AmmoBox::Tick(double elapsed_seconds)
 
 void AmmoBox::Draw()
 {
-    Drawing *drawing = Application.GetDrawing();
-
-    SDL_FRect DrawRect = { float(core.pos.x) - float(core.size.x / 2.0),
-                           float(core.pos.y) - float(core.size.y / 2.0),
-                           float(core.size.x),
-                           float(core.size.y) };
-    drawing->RenderTexture(m_Texture->SDLTexture(), nullptr, DrawRect, GameReference.GetCamera());
+//    DrawingClass *drawing = Application.GetDrawing();
+//
+//    SDL_FRect DrawRect = { float(core.pos.x) - float(core.size.x / 2.0),
+//                           float(core.pos.y) - float(core.size.y / 2.0),
+//                           float(core.size.x),
+//                           float(core.size.y) };
+//    drawing->RenderTexture(m_Texture->SDLTexture(), nullptr, DrawRect, GameReference.GetCamera());
 }

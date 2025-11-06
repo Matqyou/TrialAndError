@@ -14,7 +14,8 @@
 
 namespace EntityGuns
 {
-ItemEntity *CreateItemEntityFromWeaponData(Entity *dropper, ProjectileWeapon *weapon_data, const Vec2f& start_pos);
+ItemEntity *CreateItemEntityFromWeaponData(Entity *dropper, ProjectileWeapon *weapon_data, const Vec3f& start_pos);
+
 }
 
 class EntityGlock : public ItemEntity
@@ -25,7 +26,7 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntityGlock(Entity *dropper, WeaponGlock *glock, const Vec2f& start_pos);
+	EntityGlock(Entity *dropper, WeaponGlock *glock, const Vec3f& start_pos);
 	~EntityGlock() override;
 
 };
@@ -37,7 +38,7 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntityShotgun(Entity *dropper, WeaponShotgun *shotgun, const Vec2f& start_pos);
+	EntityShotgun(Entity *dropper, WeaponShotgun *shotgun, const Vec3f& start_pos);
 	~EntityShotgun() override;
 };
 
@@ -49,7 +50,7 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntityBurst(Entity *dropper, WeaponBurst *burst, const Vec2f& start_pos);
+	EntityBurst(Entity *dropper, WeaponBurst *burst, const Vec3f& start_pos);
 	~EntityBurst() override;
 };
 
@@ -61,7 +62,7 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntitySniper(Entity *dropper, WeaponSniper *sniper, const Vec2f& start_pos);
+	EntitySniper(Entity *dropper, WeaponSniper *sniper, const Vec3f& start_pos);
 	~EntitySniper() override;
 };
 
@@ -73,7 +74,7 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntityMinigun(Entity *dropper, WeaponMinigun *minigun, const Vec2f& start_pos);
+	EntityMinigun(Entity *dropper, WeaponMinigun *minigun, const Vec3f& start_pos);
 	~EntityMinigun() override;
 };
 
@@ -85,7 +86,7 @@ private:
 	void EventPickup(Character& picker_char) override;
 
 public:
-	EntityPatersonNavy(Entity *dropper, PatersonNavy *paterson_navy, const Vec2f& start_pos);
+	EntityPatersonNavy(Entity *dropper, PatersonNavy *paterson_navy, const Vec3f& start_pos);
 	~EntityPatersonNavy() override;
 
 };

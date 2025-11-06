@@ -9,8 +9,8 @@
 Hook::Hook(Character *parent_character)
 {
 	parent = parent_character;
-	pos = Vec2f(0.0f, 0.0f);
-	vel = Vec2f(0.0f, 0.0f);
+	pos = Vec3f(0, 0, 0);
+	vel = Vec3f(0, 0, 0);
 	max_length = 300.0;
 	hook_travel_speed = 35.0;
 	wall_drag_force = 0.55;
@@ -44,7 +44,7 @@ void Hook::Unhook()
 // Set the hook as grabbed to the wall
 void Hook::HookWall()
 {
-	vel = Vec2f(0.0f, 0.0f);
+	vel = Vec3f(0, 0, 0);
 	grabbed = GRABBED_WALL;
 }
 
@@ -53,7 +53,7 @@ void Hook::Tick(double elapsed_seconds)
 	GameWorld *world = parent->World();
 	bool hooking = parent->GetInput().hooking;
 	bool last_hooking = parent->GetLastInput().hooking;
-	Vec2f looking_direction = parent->GetInput().looking_direction;
+	Vec3f looking_direction = parent->GetInput().looking_direction;
 	EntityCore& character_core = parent->GetCore();
 
 	if (!deployed && hooking && !last_hooking)
@@ -73,7 +73,7 @@ void Hook::Tick(double elapsed_seconds)
 	if (grabbed == GRABBED_NONE)
 		pos += vel;
 
-	Vec2f travel_direction = pos - character_core.pos;
+	Vec3f travel_direction = pos - character_core.pos;
 	float length = travel_direction.LengthF();
 	if (length != 0.0f)
 		travel_direction /= length;
@@ -143,7 +143,7 @@ void Hook::Tick(double elapsed_seconds)
 		if (length > max_length)
 		{
 			float Slice = (length - max_length) / 2.0f;
-			Vec2f impulse = travel_direction * Slice;
+			Vec3f impulse = travel_direction * Slice;
 			GrabbedCore.pos -= impulse;
 			character_core.pos += impulse;
 		}

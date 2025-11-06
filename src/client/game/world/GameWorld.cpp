@@ -324,17 +324,17 @@ void GameWorld::TickSpawner(double elapsed_seconds)
 	m_ScoreText->FlagForUpdate();
 
 	float Width2 = m_Width / 2.0f;
-	float Height2 = m_Height / 2.0f;
+	float Depth2 = m_Depth / 2.0f;
 
 	// Boss every 10 rounds
 	if (m_Round % 10 == 0)
 	{
 		float angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
-		Vec2f SpawnPos = Vec2f(Width2 + std::cos(angle) * Width2, Height2 + std::sin(angle) * Height2);
+		Vec3f SpawnPos = Vec3f(Width2 + std::cos(angle) * Width2, 0, Depth2 + std::sin(angle) * Depth2);
 		auto new_npc = new CharacterNPC(
 			200.0 + m_Round * 10.0,
 			SpawnPos,
-			Vec2f(0.0, 0.0),
+			Vec3f(0, 0, 0),
 			NPC_TURRET,
 			true
 		);
@@ -348,12 +348,12 @@ void GameWorld::TickSpawner(double elapsed_seconds)
 	for (int i = 0; i < m_NumEnemiesPerWave; i++)
 	{
 		float angle = (180.0 + (rand() % 180)) / 180.0 * M_PI;
-		Vec2f SpawnPos = Vec2f(Width2 + std::cos(angle) * Width2, Height2 + std::sin(angle) * Height2);
+		Vec3f SpawnPos = Vec3f(Width2 + std::cos(angle) * Width2, 0, Depth2 + std::sin(angle) * Depth2);
 		double Health = std::pow(m_Round, 1.0 / 3) * 10.0;
 		auto new_npc = new CharacterNPC(
 			Health,
 			SpawnPos,
-			Vec2f(0.0, 0.0),
+			Vec3f(0, 0, 0),
 			NPC_TURRET,
 			false
 		);
@@ -474,125 +474,125 @@ void GameWorld::Tick(double elapsed_seconds)
 
 void GameWorld::Draw()
 {
-	auto drawing = Application.GetDrawing();
-
-	drawing->SetColor(0, 0, 50, 255);
-	drawing->Clear();
-
-	drawing->SetColor(200, 200, 200, 255);
-	for (int i = m_Stars.size() - 1; i >= 0; --i)
-	{
-		auto& [position, velocity, duration] = m_Stars[i];
-
-		auto size = (int)duration / 750.0;
-		for (int j = 0; j < size; j++)
-		{
-			for (int k = 0; k < size; k++)
-			{
-				int draw_x = (int)(position.x - size / 2 + j);
-				int draw_y = (int)(position.y - size / 2 + k);
-
-				SDL_RenderPoint(drawing->Renderer(), draw_x, draw_y);
-			}
-		}
-	}
-	// Stop drawing when the game has been triggered as over
-	if (!m_GameOver)
-	{
-		SDL_FRect DrawRect = { 0, 0, m_Width, m_Height };
-		drawing->SetColor(100, 100, 100, 255);
-		drawing->DrawRect(DrawRect, false, GameReference.GetCamera());
-
-		m_Particles->Draw();
-		for (auto& entities_by_type : entities_by_types)
-			for (Entity *entity : entities_by_type)
-				entity->Draw();
-//		m_Tiles->Draw();
-	}
-
-	// Draw the score value
-	Texture *ScoreTexture = m_ScoreText->RequestUpdate();
-	float ScoreWidth = ScoreTexture->GetWidth() * 2.5f;
-	float ScoreHeight = ScoreTexture->GetHeight() * 2.5f;
-	SDL_FRect ScoreRect = { 0, Application.GetHeight() - ScoreHeight, ScoreWidth, ScoreHeight };
-	if (!m_GameOver)
-	{
-		drawing->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
-	}
-	else
-	{
-		// Render a semi-opaque dark overlay
-		drawing->SetColor(0, 0, 0, 200);
-		SDL_FRect full = { 0, 0, (float)Application.GetWidth(), (float)Application.GetHeight() };
-		SDL_RenderFillRect(drawing->Renderer(), &full);
-
-		// Panel dimensions
-		float pw = (Application.GetWidth() * 0.6);
-		float ph = (Application.GetHeight() * 0.6);
-		float px = (Application.GetWidth() - pw) / 2;
-		float py = (Application.GetHeight() - ph) / 2;
-		m_DeathPanelRect = { px, py, pw, ph };
-
-		// Panel background
-		drawing->SetColor(20, 20, 30, 230);
-		drawing->DrawRect(m_DeathPanelRect, true);
-//		SDL_RenderFillRect(renderer, &m_DeathPanelRect);
-
-		// Title: You Died
-		drawing->SetColor(220, 40, 40, 255);
-		TextSurface titleTex(CommonUI::fontDefault, "You Died", { 220, 40, 40 });
-		Texture *tTex = titleTex.RequestUpdate();
-		float tw = tTex->GetWidth() * 3.0f;
-		float th = tTex->GetHeight() * 3.0f;
-		SDL_FRect titleRect = { px + (pw - tw) / 2.0f, py + 20, tw, th };
-		drawing->RenderTexture(tTex->SDLTexture(), nullptr, titleRect);
-
-		// Stats: Score + Playtime
-		drawing->SetColor(200, 200, 200, 255);
-		char buf[256];
-		std::snprintf(buf, sizeof(buf), "Score: %u", m_Score);
-		TextSurface scoreLine(CommonUI::fontDefault, buf, { 200, 200, 200 });
-		Texture *sLineTex = scoreLine.RequestUpdate();
-		SDL_FRect sRect = { px + 40, py + 100, sLineTex->GetWidth() * 2.0f, sLineTex->GetHeight() * 2.0f };
-		drawing->RenderTexture(sLineTex->SDLTexture(), nullptr, sRect);
-
-		// Playtime: if Clock exists
-		double seconds = 0.0;
-//		if (m_GameWindow->Timer())
-		seconds = (double)m_CurrentTick / std::max(1.0, (double)Application.GetClock()->GetFramerate());
-		int mins = (int)seconds / 60;
-		int secs = (int)seconds % 60;
-		std::snprintf(buf, sizeof(buf), "Playtime: %02d:%02d", mins, secs);
-		TextSurface timeLine(CommonUI::fontDefault, buf, { 200, 200, 200 });
-		Texture *tLineTex = timeLine.RequestUpdate();
-		SDL_FRect tRect = { px + 40, py + 140, tLineTex->GetWidth() * 2.0f, tLineTex->GetHeight() * 2.0f };
-		drawing->RenderTexture(tLineTex->SDLTexture(), nullptr, tRect);
-
-		// Additional stats could go here (kills, accuracy, etc.) if you track them.
-
-		// Back to Menu button
-		float buttonWidth = 300.0f;
-		float buttonHeight = 80.0f;
-		float buttonX = px + (pw - buttonWidth) / 2.0f;
-		float buttonY = py + ph - buttonHeight - 40.0f;
-		m_DeathBackButtonRect = { buttonX, buttonY, buttonWidth, buttonHeight };
-
-		// Button background
-		if (m_DeathBackHover)
-			drawing->SetColor(100, 200, 255, 255);
-		else
-			drawing->SetColor(80, 180, 230, 255);
-		drawing->DrawRect(m_DeathBackButtonRect, true);
-//		SDL_RenderFillRect(renderer, &m_DeathBackButtonRect);
-
-		// Button text
-		TextSurface backTextSurface(CommonUI::fontDefault, "Back to Menu", { 10, 10, 10 });
-		Texture *buttonTexture = backTextSurface.RequestUpdate();
-		SDL_FRect buttonTextRect = {
-			buttonX + (buttonWidth - buttonTexture->GetWidth() * 1.5f) / 2.0f,
-			buttonY + (buttonHeight - buttonTexture->GetHeight() * 1.5f) / 2.0f,
-			buttonTexture->GetWidth() * 1.5f, buttonTexture->GetHeight() * 1.5f
-		};
-		drawing->RenderTexture(buttonTexture->SDLTexture(), nullptr, buttonTextRect);
-	}
+//	auto drawing = Application.GetDrawing();
+//
+//	drawing->SetColor(0, 0, 50, 255);
+//	drawing->Clear();
+//
+//	drawing->SetColor(200, 200, 200, 255);
+//	for (int i = m_Stars.size() - 1; i >= 0; --i)
+//	{
+//		auto& [position, velocity, duration] = m_Stars[i];
+//
+//		auto size = (int)duration / 750.0;
+//		for (int j = 0; j < size; j++)
+//		{
+//			for (int k = 0; k < size; k++)
+//			{
+//				int draw_x = (int)(position.x - size / 2 + j);
+//				int draw_y = (int)(position.y - size / 2 + k);
+//
+//				SDL_RenderPoint(drawing->Renderer(), draw_x, draw_y);
+//			}
+//		}
+//	}
+//	// Stop drawing when the game has been triggered as over
+//	if (!m_GameOver)
+//	{
+//		SDL_FRect DrawRect = { 0, 0, m_Width, m_Height };
+//		drawing->SetColor(100, 100, 100, 255);
+//		drawing->DrawRect(DrawRect, false, GameReference.GetCamera());
+//
+//		m_Particles->Draw();
+//		for (auto& entities_by_type : entities_by_types)
+//			for (Entity *entity : entities_by_type)
+//				entity->Draw();
+////		m_Tiles->Draw();
+//	}
+//
+//	// Draw the score value
+//	Texture *ScoreTexture = m_ScoreText->RequestUpdate();
+//	float ScoreWidth = ScoreTexture->GetWidth() * 2.5f;
+//	float ScoreHeight = ScoreTexture->GetHeight() * 2.5f;
+//	SDL_FRect ScoreRect = { 0, Application.GetHeight() - ScoreHeight, ScoreWidth, ScoreHeight };
+//	if (!m_GameOver)
+//	{
+//		drawing->RenderTexture(ScoreTexture->SDLTexture(), nullptr, ScoreRect);
+//	}
+//	else
+//	{
+//		// Render a semi-opaque dark overlay
+//		drawing->SetColor(0, 0, 0, 200);
+//		SDL_FRect full = { 0, 0, (float)Application.GetWidth(), (float)Application.GetHeight() };
+//		SDL_RenderFillRect(drawing->Renderer(), &full);
+//
+//		// Panel dimensions
+//		float pw = (Application.GetWidth() * 0.6);
+//		float ph = (Application.GetHeight() * 0.6);
+//		float px = (Application.GetWidth() - pw) / 2;
+//		float py = (Application.GetHeight() - ph) / 2;
+//		m_DeathPanelRect = { px, py, pw, ph };
+//
+//		// Panel background
+//		drawing->SetColor(20, 20, 30, 230);
+//		drawing->DrawRect(m_DeathPanelRect, true);
+////		SDL_RenderFillRect(renderer, &m_DeathPanelRect);
+//
+//		// Title: You Died
+//		drawing->SetColor(220, 40, 40, 255);
+//		TextSurface titleTex(CommonUI::fontDefault, "You Died", { 220, 40, 40 });
+//		Texture *tTex = titleTex.RequestUpdate();
+//		float tw = tTex->GetWidth() * 3.0f;
+//		float th = tTex->GetHeight() * 3.0f;
+//		SDL_FRect titleRect = { px + (pw - tw) / 2.0f, py + 20, tw, th };
+//		drawing->RenderTexture(tTex->SDLTexture(), nullptr, titleRect);
+//
+//		// Stats: Score + Playtime
+//		drawing->SetColor(200, 200, 200, 255);
+//		char buf[256];
+//		std::snprintf(buf, sizeof(buf), "Score: %u", m_Score);
+//		TextSurface scoreLine(CommonUI::fontDefault, buf, { 200, 200, 200 });
+//		Texture *sLineTex = scoreLine.RequestUpdate();
+//		SDL_FRect sRect = { px + 40, py + 100, sLineTex->GetWidth() * 2.0f, sLineTex->GetHeight() * 2.0f };
+//		drawing->RenderTexture(sLineTex->SDLTexture(), nullptr, sRect);
+//
+//		// Playtime: if Clock exists
+//		double seconds = 0.0;
+////		if (m_GameWindow->Timer())
+//		seconds = (double)m_CurrentTick / std::max(1.0, (double)Application.GetClock()->GetFramerate());
+//		int mins = (int)seconds / 60;
+//		int secs = (int)seconds % 60;
+//		std::snprintf(buf, sizeof(buf), "Playtime: %02d:%02d", mins, secs);
+//		TextSurface timeLine(CommonUI::fontDefault, buf, { 200, 200, 200 });
+//		Texture *tLineTex = timeLine.RequestUpdate();
+//		SDL_FRect tRect = { px + 40, py + 140, tLineTex->GetWidth() * 2.0f, tLineTex->GetHeight() * 2.0f };
+//		drawing->RenderTexture(tLineTex->SDLTexture(), nullptr, tRect);
+//
+//		// Additional stats could go here (kills, accuracy, etc.) if you track them.
+//
+//		// Back to Menu button
+//		float buttonWidth = 300.0f;
+//		float buttonHeight = 80.0f;
+//		float buttonX = px + (pw - buttonWidth) / 2.0f;
+//		float buttonY = py + ph - buttonHeight - 40.0f;
+//		m_DeathBackButtonRect = { buttonX, buttonY, buttonWidth, buttonHeight };
+//
+//		// Button background
+//		if (m_DeathBackHover)
+//			drawing->SetColor(100, 200, 255, 255);
+//		else
+//			drawing->SetColor(80, 180, 230, 255);
+//		drawing->DrawRect(m_DeathBackButtonRect, true);
+////		SDL_RenderFillRect(renderer, &m_DeathBackButtonRect);
+//
+//		// Button text
+//		TextSurface backTextSurface(CommonUI::fontDefault, "Back to Menu", { 10, 10, 10 });
+//		Texture *buttonTexture = backTextSurface.RequestUpdate();
+//		SDL_FRect buttonTextRect = {
+//			buttonX + (buttonWidth - buttonTexture->GetWidth() * 1.5f) / 2.0f,
+//			buttonY + (buttonHeight - buttonTexture->GetHeight() * 1.5f) / 2.0f,
+//			buttonTexture->GetWidth() * 1.5f, buttonTexture->GetHeight() * 1.5f
+//		};
+//		drawing->RenderTexture(buttonTexture->SDLTexture(), nullptr, buttonTextRect);
+//	}
 }

@@ -4,7 +4,7 @@
 
 #include "ErrorTeleport.h"
 
-LinkTexture sTextureTeleport("icons.teleport");
+LoadTexture sTextureTeleport("icons.teleport", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 ErrorTeleport::ErrorTeleport(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,

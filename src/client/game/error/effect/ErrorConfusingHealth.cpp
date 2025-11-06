@@ -4,7 +4,7 @@
 
 #include "ErrorConfusingHealth.h"
 
-LinkTexture sTextureConfusingHealth("icons.confusing_health");
+LoadTexture sTextureConfusingHealth("icons.confusing_health", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 ErrorConfusingHealth::ErrorConfusingHealth(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,

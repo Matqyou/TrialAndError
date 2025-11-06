@@ -3,11 +3,11 @@
 //
 
 #include "Hands.h"
-#include "Character.h"
+#include <client/game/entities/cartesian/characters/character/Character.h>
 #include <client/game/entities/cartesian/characters/CharacterNPC.h>
 #include <cmath>
 
-LinkTexture sFistTexture("entity.character.fist");
+LoadTexture sFistTexture("entity.character.fist", AssetsClass::TexturePurpose::GUI_ELEMENT);
 LinkSound sPunchSound("entity.character.punch");
 
 Hands::Hands(Character *parent, float fist_animation_duration)
@@ -58,23 +58,20 @@ void Hands::Tick()
 		m_LastFisted = CurrentTick;
 
 		auto& ParentCore = m_Parent->GetDirectionalCore();
-		float radians = m_Parent->GetDirectionalCore().direction.Atan2F();
+		// todo: 3d
+//		float radians = m_Parent->GetDirectionalCore().direction.Atan2F();
 
 //		double hands_x, hands_y;
-		Vec2f hands_pos;
+		Vec3f hands_pos;
 		if (m_LastFistedR < m_LastFistedL)
 		{
 			m_LastFistedR = CurrentTick;
-			hands_pos = ParentCore.pos + FromAngleVec2f(radians) * m_RightHand + m_Parent->GetInput().looking_direction * m_FistingRadius;
-//			hands_x = ParentCore.Pos.x + std::cos(Radians) * m_RightHand.x + m_Parent->GetInput().m_LookingX * m_FistingRadius;
-//			hands_y = ParentCore.Pos.y + std::sin(Radians) * m_RightHand.y + m_Parent->GetInput().m_LookingY * m_FistingRadius;
+//			hands_pos = ParentCore.pos + FromAngleVec2f(radians) * m_RightHand + m_Parent->GetInput().looking_direction * m_FistingRadius;
 		}
 		else
 		{
 			m_LastFistedL = CurrentTick;
-			hands_pos = ParentCore.pos + FromAngleVec2f(radians) * m_LeftHand + m_Parent->GetInput().looking_direction * m_FistingRadius;
-//			hands_x = ParentCore.pos.x + std::cos(radians) * m_LeftHand.x + m_Parent->GetInput().m_LookingX * m_FistingRadius;
-//			hands_y = ParentCore.pos.y + std::sin(radians) * m_LeftHand.y + m_Parent->GetInput().m_LookingY * m_FistingRadius;
+//			hands_pos = ParentCore.pos + FromAngleVec2f(radians) * m_LeftHand + m_Parent->GetInput().looking_direction * m_FistingRadius;
 		}
 
 		for (Entity *entity : World->GetEntities())
@@ -100,7 +97,7 @@ void Hands::Tick()
 			if (entity->GetType() != ENTITY_CHARACTER)
 				continue;
 
-			Vec2f boost_direction = m_Parent->GetInput().looking_direction;
+			Vec3f boost_direction = m_Parent->GetInput().looking_direction;
 			entity->Accelerate(boost_direction * 5.0f);
 
 			double Damage = m_Parent->GetBaseDamage() * m_Parent->GetDamageAmp();
@@ -120,53 +117,52 @@ void Hands::Tick()
 
 void Hands::Draw()
 {
-	GameWorld *World = m_Parent->World();
-	auto& ParentCore = m_Parent->GetDirectionalCore();
-	auto drawing = Application.GetDrawing();
+	// todo: 3d
 
-	auto CurrentTick = World->GetTick();
-	auto direction = m_Parent->GetDirectionalCore().direction;
-	float radians = direction.Atan2F();
-	float Angle = radians / static_cast<float>(M_PI) * 180.0f;
-
-	float fisting_coefficient_left = float(CurrentTick - m_LastFistedL) / m_FistingAnimationDuration;
-	float fisting_coefficient_right = float(CurrentTick - m_LastFistedR) / m_FistingAnimationDuration;
-	if (fisting_coefficient_left > 1.0) fisting_coefficient_left = 1.0;
-	if (fisting_coefficient_right > 1.0) fisting_coefficient_right = 1.0;
-
-	fisting_coefficient_left = (1.0 - fisting_coefficient_left) * m_FistingRadius;
-	fisting_coefficient_right = (1.0 - fisting_coefficient_right) * m_FistingRadius;
-
-	Vec2f LeftHand, RightHand;
-	auto CurrentWeapon = m_Parent->GetCurrentWeapon();
-	if (CurrentWeapon != nullptr)
-	{
-		LeftHand = CurrentWeapon->GetHoldPosition() + CurrentWeapon->GetLeftHand();
-		RightHand = CurrentWeapon->GetHoldPosition() + CurrentWeapon->GetRightHand();
-	}
-	else
-	{
-		LeftHand = m_LeftHand;
-		RightHand = m_RightHand;
-	}
-	LeftHand = LeftHand.RotateF(radians);
-	RightHand = RightHand.RotateF(radians);
-
-	// Punching related stuff
-	auto offset_left = LeftHand + direction * fisting_coefficient_left;
-	auto offset_right = RightHand + direction * fisting_coefficient_right;
-
-	SDL_FRect HandRectLeft = { float(ParentCore.pos.x - m_Size2 + offset_left.x),
-							   float(ParentCore.pos.y - m_Size2 + offset_left.y),
-							   float(m_Size), float(m_Size) };
-	SDL_FRect HandRectRight = { float(ParentCore.pos.x - m_Size2 + offset_right.x),
-								float(ParentCore.pos.y - m_Size2 + offset_right.y),
-								float(m_Size), float(m_Size) };
-
-	sFistTexture.GetTexture()->SetColorMod(m_Color.r, m_Color.g, m_Color.b);
-	drawing->RenderTextureRotated(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE, GameReference.GetCamera());
-	drawing->RenderTextureRotated(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE, GameReference.GetCamera());
-
-//	Render->SetColor(255, 0, 0, 255);
-//	Render->RenderDebugPointCamera(ParentCore.Pos.x, ParentCore.Pos.y);
+//	GameWorld *World = m_Parent->World();
+//	auto& ParentCore = m_Parent->GetDirectionalCore();
+//	auto drawing = Application.GetDrawing();
+//
+//	auto CurrentTick = World->GetTick();
+//	auto direction = m_Parent->GetDirectionalCore().direction;
+//	float radians = direction.Atan2F();
+//	float Angle = radians / static_cast<float>(M_PI) * 180.0f;
+//
+//	float fisting_coefficient_left = float(CurrentTick - m_LastFistedL) / m_FistingAnimationDuration;
+//	float fisting_coefficient_right = float(CurrentTick - m_LastFistedR) / m_FistingAnimationDuration;
+//	if (fisting_coefficient_left > 1.0) fisting_coefficient_left = 1.0;
+//	if (fisting_coefficient_right > 1.0) fisting_coefficient_right = 1.0;
+//
+//	fisting_coefficient_left = (1.0 - fisting_coefficient_left) * m_FistingRadius;
+//	fisting_coefficient_right = (1.0 - fisting_coefficient_right) * m_FistingRadius;
+//
+//	Vec3f LeftHand, RightHand;
+//	auto CurrentWeapon = m_Parent->GetCurrentWeapon();
+//	if (CurrentWeapon != nullptr)
+//	{
+//		LeftHand = CurrentWeapon->GetHoldPosition() + CurrentWeapon->GetLeftHand();
+//		RightHand = CurrentWeapon->GetHoldPosition() + CurrentWeapon->GetRightHand();
+//	}
+//	else
+//	{
+//		LeftHand = m_LeftHand;
+//		RightHand = m_RightHand;
+//	}
+////	LeftHand = LeftHand.RotateF(radians);
+////	RightHand = RightHand.RotateF(radians);
+//
+//	// Punching related stuff
+//	auto offset_left = LeftHand + direction * fisting_coefficient_left;
+//	auto offset_right = RightHand + direction * fisting_coefficient_right;
+//
+//	SDL_FRect HandRectLeft = { float(ParentCore.pos.x - m_Size2 + offset_left.x),
+//							   float(ParentCore.pos.y - m_Size2 + offset_left.y),
+//							   float(m_Size), float(m_Size) };
+//	SDL_FRect HandRectRight = { float(ParentCore.pos.x - m_Size2 + offset_right.x),
+//								float(ParentCore.pos.y - m_Size2 + offset_right.y),
+//								float(m_Size), float(m_Size) };
+//
+//	sFistTexture.GetTexture()->SetColorMod(m_Color.r, m_Color.g, m_Color.b);
+//	drawing->RenderTextureRotated(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectLeft, Angle, nullptr, SDL_FLIP_NONE, GameReference.GetCamera());
+//	drawing->RenderTextureRotated(sFistTexture.GetTexture()->SDLTexture(), nullptr, HandRectRight, Angle, nullptr, SDL_FLIP_NONE, GameReference.GetCamera());
 }

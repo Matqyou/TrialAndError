@@ -495,25 +495,25 @@ void Element::DebugPrint(std::vector<bool> level, bool last_child)
 
 void Element::BaseRender()
 {
-	auto drawing = Application.GetDrawing();
-	switch (draw)
-	{
-		case DRAW_RECT:
-		{
-			auto& fill_color = has_focus ? focus_color : color;
-			drawing->SetColor(fill_color);
-			drawing->DrawRect(GetRect(), true);
-			break;
-		}
-		case DRAW_TEXTURE:
-		{
-			auto texture = texture_instance.GetTexture() != nullptr ? texture_instance.GetTexture() : Assets.GetInvalidTexture();
-			auto sdl_texture = texture->SDLTexture() != nullptr ? texture->SDLTexture() : Assets.GetInvalidTexture()->SDLTexture();
-			drawing->RenderTexture(sdl_texture, nullptr, texture_instance.GetResultingFRect());
-			break;
-		}
-		default: break;
-	}
+//	auto drawing = Application.GetDrawing();
+//	switch (draw)
+//	{
+//		case DRAW_RECT:
+//		{
+//			auto& fill_color = has_focus ? focus_color : color;
+//			drawing->SetColor(fill_color);
+//			drawing->DrawRect(GetRect(), true);
+//			break;
+//		}
+//		case DRAW_TEXTURE:
+//		{
+//			auto texture = texture_instance.GetTexture() != nullptr ? texture_instance.GetTexture() : Assets.GetInvalidTexture();
+//			auto sdl_texture = texture->SDLTexture() != nullptr ? texture->SDLTexture() : Assets.GetInvalidTexture()->SDLTexture();
+//			drawing->RenderTexture(sdl_texture, nullptr, texture_instance.GetResultingFRect());
+//			break;
+//		}
+//		default: break;
+//	}
 }
 
 void Element::Tick(double elapsed_seconds)
@@ -544,23 +544,23 @@ void Element::FlagToDestroy()
 
 void Element::RenderDebug()
 {
-	auto drawing = Application.GetDrawing();
-
-	drawing->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
-	if (draw == DRAW_TEXTURE)
-	{
-		drawing->SetColor(0, 255, 0, 255);
-		drawing->DrawRect(texture_instance.GetResultingFRect(), false);
-	}
-
-	SDL_Color debug_color;
-	if (occupy_width || occupy_height) debug_color = { 128, 0, 255 };
-	else debug_color = { 255, 0, 0 };
-	drawing->SetColor(debug_color.r, debug_color.g, debug_color.b, 10);
-	drawing->DrawRect(GetRect(), true);
-
-	drawing->SetColor(debug_color.r, debug_color.g, debug_color.b, 255);
-	drawing->DrawRect(GetRect(), false);
+//	auto drawing = Application.GetDrawing();
+//
+//	drawing->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+//	if (draw == DRAW_TEXTURE)
+//	{
+//		drawing->SetColor(0, 255, 0, 255);
+//		drawing->DrawRect(texture_instance.GetResultingFRect(), false);
+//	}
+//
+//	SDL_Color debug_color;
+//	if (occupy_width || occupy_height) debug_color = { 128, 0, 255 };
+//	else debug_color = { 255, 0, 0 };
+//	drawing->SetColor(debug_color.r, debug_color.g, debug_color.b, 10);
+//	drawing->DrawRect(GetRect(), true);
+//
+//	drawing->SetColor(debug_color.r, debug_color.g, debug_color.b, 255);
+//	drawing->DrawRect(GetRect(), false);
 
 	RenderDebugChildren();
 }

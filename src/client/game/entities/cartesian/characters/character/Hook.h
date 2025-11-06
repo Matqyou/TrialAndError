@@ -17,8 +17,8 @@ struct Hook
 	};
 
 	Character *parent;
-	Vec2f pos;
-	Vec2f vel;
+	Vec3f pos;
+	Vec3f vel;
 	float max_length;
 	float hook_travel_speed;
 	float wall_drag_force;

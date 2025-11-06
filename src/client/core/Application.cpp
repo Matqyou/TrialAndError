@@ -7,29 +7,15 @@
 
 void ApplicationClass::PrintVersions()
 {
-	std::cout << Strings::FStringColors("&8SDL %d.%d.%d\n",
-										SDL_MAJOR_VERSION,
-										SDL_MINOR_VERSION,
-										SDL_MICRO_VERSION);
-	std::cout << Strings::FStringColors("&8SDLimage %u.%u.%u\n",
-										SDL_IMAGE_MAJOR_VERSION,
-										SDL_IMAGE_MINOR_VERSION,
-										SDL_IMAGE_MICRO_VERSION);
-	std::cout << Strings::FStringColors("&8SDLmixer %u.%u.%u\n",
-										SDL_MIXER_MAJOR_VERSION,
-										SDL_MIXER_MINOR_VERSION,
-										SDL_MIXER_MICRO_VERSION);
-	std::cout << Strings::FStringColors("&8SDLttf %u.%u.%u\n",
-										SDL_TTF_MAJOR_VERSION,
-										SDL_TTF_MINOR_VERSION,
-										SDL_TTF_MICRO_VERSION);
+	dbg_msg("&8SDL %d.%d.%d\n", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_MICRO_VERSION);
+	dbg_msg("&8SDLimage %u.%u.%u\n", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_MICRO_VERSION);
+	dbg_msg("&8SDLmixer %u.%u.%u\n", SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_MICRO_VERSION);
+	dbg_msg("&8SDLttf %u.%u.%u\n", SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_MICRO_VERSION);
 }
 
 ApplicationClass::ApplicationClass()
 {
 	window = nullptr;
-	renderer = nullptr;
-	drawing = nullptr;
 	randomizer = nullptr;
 	status = Status::UNINITIALIZED;
 }
@@ -104,21 +90,7 @@ void ApplicationClass::Initialize(const char *title,
 	if (!window)
 		throw std::runtime_error(Strings::FString("Error while creating the window %s\n", SDL_GetError()));
 
-	std::cout << Strings::FStringColors("[Application] &6Available render back-ends:\n");
-	int numDrivers = SDL_GetNumRenderDrivers();
-	for (int i = 0; i < numDrivers; i++)
-	{
-		auto info = SDL_GetRenderDriver(i);
-		std::cout << Strings::FStringColors("[Application] &6#%i %s\n", i, info);
-	}
-
-	renderer = SDL_CreateRenderer(window, renderer_backend != nullptr ? renderer_backend : "direct3d11");
-	if (!renderer)
-		throw std::runtime_error(Strings::FString("Error while creating the renderer %s\n", SDL_GetError()));
-
-	std::cout << Strings::FStringColors("[Application] &eUsed renderer: %s\n", SDL_GetRendererName(renderer));
-
-	drawing = new Drawing(renderer);
+	Drawing.Initialize(window);
 	randomizer = new Randomizer();
 
 	Cursors::Initialize();
@@ -137,10 +109,9 @@ void ApplicationClass::Destroy()
 
 	Cursors::Deinitialize();
 	Assets.Destroy();
-	delete drawing;
+	Drawing.Deinitialize();
 
 	// SDL objects
-	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 
 	// SDL as a whole

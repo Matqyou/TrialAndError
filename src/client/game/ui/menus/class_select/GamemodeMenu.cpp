@@ -8,13 +8,13 @@
 #include "client/game/ui/menus/Menus.h"
 #include "ClassSelectMenu.h"
 
-static LinkTexture sMenuTexture("interface.menu");
-static LinkTexture sTextureTitle("ui.gamemodemenu.title");
-static LinkTexture sTextureSolo("ui.gamemodemenu.solobutton");
-static LinkTexture sTexturePvp("ui.gamemodemenu.pvpbutton");
-static LinkTexture sTextureSandbox("ui.gamemodemenu.sandboxbutton");
-static LinkTexture sTextureCoop("ui.gamemodemenu.co-opbutton");
-static LinkTexture sTextureBack("ui.gamemodemenu.backbutton");
+static LoadTexture sTextureSandbox("ui.gamemodemenu.sandboxbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureCoop("ui.gamemodemenu.co-opbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureSolo("ui.gamemodemenu.solobutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureBack("ui.gamemodemenu.backbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTexturePvp("ui.gamemodemenu.pvpbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureTitle("ui.gamemodemenu.title", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sMenuTexture("interface.menu", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 GamemodeMenu::GamemodeMenu()
 	: FullscreenMenu()

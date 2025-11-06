@@ -40,8 +40,8 @@ protected:
 public:
 	ItemEntity(ItemType item_type,
 			   Entity *dropper,
-			   const Vec2f& start_pos,
-			   const Vec2f& start_size);
+			   const Vec3f& start_pos,
+			   const Vec3f& start_size);
 
 	// Setting
 	void SetRotation(double rotation);

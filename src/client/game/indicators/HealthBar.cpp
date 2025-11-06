@@ -23,10 +23,7 @@ HealthBar::HealthBar(HasHealth *health_component,
 	m_a = 0;
 	m_InnerWidth = m_Width - m_SpacingW * 2;
 	m_InnerHeight = m_Height - m_SpacingH * 2;
-	m_Texture = Assets.CreateTexture(SDL_PIXELFORMAT_RGBA8888,
-									 SDL_TEXTUREACCESS_TARGET,
-									 width,
-									 height);
+	m_Texture = Assets.CreateTexture(AssetsClass::TexturePurpose::RENDER_TARGET, Vec2i(width, height));
 
 	// HealthComponent validation (might not be the prettiest)
 #ifndef NDEBUG
@@ -53,18 +50,18 @@ void HealthBar::SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 
 Texture *HealthBar::UpdateTexture()
 {
-	m_Ratio = *m_HealthReference / *m_MaxHealthReference;
-	int InnerWidth = (int)((double)(m_InnerWidth) * m_Ratio);
-
-	auto drawing = Application.GetDrawing();
-	drawing->SetRenderTarget(m_Texture);
-	drawing->SetColor(255, 255, 255, 255);
-	drawing->Clear();
-
-	drawing->SetColor(m_r, m_g, m_b, m_a);
-	SDL_FRect FillRect = { (float)m_SpacingW, (float)m_SpacingH, (float)InnerWidth, (float)m_InnerHeight };
-	drawing->DrawRect(FillRect, true);
-	drawing->SetRenderTarget(nullptr);
+//	m_Ratio = *m_HealthReference / *m_MaxHealthReference;
+//	int InnerWidth = (int)((double)(m_InnerWidth) * m_Ratio);
+//
+//	auto drawing = Application.GetDrawing();
+//	drawing->SetRenderTarget(m_Texture);
+//	drawing->SetColor(255, 255, 255, 255);
+//	drawing->Clear();
+//
+//	drawing->SetColor(m_r, m_g, m_b, m_a);
+//	SDL_FRect FillRect = { (float)m_SpacingW, (float)m_SpacingH, (float)InnerWidth, (float)m_InnerHeight };
+//	drawing->DrawRect(FillRect, true);
+//	drawing->SetRenderTarget(nullptr);
 
 	return m_Texture;
 }

@@ -4,13 +4,15 @@
 
 #pragma once
 
+#include <client/game/ui/EventContext.h>
+#include <shared/utility/Randomizer.h>
+#include <client/core/drawing/Drawing.h>
+#include <client/core/Clock.h>
+#include <client/core/Assets.h>
+
+#include <shared/code/EventOnce.h>
+#include <shared/math/Vec2.h>
 #include <iostream>
-#include "shared/math/Vec2.h"
-#include "client/core/drawing/Drawing.h"
-#include "client/core/Clock.h"
-#include "client/core/Assets.h"
-#include "shared/utility/Randomizer.h"
-#include "client/game/ui/EventContext.h"
 
 class ApplicationClass
 {
@@ -23,15 +25,17 @@ public:
 
 protected:
 	SDL_Window *window;
-	SDL_Renderer *renderer;
+//	SDL_Renderer *renderer;
 
 	NonBlockingClock clock;
-	Drawing *drawing;
 	Randomizer *randomizer;
 
 	Vec2i resolution;
 	Vec2f half_resolution;
 	static void PrintVersions();
+
+	// Events
+	EventOnce<> pre_render_event;
 
 	Status status;
 
@@ -48,10 +52,7 @@ public:
 
 	// Getting
 	[[nodiscard]] SDL_Window *GetWindow() { return window; }
-	[[nodiscard]] SDL_Renderer *GetRenderer() { return renderer; }
-//	[[nodiscard]] SDL_GLContext& GlContext() { return m_GLContext; }
 	[[nodiscard]] NonBlockingClock *GetClock() { return &clock; }
-	[[nodiscard]] Drawing *GetDrawing() { return drawing; }
 	[[nodiscard]] Randomizer *GetRandomizer() const { return randomizer; }
 
 	[[nodiscard]] Vec2i GetResolution() const { return resolution; }
@@ -63,6 +64,7 @@ public:
 	[[nodiscard]] int GetHeight2() const { return resolution.y / 2; }
 
 	[[nodiscard]] static Vec2f GetMousePosition();
+	EventOnce<>& GetPreRenderEvent() { return pre_render_event; }
 
 	// Ticking
 	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_context);

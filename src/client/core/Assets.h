@@ -5,6 +5,7 @@
 #pragma once
 
 //#include "ui/structures/visual_texture/files/HitboxFile.h"
+#include "client/core/texture/visual/VisualSurface.h"
 #include "client/core/texture/visual/VisualTexture.h"
 #include "shared/string/Strings.h"
 #include "SDL3_mixer/SDL_mixer.h"
@@ -97,8 +98,8 @@ public:
 
 };
 
-class Drawing;
-class LinkTexture;
+class DrawingClass;
+class LoadTexture;
 class PregenerateTexture;
 class LinkSound;
 class LinkMusic;
@@ -123,27 +124,51 @@ public:
 		ASSETS_LINKED,
 	};
 
+	enum class TexturePurpose
+	{
+		// UI, HUD, sprites
+		GUI_ELEMENT,
+
+		// Characters, props, world geometry
+		OBJECT_3D,
+
+		// Framebuffer for post-processing
+		RENDER_TARGET,
+
+		// Depth/stencil attachment
+		DEPTH_BUFFER,
+
+		// Skybox, reflections
+		CUBEMAP,
+
+		// Sprite sheets, tile maps
+		TEXTURE_ATLAS,
+	};
+
 private:
 	bool m_SoundsEnabled;
 
 	using Resources = std::vector<std::tuple<std::string, std::string, std::string>>;
 	Resources m_VisHitboxResources;
-	Resources m_TextureResources;
+	Resources m_SurfaceResources;
 	Resources m_SoundResources;
 	Resources m_MusicResources;
 	Resources m_FontResources;
-	size_t m_TextureResourcesIndex;
+	size_t m_SurfaceResourcesIndex;
 	size_t m_SoundResourcesIndex;
 	size_t m_MusicResourcesIndex;
 
 	// Textures
+	std::unordered_map<std::string, Surface *> m_Surfaces;
 	std::unordered_map<std::string, DiskTexture *> m_DiskTextures;
 	std::unordered_map<std::string, Texture *> m_Textures;
-	static std::vector<LinkTexture *> m_LinkTextures;
+	static std::vector<LoadTexture *> m_LoadTextures;
 	static std::vector<PregenerateTexture *> m_PregenerateTextures;
-	static std::vector<LinkTexture *>::iterator m_LinkTexturesIterator;
+	static std::vector<LoadTexture *>::iterator m_LinkTexturesIterator;
 	static std::vector<PregenerateTexture *>::iterator m_PregenerateTexturesIterator;
+	static std::vector<Surface *> m_AutomaticDeletionSurfaces;
 	static std::vector<Texture *> m_AutomaticDeletionTextures;
+	Surface *m_InvalidSurfaceDefault;
 	Texture *m_InvalidTextureDefault;
 
 	std::unordered_map<std::string, Sound *> m_Sounds;
@@ -163,17 +188,20 @@ private:
 
 	static size_t sTotalWork, sWorkDone;
 
-	bool LoadingTextures();
+	bool LoadingSurfaces();
 	bool LoadingSounds();
 	bool LoadingMusic();
 	bool LoadingFonts(); // All at once
-	bool GeneratingTextures();
-	bool LinkingTextures(); // All at once
+//	bool GeneratingTextures();
+	bool LoadingTextures(); // All at once
 	bool LinkingSounds(); // All at once
 	bool LinkingMusic(); // All at once
 	bool LinkingFonts(); // All at once
 
 	Status status; // To know if assets are initialized or not
+
+	SDL_GPUTextureCreateInfo GetGPUTextureCreateInfo(const Vec2i& texture_size, TexturePurpose purpose);
+	SDL_GPUTexture *GPUTextureFromSurface(SDL_Surface *sdl_surface, TexturePurpose purpose);
 
 public:
 	AssetsClass();
@@ -184,6 +212,7 @@ public:
 	// Getting
 	[[nodiscard]] Status GetStatus() const { return status; }
 	[[nodiscard]] Texture *GetInvalidTexture() const { return m_InvalidTextureDefault; };
+	[[nodiscard]] Surface *GetSurface(const std::string& surface_key);
 	[[nodiscard]] Texture *GetTexture(const std::string& texture_key);
 	[[nodiscard]] const std::unordered_map<std::string, Texture *>& GetAllTextures();
 	[[nodiscard]] Sound *GetSound(const std::string& sound_key);
@@ -195,27 +224,28 @@ public:
 	[[nodiscard]] static size_t GetWorkDone() { return sWorkDone; }
 
 	// Generating
-	Texture *TextureFromSurface(SDL_Surface *sdl_surface);
+	Texture *TextureFromSurface(const Surface& surface, TexturePurpose purpose);
 	SDL_Surface *CreateSDLSurface(int width, int height, SDL_PixelFormat format);
-	Texture *CreateTexture(SDL_PixelFormat format, SDL_TextureAccess access, int w, int h);
-	SDL_Texture *CopySDLTexture(SDL_Texture *copy_texture, SDL_TextureAccess access);
-//    VisualTexture* RenderTextBlendedVisual(TTF_Font* font, const std::string& text, SDL_Color color);
+	Texture *CreateTexture(TexturePurpose purpose, const Vec2i& size, Rect4f *visual_hitbox = nullptr);
+//	SDL_Texture *CopySDLTexture(SDL_Texture *copy_texture, SDL_TextureAccess access);
+////    VisualTexture* RenderTextBlendedVisual(TTF_Font* font, const std::string& text, SDL_Color color);
 	Texture *RenderTextBlended(TTF_Font *font, const std::string& text, SDL_Color color);
 	Texture *RenderTextBlended(TTF_Font *font, const char *text, SDL_Color color);
-	Texture *RenderTextBlendedOutline(TTF_Font *font, const char *text, int thickness,
-									  SDL_Color text_color, SDL_Color outline_color);
+//	Texture *RenderTextBlendedOutline(TTF_Font *font, const char *text, int thickness,
+//									  SDL_Color text_color, SDL_Color outline_color);
 	Texture *RenderTextSolid(TTF_Font *font, const std::string& text, SDL_Color color);
 	Texture *RenderTextSolid(TTF_Font *font, const char *text, SDL_Color color);
-	Texture *RenderTextureOnTextureCentered(Texture *outer, Texture *inner, bool copy = false);
-	bool SaveTextureToDisk(Texture *texture, const std::string& filename);
+//	Texture *RenderTextureOnTextureCentered(Texture *outer, Texture *inner, bool copy = false);
+//	bool SaveTextureToDisk(Texture *texture, const std::string& filename);
 
 	// Manipulating
-	static void LinkPreloadedTexture(LinkTexture *register_texture);
-	static void LinkPregeneratedTexture(PregenerateTexture *pregenerate_texture);
+	static void AddLoadTexture(LoadTexture *load_texture);
+//	static void LinkPregeneratedTexture(PregenerateTexture *pregenerate_texture);
 	static void LinkPreloadedSound(LinkSound *register_sound);
 	static void LinkPreloadedMusic(LinkMusic *register_music);
 	static void PreloadFont_(PreloadFont *preload_font);
 	static void LinkPreloadedFont(LinkFont *register_font);
+	static void AutomaticallyDeleteSurface(Surface *surface);
 	static void AutomaticallyDeleteTexture(Texture *texture);
 	void SetMusicVolume(int volume);
 	void PauseMusic();
@@ -229,51 +259,56 @@ extern AssetsClass Assets;
 //  and returns an object which can be retrieved with either *object
 //  or by using object.GetTexture() / object.GetSDLTexture()
 // the value is only assigned at startup
-class LinkTexture
+class LoadTexture
 {
 private:
 	friend class AssetsClass;
-	std::string m_Key;
-	Texture *m_Texture;
+	std::string key;
+	std::string from_surface_key;
+	AssetsClass::TexturePurpose texture_purpose;
+	Texture *texture;
 
-	using TextureCallback = std::function<void(Texture *)>;
-	TextureCallback m_LoadCallback;
+//	using TextureCallback = std::function<void(Texture *)>;
+//	TextureCallback m_LoadCallback;
 
 public:
-	explicit LinkTexture(std::string texture_key);
-	explicit LinkTexture(std::string texture_key, TextureCallback load_callback);
+	explicit LoadTexture(std::string new_key, AssetsClass::TexturePurpose purpose);
+	explicit LoadTexture(std::string new_key, std::string surface_key, AssetsClass::TexturePurpose purpose);
+//	explicit LoadTexture(std::string texture_key, TextureCallback load_callback);
 	operator Texture *() const { return GetTexture(); }  // Implicit
-	operator SDL_Texture *() const { return GetSDLTexture(); }  // Implicit
+	operator SDL_GPUTexture *() const { return GetGPUTexture(); }  // Implicit
 
 	// Getting
-	[[nodiscard]] const std::string& Key() const { return m_Key; }
-	[[nodiscard]] Texture *GetTexture() const { return m_Texture; } // todo: error handling
-	[[nodiscard]] SDL_Texture *GetSDLTexture() const { return m_Texture->SDLTexture(); } // todo: error handling
+	[[nodiscard]] const std::string& Key() const { return key; }
+	[[nodiscard]] const std::string& FromSurfaceKey() const { return from_surface_key; }
+	[[nodiscard]] AssetsClass::TexturePurpose GetPurpose() const { return texture_purpose; }
+	[[nodiscard]] Texture *GetTexture() const { return texture; } // todo: error handling
+	[[nodiscard]] SDL_GPUTexture *GetGPUTexture() const { return texture->GPUTexture(); } // todo: error handling
 
 };
 
-class PregenerateTexture
-{
-private:
-	friend class AssetsClass;
-	std::string m_Key;
-	Texture *m_Texture;
-
-	using TextureCallback = std::function<Texture *(AssetsClass *)>;
-	TextureCallback m_GenerateCallback;
-
-public:
-	explicit PregenerateTexture(std::string texture_key, TextureCallback generate_callback);
-
-	// Getting
-	[[nodiscard]] const std::string& Key() const { return m_Key; }
-	[[nodiscard]] Texture *GetTexture() const { return m_Texture; } // todo: error handling
-	[[nodiscard]] SDL_Texture *GetSDLTexture() const
-	{
-		return m_Texture->SDLTexture(); // todo: error handling
-	}
-
-};
+//class PregenerateTexture
+//{
+//private:
+//	friend class AssetsClass;
+//	std::string m_Key;
+//	Texture *m_Texture;
+//
+//	using TextureCallback = std::function<Texture *(AssetsClass *)>;
+//	TextureCallback m_GenerateCallback;
+//
+//public:
+//	explicit PregenerateTexture(std::string texture_key, TextureCallback generate_callback);
+//
+//	// Getting
+//	[[nodiscard]] const std::string& Key() const { return m_Key; }
+//	[[nodiscard]] Texture *GetTexture() const { return m_Texture; } // todo: error handling
+//	[[nodiscard]] SDL_GPUTexture *GetGPUTexture() const
+//	{
+//		return m_Texture->GPUTexture(); // todo: error handling
+//	}
+//
+//};
 
 class LinkSound
 {

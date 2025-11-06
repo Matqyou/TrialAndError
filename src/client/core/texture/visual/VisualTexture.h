@@ -14,7 +14,7 @@ private:
 	Rect4f translation_ratios;
 
 public:
-	VisualTexture(SDL_Texture *sdl_texture, const Rect4f& physical_hitbox);
+	VisualTexture(const Vec2i& size, SDL_GPUTexture *texture, const Rect4f& physical_hitbox);
 	~VisualTexture() override;
 
 	// Getting

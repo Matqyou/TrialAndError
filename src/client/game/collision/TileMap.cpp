@@ -156,19 +156,19 @@ void TileMap::LoadTilemap(const char *filepath)
 
 void TileMap::Draw()
 {
-	auto drawing = Application.GetDrawing();
-	for (int y = 0; y < m_Height; y++)
-	{
-		for (int x = 0; x < m_Width; x++)
-		{
-			Tile *DrawTile = m_Map[y * m_Width + x];
-			if (!DrawTile)
-				continue;
-
-			SDL_FRect DrawRect = { float(x * m_Tilesize), float(y * m_Tilesize),
-								   float(m_Tilesize), float(m_Tilesize) };
-			drawing->SetColor(DrawTile->m_Color);
-			drawing->DrawRect(DrawRect, true, GameReference.GetCamera());
-		}
-	}
+//	auto drawing = Application.GetDrawing();
+//	for (int y = 0; y < m_Height; y++)
+//	{
+//		for (int x = 0; x < m_Width; x++)
+//		{
+//			Tile *DrawTile = m_Map[y * m_Width + x];
+//			if (!DrawTile)
+//				continue;
+//
+//			SDL_FRect DrawRect = { float(x * m_Tilesize), float(y * m_Tilesize),
+//								   float(m_Tilesize), float(m_Tilesize) };
+//			drawing->SetColor(DrawTile->m_Color);
+//			drawing->DrawRect(DrawRect, true, GameReference.GetCamera());
+//		}
+//	}
 }

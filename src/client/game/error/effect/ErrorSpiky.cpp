@@ -4,7 +4,7 @@
 
 #include "ErrorSpiky.h"
 
-LinkTexture sTextureSpiky("icons.spiky");
+LoadTexture sTextureSpiky("icons.spiky", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 ErrorSpiky::ErrorSpiky(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,

@@ -5,16 +5,16 @@
 #include "client/game/entities/cartesian/item/ItemEntity.h"
 #include "client/game/entities/cartesian/characters/character/Character.h"
 
-static LinkTexture sTextureGlock("entity.items.glock");
-static LinkTexture sTextureShotgun("entity.items.shotgun");
-static LinkTexture sTextureBurst("entity.items.burst");
-static LinkTexture sTextureSniper("entity.items.sniper");
-static LinkTexture sTexturePatersonNavy("entity.items.paterson_navy");
-static LinkTexture sTexturesMinigun[4] = {
-	LinkTexture("entity.items.minigun1"),
-	LinkTexture("entity.items.minigun2"),
-	LinkTexture("entity.items.minigun3"),
-	LinkTexture("entity.items.minigun4"),
+static LoadTexture sTextureGlock("entity.items.glock", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureShotgun("entity.items.shotgun", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureBurst("entity.items.burst", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureSniper("entity.items.sniper", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTexturePatersonNavy("entity.items.paterson_navy", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTexturesMinigun[4] = {
+	LoadTexture("entity.items.minigun1", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("entity.items.minigun2", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("entity.items.minigun3", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("entity.items.minigun4", AssetsClass::TexturePurpose::GUI_ELEMENT),
 };
 
 void ItemEntity::SetTexture(ItemType item_type)
@@ -58,13 +58,13 @@ void ItemEntity::SetTexture(ItemType item_type)
 
 ItemEntity::ItemEntity(ItemType item_type,
 					   Entity *dropper,
-					   const Vec2f& start_pos,
-					   const Vec2f& start_size)
+					   const Vec3f& start_pos,
+					   const Vec3f& start_size)
 	: Entity(NORMAL_ENTITY,
 			 ENTITY_ITEM,
 			 start_pos,
 			 start_size,
-			 Vec2f(0.0, 0.0),
+			 Vec3f(0, 0, 0),
 			 0.95,
 			 false)
 {
@@ -135,17 +135,17 @@ void ItemEntity::Tick(double elapsed_seconds)
 
 void ItemEntity::Draw()
 {
-	if (m_Texture == nullptr)
-		return;
-
-	auto drawing = Application.GetDrawing();
-	SDL_FRect DrawRect = {float(core.pos.x - core.size.x / 2.0),
-						  float(core.pos.y - core.size.y / 2.0),
-						  float(core.size.x),
-						  float(core.size.y) };
-
-	drawing->RenderTextureRotated(m_Texture->SDLTexture(),
-								  nullptr, DrawRect,
-								  m_Rotation / M_PI * 180.0, nullptr,
-								  SDL_FLIP_NONE, GameReference.GetCamera());
+//	if (m_Texture == nullptr)
+//		return;
+//
+//	auto drawing = Application.GetDrawing();
+//	SDL_FRect DrawRect = {float(core.pos.x - core.size.x / 2.0),
+//						  float(core.pos.y - core.size.y / 2.0),
+//						  float(core.size.x),
+//						  float(core.size.y) };
+//
+//	drawing->RenderTextureRotated(m_Texture->SDLTexture(),
+//								  nullptr, DrawRect,
+//								  m_Rotation / M_PI * 180.0, nullptr,
+//								  SDL_FLIP_NONE, GameReference.GetCamera());
 }

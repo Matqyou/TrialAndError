@@ -7,7 +7,7 @@
 
 namespace EntityGuns
 {
-ItemEntity *CreateItemEntityFromWeaponData(Entity *dropper, ProjectileWeapon *weapon_data, const Vec2f& start_pos)
+ItemEntity *CreateItemEntityFromWeaponData(Entity *dropper, ProjectileWeapon *weapon_data, const Vec3f& start_pos)
 {
 	WeaponType weapon_type = weapon_data->GetWeaponType();
 	ItemEntity *new_weapon_entity = nullptr;
@@ -67,8 +67,8 @@ void EntityGlock::EventPickup(Character& picker_char)
 	alive = false;
 }
 
-EntityGlock::EntityGlock(Entity *dropper, WeaponGlock *glock, const Vec2f& start_pos)
-	: ItemEntity(ITEMTYPE_GLOCK, dropper, start_pos, Vec2f(12 * 4, 8 * 4))
+EntityGlock::EntityGlock(Entity *dropper, WeaponGlock *glock, const Vec3f& start_pos)
+	: ItemEntity(ITEMTYPE_GLOCK, dropper, start_pos, Vec3f(12 * 4, 1, 8 * 4))
 {
 	m_Glock = glock ? glock : new WeaponGlock(nullptr);
 }
@@ -85,8 +85,8 @@ void EntityShotgun::EventPickup(Character& picker_char)
 	alive = false;
 }
 
-EntityShotgun::EntityShotgun(Entity *dropper, WeaponShotgun *shotgun, const Vec2f& start_pos)
-	: ItemEntity(ITEMTYPE_SHOTGUN, dropper, start_pos, Vec2f(21 * 4, 6 * 4))
+EntityShotgun::EntityShotgun(Entity *dropper, WeaponShotgun *shotgun, const Vec3f& start_pos)
+	: ItemEntity(ITEMTYPE_SHOTGUN, dropper, start_pos, Vec3f(21 * 4, 1, 6 * 4))
 {
 	m_Shotgun = shotgun ? shotgun : new WeaponShotgun(nullptr);
 
@@ -103,8 +103,8 @@ void EntityBurst::EventPickup(Character& picker_char)
 	m_Burst = nullptr;
 }
 
-EntityBurst::EntityBurst(Entity *dropper, WeaponBurst *burst, const Vec2f& start_pos)
-	: ItemEntity(ITEMTYPE_BURST, dropper, start_pos, Vec2f(20 * 4, 8 * 4))
+EntityBurst::EntityBurst(Entity *dropper, WeaponBurst *burst, const Vec3f& start_pos)
+	: ItemEntity(ITEMTYPE_BURST, dropper, start_pos, Vec3f(20 * 4, 1, 8 * 4))
 {
 	m_Burst = burst ? burst : new WeaponBurst(nullptr);
 
@@ -121,8 +121,8 @@ void EntitySniper::EventPickup(Character& picker_char)
 	alive = false;
 }
 
-EntitySniper::EntitySniper(Entity *dropper, WeaponSniper *sniper, const Vec2f& start_pos)
-	: ItemEntity(ITEMTYPE_SNIPER, dropper, start_pos, Vec2f(33 * 4, 9 * 4))
+EntitySniper::EntitySniper(Entity *dropper, WeaponSniper *sniper, const Vec3f& start_pos)
+	: ItemEntity(ITEMTYPE_SNIPER, dropper, start_pos, Vec3f(33 * 4, 1, 9 * 4))
 {
 	m_Sniper = sniper ? sniper : new WeaponSniper(nullptr);
 }
@@ -140,8 +140,8 @@ void EntityMinigun::EventPickup(Character& picker_char)
 	m_Minigun = nullptr;
 }
 
-EntityMinigun::EntityMinigun(Entity *dropper, WeaponMinigun *minigun, const Vec2f& start_pos)
-	: ItemEntity(ITEMTYPE_MINIGUN, dropper, start_pos, Vec2f(17 * 4, 8 * 4))
+EntityMinigun::EntityMinigun(Entity *dropper, WeaponMinigun *minigun, const Vec3f& start_pos)
+	: ItemEntity(ITEMTYPE_MINIGUN, dropper, start_pos, Vec3f(17 * 4, 1, 8 * 4))
 {
 	m_Minigun = minigun ? minigun : new WeaponMinigun(nullptr);
 
@@ -160,8 +160,8 @@ void EntityPatersonNavy::EventPickup(Character& picker_char)
 
 EntityPatersonNavy::EntityPatersonNavy(Entity *dropper,
 									   PatersonNavy *paterson_navy,
-									   const Vec2f& start_pos)
-	: ItemEntity(ITEMTYPE_PATERSONNAVY, dropper, start_pos, Vec2f(72, 32))
+									   const Vec3f& start_pos)
+	: ItemEntity(ITEMTYPE_PATERSONNAVY, dropper, start_pos, Vec3f(72, 1, 32))
 {
 	m_PatersonNavy = paterson_navy ? paterson_navy : new PatersonNavy(nullptr);
 }

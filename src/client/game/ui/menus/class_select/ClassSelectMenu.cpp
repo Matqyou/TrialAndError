@@ -9,15 +9,15 @@
 #include "client/game/ui/CommonUI.h"
 #include "GamemodeMenu.h"
 
-static LinkTexture sMenuTexture("interface.menu");
-static LinkTexture sTextureTitle("ui.classselectmenu.title");
+static LoadTexture sTextureTitle("ui.classselectmenu.title", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sMenuTexture("interface.menu", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 // TODO Update the class buttons to be icons of the class and have text descriptions on hover
-static LinkTexture sTextureClassButton1("ui.classselectmenu.humanclassbutton");
-static LinkTexture sTextureClassButton2("ui.classselectmenu.zombieclassbutton");
-static LinkTexture sTextureClassButton3("ui.classselectmenu.cyborgclassbutton");
-static LinkTexture sTextureClassButton4("ui.classselectmenu.vampireclassbutton");
-static LinkTexture sTextureBack("ui.gamemodemenu.backbutton");
+static LoadTexture sTextureClassButton1("ui.classselectmenu.humanclassbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureClassButton2("ui.classselectmenu.zombieclassbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureClassButton3("ui.classselectmenu.cyborgclassbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureClassButton4("ui.classselectmenu.vampireclassbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureBack("ui.gamemodemenu.backbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 ClassSelectMenu::ClassSelectMenu()
 	: FullscreenMenu()

@@ -4,7 +4,7 @@
 
 #include "ErrorRangedFists.h"
 
-LinkTexture sTextureRangedFists("icons.ranged_fists");
+LoadTexture sTextureRangedFists("icons.ranged_fists", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 ErrorRangedFists::ErrorRangedFists(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,

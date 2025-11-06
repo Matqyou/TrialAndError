@@ -4,8 +4,8 @@
 
 #include "Player.h"
 #include <client/game/entities/cartesian/characters/character/Character.h>
-#include "client/game/ui/CommonUI.h"
-
+#include <client/game/ui/CommonUI.h>
+#include <shared/string/Strings.h>
 #include <SDL3/SDL.h>
 
 Player::Player(const std::string& username, PlayerClass *player_class)
@@ -140,6 +140,6 @@ void Player::CharacterRemoving()
 // the length of MAX_USERNAME_LENGTH.
 void Player::SetUsername(const std::string& new_username)
 {
-	username = FString("%s - %s", player_class->GetName(), new_username.substr(0, MAX_USERNAME_LENGTH).c_str());
+	username = Strings::FString("%s - %s", player_class->GetName(), new_username.substr(0, MAX_USERNAME_LENGTH).c_str());
 	dbg_msg("[Player] &8Setting username to: &f%s\n", username.c_str());
 }

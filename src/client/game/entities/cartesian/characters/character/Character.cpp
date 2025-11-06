@@ -22,13 +22,13 @@ CharacterInput::CharacterInput()
 	next_item = false;
 	prev_item = false;
 	deselect_item = false;
-	going_direction = Vec2f(0.0f, 0.0f);
-	looking_direction = Vec2f(0.0f, 0.0f);
+	going_direction = Vec3f(0, 0, 0);
+	looking_direction = Vec3f(0, 0, 0);
 }
 
 // Link textures
-LinkTexture Character::sCharacterTexture("entity.character.body");
-LinkTexture Character::sTextureBlood("particle.blood");
+LoadTexture Character::sCharacterTexture("entity.character.body", AssetsClass::TexturePurpose::GUI_ELEMENT);
+LoadTexture Character::sTextureBlood("particle.blood", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 // Link sounds
 LinkSound Character::sHitSounds[3] = {
@@ -53,14 +53,14 @@ const int Character::sDefaultControls[NUM_CONTROLS] = { SDL_SCANCODE_W,
 
 Character::Character(Player *our_player,
 					 double max_health,
-					 const Vec2f& start_pos,
-					 const Vec2f& start_vel,
+					 const Vec3f& start_pos,
+					 const Vec3f& start_vel,
 					 bool character_is_npc)
 	: DirectionalEntity(ENTITY_CHARACTER,
 						start_pos,
-						Vec2f(35, 35),
+						Vec3f(35, 35, 35),
 						start_vel,
-						Vec2f(1.0, 0.0),
+						Vec3f(1.0, 1.0, 1.0),
 						0.93,
 						true,
 						max_health),
@@ -96,7 +96,7 @@ Character::Character(Player *our_player,
 
 	ammo_count_plate = new TextSurface(CommonUI::fontDefault, "0", { 255, 255, 255 });
 
-	auto CoordinateText = FString("Spawned [%ix, %iy]", int(start_pos.x), int(start_pos.y));
+	auto CoordinateText = Strings::FString("Spawned [%ix, %iy]", int(start_pos.x), int(start_pos.y));
 	coordinate_plate = new TextSurface(CommonUI::fontDefault, CoordinateText, { 255, 255, 255 });
 
 	health_amount_plate = new TextSurface(CommonUI::fontDefault, "0", { 0, 0, 0 });
@@ -187,7 +187,7 @@ void Character::DropWeapon()
 	ItemEntity *new_weapon_entity = EntityGuns::CreateItemEntityFromWeaponData(this, current_weapon, core.pos);
 	world->AddEntity(new_weapon_entity, true);
 	new_weapon_entity->Accelerate(directional_core.direction * 20.0f);
-	new_weapon_entity->SetRotation(directional_core.direction.Atan2());
+//	new_weapon_entity->SetRotation(directional_core.direction.Atan2()); // todo: 3d
 	new_weapon_entity->AccelerateRotation(std::fmod(Application.GetRandomizer()->Double(), 0.7) - 0.35);
 	current_weapon = nullptr;
 }
@@ -276,14 +276,16 @@ void Character::AmmoPickup(AmmoBox *ammo_box)
 void Character::EventDeath()
 {
 	// Play a toned down version particle effect :)
-	sTextureBlood.GetTexture()->SetColorMod(255, 0, 0); //
+//	sTextureBlood.GetTexture()->SetColorMod(255, 0, 0); //
+
 	Particles *particles = world->GetParticles();
 	Randomizer *randomizer = Application.GetRandomizer();
 	for (int i = 0; i < 50; i++)
 	{
-		Vec2f vel = {
+		Vec3f vel = {
 			core.vel.x * randomizer->Float() + 2.0f * (randomizer->Float() * 2.0f - 1.0f),
-			core.vel.y * randomizer->Float() + 2.0f * (randomizer->Float() * 2.0f - 1.0f)
+			core.vel.y * randomizer->Float() + 2.0f * (randomizer->Float() * 2.0f - 1.0f),
+			core.vel.z * randomizer->Float() + 2.0f * (randomizer->Float() * 2.0f - 1.0f),
 		};
 
 		float size = 5.0f + randomizer->Float() * 10.0f;
@@ -292,7 +294,7 @@ void Character::EventDeath()
 			Particle(
 				sTextureBlood.GetTexture(),
 				core.pos,
-				Vec2f(size, size),
+				Vec3f(size, size, size),
 				vel,
 				0.95,
 				orientation,
@@ -316,7 +318,7 @@ void Character::EventDeath()
 		weapons[i] = nullptr;
 
 		new_weapon_entity->Accelerate(directional_core.direction * 5);
-		new_weapon_entity->SetRotation(directional_core.direction.Atan2());
+//		new_weapon_entity->SetRotation(directional_core.direction.Atan2()); // todo: 3d
 		new_weapon_entity->AccelerateRotation(std::fmod(Application.GetRandomizer()->Float(), 0.35f) - 0.175f);
 	}
 
@@ -359,9 +361,10 @@ void Character::TickKeyboardControls()
 
 	Camera& camera = GameReference.GetCamera();
 
-	Vec2f screen_character_pos = camera.CameraToScreenPoint(core.pos);
-	Vec2f looking_direction = mouse_pos - screen_character_pos;
-	input.looking_direction = looking_direction.NormalizeF();
+	// todo: 3d
+//	Vec2f screen_character_pos = camera.CameraToScreenPoint(core.pos);
+//	Vec2f looking_direction = mouse_pos - screen_character_pos;
+//	input.looking_direction = looking_direction.NormalizeF();
 
 	auto mouse_state = SDL_GetMouseState(nullptr, nullptr);
 	input.shooting = mouse_state & SDL_BUTTON_MASK(SDL_BUTTON_LEFT); // If clicked, shoot = true
@@ -385,16 +388,17 @@ void Character::TickGameControllerControls()
 	Vec2f left_joystick = gamepad->GetJoystickLeft();
 	if (left_joystick.LengthF() > 1.0f) // todo: check out if there is a better way to calibrate analog stick rather than adding deadzone
 		left_joystick = left_joystick.NormalizeF();
-	input.going_direction = left_joystick;
+//	input.going_direction = left_joystick;
+	// todo: 3d
 
 	Vec2f right_joystick = gamepad->GetJoystickRight();
 	if (right_joystick.Length() >= 0.6)
 	{
 		if (right_joystick.LengthF() > 1.0f)
 			right_joystick = right_joystick.NormalizeF();
-		input.looking_direction = right_joystick;
+//		input.looking_direction = right_joystick;
 	} else {
-		input.looking_direction = left_joystick;
+//		input.looking_direction = left_joystick;
 	}
 
 //	Vec2f fixed_right = SquareToCircle(right_joystick);
@@ -507,7 +511,7 @@ void Character::TickCollision()
 			continue;
 
 		EntityCore& other_core = other_character->GetCore();
-		Vec2f difference = core.pos - other_core.pos;
+		Vec3f difference = core.pos - other_core.pos;
 
 		float distance = difference.LengthF();
 		if (distance > core.size_ratio + other_core.size_ratio)
@@ -515,19 +519,14 @@ void Character::TickCollision()
 
 		if (distance == 0.0f)
 		{
-//			float radians = Application.GetRandomizer()->Float()
 			float radians = static_cast<float>(rand() % 360) / 180.0f * static_cast<float>(M_PI);
-			difference = FromAngleVec2f(radians); // 1.0f
-//			distance_x = cos(radians);
-//			distance_y = sin(radians);
-//			Distance = 1.0;
+			// todo: 3d
+			// difference = FromAngleVec2f(radians); // 1.0f
 		}
 
-		Vec2f push = difference.Normalize() * 0.5f;
-//		double XPush = distance_x / Distance * 0.5;
-//		double YPush = distance_y / Distance * 0.5;
-		core.Accelerate(push);
-		other_core.Accelerate(-push);
+//		Vec2f push = difference.Normalize() * 0.5f;
+//		core.Accelerate(push);
+//		other_core.Accelerate(-push);
 
 		if (error_statuses.Spiky.IsActive() && is_npc != other_character->IsNPC())
 			other_character->Damage(3, this);
@@ -539,7 +538,7 @@ void Character::TickCollision()
 	{
 		Crate *crate = (Crate *)entity;
 		EntityCore& crate_core = crate->GetCore();
-		Vec2f difference = core.pos - crate_core.pos;
+		Vec3f difference = core.pos - crate_core.pos;
 
 		float distance = difference.LengthF();
 		float closest_possible_distance = crate_core.size_ratio + core.size_ratio;
@@ -580,7 +579,6 @@ void Character::DrawErrorIcons()
 
 void Character::DrawCharacter()
 {
-	Drawing *drawing = Application.GetDrawing();
 	SDL_FRect draw_rect = {
 		core.pos.x - core.size.x / 2.0f,
 		core.pos.y - core.size.y / 2.0f,
@@ -588,254 +586,256 @@ void Character::DrawCharacter()
 		core.size.y
 	};
 
-	sCharacterTexture.GetTexture()
-		->SetColorMod(character_color.r, character_color.g, character_color.b);
+//	sCharacterTexture.GetTexture()->SetColorMod(character_color.r, character_color.g, character_color.b);
 
-	Vec2f pointing_direction = directional_core.direction * 3.0f + core.vel / 3.0f;
-	double pointing_angle = pointing_direction.Atan2() / M_PI * 180.0;
-	drawing->RenderTextureRotated(sCharacterTexture.GetTexture()->SDLTexture(),
-								  nullptr,
-								  draw_rect,
-								  pointing_angle - 90.0,
-								  nullptr,
-								  SDL_FLIP_NONE,
-								  GameReference.GetCamera());
+	Vec3f pointing_direction = directional_core.direction * 3.0f + core.vel / 3.0f;
+	// todo: 3d
+//	double pointing_angle = pointing_direction.Atan2() / M_PI * 180.0;
+//	drawing->RenderTextureRotated(sCharacterTexture.GetTexture()->SDLTexture(),
+//								  nullptr,
+//								  draw_rect,
+//								  pointing_angle - 90.0,
+//								  nullptr,
+//								  SDL_FLIP_NONE,
+//								  GameReference.GetCamera());
 }
 
 void Character::DrawHook()
 {
-	Drawing *drawing = Application.GetDrawing();
-
-	// Draw hook
-	if (hook.deployed)
-	{
-		drawing->SetColor(hook_color.r, hook_color.g, hook_color.b, 255);
-		drawing->DrawLine(core.pos, hook.pos, GameReference.GetCamera());
-	}
+//	Drawing *drawing = Application.GetDrawing();
+//
+//	// Draw hook
+//	if (hook.deployed)
+//	{
+//		drawing->SetColor(hook_color.r, hook_color.g, hook_color.b, 255);
+//		// todo: 3d
+//		drawing->DrawLine(core.pos, hook.pos, GameReference.GetCamera());
+//	}
 }
 
 void Character::DrawHealthbar()
 {
-	if (is_npc)
-		return;
-
-	Drawing *drawing = Application.GetDrawing();
-
-	// Render health bar
-	if (health_component.IsFullHealth())
-		return;
-
-	health_bar.SetColor(healthbar_color.r, healthbar_color.g, healthbar_color.b, healthbar_color.a);
-	Texture *HealthPlate = error_statuses.ConfusingHealth.IsActive() ?
-						   health_bar.GetTexture() : health_bar.UpdateTexture();
-
-	float bar_width = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
-	float bar_height = HealthPlate->GetHeight();
-	SDL_FRect healthplate_rect = {
-		core.pos.x - bar_width / 2.0f + 10.0f, // Adjust position to the right
-		core.pos.y + core.size.y / 2.0f,
-		bar_width, bar_height
-	};
-
-	if (health_amount_plate->GetFlaggedForUpdate())
-	{
-		std::string HealthText;
-		if (!error_statuses.ConfusingHealth.IsActive())
-			HealthText = FString("%i/%i", int(health_component.m_Health), int(health_component.m_MaxHealth));
-		else
-			HealthText = FString("%i/%i", int(rand() % 999), int(rand() % 999));
-
-		health_amount_plate->SetText(HealthText);
-		health_amount_plate->SetColor(health_component.GetHealthInPercentage() <= 0.25 ? health_red_color : health_black_color);
-	}
-
-	Texture *HealthTexture = health_amount_plate->RequestUpdate();
-	float HealthTextureW = HealthTexture->GetWidth();
-	float HealthTextureH = HealthTexture->GetHeight();
-	SDL_FRect HealthIntRect = {
-		core.pos.x - HealthTextureW / 4.0f + 10.0f, // Adjust position to the right
-		core.pos.y + core.size.y / 2.0f + HealthTextureH / 4.0f,
-		HealthTextureW / 2.0f,
-		HealthTextureH / 2.0f
-	};
-
-	drawing->RenderTexture(HealthPlate->SDLTexture(), nullptr, healthplate_rect, GameReference.GetCamera());
-	drawing->RenderTexture(HealthTexture->SDLTexture(), nullptr, HealthIntRect, GameReference.GetCamera());
-
-	// Draw level indicator
-	std::string LevelText = FString("LVL %i", player->GetLevel()); // Use the level value directly
-	TextSurface LevelSurface(CommonUI::fontSmall, LevelText, { 255, 255, 255 });
-
-	Texture *LevelTexture = LevelSurface.RequestUpdate();
-	float LevelTextureW = LevelTexture->GetWidth();
-	float LevelTextureH = LevelTexture->GetHeight();
-	SDL_FRect LevelRect = {
-		core.pos.x - bar_width / 2.0f - LevelTextureW + 5.0f, // Position to the left of the health bar
-		core.pos.y + core.size.y / 2.0f + 3.0f,
-		LevelTextureW,
-		LevelTextureH
-	};
-
-	drawing->RenderTexture(LevelTexture->SDLTexture(), nullptr, LevelRect, GameReference.GetCamera());
+//	if (is_npc)
+//		return;
+//
+//	DrawingClass *drawing = Application.GetDrawing();
+//
+//	// Render health bar
+//	if (health_component.IsFullHealth())
+//		return;
+//
+//	health_bar.SetColor(healthbar_color.r, healthbar_color.g, healthbar_color.b, healthbar_color.a);
+//	Texture *HealthPlate = error_statuses.ConfusingHealth.IsActive() ?
+//						   health_bar.GetTexture() : health_bar.UpdateTexture();
+//
+//	float bar_width = HealthPlate->GetWidth() - 20; // Make the health bar slightly smaller
+//	float bar_height = HealthPlate->GetHeight();
+//	SDL_FRect healthplate_rect = {
+//		core.pos.x - bar_width / 2.0f + 10.0f, // Adjust position to the right
+//		core.pos.y + core.size.y / 2.0f,
+//		bar_width, bar_height
+//	};
+//
+//	if (health_amount_plate->GetFlaggedForUpdate())
+//	{
+//		std::string HealthText;
+//		if (!error_statuses.ConfusingHealth.IsActive())
+//			HealthText = FString("%i/%i", int(health_component.m_Health), int(health_component.m_MaxHealth));
+//		else
+//			HealthText = FString("%i/%i", int(rand() % 999), int(rand() % 999));
+//
+//		health_amount_plate->SetText(HealthText);
+//		health_amount_plate->SetColor(health_component.GetHealthInPercentage() <= 0.25 ? health_red_color : health_black_color);
+//	}
+//
+//	Texture *HealthTexture = health_amount_plate->RequestUpdate();
+//	float HealthTextureW = HealthTexture->GetWidth();
+//	float HealthTextureH = HealthTexture->GetHeight();
+//	SDL_FRect HealthIntRect = {
+//		core.pos.x - HealthTextureW / 4.0f + 10.0f, // Adjust position to the right
+//		core.pos.y + core.size.y / 2.0f + HealthTextureH / 4.0f,
+//		HealthTextureW / 2.0f,
+//		HealthTextureH / 2.0f
+//	};
+//
+//	drawing->RenderTexture(HealthPlate->SDLTexture(), nullptr, healthplate_rect, GameReference.GetCamera());
+//	drawing->RenderTexture(HealthTexture->SDLTexture(), nullptr, HealthIntRect, GameReference.GetCamera());
+//
+//	// Draw level indicator
+//	std::string LevelText = FString("LVL %i", player->GetLevel()); // Use the level value directly
+//	TextSurface LevelSurface(CommonUI::fontSmall, LevelText, { 255, 255, 255 });
+//
+//	Texture *LevelTexture = LevelSurface.RequestUpdate();
+//	float LevelTextureW = LevelTexture->GetWidth();
+//	float LevelTextureH = LevelTexture->GetHeight();
+//	SDL_FRect LevelRect = {
+//		core.pos.x - bar_width / 2.0f - LevelTextureW + 5.0f, // Position to the left of the health bar
+//		core.pos.y + core.size.y / 2.0f + 3.0f,
+//		LevelTextureW,
+//		LevelTextureH
+//	};
+//
+//	drawing->RenderTexture(LevelTexture->SDLTexture(), nullptr, LevelRect, GameReference.GetCamera());
 }
 
 void Character::DrawHands()
 {
-	Drawing *drawing = Application.GetDrawing();
-	auto camera = GameReference.GetCamera();
-
-	hands.SetColor(hand_color);
-	hands.Draw();
-
-	// Draw holding gun
-	if (!current_weapon)
-		return;
-
-	Texture *texture = current_weapon->GetTexture();
-	float Radians = directional_core.direction.Atan2F();
-	Vec2f HoldPosition = current_weapon->GetHoldPosition().RotateF(Radians);
-
-	SDL_FRect WeaponRect = { 0, 0, texture->GetWidth(), texture->GetHeight() };
-	WeaponRect.w *= 4.0f;
-	WeaponRect.h *= 4.0f;
-	WeaponRect.x = core.pos.x + HoldPosition.x;
-	WeaponRect.y = core.pos.y + HoldPosition.y - WeaponRect.h / 2.0f;
-	SDL_FPoint WeaponPivot = { 0, WeaponRect.h / 2.0f * camera.GetZoom() }; // ??? zoom
-
-	// Laser sight
-	if (current_weapon->GetWeaponType() == WeaponType::WEAPON_SNIPER)
-	{
-		auto direction = directional_core.direction;
-		Vec2f current_position = core.pos;
-		for (int i = 0; i < 10000; i++)
-		{
-			current_position += direction;
-
-			// Check against walls
-			if (current_position.x < 0 ||
-				current_position.y < 0 ||
-				current_position.x > world->GetWidth() ||
-				current_position.y > world->GetHeight())
-				break;
-
-			// Check against entities
-			bool found = false;
-			for (Entity *entity : world->GetEntities())
-			{
-				if (entity == this || !entity->HasHealthComponent())
-					continue;
-
-				double distance = (current_position - entity->GetCore().pos).LengthF();
-				if (distance <= entity->GetCore().size_ratio)
-				{
-					found = true;
-					break;
-				}
-			}
-
-			if (found) break;
-		}
-		drawing->SetColor(255, 0, 0, 255);
-		drawing->DrawLine(core.pos, current_position, GameReference.GetCamera());
-//			drawing->LineCamera(m_Core.pos.x, m_Core.pos.y, current_position.x, current_position.y);
-	}
-
-	drawing->RenderTextureRotated(texture->SDLTexture(),
-								  nullptr,
-								  WeaponRect,
-								  Radians / M_PI * 180.0,
-								  &WeaponPivot,
-								  SDL_FLIP_VERTICAL,
-								  GameReference.GetCamera());
+	// todo: 3d
+//	Drawing *drawing = Application.GetDrawing();
+//	auto camera = GameReference.GetCamera();
+//
+//	hands.SetColor(hand_color);
+//	hands.Draw();
+//
+//	// Draw holding gun
+//	if (!current_weapon)
+//		return;
+//
+//	Texture *texture = current_weapon->GetTexture();
+//	float Radians = directional_core.direction.Atan2F();
+//	Vec2f HoldPosition = current_weapon->GetHoldPosition().RotateF(Radians);
+//
+//	SDL_FRect WeaponRect = { 0, 0, texture->GetWidth(), texture->GetHeight() };
+//	WeaponRect.w *= 4.0f;
+//	WeaponRect.h *= 4.0f;
+//	WeaponRect.x = core.pos.x + HoldPosition.x;
+//	WeaponRect.y = core.pos.y + HoldPosition.y - WeaponRect.h / 2.0f;
+//	SDL_FPoint WeaponPivot = { 0, WeaponRect.h / 2.0f * camera.GetZoom() }; // ??? zoom
+//
+//	// Laser sight
+//	if (current_weapon->GetWeaponType() == WeaponType::WEAPON_SNIPER)
+//	{
+//		auto direction = directional_core.direction;
+//		Vec2f current_position = core.pos;
+//		for (int i = 0; i < 10000; i++)
+//		{
+//			current_position += direction;
+//
+//			// Check against walls
+//			if (current_position.x < 0 ||
+//				current_position.y < 0 ||
+//				current_position.x > world->GetWidth() ||
+//				current_position.y > world->GetHeight())
+//				break;
+//
+//			// Check against entities
+//			bool found = false;
+//			for (Entity *entity : world->GetEntities())
+//			{
+//				if (entity == this || !entity->HasHealthComponent())
+//					continue;
+//
+//				double distance = (current_position - entity->GetCore().pos).LengthF();
+//				if (distance <= entity->GetCore().size_ratio)
+//				{
+//					found = true;
+//					break;
+//				}
+//			}
+//
+//			if (found) break;
+//		}
+//		drawing->SetColor(255, 0, 0, 255);
+//		drawing->DrawLine(core.pos, current_position, GameReference.GetCamera());
+////			drawing->LineCamera(m_Core.pos.x, m_Core.pos.y, current_position.x, current_position.y);
+//	}
+//
+//	drawing->RenderTextureRotated(texture->SDLTexture(),
+//								  nullptr,
+//								  WeaponRect,
+//								  Radians / M_PI * 180.0,
+//								  &WeaponPivot,
+//								  SDL_FLIP_VERTICAL,
+//								  GameReference.GetCamera());
 }
 
 void Character::DrawNameplate()
 {
-	double NameVisibility = world->GetNamesShown();
-	if (NameVisibility == 0.0)
-		return;
-
-	int name_opacity = int(NameVisibility * 255.0);
-
-	Drawing *drawing = Application.GetDrawing();
-
-	Texture *NamePlateTexture = player ? player->GetNamePlate()->RequestUpdate() : sBotNameplate->GetTexture();
-	float NamePlateW = NamePlateTexture->GetWidth();
-	float NamePlateH = NamePlateTexture->GetHeight();
-	SDL_FRect NamePlateRect = {
-		core.pos.x - NamePlateW / 2.0f,
-		core.pos.y - core.size.y / 2.0f - NamePlateH,
-		NamePlateW, NamePlateH
-	};
-
-	SDL_SetTextureAlphaMod(NamePlateTexture->SDLTexture(), name_opacity);
-	drawing->RenderTexture(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect, GameReference.GetCamera());
-//	drawing->RenderTextureCamera(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect);
-
-	auto CoordinateText = FString("%ix, %iy", int(core.pos.x), int(core.pos.y));
-	coordinate_plate->SetText(CoordinateText);
-	coordinate_plate->SetColor(nameplate_color);
-	Texture *CoordinateTexture = coordinate_plate->RequestUpdate();
-
-	float CoordinatePlateW = NamePlateTexture->GetWidth();
-	float CoordinatePlateH = NamePlateTexture->GetHeight();
-	SDL_FRect CoordinateRect = {
-		core.pos.x - CoordinatePlateW / 2.0f,
-		NamePlateRect.y - CoordinatePlateH,
-		CoordinatePlateW, CoordinatePlateH
-	};
-	SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), name_opacity);
-	drawing->RenderTexture(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect, GameReference.GetCamera());
-//	drawing->RenderTextureCamera(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
+//	double NameVisibility = world->GetNamesShown();
+//	if (NameVisibility == 0.0)
+//		return;
+//
+//	int name_opacity = int(NameVisibility * 255.0);
+//
+//	DrawingClass *drawing = Application.GetDrawing();
+//
+//	Texture *NamePlateTexture = player ? player->GetNamePlate()->RequestUpdate() : sBotNameplate->GetTexture();
+//	float NamePlateW = NamePlateTexture->GetWidth();
+//	float NamePlateH = NamePlateTexture->GetHeight();
+//	SDL_FRect NamePlateRect = {
+//		core.pos.x - NamePlateW / 2.0f,
+//		core.pos.y - core.size.y / 2.0f - NamePlateH,
+//		NamePlateW, NamePlateH
+//	};
+//
+//	SDL_SetTextureAlphaMod(NamePlateTexture->SDLTexture(), name_opacity);
+//	drawing->RenderTexture(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect, GameReference.GetCamera());
+////	drawing->RenderTextureCamera(NamePlateTexture->SDLTexture(), nullptr, NamePlateRect);
+//
+//	auto CoordinateText = FString("%ix, %iy", int(core.pos.x), int(core.pos.y));
+//	coordinate_plate->SetText(CoordinateText);
+//	coordinate_plate->SetColor(nameplate_color);
+//	Texture *CoordinateTexture = coordinate_plate->RequestUpdate();
+//
+//	float CoordinatePlateW = NamePlateTexture->GetWidth();
+//	float CoordinatePlateH = NamePlateTexture->GetHeight();
+//	SDL_FRect CoordinateRect = {
+//		core.pos.x - CoordinatePlateW / 2.0f,
+//		NamePlateRect.y - CoordinatePlateH,
+//		CoordinatePlateW, CoordinatePlateH
+//	};
+//	SDL_SetTextureAlphaMod(CoordinateTexture->SDLTexture(), name_opacity);
+//	drawing->RenderTexture(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect, GameReference.GetCamera());
+////	drawing->RenderTextureCamera(CoordinateTexture->SDLTexture(), nullptr, CoordinateRect);
 }
 
 void Character::DrawAmmoCounter()
 {
-	Drawing *drawing = Application.GetDrawing();
-	Camera& camera = GameReference.GetCamera();
-
-	char msg[64];
-	std::snprintf(msg, sizeof(msg), "%u/%u", current_weapon->GetMagAmmo(), current_weapon->GetTrueAmmo());
-	ammo_count_plate->SetText(msg);
-	if (current_weapon->GetMagAmmo() == 0) ammo_count_plate->SetColor({ 255, 0, 0 });
-	else ammo_count_plate->SetColor({ 255, 255, 255 });
-
-	Texture *AmmoTexture = ammo_count_plate->RequestUpdate();
-	float AmmoTextureW = AmmoTexture->GetWidth();
-	float AmmoTextureH = AmmoTexture->GetHeight();
-	SDL_FRect AmmoRect = {
-		core.pos.x - AmmoTextureW / 2.0f,
-		core.pos.y + core.size.y / 2.0f + 20.0f,
-		AmmoTextureW, AmmoTextureH
-	};
-	drawing->RenderTexture(AmmoTexture->SDLTexture(), nullptr, AmmoRect, camera);
-//	drawing->RenderTextureCamera(AmmoTexture->SDLTexture(), nullptr, AmmoRect);
+//	DrawingClass *drawing = Application.GetDrawing();
+//	Camera& camera = GameReference.GetCamera();
+//
+//	char msg[64];
+//	std::snprintf(msg, sizeof(msg), "%u/%u", current_weapon->GetMagAmmo(), current_weapon->GetTrueAmmo());
+//	ammo_count_plate->SetText(msg);
+//	if (current_weapon->GetMagAmmo() == 0) ammo_count_plate->SetColor({ 255, 0, 0 });
+//	else ammo_count_plate->SetColor({ 255, 255, 255 });
+//
+//	Texture *AmmoTexture = ammo_count_plate->RequestUpdate();
+//	float AmmoTextureW = AmmoTexture->GetWidth();
+//	float AmmoTextureH = AmmoTexture->GetHeight();
+//	SDL_FRect AmmoRect = {
+//		core.pos.x - AmmoTextureW / 2.0f,
+//		core.pos.y + core.size.y / 2.0f + 20.0f,
+//		AmmoTextureW, AmmoTextureH
+//	};
+//	drawing->RenderTexture(AmmoTexture->SDLTexture(), nullptr, AmmoRect, camera);
+////	drawing->RenderTextureCamera(AmmoTexture->SDLTexture(), nullptr, AmmoRect);
 }
 
 void Character::DrawErrorName()
 {
-	if (!error_statuses.AnyActive(2.0))
-		return;
-
-	Drawing *drawing = Application.GetDrawing();
-	auto error_message = FString("Error %s activated", error_statuses.GetLastActivated()->Name());
-
-	if (error_notification_text->GetText() != error_message)
-	{
-		error_notification_text->SetText(error_message);
-		error_notification_text->FlagForUpdate();
-	}
-
-	Texture *ErrorTexture = error_notification_text->RequestUpdate();
-	float Text_w = ErrorTexture->GetWidth();
-	float Text_h = ErrorTexture->GetHeight();
-	SDL_FRect ErrorRect = {
-		core.pos.x - Text_w / 2.0f,
-		core.pos.y - 50.0f,
-		Text_w, Text_h
-	};
-	drawing->RenderTexture(ErrorTexture->SDLTexture(), nullptr, ErrorRect, GameReference.GetCamera());
-//	drawing->RenderTextureCamera(ErrorTexture->SDLTexture(), nullptr, ErrorRect);
+//	if (!error_statuses.AnyActive(2.0))
+//		return;
+//
+//	DrawingClass *drawing = Application.GetDrawing();
+//	auto error_message = FString("Error %s activated", error_statuses.GetLastActivated()->Name());
+//
+//	if (error_notification_text->GetText() != error_message)
+//	{
+//		error_notification_text->SetText(error_message);
+//		error_notification_text->FlagForUpdate();
+//	}
+//
+//	Texture *ErrorTexture = error_notification_text->RequestUpdate();
+//	float Text_w = ErrorTexture->GetWidth();
+//	float Text_h = ErrorTexture->GetHeight();
+//	SDL_FRect ErrorRect = {
+//		core.pos.x - Text_w / 2.0f,
+//		core.pos.y - 50.0f,
+//		Text_w, Text_h
+//	};
+//	drawing->RenderTexture(ErrorTexture->SDLTexture(), nullptr, ErrorRect, GameReference.GetCamera());
+////	drawing->RenderTextureCamera(ErrorTexture->SDLTexture(), nullptr, ErrorRect);
 }
 
 void Character::HandleEvent(const SDL_Event& currentEvent)

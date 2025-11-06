@@ -5,7 +5,7 @@
 
 #include <format>
 
-void EntityCore::Accelerate(const Vec2f& impulse)
+void EntityCore::Accelerate(const Vec3f& impulse)
 {
 	vel += impulse;
 }
@@ -85,9 +85,9 @@ void HasHealth::TickUpdateLastHealth()
 
 Entity::Entity(EntityFormFactor form_factor,
 			   EntityType type,
-			   const Vec2f& start_pos,
-			   const Vec2f& start_size,
-			   const Vec2f& start_vel,
+			   const Vec3f& start_pos,
+			   const Vec3f& start_size,
+			   const Vec3f& start_vel,
 			   float base_damping,
 			   bool has_health_component,
 			   double max_health)
@@ -167,14 +167,19 @@ void Entity::TickWalls()
 	}
 }
 
-bool Entity::PointCollides(const Vec2f& point) const
+bool Entity::PointCollides(const Vec3f& point) const
 {
 	float w2 = core.size.x / 2.0f;
 	float h2 = core.size.y / 2.0f;
-	return !(point.x < core.pos.x - w2 ||
-		point.x > core.pos.x + w2 ||
-		point.y < core.pos.y - h2 ||
-		point.y > core.pos.y + h2);
+	float d2 = core.size.z / 2.0f;
+	return !(
+		point.x < core.pos.x - w2 ||
+			point.x > core.pos.x + w2 ||
+			point.y < core.pos.y - h2 ||
+			point.y > core.pos.y + h2 ||
+			point.z > core.pos.z - d2 ||
+			point.z > core.pos.z + d2
+	);
 }
 
 const char *Entity::toString() const
@@ -182,7 +187,7 @@ const char *Entity::toString() const
 	return ENTITY_NAMES[entity_type];
 }
 
-void Entity::Accelerate(const Vec2f& direction)
+void Entity::Accelerate(const Vec3f& direction)
 {
 	core.vel += direction;
 }
@@ -194,14 +199,14 @@ void Entity::Tick(double elapsed_seconds)
 
 void Entity::Draw()
 {
-	Drawing *Render = Application.GetDrawing();
-
-	Render->SetColor(255, 255, 255, 255);
-	SDL_FRect DrawRect = { float(core.pos.x) - float(core.size.x / 2),
-						   float(core.pos.y) - float(core.size.y / 2),
-						   float(core.size.x),
-						   float(core.size.y) };
-	Render->DrawRect(DrawRect, true, GameReference.GetCamera());
+//	Drawing *Render = Application.GetDrawing();
+//
+//	Render->SetColor(255, 255, 255, 255);
+//	SDL_FRect DrawRect = { float(core.pos.x) - float(core.size.x / 2),
+//						   float(core.pos.y) - float(core.size.y / 2),
+//						   float(core.size.x),
+//						   float(core.size.y) };
+//	Render->DrawRect(DrawRect, true, GameReference.GetCamera());
 }
 
 void DirectionalEntity::TickUpdateLastCore()
@@ -210,10 +215,10 @@ void DirectionalEntity::TickUpdateLastCore()
 }
 
 DirectionalEntity::DirectionalEntity(EntityType entity_type,
-									 const Vec2f& start_pos,
-									 const Vec2f& start_size,
-									 const Vec2f& start_vel,
-									 const Vec2f& start_direction,
+									 const Vec3f& start_pos,
+									 const Vec3f& start_size,
+									 const Vec3f& start_vel,
+									 const Vec3f& start_direction,
 									 float base_damping,
 									 bool has_health_component,
 									 double max_health)

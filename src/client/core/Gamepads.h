@@ -34,8 +34,8 @@ private:
 	bool buttons[SDL_GAMEPAD_BUTTON_COUNT];
 	bool last_buttons[SDL_GAMEPAD_BUTTON_COUNT];
 
-	Texture* visual_of_joystick_left;
-	Texture* visual_of_joystick_right;
+//	Texture* visual_of_joystick_left;
+//	Texture* visual_of_joystick_right;
 
 public:
 	Gamepad();

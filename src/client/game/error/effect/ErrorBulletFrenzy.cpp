@@ -4,7 +4,7 @@
 
 #include "ErrorBulletFrenzy.h"
 
-LinkTexture sTextureBulletFrenzy("icons.bullet_frenzy");
+LoadTexture sTextureBulletFrenzy("icons.bullet_frenzy", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 ErrorBulletFrenzy::ErrorBulletFrenzy(ErrorStatuses *parent)
 	: ErrorStatusEffect(parent,

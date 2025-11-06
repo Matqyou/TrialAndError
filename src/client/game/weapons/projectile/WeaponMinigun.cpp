@@ -7,16 +7,16 @@
 #include <client/game/entities/cartesian/Projectile.h>
 #include <cmath>
 
-static LinkTexture sTextureWeapon[4] = {
-	LinkTexture("weapons.minigun.1"),
-	LinkTexture("weapons.minigun.2"),
-	LinkTexture("weapons.minigun.3"),
-	LinkTexture("weapons.minigun.4"),
+static LoadTexture sTextureWeapon[4] = {
+	LoadTexture("weapons.minigun.1", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("weapons.minigun.2", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("weapons.minigun.3", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("weapons.minigun.4", AssetsClass::TexturePurpose::GUI_ELEMENT),
 };
-static LinkTexture sTextureProjectile("entity.projectile.minigun");
-static LinkSound sShootSound("weapon.minigun.shoot");
+static LoadTexture sTextureProjectile("entity.projectile.minigun", AssetsClass::TexturePurpose::GUI_ELEMENT);
 static LinkSound sClickSound("weapon.minigun.fail_reload");
 static LinkSound sReloadSound("weapon.minigun.reload");
+static LinkSound sShootSound("weapon.minigun.shoot");
 Vec2f WeaponMinigun::sHoldPosition(10.0, 0.0);
 std::pair<Vec2f, Vec2f> WeaponMinigun::sHandPositions = {{ 10.0, -15.0 }, { 17.0, 13.0 }};
 
@@ -81,19 +81,20 @@ void WeaponMinigun::Tick()
 				m_LastShotAt = CurrentTick;
 				sShootSound.GetSound()->PlaySound();
 
-				float Angle = ShooterCore.direction.Atan2F() + GenerateSpreadAngle();
-				Vec2f ProjectileVelocity = FromAngleVec2f(Angle) * m_ProjectileSpeed;
-				auto new_projectile = new Projectile(m_Parent,
-							   WEAPON_MINIGUN,
-							   sTextureProjectile.GetTexture(),
-							   m_Damage,
-							   ShooterCore.pos,
-							   ProjectileVelocity);
-				World->AddEntity(new_projectile, true);
+				// todo: 3d
+//				float Angle = ShooterCore.direction.Atan2F() + GenerateSpreadAngle();
+//				Vec3f ProjectileVelocity = FromAngleVec2f(Angle) * m_ProjectileSpeed;
+//				auto new_projectile = new Projectile(m_Parent,
+//							   WEAPON_MINIGUN,
+//							   sTextureProjectile.GetTexture(),
+//							   m_Damage,
+//							   ShooterCore.pos,
+//							   ProjectileVelocity);
+//				World->AddEntity(new_projectile, true);
 
 				float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
 							   m_RecoilForce * 3.0f : m_RecoilForce;
-				Vec2f recoil_acceleration = ShooterCore.direction * -recoil;
+				Vec3f recoil_acceleration = ShooterCore.direction * -recoil;
 				m_Parent->Accelerate(recoil_acceleration);
 			}
 			else

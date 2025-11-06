@@ -89,31 +89,30 @@ void Button::HandleEvent(const SDL_Event& sdl_event, EventContext& event_summary
 
 void Button::Render()
 {
-	auto drawing = Application.GetDrawing();
-	switch (draw)
-	{
-		case DRAW_RECT:
-		{
-			auto& fill_color = has_focus ? focus_color : color;
-			drawing->SetColor(fill_color);
-			drawing->DrawRect(GetRect(), true);
-			break;
-		}
-		case DRAW_TEXTURE:
-		{
-			// Lil cooked
-			auto instance = pressed_down ? pressed_texture_instance : texture_instance;
-			auto texture = instance.GetTexture() != nullptr ? instance.GetTexture() : Assets.GetInvalidTexture();
-			auto sdl_texture = texture->SDLTexture() != nullptr ? texture->SDLTexture() : Assets.GetInvalidTexture()->SDLTexture();
-
-			drawing->RenderTexture(sdl_texture, nullptr, instance.GetResultingFRect());
-			break;
-		}
-		default: break;
-	}
+//	auto drawing = Application.GetDrawing();
+//	switch (draw)
+//	{
+//		case DRAW_RECT:
+//		{
+//			auto& fill_color = has_focus ? focus_color : color;
+//			drawing->SetColor(fill_color);
+//			drawing->DrawRect(GetRect(), true);
+//			break;
+//		}
+//		case DRAW_TEXTURE:
+//		{
+//			// Lil cooked
+//			auto instance = pressed_down ? pressed_texture_instance : texture_instance;
+//			auto texture = instance.GetTexture() != nullptr ? instance.GetTexture() : Assets.GetInvalidTexture();
+//			auto sdl_texture = texture->SDLTexture() != nullptr ? texture->SDLTexture() : Assets.GetInvalidTexture()->SDLTexture();
+//
+//			drawing->RenderTexture(sdl_texture, nullptr, instance.GetResultingFRect());
+//			break;
+//		}
+//		default: break;
+//	}
 
 	RenderChildren();
-
 }
 
 void Button::UpdatePressedVisualTexture()

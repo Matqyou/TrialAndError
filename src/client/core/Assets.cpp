@@ -14,8 +14,9 @@
 
 using namespace Strings;
 
+std::vector<Surface *> AssetsClass::m_AutomaticDeletionSurfaces = { };
 std::vector<Texture *> AssetsClass::m_AutomaticDeletionTextures = { };
-std::vector<LinkTexture *> AssetsClass::m_LinkTextures = { };
+std::vector<LoadTexture *> AssetsClass::m_LoadTextures = { };
 std::vector<PregenerateTexture *> AssetsClass::m_PregenerateTextures = { };
 std::vector<LinkSound *> AssetsClass::m_LinkSounds = { };
 std::vector<LinkMusic *> AssetsClass::m_LinkMusic = { };
@@ -23,7 +24,7 @@ std::vector<PreloadFont *> AssetsClass::m_PreloadFonts = { };
 std::vector<LinkFont *> AssetsClass::m_LinkFonts = { };
 
 // Iterators
-std::vector<LinkTexture *>::iterator AssetsClass::m_LinkTexturesIterator = std::vector<LinkTexture *>::iterator{ };
+std::vector<LoadTexture *>::iterator AssetsClass::m_LinkTexturesIterator = std::vector<LoadTexture *>::iterator{ };
 std::vector<LinkSound *>::iterator AssetsClass::m_LinkSoundsIterator = std::vector<LinkSound *>::iterator{ };
 std::vector<LinkMusic *>::iterator AssetsClass::m_LinkMusicIterator = std::vector<LinkMusic *>::iterator{ };
 std::vector<LinkFont *>::iterator AssetsClass::m_LinkFontsIterator = std::vector<LinkFont *>::iterator{ };
@@ -150,70 +151,67 @@ std::vector<std::tuple<std::string, std::string, std::string>> GetResourceKeys(c
 
 // AssetsClass start
 
-bool AssetsClass::LoadingTextures()
+bool AssetsClass::LoadingSurfaces()
 {
-	if (m_TextureResourcesIndex >= m_TextureResources.size())
+	if (m_SurfaceResourcesIndex >= m_SurfaceResources.size())
 		return false;
 
 	sWorkDone++;
 
-	auto& entry = m_TextureResources[m_TextureResourcesIndex];
-	++m_TextureResourcesIndex;
-	std::string& texture_key = std::get<0>(entry);
+	auto& entry = m_SurfaceResources[m_SurfaceResourcesIndex];
+	++m_SurfaceResourcesIndex;
+	std::string& surface_key = std::get<0>(entry);
 	std::string& file_path = std::get<1>(entry);
 	std::string& extension = std::get<2>(entry);
 
-	// Using `DiskTextures` so we can display the extensions of the sprite files
-	auto disk_it = m_DiskTextures.find(texture_key);
-	if (disk_it != m_DiskTextures.end())
+	// Look for duplicate names
+	auto duplicate_iterator = m_Surfaces.find(surface_key);
+	if (duplicate_iterator != m_Surfaces.end())
 	{
-		dbg_msg("[Assets] &cDuplicate texture '%s' for existing '%s'(%s)\n",
-				extension.c_str(),
-				texture_key.c_str(),
-				disk_it->second->GetExtension().c_str());
+		dbg_msg("[Assets] &cDuplicate surface '%s'\n", extension.c_str(), surface_key.c_str());
 		return true;
 	}
 
 	// Load the surface
-	SDL_Surface *TempSurface = IMG_Load(file_path.c_str());
-	if (TempSurface == nullptr)
+	SDL_Surface *sdl_surface = IMG_Load(file_path.c_str());
+	if (sdl_surface == nullptr)
 	{
 		dbg_msg("[Assets] &cFailed to load texture '%s'\n", file_path.c_str());
 		dbg_msg("[Assets] &cReason (%s)\n", SDL_GetError());
 		return true;
 	}
 
-	// Convert to texture
-	SDL_Texture *NewSDLTexture = SDL_CreateTextureFromSurface(Application.GetDrawing()->Renderer(), TempSurface);
-	SDL_DestroySurface(TempSurface);
-
 	// Check if texture has a visual hitbox file
-	auto vis_it = std::find_if(m_VisHitboxResources.begin(), m_VisHitboxResources.end(),
-							   [&texture_key](const std::tuple<std::string, std::string, std::string>& item)
-							   {
-								   return std::get<0>(item) == texture_key; // Compare first string
-							   });
+	auto visual_hitbox_iterator = std::find_if(m_VisHitboxResources.begin(), m_VisHitboxResources.end(),
+											   [&surface_key](const std::tuple<std::string, std::string, std::string>& item)
+											   {
+												   return std::get<0>(item) == surface_key; // Compare first string
+											   });
 
-	Texture *new_texture;
-	if (vis_it != m_VisHitboxResources.end())
+	Surface *new_surface = nullptr;
+	if (visual_hitbox_iterator != m_VisHitboxResources.end())
 	{
 		HitboxFile visual_hitbox;
-		if (!visual_hitbox.OpenFile(R"(.\assets\images\)", texture_key))
+		if (!visual_hitbox.OpenFile(R"(.\assets\images\)", surface_key))
 		{
-			dbg_msg("[Assets] &cFailed to load visual hitbox file '%s'\n", std::get<1>(*vis_it).c_str());
+			dbg_msg("[Assets] &cFailed to load visual hitbox file '%s'\n", std::get<1>(*visual_hitbox_iterator).c_str());
 			return true;
 		}
 		else
-			new_texture = new VisualTexture(NewSDLTexture, Rect4f(visual_hitbox.Hitbox()));
+			// Convert to texture
+			new_surface = new VisualSurface(sdl_surface, Rect4f(visual_hitbox.Hitbox()));
 	}
 	else
-		new_texture = new Texture(NewSDLTexture);
+		new_surface = new Surface(sdl_surface);
 
+	new_surface->FlagForAutomaticDeletion();
 	// Add it to all the textures
-	m_Textures[texture_key] = new_texture;
-	m_DiskTextures[texture_key] = new DiskTexture(new_texture, extension);
-	dbg_msg("[Assets] &9Loaded texture '%s'\n", texture_key.c_str());
+	m_Surfaces[surface_key] = new_surface;
+	dbg_msg("[Assets] &9Loaded surface '%s'\n", surface_key.c_str());
 
+	// Last
+	if (m_SurfaceResourcesIndex == m_SurfaceResources.size())
+		m_InvalidSurfaceDefault = GetSurface("invalid");
 	return true;
 }
 
@@ -351,75 +349,73 @@ bool AssetsClass::LoadingFonts()
 	return true;
 }
 
-bool AssetsClass::GeneratingTextures()
+//bool AssetsClass::GeneratingTextures()
+//{
+//	if (m_PregenerateTexturesIterator == m_PregenerateTextures.end())
+//		return false;
+//
+//	sWorkDone++;
+//
+//	auto generate_texture = *m_PregenerateTexturesIterator;
+//	++m_PregenerateTexturesIterator;
+//	const std::string& texture_key = generate_texture->Key();
+//
+//	// Find if a texture with the same key exists
+//	auto it = m_Textures.find(texture_key);
+//	if (it != m_Textures.end())
+//	{
+//		dbg_msg("[Assets] &cDuplicate pre-generated texture '%s'\n", texture_key.c_str());
+//		return true;
+//	}
+//
+//	// If no callback was set, no generation can take place
+//	if (!generate_texture->m_GenerateCallback)
+//	{
+//		dbg_msg("[Assets] &cCould not pre-generate '%s', invalid callback\n", texture_key.c_str());
+//		return true;
+//	}
+//
+//	// If generator returned nullptr, there must've been an error
+//	auto new_texture = generate_texture->m_GenerateCallback(this);
+//	if (new_texture == nullptr)
+//	{
+//		dbg_msg("[Assets] &cCould not pre-generate '%s', invalid texture\n", texture_key.c_str());
+//		return true;
+//	}
+//
+//	new_texture->FlagForAutomaticDeletion();
+//	generate_texture->m_Texture = new_texture;
+//	m_Textures[texture_key] = new_texture;
+//	dbg_msg("[Assets] &eGenerated texture '%s'\n", texture_key.c_str());
+//
+//	return true;
+//}
+
+bool AssetsClass::LoadingTextures()
 {
-	if (m_PregenerateTexturesIterator == m_PregenerateTextures.end())
-		return false;
-
-	sWorkDone++;
-
-	auto generate_texture = *m_PregenerateTexturesIterator;
-	++m_PregenerateTexturesIterator;
-	const std::string& texture_key = generate_texture->Key();
-
-	// Find if a texture with the same key exists
-	auto it = m_Textures.find(texture_key);
-	if (it != m_Textures.end())
-	{
-		dbg_msg("[Assets] &cDuplicate pre-generated texture '%s'\n", texture_key.c_str());
-		return true;
-	}
-
-	// If no callback was set, no generation can take place
-	if (!generate_texture->m_GenerateCallback)
-	{
-		dbg_msg("[Assets] &cCould not pre-generate '%s', invalid callback\n", texture_key.c_str());
-		return true;
-	}
-
-	// If generator returned nullptr, there must've been an error
-	auto new_texture = generate_texture->m_GenerateCallback(this);
-	if (new_texture == nullptr)
-	{
-		dbg_msg("[Assets] &cCould not pre-generate '%s', invalid texture\n", texture_key.c_str());
-		return true;
-	}
-
-	new_texture->FlagForAutomaticDeletion();
-	generate_texture->m_Texture = new_texture;
-	m_Textures[texture_key] = new_texture;
-	dbg_msg("[Assets] &eGenerated texture '%s'\n", texture_key.c_str());
-
-	return true;
-}
-
-bool AssetsClass::LinkingTextures()
-{
-	if (m_LinkTextures.empty())
+	if (m_LoadTextures.empty())
 		return false; // todo: bad
 
-	sWorkDone += m_LinkTextures.size();
+	sWorkDone += m_LoadTextures.size();
+	m_InvalidTextureDefault = TextureFromSurface(*GetSurface("invalid"), TexturePurpose::GUI_ELEMENT);
 
-	dbg_msg("[Assets] &5Loaded %i textures\n", m_Textures.size());
-	m_InvalidTextureDefault = nullptr;
-	m_InvalidTextureDefault = GetTexture("invalid");
+//	dbg_msg("[Assets] &5Loaded %i textures\n", m_Textures.size());
 
-	for (auto required_texture : m_LinkTextures)
+	for (LoadTexture *load_texture : m_LoadTextures)
 	{
-		const std::string& texture_key = required_texture->Key();
-		auto link_texture = GetTexture(texture_key);
-		required_texture->m_Texture = link_texture;
+		const std::string& texture_key = load_texture->Key();
+		const std::string& from_surface_key = load_texture->FromSurfaceKey();
+		TexturePurpose purpose = load_texture->GetPurpose();
 
-		if (link_texture == nullptr)
-		{
-			dbg_msg("[Assets] &cCould not link '%s' (texture not found)\n", texture_key.c_str());
-			continue;
-		}
+		Surface& from_surface = *GetSurface(from_surface_key);
+		Texture *new_texture = TextureFromSurface(from_surface, purpose)
+			->FlagForAutomaticDeletion();
+		load_texture->texture = new_texture;
 
-		required_texture->m_LoadCallback(link_texture);
+		m_Textures[texture_key] = new_texture;
 	}
-	dbg_msg("[Assets] &5Linked %zu textures\n", m_LinkTextures.size());
-	m_LinkTextures.clear();
+	dbg_msg("[Assets] &5Loaded %zu textures\n", m_LoadTextures.size());
+	m_LoadTextures.clear();
 
 	return true;
 }
@@ -490,8 +486,145 @@ bool AssetsClass::LinkingFonts()
 	return true;
 }
 
+int CalculateMipmapLevels(int width, int height)
+{
+	int maxDimension = std::max(width, height);
+	return static_cast<int>(std::floor(std::log2(maxDimension))) + 1;
+}
+
+SDL_GPUTextureCreateInfo AssetsClass::GetGPUTextureCreateInfo(const Vec2i& texture_size, TexturePurpose purpose)
+{
+	SDL_GPUTextureCreateInfo texture_info = { };
+	texture_info.width = texture_size.x;
+	texture_info.height = texture_size.y;
+	texture_info.sample_count = SDL_GPU_SAMPLECOUNT_1;
+
+	switch (purpose)
+	{
+		case TexturePurpose::GUI_ELEMENT:
+		{
+			texture_info.type = SDL_GPU_TEXTURETYPE_2D;
+			texture_info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+			texture_info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+			texture_info.layer_count_or_depth = 1;
+			texture_info.num_levels = 1;  // No mipmaps
+			break;
+		}
+		case TexturePurpose::OBJECT_3D:
+		{
+			texture_info.type = SDL_GPU_TEXTURETYPE_2D;
+			texture_info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+			texture_info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+			texture_info.layer_count_or_depth = 1;
+			texture_info.num_levels = CalculateMipmapLevels(texture_size.x, texture_size.y);  // Full mipmap chain
+			break;
+		}
+		case TexturePurpose::RENDER_TARGET:
+		{
+			texture_info.type = SDL_GPU_TEXTURETYPE_2D;
+			texture_info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+			texture_info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER | SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
+			texture_info.layer_count_or_depth = 1;
+			texture_info.num_levels = 1;
+			break;
+		}
+		case TexturePurpose::DEPTH_BUFFER:
+		{
+			texture_info.type = SDL_GPU_TEXTURETYPE_2D;
+			texture_info.format = SDL_GPU_TEXTUREFORMAT_D24_UNORM;
+			texture_info.usage = SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET;
+			texture_info.layer_count_or_depth = 1;
+			texture_info.num_levels = 1;
+			break;
+		}
+		case TexturePurpose::CUBEMAP:
+		{
+			texture_info.type = SDL_GPU_TEXTURETYPE_CUBE;
+			texture_info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+			texture_info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+			texture_info.layer_count_or_depth = 6;  // 6 faces
+			texture_info.num_levels = CalculateMipmapLevels(texture_size.x, texture_size.y);
+			break;
+		}
+		case TexturePurpose::TEXTURE_ATLAS:
+		{
+			texture_info.type = SDL_GPU_TEXTURETYPE_2D;
+			texture_info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+			texture_info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+			texture_info.layer_count_or_depth = 1;
+			texture_info.num_levels = 1;  // Usually no mipmaps for atlases
+			break;
+		}
+	}
+
+	return texture_info;
+}
+
+SDL_GPUTexture *AssetsClass::GPUTextureFromSurface(SDL_Surface *sdl_surface, TexturePurpose purpose)
+{
+	// 1. Convert surface to RGBA8888 if needed
+	SDL_Surface *rgba_surface = SDL_ConvertSurface(sdl_surface, SDL_PIXELFORMAT_RGBA32);
+	if (!rgba_surface)
+	{
+		printf("ERROR: Failed to convert surface: %s\n", SDL_GetError());
+		return nullptr;
+	}
+
+	// 2. Create GPU texture
+//	SDL_GPUTextureCreateInfo texture_info = {
+//		.type = SDL_GPU_TEXTURETYPE_2D,
+//		.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,
+//		.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER,
+//		.width = (Uint32)rgba_surface->w,
+//		.height = (Uint32)rgba_surface->h,
+//		.layer_count_or_depth = 1,
+//		.num_levels = 1
+//	};
+	SDL_GPUTextureCreateInfo texture_info = GetGPUTextureCreateInfo(Vec2i(sdl_surface->w, sdl_surface->h), purpose);
+	SDL_GPUTexture *gpu_texture = SDL_CreateGPUTexture(Drawing.Device(), &texture_info);
+
+	// 3. Create transfer buffer
+	Uint32 data_size = rgba_surface->w * rgba_surface->h * 4;
+	SDL_GPUTransferBufferCreateInfo transfer_info = {
+		.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+		.size = data_size
+	};
+	SDL_GPUTransferBuffer *transfer = SDL_CreateGPUTransferBuffer(Drawing.Device(), &transfer_info);
+
+	// 4. Copy surface pixels to transfer buffer
+	void *mapped = SDL_MapGPUTransferBuffer(Drawing.Device(), transfer, false);
+	memcpy(mapped, rgba_surface->pixels, data_size);
+	SDL_UnmapGPUTransferBuffer(Drawing.Device(), transfer);
+
+	// 5. Upload to GPU
+	SDL_GPUCommandBuffer *cmd = SDL_AcquireGPUCommandBuffer(Drawing.Device());
+	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(cmd);
+
+	SDL_GPUTextureTransferInfo src = {
+		.transfer_buffer = transfer,
+		.offset = 0
+	};
+	SDL_GPUTextureRegion dst = {
+		.texture = gpu_texture,
+		.w = (Uint32)rgba_surface->w,
+		.h = (Uint32)rgba_surface->h,
+		.d = 1
+	};
+	SDL_UploadToGPUTexture(copy_pass, &src, &dst, false);
+
+	SDL_EndGPUCopyPass(copy_pass);
+	SDL_SubmitGPUCommandBuffer(cmd);
+
+	// 6. Cleanup
+	SDL_ReleaseGPUTransferBuffer(Drawing.Device(), transfer);
+	SDL_DestroySurface(rgba_surface);
+
+	return gpu_texture;
+}
+
 AssetsClass::AssetsClass()
-	: m_InvalidTextureDefault(nullptr)
+	: m_InvalidSurfaceDefault(nullptr),
+	  m_InvalidTextureDefault(nullptr)
 {
 	status = Status::UNINITIALIZED;
 
@@ -520,13 +653,13 @@ void AssetsClass::Initialize(bool sounds_enabled)
 	std::unordered_set<std::string> font_extensions = { ".ttf", ".otf", ".fon", ".fnt",
 														".bdf", ".pcf", ".sfnt", ".ttc" };
 	m_VisHitboxResources = GetResourceKeys(R"(.\assets\images\)", hitbox_extension);
-	m_TextureResources = GetResourceKeys(R"(.\assets\images\)", texture_extensions);
+	m_SurfaceResources = GetResourceKeys(R"(.\assets\images\)", texture_extensions);
 	m_SoundResources = GetResourceKeys(R"(.\assets\sounds\)", sound_extensions);
 	m_MusicResources = GetResourceKeys(R"(.\assets\music\)", sound_extensions);
 	m_FontResources = GetResourceKeys(R"(.\assets\fonts\)", font_extensions);
 
 	status = Status::KEYS_LOADED;
-	m_TextureResourcesIndex = 0;
+	m_SurfaceResourcesIndex = 0;
 	m_SoundResourcesIndex = 0;
 	m_MusicResourcesIndex = 0;
 //	m_TextureResourcesIterator = m_TextureResources.begin();
@@ -534,25 +667,25 @@ void AssetsClass::Initialize(bool sounds_enabled)
 //	m_MusicResourcesIterator = m_MusicResources.begin();
 	m_PreloadFontIterator = m_PreloadFonts.begin();
 	m_PregenerateTexturesIterator = m_PregenerateTextures.begin();
-	m_LinkTexturesIterator = m_LinkTextures.begin();
+	m_LinkTexturesIterator = m_LoadTextures.begin();
 	m_LinkSoundsIterator = m_LinkSounds.begin();
 	m_LinkMusicIterator = m_LinkMusic.begin();
 	m_LinkFontsIterator = m_LinkFonts.begin();
 
-	dbg_msg("[Assets] &2Found %zu textures in assets\n", m_TextureResources.size());
+	dbg_msg("[Assets] &2Found %zu textures in assets\n", m_SurfaceResources.size());
 	dbg_msg("[Assets] &2Found %zu sounds in assets\n", m_SoundResources.size());
 	dbg_msg("[Assets] &2Found %zu music in assets\n", m_MusicResources.size());
 	dbg_msg("[Assets] &2Found %zu fonts in assets\n", m_FontResources.size());
 	dbg_msg("[Assets] &dFound %zu different font instances\n", m_PreloadFonts.size());
-	dbg_msg("[Assets] &eFound %zu texture links\n", m_LinkTextures.size());
+	dbg_msg("[Assets] &eFound %zu texture links\n", m_LoadTextures.size());
 	dbg_msg("[Assets] &eFound %zu sound links\n", m_LinkSounds.size());
 	dbg_msg("[Assets] &eFound %zu music links\n", m_LinkMusic.size());
 	dbg_msg("[Assets] &eFound %zu font links\n", m_LinkFonts.size());
 	dbg_msg("[Assets] &dFound %zu pre-generated texture instances\n", m_PregenerateTextures.size());
 	dbg_msg("[Assets] &aReady to load assets..\n");
 
-	sTotalWork = m_TextureResources.size() + m_SoundResources.size() + m_MusicResources.size() + m_PreloadFonts.size()
-		+ m_LinkTextures.size() + m_LinkSounds.size() + m_LinkMusic.size() + m_LinkFonts.size()
+	sTotalWork = m_SurfaceResources.size() + m_SoundResources.size() + m_MusicResources.size() + m_PreloadFonts.size()
+		+ m_LoadTextures.size() + m_LinkSounds.size() + m_LinkMusic.size() + m_LinkFonts.size()
 		+ m_PregenerateTextures.size();
 }
 
@@ -562,8 +695,16 @@ void AssetsClass::Destroy()
 		return;
 	status = Status::UNINITIALIZED;
 
+	size_t destroyed_surfaces = 0;
+	for (Surface *surface : m_AutomaticDeletionSurfaces)
+	{
+		delete surface;
+		destroyed_surfaces++;
+	}
+	m_AutomaticDeletionSurfaces.clear();
+
 	size_t destroyed_textures = 0;
-	for (auto texture : m_AutomaticDeletionTextures)
+	for (Texture *texture : m_AutomaticDeletionTextures)
 	{
 		delete texture;
 		destroyed_textures++;
@@ -594,6 +735,14 @@ void AssetsClass::Destroy()
 	}
 	m_Fonts.clear();
 
+	size_t preloaded_surfaces = m_Surfaces.size(); // Also deleted here
+	auto other_destroyed_surfaces = destroyed_surfaces - preloaded_surfaces;
+	m_Surfaces.clear();
+
+	auto destroyed_surfaces_msg = FString("[Assets] &5Destroyed %zu surfaces", preloaded_surfaces);
+	if (other_destroyed_surfaces > 0)
+		destroyed_surfaces_msg += FString(" &d(+%zu dynamic)", other_destroyed_surfaces);
+
 	size_t preloaded_textures = m_Textures.size(); // Also deleted here
 	auto other_destroyed_textures = destroyed_textures - preloaded_textures;
 	m_Textures.clear();
@@ -602,6 +751,7 @@ void AssetsClass::Destroy()
 	if (other_destroyed_textures > 0)
 		destroyed_textures_msg += FString(" &d(+%zu dynamic)", other_destroyed_textures);
 
+	dbg_msg("%s\n", destroyed_surfaces_msg.c_str());
 	dbg_msg("%s\n", destroyed_textures_msg.c_str());
 	dbg_msg("[Assets] &5Destroyed %zu sounds\n", destroyed_sounds);
 	dbg_msg("[Assets] &5Destroyed %zu music\n", destroyed_music);
@@ -613,6 +763,26 @@ AssetsClass::~AssetsClass()
 	Destroy();
 }
 
+Surface *AssetsClass::GetSurface(const std::string& surface_key)
+{
+	auto it = m_Surfaces.find(surface_key);
+	if (it != m_Surfaces.end())
+		return it->second;
+
+	if (m_InvalidSurfaceDefault != nullptr)
+	{
+		dbg_msg("[Assets] GetSurface() `%s` not found\n", surface_key.c_str());
+		return m_InvalidSurfaceDefault;
+	}
+
+	throw std::runtime_error(
+		Strings::FString(
+			"AssetsClass::GetSurface() surface '%s' was not found (no invalid surface found either)\n",
+			surface_key.c_str()
+		)
+	);
+}
+
 Texture *AssetsClass::GetTexture(const std::string& texture_key)
 {
 	auto it = m_Textures.find(texture_key);
@@ -620,11 +790,17 @@ Texture *AssetsClass::GetTexture(const std::string& texture_key)
 		return it->second;
 
 	if (m_InvalidTextureDefault != nullptr)
+	{
+		dbg_msg("[Assets] GetTexture() `%s` not found\n", texture_key.c_str());
 		return m_InvalidTextureDefault;
+	}
 
-	throw std::runtime_error(Strings::FString(
-		"Assets.h GetTexture() texture '%s' was not found (no invalid texture found either)\n",
-		texture_key.c_str()));
+	throw std::runtime_error(
+		Strings::FString(
+			"Assets.h GetTexture() texture '%s' was not found (no invalid texture found either)\n",
+			texture_key.c_str()
+		)
+	);
 }
 
 const std::unordered_map<std::string, Texture *>& AssetsClass::GetAllTextures()
@@ -659,10 +835,17 @@ Font *AssetsClass::GetFont(const std::string& font_key)
 	return nullptr;
 }
 
-Texture *AssetsClass::TextureFromSurface(SDL_Surface *sdl_surface)
+Texture *AssetsClass::TextureFromSurface(const Surface& surface, TexturePurpose purpose)
 {
-	SDL_Texture *NewSDLTexture = SDL_CreateTextureFromSurface(Application.GetDrawing()->Renderer(), sdl_surface);
-	return new Texture(NewSDLTexture);
+	Vec2i texture_size = surface.GetSize();
+	SDL_Surface *sdl_surface = surface.SDLSurface();
+	if (surface.UsesHitbox())
+	{
+		VisualSurface *visual_surface = (VisualSurface *)&surface;
+		return new VisualTexture(surface.GetSize(), GPUTextureFromSurface(sdl_surface, purpose), visual_surface->GetHitbox());
+	}
+
+	return new Texture(texture_size, GPUTextureFromSurface(sdl_surface, purpose));
 }
 
 SDL_Surface *AssetsClass::CreateSDLSurface(int width, int height, SDL_PixelFormat format)
@@ -671,28 +854,86 @@ SDL_Surface *AssetsClass::CreateSDLSurface(int width, int height, SDL_PixelForma
 	return sdl_surface;
 }
 
-Texture *AssetsClass::CreateTexture(SDL_PixelFormat format, SDL_TextureAccess access, int w, int h)
+Texture *AssetsClass::CreateTexture(TexturePurpose purpose, const Vec2i& size, Rect4f *visual_hitbox)
 {
-	SDL_Texture *NewSDLTexture = SDL_CreateTexture(Application.GetDrawing()->Renderer(), format, access, w, h);
+	auto texture_info = GetGPUTextureCreateInfo(size, purpose);
+	SDL_GPUTexture *gpu_texture = SDL_CreateGPUTexture(Drawing.Device(), &texture_info);
+	if (visual_hitbox)
+		return new VisualTexture(size, gpu_texture, *visual_hitbox);
 
-	return new Texture(NewSDLTexture);
+	return new Texture(size, gpu_texture);
+
+//	SDL_GPUTextureFormat customFormat = SDL_GPU_TEXTUREFORMAT_INVALID;  // Optional override
+//	SDL_GPUTextureCreateInfo textureInfo = { };
+//	textureInfo.width = size.x;
+//	textureInfo.height = size.y;
+//	textureInfo.sample_count = SDL_GPU_SAMPLECOUNT_1;
+//
+//	switch (purpose)
+//	{
+//		case TexturePurpose::GUI_ELEMENT: textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
+//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+//			textureInfo.layer_count_or_depth = 1;
+//			textureInfo.num_levels = 1;  // No mipmaps
+//			break;
+//
+//		case TexturePurpose::OBJECT_3D: textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
+//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+//			textureInfo.layer_count_or_depth = 1;
+//			textureInfo.num_levels = CalculateMipmapLevels(size.x, size.y);  // Full mipmap chain
+//			break;
+//
+//		case TexturePurpose::RENDER_TARGET: textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
+//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER | SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
+//			textureInfo.layer_count_or_depth = 1;
+//			textureInfo.num_levels = 1;
+//			break;
+//
+//		case TexturePurpose::DEPTH_BUFFER: textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
+//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_D24_UNORM;
+//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET;
+//			textureInfo.layer_count_or_depth = 1;
+//			textureInfo.num_levels = 1;
+//			break;
+//
+//		case TexturePurpose::CUBEMAP: textureInfo.type = SDL_GPU_TEXTURETYPE_CUBE;
+//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+//			textureInfo.layer_count_or_depth = 6;  // 6 faces
+//			textureInfo.num_levels = CalculateMipmapLevels(size.x, size.y);
+//			break;
+//
+//		case TexturePurpose::TEXTURE_ATLAS: textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
+//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+//			textureInfo.layer_count_or_depth = 1;
+//			textureInfo.num_levels = 1;  // Usually no mipmaps for atlases
+//			break;
+//	}
+
+	// Allow format override if needed
+//	if (customFormat != SDL_GPU_TEXTUREFORMAT_INVALID)
+//		textureInfo.format = customFormat;
 }
 
-SDL_Texture *AssetsClass::CopySDLTexture(SDL_Texture *copy_texture, SDL_TextureAccess access)
-{
-	auto original_render_target = SDL_GetRenderTarget(Application.GetDrawing()->Renderer());
-
-	SDL_Texture *NewSDLTexture = SDL_CreateTexture(Application.GetDrawing()->Renderer(),
-												   copy_texture->format,
-												   access,
-												   copy_texture->w,
-												   copy_texture->h);
-//    SDL_SetRenderTarget(Application.GetDrawing()->Renderer(), NewSDLTexture);
-	Application.GetDrawing()->SetRenderTargetSDL(NewSDLTexture);
-	Application.GetDrawing()->RenderTextureFullscreen(copy_texture, nullptr);
-	Application.GetDrawing()->SetRenderTargetSDL(original_render_target);
-	return NewSDLTexture;
-}
+//SDL_Texture *AssetsClass::CopySDLTexture(SDL_Texture *copy_texture, SDL_TextureAccess access)
+//{
+//	auto original_render_target = SDL_GetRenderTarget(Application.GetDrawing()->Renderer());
+//
+//	SDL_Texture *NewSDLTexture = SDL_CreateTexture(Application.GetDrawing()->Renderer(),
+//												   copy_texture->format,
+//												   access,
+//												   copy_texture->w,
+//												   copy_texture->h);
+////    SDL_SetRenderTarget(Application.GetDrawing()->Renderer(), NewSDLTexture);
+//	Application.GetDrawing()->SetRenderTargetSDL(NewSDLTexture);
+//	Application.GetDrawing()->RenderTextureFullscreen(copy_texture, nullptr);
+//	Application.GetDrawing()->SetRenderTargetSDL(original_render_target);
+//	return NewSDLTexture;
+//}
 
 //VisualTexture* AssetsClass::RenderTextBlendedVisual(TTF_Font* font, const std::string& text, SDL_Color color) {
 //    SDL_Surface* sdl_surface = TTF_RenderText_Blended(font, text.c_str(), text.size(), color);
@@ -707,131 +948,130 @@ SDL_Texture *AssetsClass::CopySDLTexture(SDL_Texture *copy_texture, SDL_TextureA
 
 Texture *AssetsClass::RenderTextBlended(TTF_Font *font, const std::string& text, SDL_Color color)
 {
-	SDL_Surface *sdl_surface = TTF_RenderText_Blended(font, text.c_str(), text.size(), color);
-	Texture *text_render = TextureFromSurface(sdl_surface);
-	SDL_DestroySurface(sdl_surface);
+	Surface temp_surface(TTF_RenderText_Blended(font, text.c_str(), text.size(), color));
+	Texture *text_render = TextureFromSurface(temp_surface, TexturePurpose::GUI_ELEMENT);
+
 	return text_render;
 }
 
 Texture *AssetsClass::RenderTextBlended(TTF_Font *font, const char *text, SDL_Color color)
 {
-	SDL_Surface *sdl_surface = TTF_RenderText_Blended(font, text, strlen(text), color);
-	Texture *text_render = TextureFromSurface(sdl_surface);
-	SDL_DestroySurface(sdl_surface);
+	Surface temp_surface(TTF_RenderText_Blended(font, text, strlen(text), color));
+	Texture *text_render = TextureFromSurface(temp_surface, TexturePurpose::GUI_ELEMENT);
+
 	return text_render;
 }
 
-Texture *AssetsClass::RenderTextBlendedOutline(TTF_Font *font, const char *text, int thickness,
-											   SDL_Color text_color, SDL_Color outline_color)
-{
-	auto original_render_target = SDL_GetRenderTarget(Application.GetDrawing()->Renderer());
-
-	TTF_SetFontOutline(font, thickness);
-	SDL_Surface *outlineSurface = TTF_RenderText_Blended(font, text, strlen(text),
-														 { outline_color.r, outline_color.g, outline_color.b, 255 });
-
-	TTF_SetFontOutline(font, 0);
-
-	SDL_Surface *textSurface = TTF_RenderText_Blended(font, text, strlen(text), text_color);
-
-	SDL_Texture *outlineTexture = SDL_CreateTextureFromSurface(Application.GetDrawing()->Renderer(), outlineSurface);
-	SDL_SetTextureAlphaMod(outlineTexture, outline_color.a);
-	SDL_Texture *textTexture = SDL_CreateTextureFromSurface(Application.GetDrawing()->Renderer(), textSurface);
-
-	auto result = SDL_CreateTexture(Application.GetDrawing()->Renderer(),
-									SDL_PIXELFORMAT_RGBA8888,
-									SDL_TEXTUREACCESS_TARGET,
-									outlineTexture->w, outlineTexture->h);
-	Application.GetDrawing()->SetRenderTargetSDL(result);
-	Application.GetDrawing()->RenderTextureFullscreen(outlineTexture, nullptr);
-	SDL_FRect text_destination = {
-		(float)thickness, (float)thickness,
-		(float)textTexture->w, (float)textTexture->h
-	};
-	Application.GetDrawing()->RenderTexture(textTexture, nullptr, text_destination);
-	Application.GetDrawing()->SetRenderTargetSDL(original_render_target);
-
-	SDL_DestroyTexture(outlineTexture);
-	SDL_DestroyTexture(textTexture);
-
-	return new VisualTexture(result, Rect4f(text_destination.x, text_destination.y, text_destination.w, text_destination.h));
-}
+//Texture *AssetsClass::RenderTextBlendedOutline(TTF_Font *font, const char *text, int thickness,
+//											   SDL_Color text_color, SDL_Color outline_color)
+//{
+//	auto original_render_target = SDL_GetRenderTarget(Application.GetDrawing()->Renderer());
+//
+//	TTF_SetFontOutline(font, thickness);
+//	SDL_Surface *outlineSurface = TTF_RenderText_Blended(font, text, strlen(text),
+//														 { outline_color.r, outline_color.g, outline_color.b, 255 });
+//
+//	TTF_SetFontOutline(font, 0);
+//
+//	SDL_Surface *textSurface = TTF_RenderText_Blended(font, text, strlen(text), text_color);
+//
+//	SDL_Texture *outlineTexture = SDL_CreateTextureFromSurface(Application.GetDrawing()->Renderer(), outlineSurface);
+//	SDL_SetTextureAlphaMod(outlineTexture, outline_color.a);
+//	SDL_Texture *textTexture = SDL_CreateTextureFromSurface(Application.GetDrawing()->Renderer(), textSurface);
+//
+//	auto result = SDL_CreateTexture(Application.GetDrawing()->Renderer(),
+//									SDL_PIXELFORMAT_RGBA8888,
+//									SDL_TEXTUREACCESS_TARGET,
+//									outlineTexture->w, outlineTexture->h);
+//	Application.GetDrawing()->SetRenderTargetSDL(result);
+//	Application.GetDrawing()->RenderTextureFullscreen(outlineTexture, nullptr);
+//	SDL_FRect text_destination = {
+//		(float)thickness, (float)thickness,
+//		(float)textTexture->w, (float)textTexture->h
+//	};
+//	Application.GetDrawing()->RenderTexture(textTexture, nullptr, text_destination);
+//	Application.GetDrawing()->SetRenderTargetSDL(original_render_target);
+//
+//	SDL_DestroyTexture(outlineTexture);
+//	SDL_DestroyTexture(textTexture);
+//
+//	return new VisualTexture(result, Rect4f(text_destination.x, text_destination.y, text_destination.w, text_destination.h));
+//}
 
 Texture *AssetsClass::RenderTextSolid(TTF_Font *font, const std::string& text, SDL_Color color)
 {
-	SDL_Surface *sdl_surface = TTF_RenderText_Solid(font, text.c_str(), text.size(), color);
-	Texture *text_render = TextureFromSurface(sdl_surface);
-	SDL_DestroySurface(sdl_surface);
+	Surface temp_surface(TTF_RenderText_Solid(font, text.c_str(), text.size(), color));
+	Texture *text_render = TextureFromSurface(temp_surface, TexturePurpose::GUI_ELEMENT);
+
 	return text_render;
 }
 
 Texture *AssetsClass::RenderTextSolid(TTF_Font *font, const char *text, SDL_Color color)
 {
-	SDL_Surface *sdl_surface = TTF_RenderText_Solid(font, text, strlen(text), color);
-	Texture *text_render = TextureFromSurface(sdl_surface);
-	SDL_DestroySurface(sdl_surface);
+	Surface temp_surface(TTF_RenderText_Solid(font, text, strlen(text), color));
+	Texture *text_render = TextureFromSurface(temp_surface, TexturePurpose::GUI_ELEMENT);
+
 	return text_render;
 }
 
-Texture *AssetsClass::RenderTextureOnTextureCentered(Texture *outer, Texture *inner, bool copy)
-{
-	auto original_render_target = SDL_GetRenderTarget(Application.GetDrawing()->Renderer());
+//Texture *AssetsClass::RenderTextureOnTextureCentered(Texture *outer, Texture *inner, bool copy)
+//{
+//	auto original_render_target = SDL_GetRenderTarget(Application.GetDrawing()->Renderer());
+//
+//	auto result_texture = copy ? outer->CopyTexture(SDL_TEXTUREACCESS_TARGET) : outer;
+//	auto outer_size = outer->GetSize();
+//	auto inner_size = inner->GetSize();
+//	auto position = Rectangles::CenterRelative(inner_size, outer_size);
+//	Application.GetDrawing()->SetRenderTarget(result_texture);
+//	Application.GetDrawing()->RenderTexture(inner->SDLTexture(), nullptr, position);
+//	Application.GetDrawing()->SetRenderTargetSDL(original_render_target);
+//	return result_texture;
+//}
+//
+//bool AssetsClass::SaveTextureToDisk(Texture *texture, const std::string& filename)
+//{
+//	auto original_render_target = SDL_GetRenderTarget(Application.GetDrawing()->Renderer());
+//
+//	Application.GetDrawing()->SetRenderTarget(texture);
+//	SDL_Surface *sdl_surface = SDL_RenderReadPixels(Application.GetDrawing()->Renderer(), nullptr);
+//	Application.GetDrawing()->SetRenderTargetSDL(original_render_target);
+//
+//	bool save_result = IMG_SavePNG(sdl_surface, filename.c_str());
+//	SDL_DestroySurface(sdl_surface);
+//	if (!save_result)
+//	{
+//		dbg_msg("[Assets] &cFailed to export texture to disk\n");
+//		dbg_msg("[Assets] &cReason: %s\n", SDL_GetError());
+//		return false;
+//	}
+//
+//	dbg_msg("[Assets] &aExported texture to disk as %s\n", filename.c_str());
+//	return true;
+//}
 
-	auto result_texture = copy ? outer->CopyTexture(SDL_TEXTUREACCESS_TARGET) : outer;
-	auto outer_size = outer->GetSize();
-	auto inner_size = inner->GetSize();
-	auto position = Rectangles::CenterRelative(inner_size, outer_size);
-	Application.GetDrawing()->SetRenderTarget(result_texture);
-	Application.GetDrawing()->RenderTexture(inner->SDLTexture(), nullptr, position);
-	Application.GetDrawing()->SetRenderTargetSDL(original_render_target);
-	return result_texture;
-}
-
-bool AssetsClass::SaveTextureToDisk(Texture *texture, const std::string& filename)
-{
-	auto original_render_target = SDL_GetRenderTarget(Application.GetDrawing()->Renderer());
-
-	Application.GetDrawing()->SetRenderTarget(texture);
-	SDL_Surface *sdl_surface = SDL_RenderReadPixels(Application.GetDrawing()->Renderer(), nullptr);
-	Application.GetDrawing()->SetRenderTargetSDL(original_render_target);
-
-	bool save_result = IMG_SavePNG(sdl_surface, filename.c_str());
-	SDL_DestroySurface(sdl_surface);
-	if (!save_result)
-	{
-		dbg_msg("[Assets] &cFailed to export texture to disk\n");
-		dbg_msg("[Assets] &cReason: %s\n", SDL_GetError());
-		return false;
-	}
-
-	dbg_msg("[Assets] &aExported texture to disk as %s\n", filename.c_str());
-	return true;
-}
-
-void AssetsClass::LinkPreloadedTexture(LinkTexture *link_texture)
-{
-	if (Assets.GetStatus() < Status::ASSETS_LINKED)
-	{
-		m_LinkTextures.push_back(link_texture);
-		return;
-	}
-
-	auto error = Strings::FString("You cannot link texture '%s' after status == ASSETS_LINKED",
-								  link_texture->m_Key.c_str());
-	throw std::runtime_error(error);
-}
-
-void AssetsClass::LinkPregeneratedTexture(PregenerateTexture *pregenerate_texture)
+void AssetsClass::AddLoadTexture(LoadTexture *load_texture)
 {
 	if (Assets.GetStatus() < Status::ASSETS_LINKED)
 	{
-		m_PregenerateTextures.push_back(pregenerate_texture);
+		m_LoadTextures.push_back(load_texture);
 		return;
 	}
 
-	auto error = Strings::FString("You cannot pre-generate texture '%s' after status == ASSETS_LINKED", pregenerate_texture->m_Key.c_str());
+	auto error = Strings::FString("You cannot load texture '%s' after status == ASSETS_LINKED", load_texture->key.c_str());
 	throw std::runtime_error(error);
 }
+
+//void AssetsClass::LinkPregeneratedTexture(PregenerateTexture *pregenerate_texture)
+//{
+//	if (Assets.GetStatus() < Status::ASSETS_LINKED)
+//	{
+//		m_PregenerateTextures.push_back(pregenerate_texture);
+//		return;
+//	}
+//
+//	auto error = Strings::FString("You cannot pre-generate texture '%s' after status == ASSETS_LINKED", pregenerate_texture->m_Key.c_str());
+//	throw std::runtime_error(error);
+//}
 
 void AssetsClass::LinkPreloadedSound(LinkSound *link_sound)
 {
@@ -892,6 +1132,11 @@ void AssetsClass::PauseMusic()
 	Mix_PauseMusic();
 }
 
+void AssetsClass::AutomaticallyDeleteSurface(Surface *surface)
+{
+	m_AutomaticDeletionSurfaces.push_back(surface);
+}
+
 void AssetsClass::AutomaticallyDeleteTexture(Texture *texture)
 {
 	m_AutomaticDeletionTextures.push_back(texture);
@@ -901,15 +1146,15 @@ void AssetsClass::ThreadedLoading()
 {
 	while (status == Status::KEYS_LOADED)
 	{
-		if (LoadingTextures()) break;
+		if (LoadingSurfaces()) break;
 		if (LoadingSounds()) break;
 		if (LoadingMusic()) break;
 		if (LoadingFonts()) break;
-		if (LinkingTextures()) break;
+		if (LoadingTextures()) break;
 		if (LinkingSounds()) break;
 		if (LinkingMusic()) break;
 		if (LinkingFonts()) break;
-		if (GeneratingTextures()) break;
+//		if (GeneratingTextures()) break;
 
 		status = Status::ASSETS_LINKED;
 		dbg_msg("[Assets] &aWork finished %zu/%zu\n", GetWorkDone(), GetTotalWork());
@@ -919,31 +1164,42 @@ void AssetsClass::ThreadedLoading()
 AssetsClass Assets;
 // AssetsClass end
 
-LinkTexture::LinkTexture(std::string texture_key)
-	: m_Key(std::move(texture_key))
+LoadTexture::LoadTexture(std::string new_key, AssetsClass::TexturePurpose purpose)
+	: key(new_key)
 {
-	m_Texture = nullptr;
-	m_LoadCallback = [](Texture *) { };
+	texture = nullptr;
+	from_surface_key = key;
+	texture_purpose = purpose;
 
-	AssetsClass::LinkPreloadedTexture(this);
+	AssetsClass::AddLoadTexture(this);
 }
 
-LinkTexture::LinkTexture(std::string texture_key, TextureCallback load_callback)
-	: m_Key(std::move(texture_key))
+LoadTexture::LoadTexture(std::string new_key, std::string surface_key, AssetsClass::TexturePurpose purpose)
+	: key(std::move(new_key))
 {
-	m_Texture = nullptr;
-	m_LoadCallback = std::move(load_callback);
+	texture = nullptr;
+	from_surface_key = std::move(surface_key);
+	texture_purpose = purpose;
 
-	AssetsClass::LinkPreloadedTexture(this);
+	AssetsClass::AddLoadTexture(this);
 }
 
-PregenerateTexture::PregenerateTexture(std::string texture_key, TextureCallback generate_callback)
-	: m_Key(std::move(texture_key)), m_GenerateCallback(std::move(generate_callback))
-{
-	m_Texture = nullptr;
+//LoadTexture::LoadTexture(std::string texture_key, TextureCallback load_callback)
+//	: key(std::move(texture_key))
+//{
+//	texture = nullptr;
+//	m_LoadCallback = std::move(load_callback);
+//
+//	AssetsClass::LinkPreloadedTexture(this);
+//}
 
-	AssetsClass::LinkPregeneratedTexture(this);
-}
+//PregenerateTexture::PregenerateTexture(std::string texture_key, TextureCallback generate_callback)
+//	: m_Key(std::move(texture_key)), m_GenerateCallback(std::move(generate_callback))
+//{
+//	m_Texture = nullptr;
+//
+//	AssetsClass::LinkPregeneratedTexture(this);
+//}
 
 LinkSound::LinkSound(std::string sound_key)
 	: m_Key(std::move(sound_key))
