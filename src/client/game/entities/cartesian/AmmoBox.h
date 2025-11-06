@@ -24,14 +24,14 @@ protected:
     void TickPickup();
 
 public:
-    static LinkTexture sTextureGlock;
-    static LinkTexture sTextureShotgun;
-    static LinkTexture sTextureBurst;
-    static LinkTexture sTextureMinigun;
-    static LinkTexture sTextureSniper;
+    static LoadTexture sTextureGlock;
+    static LoadTexture sTextureShotgun;
+    static LoadTexture sTextureBurst;
+    static LoadTexture sTextureMinigun;
+    static LoadTexture sTextureSniper;
 
     AmmoBox(AmmoType type,
-            const Vec2f& start_pos,
+            const Vec3f& start_pos,
             unsigned int AmmoCount);
 
     // Getting

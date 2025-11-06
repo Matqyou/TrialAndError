@@ -20,22 +20,22 @@ Gamepad::Gamepad()
 	metadata_version = 0;
 	metadata_type = SDL_GAMEPAD_TYPE_UNKNOWN;
 
-	visual_of_joystick_left = nullptr;
-	visual_of_joystick_right = nullptr;
+//	visual_of_joystick_left = nullptr;
+//	visual_of_joystick_right = nullptr;
 
 	// If any timing issues, we should delay this
-	visual_of_joystick_left = Assets.CreateTexture(SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 50, 50)
-		->SetScaleMode(SDL_SCALEMODE_NEAREST);
-	visual_of_joystick_right = Assets.CreateTexture(SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 50, 50)
-		->SetScaleMode(SDL_SCALEMODE_NEAREST);
+//	visual_of_joystick_left = Assets.CreateTexture(SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 50, 50)
+//		->SetScaleMode(SDL_SCALEMODE_NEAREST);
+//	visual_of_joystick_right = Assets.CreateTexture(SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 50, 50)
+//		->SetScaleMode(SDL_SCALEMODE_NEAREST);
 
-	Drawing* drawing = Application.GetDrawing();
-	drawing->SetColor(0, 0, 0, 0);
-	drawing->SetRenderTarget(visual_of_joystick_left);
-	drawing->Clear();
-	drawing->SetRenderTarget(visual_of_joystick_right);
-	drawing->Clear();
-	drawing->SetRenderTarget(nullptr); //
+//	Drawing* drawing = Application.GetDrawing();
+//	drawing->SetColor(0, 0, 0, 0);
+//	drawing->SetRenderTarget(visual_of_joystick_left);
+//	drawing->Clear();
+//	drawing->SetRenderTarget(visual_of_joystick_right);
+//	drawing->Clear();
+//	drawing->SetRenderTarget(nullptr); //
 
 	for (auto& one_axis : axis)
 		one_axis = 0;
@@ -47,8 +47,8 @@ Gamepad::~Gamepad()
 {
 	CloseGamepad();
 
-	delete visual_of_joystick_left;
-	delete visual_of_joystick_right;
+//	delete visual_of_joystick_left;
+//	delete visual_of_joystick_right;
 }
 
 Vec2f Gamepad::GetJoystickLeft()

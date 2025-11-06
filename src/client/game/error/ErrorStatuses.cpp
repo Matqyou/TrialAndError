@@ -5,9 +5,9 @@
 #include "ErrorStatuses.h"
 #include "client/game/GameReference.h"
 
-LinkTexture sTextureErrorFrame("interface.ingame.error_frame");
-LinkTexture sTextureErrorBackground("interface.ingame.error_background");
-LinkTexture sTextureFrame("interface.frame");
+LoadTexture sTextureErrorFrame("interface.ingame.error_frame", AssetsClass::TexturePurpose::GUI_ELEMENT);
+LoadTexture sTextureErrorBackground("interface.ingame.error_background", AssetsClass::TexturePurpose::GUI_ELEMENT);
+LoadTexture sTextureFrame("interface.frame", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 void ErrorFrames::CreateFrames(std::vector<ErrorStatusEffect *>& group)
 {
@@ -73,7 +73,6 @@ ErrorStatuses::ErrorStatuses(Interface *interface, Character *parent, bool gui)
 	m_Gui = gui;
 
 	m_LastActivatedEffect = nullptr;
-	m_Drawing = Application.GetDrawing();
 
 	if (gui) m_Frames.CreateFramesUI(m_Effects);
 	else m_Frames.CreateFrames(m_Effects);
@@ -123,94 +122,96 @@ void ErrorStatuses::Draw()
 
 void ErrorStatuses::DrawIngame()
 {
-	if (m_Parent == nullptr)
-		return;
-
-	auto current_tick = GameReference.World()->GetTick();
-	auto directional = (DirectionalEntity *)m_Parent;
-	auto
-		parent_offset = directional->GetDirectionalCore().pos + Vec2f(directional->GetDirectionalCore().size_ratio, 0.0);
-
-	auto effects_it = m_Effects.begin();
-	auto frames_it = m_Frames.Frames.begin();
-	while (effects_it != m_Effects.end())
-	{
-		auto effect = *effects_it;
-
-		effects_it++;
-		if (!effect->IsActive())
-			continue;
-
-		auto& frame = *frames_it;
-		auto percentage = (double)(effect->GetEndTimestamp() - current_tick) / (double)effect->GetEffectDuration();
-		SDL_FRect source = {
-			0,
-			0,
-			effect->GetTexture()->GetWidth(),
-			(float)(effect->GetTexture()->GetHeight() * percentage),
-		};
-		SDL_FRect frame_rect = {
-			(float)(parent_offset.x + frame.Pos.x + 5.0),
-			(float)(parent_offset.y + frame.Pos.y),
-			(float)(frame.Size.x),
-			(float)(frame.Size.y),
-		};
-		SDL_FRect effect_rect = {
-			(float)(parent_offset.x + frame.Pos.x + 5.0),
-			(float)(parent_offset.y + frame.Pos.y),
-			(float)(frame.Size.x),
-			(float)(frame.Size.y * percentage),
-		};
-		m_Drawing->RenderTexture(sTextureErrorBackground.GetTexture()->SDLTexture(), nullptr, frame_rect, GameReference.GetCamera());
-		m_Drawing->RenderTexture(effect->GetTexture()->SDLTexture(), &source, effect_rect, GameReference.GetCamera());
-		m_Drawing->RenderTexture(sTextureErrorFrame.GetTexture()->SDLTexture(), nullptr, frame_rect, GameReference.GetCamera());
-
-		frames_it++;
-	}
+//	if (m_Parent == nullptr)
+//		return;
+//
+//	Camera3D& camera = GameReference.GetCamera3D();
+//
+//	auto current_tick = GameReference.World()->GetTick();
+//	auto directional = (DirectionalEntity *)m_Parent;
+//	bool visible; // sus rendering..
+//	auto parent_offset = camera.CameraToScreen(directional->GetDirectionalCore().pos, visible, Vec2f(Application.GetResolution())) + Vec2f(directional->GetDirectionalCore().size_ratio, 0.0);
+//
+//	auto effects_it = m_Effects.begin();
+//	auto frames_it = m_Frames.Frames.begin();
+//	while (effects_it != m_Effects.end())
+//	{
+//		auto effect = *effects_it;
+//
+//		effects_it++;
+//		if (!effect->IsActive())
+//			continue;
+//
+//		auto& frame = *frames_it;
+//		auto percentage = (double)(effect->GetEndTimestamp() - current_tick) / (double)effect->GetEffectDuration();
+//		SDL_FRect source = {
+//			0,
+//			0,
+//			effect->GetTexture()->GetWidth(),
+//			(float)(effect->GetTexture()->GetHeight() * percentage),
+//		};
+//		SDL_FRect frame_rect = {
+//			(float)(parent_offset.x + frame.Pos.x + 5.0),
+//			(float)(parent_offset.y + frame.Pos.y),
+//			(float)(frame.Size.x),
+//			(float)(frame.Size.y),
+//		};
+//		SDL_FRect effect_rect = {
+//			(float)(parent_offset.x + frame.Pos.x + 5.0),
+//			(float)(parent_offset.y + frame.Pos.y),
+//			(float)(frame.Size.x),
+//			(float)(frame.Size.y * percentage),
+//		};
+//		m_Drawing->RenderTexture(sTextureErrorBackground.GetTexture()->SDLTexture(), nullptr, frame_rect, GameReference.GetCamera());
+//		m_Drawing->RenderTexture(effect->GetTexture()->SDLTexture(), &source, effect_rect, GameReference.GetCamera());
+//		m_Drawing->RenderTexture(sTextureErrorFrame.GetTexture()->SDLTexture(), nullptr, frame_rect, GameReference.GetCamera());
+//
+//		frames_it++;
+//	}
 }
 
 void ErrorStatuses::DrawAsGUI()
 {
-	if (m_Parent == nullptr)
-		return;
-
-
-	auto current_tick = GameReference.World()->GetTick();
-	auto gui_offset = Vec2d(Application.GetWidth(), 0.0);
-
-	auto effects_it = m_Effects.begin();
-	auto frames_it = m_Frames.Frames.begin();
-	while (effects_it != m_Effects.end())
-	{
-		auto effect = *effects_it;
-
-		effects_it++;
-		if (!effect->IsActive())
-			continue;
-
-		auto& frame = *frames_it;
-		auto percentage = (double)(effect->GetEndTimestamp() - current_tick) / (double)effect->GetEffectDuration();
-		SDL_FRect source = {
-			0, 0,
-			effect->GetTexture()->GetWidth(),
-			(float)(effect->GetTexture()->GetHeight() * percentage),
-		};
-		SDL_FRect frame_rect = {
-			(float)(gui_offset.x + frame.Pos.x),
-			(float)(gui_offset.y + frame.Pos.y),
-			(float)(frame.Size.x),
-			(float)(frame.Size.y),
-		};
-		SDL_FRect effect_rect = {
-			(float)(gui_offset.x + frame.Pos.x),
-			(float)(gui_offset.y + frame.Pos.y),
-			(float)(frame.Size.x),
-			(float)(frame.Size.y * percentage),
-		};
-		m_Drawing->RenderTexture(sTextureErrorBackground.GetTexture()->SDLTexture(), nullptr, frame_rect);
-		m_Drawing->RenderTexture(effect->GetTexture()->SDLTexture(), &source, effect_rect);
-		m_Drawing->RenderTexture(sTextureErrorFrame.GetTexture()->SDLTexture(), nullptr, frame_rect);
-
-		frames_it++;
-	}
+//	if (m_Parent == nullptr)
+//		return;
+//
+//
+//	auto current_tick = GameReference.World()->GetTick();
+//	auto gui_offset = Vec2d(Application.GetWidth(), 0.0);
+//
+//	auto effects_it = m_Effects.begin();
+//	auto frames_it = m_Frames.Frames.begin();
+//	while (effects_it != m_Effects.end())
+//	{
+//		auto effect = *effects_it;
+//
+//		effects_it++;
+//		if (!effect->IsActive())
+//			continue;
+//
+//		auto& frame = *frames_it;
+//		auto percentage = (double)(effect->GetEndTimestamp() - current_tick) / (double)effect->GetEffectDuration();
+//		SDL_FRect source = {
+//			0, 0,
+//			effect->GetTexture()->GetWidth(),
+//			(float)(effect->GetTexture()->GetHeight() * percentage),
+//		};
+//		SDL_FRect frame_rect = {
+//			(float)(gui_offset.x + frame.Pos.x),
+//			(float)(gui_offset.y + frame.Pos.y),
+//			(float)(frame.Size.x),
+//			(float)(frame.Size.y),
+//		};
+//		SDL_FRect effect_rect = {
+//			(float)(gui_offset.x + frame.Pos.x),
+//			(float)(gui_offset.y + frame.Pos.y),
+//			(float)(frame.Size.x),
+//			(float)(frame.Size.y * percentage),
+//		};
+//		m_Drawing->RenderTexture(sTextureErrorBackground.GetTexture()->SDLTexture(), nullptr, frame_rect);
+//		m_Drawing->RenderTexture(effect->GetTexture()->SDLTexture(), &source, effect_rect);
+//		m_Drawing->RenderTexture(sTextureErrorFrame.GetTexture()->SDLTexture(), nullptr, frame_rect);
+//
+//		frames_it++;
+//	}
 }

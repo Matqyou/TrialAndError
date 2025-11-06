@@ -37,7 +37,6 @@ class ErrorStatuses : public InterfaceElement
 {
 private:
 	Character *m_Parent;
-	Drawing *m_Drawing;
 	bool m_Gui; // temp
 
 	ErrorStatusEffect *m_LastActivatedEffect;

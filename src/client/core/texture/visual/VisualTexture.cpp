@@ -5,16 +5,16 @@
 #include "VisualTexture.h"
 #include "client/core/Assets.h"
 
-VisualTexture::VisualTexture(SDL_Texture *sdl_texture, const Rect4f& physical_hitbox)
-	: Texture(sdl_texture)
+VisualTexture::VisualTexture(const Vec2i& size, SDL_GPUTexture *texture, const Rect4f& physical_hitbox)
+	: Texture(size, texture)
 {
-	if (this->sdl_texture)
+	if (this->gpu_texture)
 	{
 		this->translation_ratios = {
-			physical_hitbox.x / sdl_texture_size.x,
-			physical_hitbox.y / sdl_texture_size.y,
-			sdl_texture_size.x / physical_hitbox.w,
-			sdl_texture_size.y / physical_hitbox.h,
+			physical_hitbox.x / (float)texture_size.x,
+			physical_hitbox.y / (float)texture_size.y,
+			(float)texture_size.x / physical_hitbox.w,
+			(float)texture_size.y / physical_hitbox.h,
 		};
 	}
 	else

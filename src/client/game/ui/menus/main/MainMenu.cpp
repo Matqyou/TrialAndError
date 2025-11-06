@@ -9,14 +9,17 @@
 #include "client/game/ui/menus/Menus.h"
 
 static LinkMusic sElevatorMusic("intro");
-static LinkTexture sMenuTexture("interface.menu");
-static LinkTexture sTextureTitle("ui.main.title2");
-static LinkTexture sTexturePlay("ui.main.playbutton2");
-static LinkTexture sTextureExit("ui.main.exit2");
+static LoadTexture sTexturePlay("ui.main.playbutton2", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureTitle("ui.main.title2", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sMenuTexture("interface.menu", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureExit("ui.main.exit2", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 MainMenu::MainMenu()
-	: FullscreenMenu()
+	: FullscreenMenu(),
+	  drawing(4, 6)
 {
+	Quad background(drawing, Rect4f(0, 0, Application.GetWidth(), Application.GetHeight())); // todo: dynamic size
+	Application.GetPreRenderEvent().Subscribe([this]() { drawing.Update(); drawing.SetTexture(sMenuTexture); });
 
 	auto title = (new Element())
 		->SetSize(Vec2i(600, 300))
@@ -73,7 +76,9 @@ void MainMenu::SwitchToThisMenu()
 	{
 		sElevatorMusic.GetMusic()->PlayMusic(-1);
 		if (!m_Intro) Mix_SetMusicPosition(16);
-	} else { Mix_ResumeMusic(); }
+	}
+	else
+	{ Mix_ResumeMusic(); }
 
 	Menus.SetCurrentMenu(this);
 	RefreshMenu();
@@ -122,31 +127,32 @@ void MainMenu::Render()
 		return;
 	}
 
-	auto drawing = Application.GetDrawing();
-	drawing->SetColor(0, 0, 0, 255);
-	drawing->Clear();
+	drawing.Draw();
 
-	double duration = (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_Opened).count();
-	int centerX = (int)Application.GetWidth2();
-	int centerY = (int)Application.GetHeight2();
-	int radius = (int)(duration * 0.05);
-	int color = (int)(duration / 15500 * 255);
-
-	drawing->SetColor(color, color, color, 255);
-	for (int y = -radius; y <= radius; ++y)
-	{
-		int dx = static_cast<int>(std::sqrt(radius * radius - y * y)); // Horizontal distance for this vertical offset
-		int startX = centerX - dx;
-		int endX = centerX + dx;
-
-		// Draw a horizontal line for the current row
-		drawing->DrawLine(Vec2f(startX, centerY + y), Vec2f(endX, centerY + y));
-	}
-
-	if (duration >= 15000)
-	{
-		drawing->SetColor(0, 0, 0, 255);
-		drawing->Clear();
-	}
-
+//	auto drawing = Application.GetDrawing();
+//	drawing->SetColor(0, 0, 0, 255);
+//	drawing->Clear();
+//
+//	double duration = (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_Opened).count();
+//	int centerX = (int)Application.GetWidth2();
+//	int centerY = (int)Application.GetHeight2();
+//	int radius = (int)(duration * 0.05);
+//	int color = (int)(duration / 15500 * 255);
+//
+//	drawing->SetColor(color, color, color, 255);
+//	for (int y = -radius; y <= radius; ++y)
+//	{
+//		int dx = static_cast<int>(std::sqrt(radius * radius - y * y)); // Horizontal distance for this vertical offset
+//		int startX = centerX - dx;
+//		int endX = centerX + dx;
+//
+//		// Draw a horizontal line for the current row
+//		drawing->DrawLine(Vec2f(startX, centerY + y), Vec2f(endX, centerY + y));
+//	}
+//
+//	if (duration >= 15000)
+//	{
+//		drawing->SetColor(0, 0, 0, 255);
+//		drawing->Clear();
+//	}
 }

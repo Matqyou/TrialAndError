@@ -25,8 +25,8 @@ protected:
 
 public:
 	CharacterNPC(double max_health,
-				 const Vec2f& start_pos,
-				 const Vec2f& start_vel,
+				 const Vec3f& start_pos,
+				 const Vec3f& start_vel,
 				 NPCType npc_type,
 				 bool npc_is_boss);
 	~CharacterNPC() override;

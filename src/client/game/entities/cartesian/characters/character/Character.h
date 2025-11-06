@@ -31,8 +31,8 @@ struct CharacterInput
 //	double m_GoingX, m_GoingY, m_GoingLength;
 //	double m_LookingX, m_LookingY, m_LookingLength;
 
-	Vec2f going_direction;
-	Vec2f looking_direction;
+	Vec3f going_direction;
+	Vec3f looking_direction;
 
 	CharacterInput();
 };
@@ -113,8 +113,8 @@ public:
 		void DrawErrorName();
 
 public:
-	static LinkTexture sCharacterTexture;
-	static LinkTexture sTextureBlood;
+	static LoadTexture sCharacterTexture;
+	static LoadTexture sTextureBlood;
 	static LinkSound sHitSounds[3];
 	static LinkSound sInvincibleHitSound;
 	static LinkSound sDeathSound;
@@ -127,8 +127,8 @@ public:
 
 	Character(Player *player,
 			  double max_health,
-			  const Vec2f& start_pos,
-			  const Vec2f& start_vel,
+			  const Vec3f& start_pos,
+			  const Vec3f& start_vel,
 			  bool is_npc);
 	~Character() override;
 

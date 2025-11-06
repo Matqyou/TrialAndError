@@ -5,14 +5,15 @@
 #pragma once
 
 #include <client/core/Assets.h>
+#include "shared/math/Vec3.h"
 #include "shared/math/Vec2.h"
 
 struct Particle
 {
 	Texture *m_Texture;
-	Vec2f m_Position;
-	Vec2f m_Size;
-	Vec2f m_Vel;
+	Vec3f m_Position;
+	Vec3f m_Size;
+	Vec3f m_Vel;
 	float m_VelDamping;
 	float m_Orientation;
 	float m_OrientationVel;
@@ -31,9 +32,9 @@ struct Particle
 		m_Active = false;
 	}
 	Particle(Texture *texture,
-			 const Vec2f& pos,
-			 const Vec2f& size,
-			 const Vec2f& vel,
+			 const Vec3f& pos,
+			 const Vec3f& size,
+			 const Vec3f& vel,
 			 float vel_damping,
 			 float orientation,
 			 float orientation_vel,

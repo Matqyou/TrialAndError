@@ -1,11 +1,12 @@
 // Copied Projectile.cpp into cartesian
 #include "Projectile.h"
-#include <cmath>
-#include <iostream>
-#include "Crate.h"
 #include <client/game/entities/cartesian/characters/character/Character.h>
+#include <client/game/entities/cartesian/Crate.h>
 
-LinkTexture Projectile::sTextureSpark("particle.spark");
+#include <iostream>
+#include <cmath>
+
+LoadTexture Projectile::sTextureSpark("particle.spark", AssetsClass::TexturePurpose::GUI_ELEMENT);
 LinkSound Projectile::sMetalImpactSounds[2] = {
 	LinkSound("entity.projectile.impact.metal.1"),
 	LinkSound("entity.projectile.impact.metal.2"),
@@ -15,12 +16,12 @@ Projectile::Projectile(Entity *shooter,
 					   WeaponType weapon_type,
 					   Texture *projectile_texture,
 					   double damage,
-					   const Vec2f& start_pos,
-					   const Vec2f& start_vel)
+					   const Vec3f& start_pos,
+					   const Vec3f& start_vel)
 	: Entity(NORMAL_ENTITY,
 			 ENTITY_PROJECTILE,
 			 start_pos,
-			 Vec2f(6, 10),
+			 Vec3f(0, 1, 0),
 			 start_vel,
 			 1.0,
 			 false)
@@ -34,13 +35,13 @@ Projectile::Projectile(Entity *shooter,
 
 void Projectile::TickCollision()
 {
-	Vec2f CurrentPosition = core.pos;
-	Vec2f LastPosition = last_core.pos;
+	Vec3f CurrentPosition = core.pos;
+	Vec3f LastPosition = last_core.pos;
 	float distance_traveled = (CurrentPosition - LastPosition).LengthF();
 	if (distance_traveled <= 0.0)
 		return;
 
-	Vec2f direction = (CurrentPosition - LastPosition) / distance_traveled;
+	Vec3f direction = (CurrentPosition - LastPosition) / distance_traveled;
 	int units_traveled = (int)distance_traveled;
 
 	bool ShooterIsCharacter = m_Shooter->GetType() == ENTITY_CHARACTER;
@@ -51,7 +52,7 @@ void Projectile::TickCollision()
 		if (!alive)
 			break;
 
-		Vec2f current_position = LastPosition + direction * static_cast<float>(i);
+		Vec3f current_position = LastPosition + direction * static_cast<float>(i);
 
 		for (Entity *entity : world->GetEntities())
 		{
@@ -131,12 +132,13 @@ void Projectile::TickWallCollision()
 		}
 		for (int i = 0; i < 6; i++)
 		{
-			Vec2f vel = Vec2f(core.vel.x * (0.1 + 0.17 * (double)(rand()) / RAND_MAX) + 0.05 * (double)(rand()) / RAND_MAX,
-							  core.vel.y * (0.1 + 0.17 * (double)(rand()) / RAND_MAX) + 0.05 * (double)(rand()) / RAND_MAX);
-			float orientation = vel.Atan2F() / static_cast<float>(M_PI) * 180.0f;
-			auto lifetime = (unsigned long long)(6 + rand() % 25);
-			Vec2f size = Vec2f(core.vel.LengthF() * 0.25f + ((float)(rand() % 100) / 100.0f), 3.0f);
-			world->GetParticles()->PlayParticle(Particle(sTextureSpark.GetTexture(), core.pos, size, vel, 0.98, orientation, 0.0, 1.0, lifetime));
+			// todo: 3d rendering
+//			Vec2f vel = Vec2f(core.vel.x * (0.1 + 0.17 * (double)(rand()) / RAND_MAX) + 0.05 * (double)(rand()) / RAND_MAX,
+//							  core.vel.y * (0.1 + 0.17 * (double)(rand()) / RAND_MAX) + 0.05 * (double)(rand()) / RAND_MAX);
+//			float orientation = vel.Atan2F() / static_cast<float>(M_PI) * 180.0f;
+//			auto lifetime = (unsigned long long)(6 + rand() % 25);
+//			Vec2f size = Vec2f(core.vel.LengthF() * 0.25f + ((float)(rand() % 100) / 100.0f), 3.0f);
+//			world->GetParticles()->PlayParticle(Particle(sTextureSpark.GetTexture(), core.pos, size, vel, 0.98, orientation, 0.0, 1.0, lifetime));
 		}
 
 		alive = false;
@@ -153,17 +155,17 @@ void Projectile::Tick(double seconds_elapsed)
 
 void Projectile::Draw()
 {
-	Drawing *drawing = Application.GetDrawing();
-	double angle = std::atan2(core.vel.y, core.vel.x) / M_PI * 180.0 - 90.0;
-	SDL_FRect bullet_rect = { float(core.pos.x - core.size.x / 2.0),
-							  float(core.pos.y - core.size.y / 2.0),
-							  float(core.size.x),
-							  float(core.size.y) };
-	drawing->RenderTextureRotated(m_Texture->SDLTexture(),
-								  nullptr,
-								  bullet_rect,
-								  angle,
-								  nullptr,
-								  SDL_FLIP_NONE,
-								  GameReference.GetCamera());
+//	DrawingClass *drawing = Application.GetDrawing();
+//	double angle = std::atan2(core.vel.y, core.vel.x) / M_PI * 180.0 - 90.0;
+//	SDL_FRect bullet_rect = { float(core.pos.x - core.size.x / 2.0),
+//							  float(core.pos.y - core.size.y / 2.0),
+//							  float(core.size.x),
+//							  float(core.size.y) };
+//	drawing->RenderTextureRotated(m_Texture->SDLTexture(),
+//								  nullptr,
+//								  bullet_rect,
+//								  angle,
+//								  nullptr,
+//								  SDL_FLIP_NONE,
+//								  GameReference.GetCamera());
 }

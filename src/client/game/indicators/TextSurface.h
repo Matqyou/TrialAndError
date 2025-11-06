@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <client/core/AssetsManager.h>
+#include <client/core/texture/visual/VisualTexture.h>
+#include "SDL3_ttf/SDL_ttf.h"
 
 class TextSurface
 {

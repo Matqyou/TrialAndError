@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include <shared/geometry/Quaternion.h>
 #include "shared/geometry/Geometry.h"
-#include "shared/math/Vec2.h"
 #include "shared/string/Strings.h"
+#include "shared/math/Vec2.h"
 
 #include "SDL3/SDL.h"
 #include <vector>
@@ -20,12 +21,12 @@ struct Mesh
 	SDL_FColor color;
 
 	std::vector<Vec2f> uvs;
-	SDL_Texture* texture;
+	SDL_GPUTexture *gpu_texture;
 
 	Mesh()
 	{
 		color = { 255, 255, 255, 1.0f };
-		texture = nullptr;
+		gpu_texture = nullptr;
 	}
 
 	void PostProcessing()
@@ -33,19 +34,45 @@ struct Mesh
 		face_normals.clear();
 
 		// One normal per triangle
-		for (size_t i = 0; i < indices.size(); i += 3)
+//		for (size_t i = 0; i < indices.size(); i += 3)
+//		{
+//			int idx0 = indices[i];
+//			int idx1 = indices[i + 1];
+//			int idx2 = indices[i + 2];
+//
+//			Vec3f v0 = vertices[idx0];
+//			Vec3f v1 = vertices[idx1];
+//			Vec3f v2 = vertices[idx2];
+//
+//			Vec3f face_normal = Geometry::TriangleNormal(v0, v1, v2);
+//			face_normals.push_back(face_normal);
+//		}
+
+		for (int i = 0; i < indices.size(); i++)
+			face_normals.push_back(Vec3f(0, 0, 0));
+		for (int i = 0; i < indices.size(); i += 3)
 		{
-			int idx0 = indices[i];
-			int idx1 = indices[i + 1];
-			int idx2 = indices[i + 2];
+			int i0 = indices[i];
+			int i1 = indices[i + 1];
+			int i2 = indices[i + 2];
 
-			Vec3f v0 = vertices[idx0];
-			Vec3f v1 = vertices[idx1];
-			Vec3f v2 = vertices[idx2];
+			Vec3f v0 = vertices[i0];
+			Vec3f v1 = vertices[i1];
+			Vec3f v2 = vertices[i2];
 
-			Vec3f face_normal = Geometry::TriangleNormal(v0, v1, v2);
-			face_normals.push_back(face_normal);
+			// Compute face normal
+			Vec3f faceNormal = CrossProductVec3(v1 - v0, v2 - v0).NormalizeF();
+
+			// Add to all 3 vertices
+			face_normals[i0] = face_normals[i0] + faceNormal;
+			face_normals[i1] = face_normals[i1] + faceNormal;
+			face_normals[i2] = face_normals[i2] + faceNormal;
 		}
+
+		// Normalize all vertex normals
+		for (auto& n : face_normals)
+			n = n.NormalizeF();
+
 
 		if (uvs.empty())
 		{
@@ -59,6 +86,32 @@ struct Mesh
 	}
 };
 
+struct GPUMesh
+{
+	SDL_GPUBuffer *vertex_buffer;
+	SDL_GPUBuffer *indice_buffer;
+	uint32_t indice_count;
+	SDL_GPUTexture *gpu_texture;
+
+	Vec3f position;
+	Quaternion orientation;
+
+	GPUMesh()
+	{
+		vertex_buffer = nullptr;
+		indice_buffer = nullptr;
+		indice_count = 0;
+
+		gpu_texture = nullptr;
+		position = Vec3f(0, 0, 0);
+		orientation = Quaternion::Identity();
+	}
+//	~GPUMesh()
+//	{
+//		SDL_ReleaseGPUBuffer()
+//	}
+};
+
 namespace MeshPresets
 {
 inline Mesh CreateCube(float size)
@@ -69,29 +122,42 @@ inline Mesh CreateCube(float size)
 	// 8 unique vertices
 	cube.vertices = {
 		Vec3f(-h, -h, -h),  // 0: back-bottom-left
-		Vec3f( h, -h, -h),  // 1: back-bottom-right
-		Vec3f( h,  h, -h),  // 2: back-top-right
-		Vec3f(-h,  h, -h),  // 3: back-top-left
-		Vec3f(-h, -h,  h),  // 4: front-bottom-left
-		Vec3f( h, -h,  h),  // 5: front-bottom-right
-		Vec3f( h,  h,  h),  // 6: front-top-right
-		Vec3f(-h,  h,  h)   // 7: front-top-left
+		Vec3f(h, -h, -h),  // 1: back-bottom-right
+		Vec3f(h, h, -h),  // 2: back-top-right
+		Vec3f(-h, h, -h),  // 3: back-top-left
+		Vec3f(-h, -h, h),  // 4: front-bottom-left
+		Vec3f(h, -h, h),  // 5: front-bottom-right
+		Vec3f(h, h, h),  // 6: front-top-right
+		Vec3f(-h, h, h)   // 7: front-top-left
 	};
 
 	// 36 indices = 12 triangles * 3 vertices each
 	cube.indices = {
 		// Front face
-		4, 5, 6,    4, 6, 7,
+		4, 5, 6, 4, 6, 7,
 		// Back face
-		1, 0, 3,    1, 3, 2,
+		1, 0, 3, 1, 3, 2,
 		// Top face
-		7, 6, 2,    7, 2, 3,
+		7, 6, 2, 7, 2, 3,
 		// Bottom face
-		0, 1, 5,    0, 5, 4,
+		0, 1, 5, 0, 5, 4,
 		// Right face
-		5, 1, 2,    5, 2, 6,
+		5, 1, 2, 5, 2, 6,
 		// Left face
-		0, 4, 7,    0, 7, 3
+		0, 4, 7, 0, 7, 3
+	};
+
+	// UV coordinates - one per vertex (8 total)
+	// Each front face will use these to map the full texture
+	cube.uvs = {
+		Vec2f(0.0f, 0.0f),  // 0: back-bottom-left
+		Vec2f(1.0f, 0.0f),  // 1: back-bottom-right
+		Vec2f(1.0f, 1.0f),  // 2: back-top-right
+		Vec2f(0.0f, 1.0f),  // 3: back-top-left
+		Vec2f(0.0f, 0.0f),  // 4: front-bottom-left
+		Vec2f(1.0f, 0.0f),  // 5: front-bottom-right
+		Vec2f(1.0f, 1.0f),  // 6: front-top-right
+		Vec2f(0.0f, 1.0f)   // 7: front-top-left
 	};
 
 	cube.PostProcessing();

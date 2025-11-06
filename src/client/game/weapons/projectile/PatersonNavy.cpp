@@ -6,11 +6,11 @@
 #include <client/game/entities/cartesian/characters/character/Character.h>
 #include <client/game/entities/cartesian/Projectile.h>
 
-static LinkTexture sTextureWeapon("weapons.paterson_navy");
-static LinkTexture sTextureProjectile("entity.projectile.paterson_navy");
-static LinkSound sShootSound("weapon.paterson_navy.shoot");
+static LoadTexture sTextureProjectile("entity.projectile.paterson_navy", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureWeapon("weapons.paterson_navy", AssetsClass::TexturePurpose::GUI_ELEMENT);
 static LinkSound sClickSound("weapon.paterson_navy.fail_reload");
 static LinkSound sReloadSound("weapon.paterson_navy.reload");
+static LinkSound sShootSound("weapon.paterson_navy.shoot");
 Vec2f PatersonNavy::sHoldPosition(10.0, 0.0);
 std::pair<Vec2f, Vec2f> PatersonNavy::sHandPositions = {{ 5.0, -5.0 }, { 10.0, 2.0 }};
 
@@ -57,7 +57,7 @@ void PatersonNavy::Tick()
 			m_LastShotAt = CurrentTick;
 			sShootSound.GetSound()->PlaySound();
 
-			Vec2f ProjectileVelocity = ShooterCore.direction * m_ProjectileSpeed;
+			Vec3f ProjectileVelocity = ShooterCore.direction * m_ProjectileSpeed;
 			auto new_projectile = new Projectile(m_Parent,
 						   WEAPON_GLOCK,
 						   sTextureProjectile.GetTexture(),
@@ -68,7 +68,7 @@ void PatersonNavy::Tick()
 
 			float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
 						   m_RecoilForce * 3.0f : m_RecoilForce;
-			Vec2f recoil_acceleration = ShooterCore.direction * -recoil;
+			Vec3f recoil_acceleration = ShooterCore.direction * -recoil;
 			m_Parent->Accelerate(recoil_acceleration);
 		}
 		else

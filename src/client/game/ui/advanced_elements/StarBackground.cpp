@@ -71,24 +71,24 @@ void StarBackground::Tick(double elapsed_seconds)
 
 void StarBackground::Render()
 {
-	auto drawing = Application.GetDrawing();
-	drawing->SetColor(color);
-	drawing->FillAll();
-
-	drawing->SetColor(200, 200, 200, 100);
-	for (int i = m_Stars.size() - 1; i >= 0; --i)
-	{
-		auto& [position, velocity, duration] = m_Stars[i];
-
-		auto size = (int)duration;
-		for (int j = 0; j < size; j++)
-		{
-			for (int k = 0; k < size; k++)
-			{
-				auto draw_x = (float)(position.x - size / 2 + j);
-				auto draw_y = (float)(position.y - size / 2 + k);
-				SDL_RenderPoint(drawing->Renderer(), draw_x, draw_y);
-			}
-		}
-	}
+//	auto drawing = Application.GetDrawing();
+//	drawing->SetColor(color);
+//	drawing->FillAll();
+//
+//	drawing->SetColor(200, 200, 200, 100);
+//	for (int i = m_Stars.size() - 1; i >= 0; --i)
+//	{
+//		auto& [position, velocity, duration] = m_Stars[i];
+//
+//		auto size = (int)duration;
+//		for (int j = 0; j < size; j++)
+//		{
+//			for (int k = 0; k < size; k++)
+//			{
+//				auto draw_x = (float)(position.x - size / 2 + j);
+//				auto draw_y = (float)(position.y - size / 2 + k);
+//				SDL_RenderPoint(drawing->Renderer(), draw_x, draw_y);
+//			}
+//		}
+//	}
 }

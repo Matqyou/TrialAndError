@@ -3,12 +3,10 @@
 //
 
 #include "Particles.h"
-
-#include <client/core/TextManager.h>
 #include <client/game/world/GameWorld.h>
-#include "client/game/GameReference.h"
-#include "client/core/Application.h"
-#include "client/core/TextManager.h"
+//#include "client/game/GameReference.h"
+//#include "client/core/Application.h"
+//#include "client/core/TextManager.h"
 #include <utility>
 
 void Particle::Tick()
@@ -26,15 +24,15 @@ void Particle::Tick()
 
 void Particle::Draw() const
 {
-	auto drawing = Application.GetDrawing();
-	SDL_FRect rect = {
-		(float)m_Position.x,
-		(float)m_Position.y,
-		(float)m_Size.x,
-		(float)m_Size.y,
-	};
-
-	drawing->RenderTextureRotated(m_Texture->SDLTexture(), nullptr, rect, m_Orientation, nullptr, SDL_FLIP_NONE, GameReference.GetCamera());
+//	auto drawing = Application.GetDrawing();
+//	SDL_FRect rect = {
+//		(float)m_Position.x,
+//		(float)m_Position.y,
+//		(float)m_Size.x,
+//		(float)m_Size.y,
+//	};
+//
+//	drawing->RenderTextureRotated(m_Texture->SDLTexture(), nullptr, rect, m_Orientation, nullptr, SDL_FLIP_NONE, GameReference.GetCamera());
 }
 
 Particles::Particles(GameWorld *parent_world)

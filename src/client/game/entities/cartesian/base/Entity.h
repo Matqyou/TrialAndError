@@ -6,7 +6,7 @@
 
 struct EntityCore
 {
-	Vec2f pos, size, vel;
+	Vec3f pos, size, vel;
 	float base_damping, size_ratio;
 
 	EntityCore()
@@ -16,12 +16,12 @@ struct EntityCore
 	}
 
 	// Manipulating
-	void Accelerate(const Vec2f& impulse);
+	void Accelerate(const Vec3f& impulse);
 };
 
 struct DirectionalEntityCore : public EntityCore
 {
-	Vec2f direction;
+	Vec3f direction;
 
 	DirectionalEntityCore() : EntityCore() { }
 };
@@ -89,9 +89,9 @@ protected:
 public:
 	Entity(EntityFormFactor form_factor,
 		   EntityType type,
-		   const Vec2f& start_pos,
-		   const Vec2f& start_size,
-		   const Vec2f& start_vel,
+		   const Vec3f& start_pos,
+		   const Vec3f& start_size,
+		   const Vec3f& start_vel,
 		   float base_damping,
 		   bool has_health_component,
 		   double max_health = 1.0);
@@ -107,11 +107,11 @@ public:
 	[[nodiscard]] HasHealth& HealthComponent() { return health_component; }
 
 	// Generating
-	[[nodiscard]] bool PointCollides(const Vec2f& point) const;
+	[[nodiscard]] bool PointCollides(const Vec3f& point) const;
 	[[nodiscard]] virtual const char *toString() const;
 
 	// Manipulating
-	void Accelerate(const Vec2f& direction);
+	void Accelerate(const Vec3f& direction);
 
 	// Ticking
 	virtual void Tick(double elapsed_seconds);
@@ -129,10 +129,10 @@ protected:
 
 public:
 	DirectionalEntity(EntityType entity_type,
-					  const Vec2f& start_pos,
-					  const Vec2f& start_size,
-					  const Vec2f& start_vel,
-					  const Vec2f& start_direction,
+					  const Vec3f& start_pos,
+					  const Vec3f& start_size,
+					  const Vec3f& start_vel,
+					  const Vec3f& start_direction,
 					  float base_damping,
 					  bool has_health_component,
 					  double max_health = 1.0);

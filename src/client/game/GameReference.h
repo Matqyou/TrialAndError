@@ -15,7 +15,6 @@
 #include "client/game/ui/menus/main/MainMenu.h"
 #include "client/game/world/GameWorld.h"
 #include "client/core/drawing/Drawing.h"
-#include "client/core/AssetsManager.h"
 #include "client/game/ui/Interface.h"
 #include "client/game/Preferences.h"
 #include "client/core/Application.h"

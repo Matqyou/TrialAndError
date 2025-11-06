@@ -29,7 +29,7 @@ protected:
 //	LevelUpMenu *m_LevelUpMenu;
 	TileMap *m_Tiles;
 	Particles *m_Particles;
-	float m_Width, m_Height;
+	float m_Width, m_Height, m_Depth;
 	double m_ShowNamesVisibility;
 	bool m_ShowNames;
 	bool m_Paused;
@@ -77,6 +77,7 @@ public:
 	[[nodiscard]] Particles *GetParticles() const { return m_Particles; };
 	[[nodiscard]] float GetWidth() const { return m_Width; }
 	[[nodiscard]] float GetHeight() const { return m_Height; }
+	[[nodiscard]] float GetDepth() const { return m_Depth; }
 	[[nodiscard]] double GetNamesShown() const { return m_ShowNamesVisibility < 0.1 ? 0.0 : m_ShowNamesVisibility; }
 	[[nodiscard]] bool GameOver() const { return m_GameOver; }
 	[[nodiscard]] unsigned long long GetTick() const { return m_CurrentTick; }

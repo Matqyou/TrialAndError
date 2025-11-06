@@ -13,6 +13,8 @@ private:
 	std::chrono::steady_clock::time_point m_Opened;
 	bool m_Intro;
 
+	DrawCommand drawing;
+
 public:
 	MainMenu();
 	~MainMenu() override;

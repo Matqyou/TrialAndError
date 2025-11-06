@@ -3,6 +3,7 @@
 //
 
 #include "TextSurface.h"
+#include <client/core/Assets.h>
 #include <utility>
 
 Texture *TextSurface::UpdateTexture()

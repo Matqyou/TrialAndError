@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "client/game/ui/EventContext.h"
-#include "SDL3/SDL_events.h"
-#include "shared/math/Vec2.h"
+#include <client/game/ui/EventContext.h>
+#include <client/core/drawing/Drawing.h>
+#include <shared/math/Vec2.h>
+#include <SDL3/SDL_events.h>
 
 class MainMenu;
 class PauseMenu;

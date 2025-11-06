@@ -6,8 +6,8 @@
 #include "client/game/ui/elements/Button.h"
 #include "client/game/GameReference.h"
 
-static LinkTexture sTextureResume("interface.resume");
-static LinkTexture sTextureBack("interface.back");
+static LoadTexture sTextureResume("interface.resume", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureBack("interface.back", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 PauseMenu::PauseMenu()
 {

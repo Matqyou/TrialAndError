@@ -14,7 +14,7 @@
 LinkSound sQuitSound("ui.quit");
 
 GameData::GameData()
-	: camera_3d(Vec3f(), 120.0f, 16.0f/9.0f)
+	: camera_3d(Vec3f(), 120.0f, 16.0f / 9.0f)
 {
 	world = nullptr;
 	interface = nullptr;
@@ -156,7 +156,7 @@ void GameData::InitializeSandbox()
 		for (int x = 0; x < 5; x++)
 		{
 			auto new_crate = new Crate(
-				Vec2f(200 + 50 * static_cast<float>(x), 200 + 50 * static_cast<float>(y)),
+				Vec3f(200 + 50 * static_cast<float>(x), 0, 200 + 50 * static_cast<float>(y)),
 				DropType(Application.GetRandomizer()->Int() % NUM_DROP_TYPES)
 			);
 			world->AddEntity(new_crate, false);
@@ -164,23 +164,23 @@ void GameData::InitializeSandbox()
 
 	for (int x = 0; x < NUM_ERROR_TYPES; x++)
 	{
-		auto new_error = new Error(Vec2f(50.0f + 50.0f * static_cast<float>(x), world->GetHeight() - 50.0f), (ErrorType)x);
+		auto new_error = new Error(Vec3f(50.0f + 50.0f * static_cast<float>(x), 0, world->GetDepth() - 50.0f), (ErrorType)x);
 		world->AddEntity(new_error, false);
 	}
 
 	for (int x = 0; x < NUM_AMMO_TYPES; x++)
 	{
-		auto new_ammo_box = new AmmoBox(AmmoType(x), Vec2f(50.0f + 50.0f * static_cast<float>(x), world->GetHeight() - 100.0f), 1000);
+		auto new_ammo_box = new AmmoBox(AmmoType(x), Vec3f(50.0f + 50.0f * static_cast<float>(x), 0, world->GetDepth() - 100.0f), 1000);
 		world->AddEntity(new_ammo_box, false);
 	}
 
-	float WeaponsY = world->GetHeight() - 150;
-	world->AddEntity(new EntityGlock(nullptr, nullptr, Vec2f(100, WeaponsY)), false);
-	world->AddEntity(new EntityShotgun(nullptr, nullptr, Vec2f(200, WeaponsY)), false);
-	world->AddEntity(new EntityBurst(nullptr, nullptr, Vec2f(300, WeaponsY)), false);
-	world->AddEntity(new EntityMinigun(nullptr, nullptr, Vec2f(400, WeaponsY)), false);
-	world->AddEntity(new EntitySniper(nullptr, nullptr, Vec2f(500, WeaponsY)), false);
-	world->AddEntity(new EntityPatersonNavy(nullptr, nullptr, Vec2f(600, WeaponsY)), false);
+	float weapons_z = world->GetDepth() - 150;
+	world->AddEntity(new EntityGlock(nullptr, nullptr, Vec3f(100, 0, weapons_z)), false);
+	world->AddEntity(new EntityShotgun(nullptr, nullptr, Vec3f(200, 0, weapons_z)), false);
+	world->AddEntity(new EntityBurst(nullptr, nullptr, Vec3f(300, 0, weapons_z)), false);
+	world->AddEntity(new EntityMinigun(nullptr, nullptr, Vec3f(400, 0, weapons_z)), false);
+	world->AddEntity(new EntitySniper(nullptr, nullptr, Vec3f(500, 0, weapons_z)), false);
+	world->AddEntity(new EntityPatersonNavy(nullptr, nullptr, Vec3f(600, 0, weapons_z)), false);
 
 //	auto Player1 = new Player(world, "Keyboard", m_PendingPlayerClasses[0]);
 //	auto Char1 = new Character(world,
@@ -197,7 +197,13 @@ void GameData::InitializeInfinite()
 	world = new GameWorld(50, 30);
 	Character::sBotNameplate = new TextSurface(CommonUI::fontDefault, "Bot User", { 255, 150, 150, 255 });
 
-	auto new_character = new Character(GameReference.GetPlayerFromID(0), 100.0, Vec2f(100.0f, 100.0f), Vec2f(0.0f, 0.0f), false);
+	auto new_character = new Character(
+		GameReference.GetPlayerFromID(0),
+		100.0,
+		Vec3f(100.0f, 100.0f, 100.0f),
+		Vec3f(0, 0, 0),
+		false
+	);
 	world->AddEntity(new_character, false);
 	//	world->InitPlayers();
 }

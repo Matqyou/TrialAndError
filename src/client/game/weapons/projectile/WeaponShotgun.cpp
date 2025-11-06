@@ -7,11 +7,11 @@
 #include <client/game/entities/cartesian/Projectile.h>
 #include <cmath>
 
-static LinkTexture sTextureWeapon("weapons.shotgun");
-static LinkTexture sTextureProjectile("entity.projectile.shotgun");
-static LinkSound sShootSound("weapon.shotgun.shoot2");
+static LoadTexture sTextureProjectile("entity.projectile.shotgun", AssetsClass::TexturePurpose::GUI_ELEMENT);
+static LoadTexture sTextureWeapon("weapons.shotgun", AssetsClass::TexturePurpose::GUI_ELEMENT);
 static LinkSound sClickSound("weapon.shotgun.fail_reload");
 static LinkSound sReloadSound("weapon.shotgun.reload");
+static LinkSound sShootSound("weapon.shotgun.shoot2");
 Vec2f WeaponShotgun::sHoldPosition(5.0, 0.0);
 std::pair<Vec2f, Vec2f> WeaponShotgun::sHandPositions = {{ 60.0, -3.0 }, { 20.0, 2.0 }};
 
@@ -62,24 +62,25 @@ void WeaponShotgun::Tick()
 			m_LastShotAt = CurrentTick;
 			sShootSound.GetSound()->PlaySound();
 
-			float LookAngle = ShooterCore.direction.Atan2();
-			for (int i = 0; i < m_PelletCount; i++)
-			{
-				float ProjectileAngle = LookAngle + GenerateSpreadAngle();
-				float ProjectileSpeed = GenerateRandomProjectileSpeed();
-				Vec2f ProjectileVelocity = FromAngleVec2f(ProjectileAngle) * ProjectileSpeed;
-				auto new_projectile = new Projectile(m_Parent,
-							   WEAPON_SHOTGUN,
-							   sTextureProjectile.GetTexture(),
-							   m_Damage,
-							   ShooterCore.pos,
-							   ProjectileVelocity);
-				World->AddEntity(new_projectile, true);
-			}
+			// todo: 3d
+//			float LookAngle = ShooterCore.direction.Atan2();
+//			for (int i = 0; i < m_PelletCount; i++)
+//			{
+//				float ProjectileAngle = LookAngle + GenerateSpreadAngle();
+//				float ProjectileSpeed = GenerateRandomProjectileSpeed();
+//				Vec2f ProjectileVelocity = FromAngleVec2f(ProjectileAngle) * ProjectileSpeed;
+//				auto new_projectile = new Projectile(m_Parent,
+//							   WEAPON_SHOTGUN,
+//							   sTextureProjectile.GetTexture(),
+//							   m_Damage,
+//							   ShooterCore.pos,
+//							   ProjectileVelocity);
+//				World->AddEntity(new_projectile, true);
+//			}
 
 			float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
 						   m_RecoilForce * 3.0f : m_RecoilForce;
-			Vec2f recoil_acceleration = ShooterCore.direction * -recoil;
+			Vec3f recoil_acceleration = ShooterCore.direction * -recoil;
 			m_Parent->Accelerate(recoil_acceleration);
 		}
 		else

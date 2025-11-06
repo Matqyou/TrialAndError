@@ -24,11 +24,11 @@ protected:
 public:
     static LinkSound sHitSound[3];
     static LinkSound sBoxSound;
-    static LinkTexture sBoxTexture;
-    static LinkTexture sBreakingBox1Texture;
-    static LinkTexture sBreakingBox2Texture;
+    static LoadTexture sBoxTexture;
+    static LoadTexture sBreakingBox1Texture;
+    static LoadTexture sBreakingBox2Texture;
 
-    Crate(const Vec2f& start_pos, DropType RandomDrop);
+    Crate(const Vec3f& start_pos, DropType RandomDrop);
     ~Crate() override;
 
     // Getting

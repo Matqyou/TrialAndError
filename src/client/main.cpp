@@ -21,7 +21,6 @@
 #include <client/game/ui/menus/Menus.h>
 #include <client/game/GameReference.h>
 #include <client/utility/Debugging.h>
-#include <client/core/TextManager.h>
 #include <client/Protocol.h>
 
 #include <SDL3/SDL_main.h>
@@ -30,9 +29,13 @@
 #include <vector>
 #include <random>
 
-LinkTexture sPlanetTexture("backgrounds.planet2");
 LinkSound sConnectedSound("ui.pitch.mid");
 LinkSound sDisconnectedSound("ui.pitch.low");
+
+LoadTexture sPlanetTexture("backgrounds.planet2", AssetsClass::TexturePurpose::OBJECT_3D);
+LoadTexture sTest3DTexture("entity.character.body", AssetsClass::TexturePurpose::OBJECT_3D);
+
+LoadTexture sVignette("backgrounds.vignette", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 void SetConsoleToUTF8()
 {
@@ -49,32 +52,6 @@ void exit_application()
 	Application.Destroy();
 	dbg_msg("Graceful exit\n");
 	exit(0);
-}
-
-// Generate points uniformly distributed on a sphere
-std::vector<Vec3f> GenerateSpherePoints(float radius, int numPoints)
-{
-	std::vector<Vec3f> points;
-	points.reserve(numPoints);
-
-	// Using Fibonacci sphere algorithm for uniform distribution
-	float goldenRatio = (1.0f + std::sqrt(5.0f)) / 2.0f;
-	float angleIncrement = 2.0f * M_PI * goldenRatio;
-
-	for (int i = 0; i < numPoints; i++)
-	{
-		float t = static_cast<float>(i) / static_cast<float>(numPoints);
-		float inclination = std::acos(1.0f - 2.0f * t);
-		float azimuth = angleIncrement * i;
-
-		float x = radius * std::sin(inclination) * std::cos(azimuth);
-		float y = radius * std::sin(inclination) * std::sin(azimuth);
-		float z = radius * std::cos(inclination);
-
-		points.push_back(Vec3f(x, y, z));
-	}
-
-	return points;
 }
 
 int main()
@@ -95,7 +72,6 @@ int main()
 						   60.0, 10.0);
 
 	auto clock = Application.GetClock();
-	auto drawing = Application.GetDrawing();
 
 	long long total_frame_duration = 1;
 	SDL_Event sdl_event;
@@ -124,38 +100,65 @@ int main()
 		// Drawing
 		if (clock->TimePassed())
 		{
-			drawing->SetRenderTarget(nullptr);
-			drawing->SetColor(0, 0, 0, 255);
-			drawing->Clear();
-
 			// Draw progress bar
+			SDL_FRect inner_rect = {
+				((float)Application.GetWidth() - 800.0f) / 2.0f,
+				((float)Application.GetHeight() - 50.0f) / 2.0f,
+				800.0f, 50.0f,
+			};
+			Drawing.DrawFilledRect(inner_rect, 255, 195, 235, 255);
+
 			SDL_FRect progress_rect = {
 				((float)Application.GetWidth() - 800.0f) / 2.0f,
 				((float)Application.GetHeight() - 50.0f) / 2.0f,
 				800.0f * ((float)AssetsClass::GetWorkDone() / (float)AssetsClass::GetTotalWork()),
 				50.0f
 			};
-			drawing->SetColor(104, 195, 235, 255);
-			drawing->DrawRect(progress_rect, true);
+			Drawing.DrawFilledRect(progress_rect, 104, 195, 235, 255);
 
-			progress_rect.w = 800.0f;
-			progress_rect.h = 50.0f;
-			drawing->DrawRect(progress_rect, false);
+//			Drawing.UpdateRender();
 
-			drawing->UpdateWindow();
+
+
+
+//			Drawing.SetRenderTarget(nullptr);
+//			Drawing.SetColor(0, 0, 0, 255);
+//			Drawing.Clear();
+//
+//
+//			Drawing.SetColor(104, 195, 235, 255);
+//			Drawing.DrawRect(progress_rect, true);
+//
+//			progress_rect.w = 800.0f;
+//			progress_rect.h = 50.0f;
+//			Drawing.DrawRect(progress_rect, false);
+//
+//			Drawing.UpdateWindow();
 		}
 	} while (Assets.IsLoading());
 
+	// 3d stuff
+	SDL_GPUTexture *character_gpu_texture = sTest3DTexture;
+	SDL_GPUTexture *planet_gpu_texture = sPlanetTexture;
+
 	Gamepads.AddMissingGamepads();
 	GameReference.Initialize();
+
+	EventOnce<>& pre_render_event = Application.GetPreRenderEvent();
 
 	// Do this after assets have been loaded because it uses them
 	Menus.InitMenus();
 	Menus.main_menu->SwitchToThisMenu();
 
-	Texture *Vignette = Assets.GetTexture("backgrounds.vignette");
-	if (Vignette)
-		Vignette->SetAlphaMod(200);
+	DrawCommand draw_vignette(4, 6, sVignette);
+	Quad vignette_quad(draw_vignette, Rect4f(0, 0, Application.GetWidth(), Application.GetHeight()));
+	pre_render_event.Subscribe([&draw_vignette]()
+							   {
+//								   draw_vignette.SetTranslation(Application.GetHalfResolution());
+								   draw_vignette.Update();
+							   });
+//	if (Vignette)
+//		Vignette->SetAlphaMod(200);
 
 	MainMenu mainMenu;
 	mainMenu.SwitchToThisMenu();
@@ -165,31 +168,31 @@ int main()
 //	PauseMenu *PauseMenu;
 
 	Vec3f cubes_at = Vec3f(0.0f, 0.0f, 100.0f);
-	std::vector<Mesh> shapes;
+	std::vector<GPUMesh *> gpu_shapes;
 	for (int x = 0; x < 3; x++)
 		for (int y = 0; y < 3; y++)
 			for (int z = 0; z < 3; z++)
 			{
 				Mesh new_cube = MeshPresets::CreateCube(10.0f);
 				new_cube.position = Vec3f(
-					-15.0f + x * 15.0f,
-					-15.0f + y * 15.0f,
-					-15.0f + z * 15.f
+					-15.0f + (float)x * 15.0f,
+					-15.0f + (float)y * 15.0f,
+					-15.0f + (float)z * 15.f
 				) + cubes_at;
-				shapes.push_back(new_cube);
+				new_cube.gpu_texture = character_gpu_texture;
+				gpu_shapes.push_back(Drawing.LoadMeshToGPU(new_cube));
 			}
 
 	Mesh sphere = MeshPresets::CreateSphere(30.0f, 30, 50);
 	sphere.position = Vec3f(70.0f, 0.0f, 0.0f) + cubes_at;
-	shapes.push_back(sphere);
+	sphere.gpu_texture = planet_gpu_texture;
+	gpu_shapes.push_back(Drawing.LoadMeshToGPU(sphere));
 
-//	Mesh ground = MeshPresets::CreateGround(1000.0f, 100);
-//	shapes.push_back(ground);
+//	GPUMesh *gpu_sphere = Drawing.LoadMeshToGPU(sphere);
 
-	Scene scene;
-	DirectionLight direction_light(Vec3f(-0.5f, 1.0f, -0.5f), Vec3f(1.0f, 1.0f, 1.0f), 0.5f);
-
-//	Mesh& ground_mesh = shapes.back(); // safe while vector is not reallocated
+	GPUMesh *ground = Drawing.LoadMeshToGPU(MeshPresets::CreateGround(1000.0f, 100));
+	ground->gpu_texture = character_gpu_texture;
+	gpu_shapes.push_back(ground);
 
 	while (true)
 	{
@@ -266,11 +269,6 @@ int main()
 			Menus.Tick(elapsed_seconds);
 			Gamepads.TickLast();
 
-			// Drawing
-			if (GameReference.World())
-				GameReference.World()->Draw();
-			GameReference.GetInterface()->DrawBackground();
-
 			{ // 3d stuff
 				Camera3D& camera = GameReference.GetCamera3D();
 
@@ -317,43 +315,58 @@ int main()
 
 				}
 
-//				drawing->SetColor(200, 200, 200, 255);
-//				drawing->Clear();
-
-//				ground_mesh.position = Vec3f(camera.GetPosition().x, 0.0f, camera.GetPosition().z);
-
-				scene.Clear();
-				for (const Mesh& shape : shapes)
-					scene.ProjectMesh(shape, camera, &direction_light);
-				scene.SortAndCommit();
-//				drawing->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
-				drawing->RenderScene(scene, sPlanetTexture);
-//				drawing->SetDrawBlendMode(SDL_BLENDMODE_NONE);
-
-				// wireframe
-//				drawing->SetColor(255, 255, 255, 50);
-//				drawing->SetDrawBlendMode(SDL_BLENDMODE_BLEND);
-//				for (const Mesh& cube : shapes)
-//					drawing->RenderMeshWireframe(cube, camera);
-//				drawing->SetDrawBlendMode(SDL_BLENDMODE_NONE);
 			}
 
-			if (Vignette)
-				drawing->RenderTextureFullscreen(Vignette->SDLTexture(), nullptr);
+			Vec3f camera_position = GameReference.GetCamera3D().GetPosition();
+			ground->position = Vec3f(camera_position.x, 0, camera_position.z);
 
-			Menus.Render();
+			if (Drawing.CreateCommandBuffer())
+			{
+				pre_render_event.Invoke();
 
-			// Render one of the levelupmenus in queue if any
-//			if (GameReference.World()->LvlMenu())
-//				GameReference.World()->LvlMenu()->Render();
-//			else
-//				GameReference.World()->CheckLevelUps();
+				// 3d
+				if (GameReference.World() && Drawing.BeginPass())
+				{
+					Drawing.SetPipeline3D();
+					Drawing.ShaderTick();
+					Drawing.SetViewportAndScissor();
 
-			GameReference.GetInterface()->DrawForeground();
-			drawing->UpdateWindow();
+					for (GPUMesh *mesh : gpu_shapes)
+					{
+						if (!mesh->vertex_buffer || !mesh->indice_buffer)
+						{
+							SDL_Log("ERROR: Mesh has invalid buffers");
+							continue;
+						}
 
-//			if (GameReference.World()->GetDelay() && (GameReference.World()->LvlMenu() != nullptr))
-//				GameReference.World()->SetDelay(false); // Reset the delay flag after the delay
+						Mat4x4 model_matrix = Mat4x4::Translation(mesh->position); // todo: optimize
+						Drawing.ShaderParams(model_matrix, mesh->gpu_texture != nullptr);
+						Drawing.DrawTriangles(mesh->vertex_buffer, mesh->indice_buffer, mesh->indice_count, mesh->gpu_texture);
+					}
+
+					Drawing.EndPass();
+				}
+
+				// 2d
+				if (Drawing.BeginPass2D())
+				{
+					Drawing.SetPipeline2D();
+					Drawing.ShaderTick2D();
+
+					if (GameReference.World())
+						GameReference.World()->Draw();
+					GameReference.GetInterface()->DrawBackground();
+
+					draw_vignette.Draw();
+
+					Menus.Render();
+					GameReference.GetInterface()->DrawForeground();
+
+					Drawing.EndPass();
+				}
+
+				Drawing.EndCommandBuffer();
+			}
 		}
 
 		total_frame_duration = clock->GetTimeElapsedNanoNow();

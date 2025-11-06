@@ -26,18 +26,18 @@ protected:
     void TickPickup(double x, double y);
 
 public:
-    static LinkTexture sTextureErrorDisorianted;
-    static LinkTexture sTextureErrorSpiky;
-    static LinkTexture sTextureErrorConfusingHP;
-    static LinkTexture sTextureErrorInvincible;
-    static LinkTexture sTextureErrorHealersParadise;
-    static LinkTexture sTextureErrorRanged;
-    static LinkTexture sTextureErrorSlowDown;
-    static LinkTexture sTextureErrorDangerousRecoil;
-    static LinkTexture sTextureMagicParticle;
+    static LoadTexture sTextureErrorDisorianted;
+    static LoadTexture sTextureErrorSpiky;
+    static LoadTexture sTextureErrorConfusingHP;
+    static LoadTexture sTextureErrorInvincible;
+    static LoadTexture sTextureErrorHealersParadise;
+    static LoadTexture sTextureErrorRanged;
+    static LoadTexture sTextureErrorSlowDown;
+    static LoadTexture sTextureErrorDangerousRecoil;
+    static LoadTexture sTextureMagicParticle;
     static LinkSound ms_PickupSounds[7];
 
-    Error(const Vec2f& start_pos, int typeID);
+    Error(const Vec3f& start_pos, int typeID);
 
     // Ticking
     void Tick(double elapsed_seconds) override;

@@ -5,18 +5,18 @@
 #include "PowerupButton.h"
 #include "client/utility/RenderPresets.h"
 
-static LinkTexture sPowerupTextures[(size_t)Powerup::NUM_POWERUPS] = {
-	LinkTexture("interface.permanenterrors.allstats"),
-	LinkTexture("interface.permanenterrors.bombs"),
-	LinkTexture("interface.permanenterrors.bossdamage"),
-	LinkTexture("interface.permanenterrors.doubledamage"),
-	LinkTexture("interface.permanenterrors.explosiveammo"),
-	LinkTexture("interface.permanenterrors.speed"),
-	LinkTexture("interface.permanenterrors.spiky"),
-	LinkTexture("interface.permanenterrors.health"),
-	LinkTexture("interface.permanenterrors.infiniteglockammo"),
+static LoadTexture sPowerupTextures[(size_t)Powerup::NUM_POWERUPS] = {
+	LoadTexture("interface.permanenterrors.allstats", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("interface.permanenterrors.bombs", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("interface.permanenterrors.bossdamage", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("interface.permanenterrors.doubledamage", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("interface.permanenterrors.explosiveammo", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("interface.permanenterrors.speed", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("interface.permanenterrors.spiky", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("interface.permanenterrors.health", AssetsClass::TexturePurpose::GUI_ELEMENT),
+	LoadTexture("interface.permanenterrors.infiniteglockammo", AssetsClass::TexturePurpose::GUI_ELEMENT),
 };
-static LinkTexture sTextureErrorOutline("interface.permanenterrors.regularoutlinefull");
+static LoadTexture sTextureErrorOutline("interface.permanenterrors.regularoutlinefull", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 PowerupButton::PowerupButton(Powerup powerup_type)
 	: Button()

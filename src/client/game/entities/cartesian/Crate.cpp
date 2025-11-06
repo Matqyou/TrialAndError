@@ -10,16 +10,16 @@ LinkSound Crate::sHitSound[] = {
 	LinkSound("entity.crate.broken.3"),
 };
 LinkSound Crate::sBoxSound("entity.crate.hurt");
-LinkTexture Crate::sBoxTexture("entity.crate");
-LinkTexture Crate::sBreakingBox1Texture("entity.crate2");
-LinkTexture Crate::sBreakingBox2Texture("entity.crate3");
+LoadTexture Crate::sBoxTexture("entity.crate", AssetsClass::TexturePurpose::GUI_ELEMENT);
+LoadTexture Crate::sBreakingBox1Texture("entity.crate2", AssetsClass::TexturePurpose::GUI_ELEMENT);
+LoadTexture Crate::sBreakingBox2Texture("entity.crate3", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
-Crate::Crate(const Vec2f& start_pos, DropType RandomDrop)
+Crate::Crate(const Vec3f& start_pos, DropType RandomDrop)
 	: Entity(NORMAL_ENTITY,
 			 ENTITY_CRATE,
 			 start_pos,
-			 Vec2f(50, 50),
-			 Vec2f(0.0, 0.0),
+			 Vec3f(50, 0, 50),
+			 Vec3f(0, 0, 0),
 			 0.95,
 			 true,
 			 20.0)
@@ -111,12 +111,12 @@ void Crate::Tick(double elapsed_seconds)
 
 void Crate::Draw()
 {
-	auto drawing = Application.GetDrawing();
-	SDL_FRect draw_rect = {
-		float(core.pos.x) - float(core.size.x / 2.0),
-		float(core.pos.y) - float(core.size.y / 2.0),
-		float(core.size.x),
-		float(core.size.y)
-	};
-	drawing->RenderTexture(m_Texture->SDLTexture(), nullptr, draw_rect, GameReference.GetCamera());
+//	auto drawing = Application.GetDrawing();
+//	SDL_FRect draw_rect = {
+//		float(core.pos.x) - float(core.size.x / 2.0),
+//		float(core.pos.y) - float(core.size.y / 2.0),
+//		float(core.size.x),
+//		float(core.size.y)
+//	};
+//	drawing->RenderTexture(m_Texture->SDLTexture(), nullptr, draw_rect, GameReference.GetCamera());
 }
