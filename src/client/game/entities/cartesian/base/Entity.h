@@ -93,7 +93,7 @@ public:
 		   const Vec3f& start_size,
 		   const Vec3f& start_vel,
 		   float base_damping,
-		   bool has_health_component,
+		   bool init_has_health_component,
 		   double max_health = 1.0);
 	virtual ~Entity();
 
@@ -128,13 +128,13 @@ protected:
 	void TickUpdateLastCore() override;
 
 public:
-	DirectionalEntity(EntityType entity_type,
+	DirectionalEntity(EntityType init_entity_type,
 					  const Vec3f& start_pos,
 					  const Vec3f& start_size,
 					  const Vec3f& start_vel,
 					  const Vec3f& start_direction,
 					  float base_damping,
-					  bool has_health_component,
+					  bool init_has_health_component,
 					  double max_health = 1.0);
 	~DirectionalEntity() override;
 

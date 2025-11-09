@@ -16,6 +16,7 @@ void ApplicationClass::PrintVersions()
 ApplicationClass::ApplicationClass()
 {
 	window = nullptr;
+	mixer = nullptr;
 	randomizer = nullptr;
 	status = Status::UNINITIALIZED;
 }
@@ -56,31 +57,37 @@ void ApplicationClass::Initialize(const char *title,
 	if (!init_ttf)
 		throw std::runtime_error(Strings::FString("Error while initializing TTF %s\n", SDL_GetError()));
 
-	SDL_AudioSpec desired_spec;
-	SDL_zero(desired_spec);
-	desired_spec.freq = 44100;
-	desired_spec.format = SDL_AUDIO_S16;
-	desired_spec.channels = 2;
+//	SDL_AudioSpec desired_spec;
+//	SDL_zero(desired_spec);
+//	desired_spec.freq = 44100;
+//	desired_spec.format = SDL_AUDIO_S16;
+//	desired_spec.channels = 2;
+//
+//	SDL_AudioDeviceID device_id = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired_spec);
+//	if (device_id == 0)
+//	{
+//		dbg_msg("[Application] &cCould not open audio device\n");
+//		dbg_msg("[Application] &cReason: %s\n", SDL_GetError());
+//		return; // or handle error appropriately
+//	}
 
-	SDL_AudioDeviceID device_id = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired_spec);
-	if (device_id == 0)
-	{
-		dbg_msg("[Application] &cCould not open audio device\n");
-		dbg_msg("[Application] &cReason: %s\n", SDL_GetError());
-		return; // or handle error appropriately
-	}
 
-	if (Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG) == 0)
-		throw std::runtime_error(Strings::FString("Error while initializing Mix %s\n", SDL_GetError()));
+//	SDL_AudioSpec audio_spec = {
+//		.format = SDL_AUDIO_S16,
+//		.channels = 2,
+//		.freq = 44100,
+//	};
+//	mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio_spec);
+
 
 	// Pass the device_id and spec to Mix_OpenAudio
-	if (!Mix_OpenAudio(device_id, &desired_spec))
-	{
-		dbg_msg("[Application] &cCould not open Mix audio\n");
-		dbg_msg("[Application] &cReason: %s\n", SDL_GetError());
-		SDL_CloseAudioDevice(device_id);
-		return; // or handle error appropriately
-	}
+//	if (!Mix_OpenAudio(device_id, &desired_spec)) // todo: check the new initialization aaaaaaa
+//	{
+//		dbg_msg("[Application] &cCould not open Mix audio\n");
+//		dbg_msg("[Application] &cReason: %s\n", SDL_GetError());
+//		SDL_CloseAudioDevice(device_id);
+//		return; // or handle error appropriately
+//	}
 
 	PrintVersions();
 
@@ -90,13 +97,33 @@ void ApplicationClass::Initialize(const char *title,
 	if (!window)
 		throw std::runtime_error(Strings::FString("Error while creating the window %s\n", SDL_GetError()));
 
+	bool init_mix = MIX_Init();
+	if (!init_mix)
+		throw std::runtime_error(Strings::FString("Error while initializing Mix %s\n", SDL_GetError()));
+
+	SDL_AudioSpec spec = {
+		.format = SDL_AUDIO_F32,  // or SDL_AUDIO_S16
+		.channels = 2,
+		.freq = 48000
+	};
+	mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);  // 0 = default device
+	if (!mixer)
+		throw std::runtime_error(Strings::FString("Failed to create mixer: %s", SDL_GetError()));
+
+	track = MIX_CreateTrack(mixer);
+	if (!track)
+		throw std::runtime_error(Strings::FString("Failed to create track: %s", SDL_GetError()));
+	MIX_SetTrackGain(track, 1);
+
+
 	Drawing.Initialize(window);
 	randomizer = new Randomizer();
 
 	Cursors::Initialize();
-	Assets.Initialize(true); //
 
-	Strings::PrintDivider();
+	Strings::PrintDivider("Load Assets");
+
+	Assets.Initialize(true); //
 }
 
 void ApplicationClass::Destroy()
@@ -109,16 +136,18 @@ void ApplicationClass::Destroy()
 
 	Cursors::Deinitialize();
 	Assets.Destroy();
-	Drawing.Deinitialize();
+	Drawing.Destroy();
 
 	// SDL objects
+	MIX_DestroyTrack(track); //
+	MIX_DestroyMixer(mixer);
 	SDL_DestroyWindow(window);
 
 	// SDL as a whole
 	TTF_Quit();
-//    IMG_Quit();
-	Mix_CloseAudio();
-	Mix_Quit();
+//	Mix_CloseAudio();
+//	Mix_Quit();
+	MIX_Quit();
 	SDL_Quit();
 
 	Strings::PrintDivider();

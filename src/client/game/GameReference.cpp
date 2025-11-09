@@ -114,7 +114,7 @@ bool GameData::Initialize()
 
 void GameData::Deinitialize(bool play_quit_sound) // todo: may trigger twice
 {
-	Assets.PauseMusic();
+//	Assets.PauseMusic(); // todo: mix
 
 	delete interface;
 	interface = nullptr;

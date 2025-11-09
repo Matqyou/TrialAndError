@@ -8,18 +8,38 @@
 #include "client/game/ui/CommonUI.h"
 #include "client/game/ui/menus/Menus.h"
 
-static LinkMusic sElevatorMusic("intro");
+static LinkSound sElevatorMusic("intro");
 static LoadTexture sTexturePlay("ui.main.playbutton2", AssetsClass::TexturePurpose::GUI_ELEMENT);
 static LoadTexture sTextureTitle("ui.main.title2", AssetsClass::TexturePurpose::GUI_ELEMENT);
-static LoadTexture sMenuTexture("interface.menu", AssetsClass::TexturePurpose::GUI_ELEMENT);
 static LoadTexture sTextureExit("ui.main.exit2", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
+const Uint32 NUM_MAIN_MENU_QUADS = 1;
 MainMenu::MainMenu()
 	: FullscreenMenu(),
-	  drawing(4, 6)
+	  render(Quad::NUM_VERTICES * NUM_MAIN_MENU_QUADS, Quad::NUM_INDICES * NUM_MAIN_MENU_QUADS),
+	  render_circles(Quad::NUM_VERTICES, Quad::NUM_INDICES)
 {
-	Quad background(drawing, Rect4f(0, 0, Application.GetWidth(), Application.GetHeight())); // todo: dynamic size
-	Application.GetPreRenderEvent().Subscribe([this]() { drawing.Update(); drawing.SetTexture(sMenuTexture); });
+	Dim2Rect background_rect(
+		Rect4f(0, 0, 0, 0),
+		Rect4f(0, 0, 1, 1)
+	);
+	background.Bind(render, background_rect, { 0, 0, 0, 255 });
+
+	Dim2Rect circle_rect(
+		Rect4f(0, 0, 100, 100),
+		Rect4f(0, 0, 0, 0)
+	);
+	intro_circle.Bind(render_circles, circle_rect);
+
+	Application.GetPreRenderEvent().Subscribe(
+		[this]()
+		{
+			render.UpdateGPU();
+			render.SetTexture(nullptr);
+
+			render_circles.UpdateGPU();
+			render_circles.SetDrawAsCircles(true);
+		});
 
 	auto title = (new Element())
 		->SetSize(Vec2i(600, 300))
@@ -39,17 +59,19 @@ MainMenu::MainMenu()
 		->SetDraw(DRAW_TEXTURE)
 		->SetName("Exit");
 
-	play_button->SetCallback([]()
-							 {
-//								 Assets.PauseMusic();
-								 CommonUI::soundUiPitchLow.GetSound()->PlaySound();
-								 Menus.gamemode_menu->SwitchToThisMenu();
-							 });
-	exit_button->SetCallback([]()
-							 {
-								 CommonUI::soundUiPitchLow.GetSound()->PlaySound();
-								 GameReference.ExitApplication();
-							 });
+	play_button->SetCallback(
+		[]()
+		{
+//			Assets.PauseMusic();
+			CommonUI::soundUiPitchLow.GetSound()->PlaySound();
+			Menus.gamemode_menu->SwitchToThisMenu();
+		});
+	exit_button->SetCallback(
+		[]()
+		{
+			CommonUI::soundUiPitchLow.GetSound()->PlaySound();
+			GameReference.ExitApplication();
+		});
 
 	auto frame = (new Element())
 		->SetAdaptive(true, true)
@@ -57,8 +79,8 @@ MainMenu::MainMenu()
 		->SetFlex(Flex::HEIGHT, 10)
 		->AddChildren({ title, play_button, exit_button });
 
-	m_Opened = std::chrono::steady_clock::now();
-	m_Intro = true;
+	opened_at = std::chrono::steady_clock::now();
+	intro = true;
 
 	SetDraw(DONT_DRAW);
 	SetName("MainMenu");
@@ -72,13 +94,14 @@ MainMenu::~MainMenu()
 
 void MainMenu::SwitchToThisMenu()
 {
-	if (!Mix_PausedMusic() && !Mix_PlayingMusic())
-	{
-		sElevatorMusic.GetMusic()->PlayMusic(-1);
-		if (!m_Intro) Mix_SetMusicPosition(16);
-	}
-	else
-	{ Mix_ResumeMusic(); }
+	// todo: mix
+//	if (!Mix_PausedMusic() && !Mix_PlayingMusic())
+//	{
+//		sElevatorMusic.GetMusic()->PlayMusic(-1);
+//		if (!m_Intro) Mix_SetMusicPosition(16);
+//	}
+//	else
+//	{ Mix_ResumeMusic(); }
 
 	Menus.SetCurrentMenu(this);
 	RefreshMenu();
@@ -86,7 +109,7 @@ void MainMenu::SwitchToThisMenu()
 
 void MainMenu::HandleEvent(const SDL_Event& sdl_event, EventContext& event_summary)
 {
-	if (!m_Intro)
+	if (!intro)
 	{
 		HandleEventChildren(sdl_event, event_summary);
 		FullscreenMenuEvent(sdl_event, event_summary);
@@ -99,8 +122,9 @@ void MainMenu::HandleEvent(const SDL_Event& sdl_event, EventContext& event_summa
 
 	if (sdl_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && sdl_event.button.button == SDL_BUTTON_LEFT)
 	{
-		m_Intro = false;
-		Mix_SetMusicPosition(16);
+		intro = false;
+//		MIX_SetTrackPlaybackPosition(Application.GetTrack(), 16); // this prob doesnt work cause tracks can play 1 sound at once?
+//		Mix_SetMusicPosition(16);  // todo: mix
 		RefreshMenu();
 	}
 
@@ -108,10 +132,10 @@ void MainMenu::HandleEvent(const SDL_Event& sdl_event, EventContext& event_summa
 
 void MainMenu::Tick(double elapsed_seconds)
 {
-	if (m_Intro)
+	if (intro)
 	{
-		if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_Opened).count() >= 15500)
-			m_Intro = false;
+		if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - opened_at).count() >= 15500)
+			intro = false;
 
 		return;
 	}
@@ -119,40 +143,42 @@ void MainMenu::Tick(double elapsed_seconds)
 	TickChildren(elapsed_seconds);
 }
 
+void MainMenu::PreRender()
+{
+	if (!intro)
+	{
+		PreRenderChildren();
+		return;
+	}
+
+	double duration = (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - opened_at).count();
+	int centerX = (int)Application.GetWidth2();
+	int centerY = (int)Application.GetHeight2();
+	int radius = (int)(duration * 0.05);
+	Uint8 circle_color = (Uint8)(duration / 15500 * 255);
+
+	Dim2Rect circle_rect = Dim2Rect(
+		Rect4f(centerX - radius, centerY - radius, radius * 2, radius * 2),
+		Rect4f(0, 0, 0, 0)
+	);
+	intro_circle.UpdateRect(circle_rect);
+	intro_circle.UpdateColor({ circle_color, circle_color, circle_color, 255 });
+
+	render_circles.UpdateGPU(); // todo: batch gpu updates instead of doing this *sips tea* :3
+}
+
 void MainMenu::Render()
 {
-	if (!m_Intro)
+
+	if (!intro)
 	{
 		RenderChildren();
 		return;
 	}
 
-	drawing.Draw();
+	render.Draw();
 
-//	auto drawing = Application.GetDrawing();
-//	drawing->SetColor(0, 0, 0, 255);
-//	drawing->Clear();
-//
-//	double duration = (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_Opened).count();
-//	int centerX = (int)Application.GetWidth2();
-//	int centerY = (int)Application.GetHeight2();
-//	int radius = (int)(duration * 0.05);
-//	int color = (int)(duration / 15500 * 255);
-//
-//	drawing->SetColor(color, color, color, 255);
-//	for (int y = -radius; y <= radius; ++y)
-//	{
-//		int dx = static_cast<int>(std::sqrt(radius * radius - y * y)); // Horizontal distance for this vertical offset
-//		int startX = centerX - dx;
-//		int endX = centerX + dx;
-//
-//		// Draw a horizontal line for the current row
-//		drawing->DrawLine(Vec2f(startX, centerY + y), Vec2f(endX, centerY + y));
-//	}
-//
-//	if (duration >= 15000)
-//	{
-//		drawing->SetColor(0, 0, 0, 255);
-//		drawing->Clear();
-//	}
+	double duration = (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - opened_at).count();
+	if (duration < 15000) // shocking disappearance of the circle before cutscene ends
+		render_circles.Draw();
 }

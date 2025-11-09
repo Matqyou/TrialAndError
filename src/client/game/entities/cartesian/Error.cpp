@@ -49,13 +49,13 @@ void Error::TickPickup(double x, double y)
 	for (Entity *entity : characters)
 	{
 		Character *character = (Character *)entity;
-		auto& core = character->GetDirectionalCore();
-		bool Collides = (core.pos.x - core.size.x / 2 - core.size_ratio < x) &&
-			(core.pos.x + core.size.x / 2 + core.size_ratio > x) &&
-			(core.pos.y - core.size.y / 2 - core.size_ratio < y) &&
-			(core.pos.y + core.size.y / 2 + core.size_ratio > y);
+		auto& character_core = character->GetDirectionalCore();
+		bool collides = (character_core.pos.x - character_core.size.x / 2 - character_core.size_ratio < x) &&
+			(character_core.pos.x + character_core.size.x / 2 + character_core.size_ratio > x) &&
+			(character_core.pos.y - character_core.size.y / 2 - character_core.size_ratio < y) &&
+			(character_core.pos.y + character_core.size.y / 2 + character_core.size_ratio > y);
 
-		if (!Collides)
+		if (!collides)
 			continue;
 
 		ms_PickupSounds[rand() % 7].GetSound()->PlaySound();

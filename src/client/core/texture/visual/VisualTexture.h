@@ -14,7 +14,7 @@ private:
 	Rect4f translation_ratios;
 
 public:
-	VisualTexture(const Vec2i& size, SDL_GPUTexture *texture, const Rect4f& physical_hitbox);
+	VisualTexture(const Vec2i& init_size, SDL_GPUTexture *init_gpu_texture, const Rect4f& init_physical_hitbox);
 	~VisualTexture() override;
 
 	// Getting
@@ -31,8 +31,8 @@ private:
 	Rect4f resulting_placement;
 
 public:
-	explicit VisualTextureInstance(Texture *texture);
-	VisualTextureInstance(Texture *texture, const Rect4f& initial_placement);
+	explicit VisualTextureInstance(Texture *init_texture);
+	VisualTextureInstance(Texture *init_texture, const Rect4f& initial_placement);
 	~VisualTextureInstance();
 
 	// Getting

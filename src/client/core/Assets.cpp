@@ -3,7 +3,7 @@
 //
 
 #include "Assets.h"
-#include "client/core/Application.h"
+#include <client/core/Application.h>
 #include <unordered_set>
 #include <filesystem>
 #include <algorithm>
@@ -17,19 +17,17 @@ using namespace Strings;
 std::vector<Surface *> AssetsClass::m_AutomaticDeletionSurfaces = { };
 std::vector<Texture *> AssetsClass::m_AutomaticDeletionTextures = { };
 std::vector<LoadTexture *> AssetsClass::m_LoadTextures = { };
-std::vector<PregenerateTexture *> AssetsClass::m_PregenerateTextures = { };
+//std::vector<PregenerateTexture *> AssetsClass::m_PregenerateTextures = { };
 std::vector<LinkSound *> AssetsClass::m_LinkSounds = { };
-std::vector<LinkMusic *> AssetsClass::m_LinkMusic = { };
 std::vector<PreloadFont *> AssetsClass::m_PreloadFonts = { };
 std::vector<LinkFont *> AssetsClass::m_LinkFonts = { };
 
 // Iterators
-std::vector<LoadTexture *>::iterator AssetsClass::m_LinkTexturesIterator = std::vector<LoadTexture *>::iterator{ };
+//std::vector<LoadTexture *>::iterator AssetsClass::m_LinkTexturesIterator = std::vector<LoadTexture *>::iterator{ };
 std::vector<LinkSound *>::iterator AssetsClass::m_LinkSoundsIterator = std::vector<LinkSound *>::iterator{ };
-std::vector<LinkMusic *>::iterator AssetsClass::m_LinkMusicIterator = std::vector<LinkMusic *>::iterator{ };
 std::vector<LinkFont *>::iterator AssetsClass::m_LinkFontsIterator = std::vector<LinkFont *>::iterator{ };
-std::vector<PregenerateTexture *>::iterator
-	AssetsClass::m_PregenerateTexturesIterator = std::vector<PregenerateTexture *>::iterator{ };
+//std::vector<PregenerateTexture *>::iterator
+//	AssetsClass::m_PregenerateTexturesIterator = std::vector<PregenerateTexture *>::iterator{ };
 
 size_t AssetsClass::sTotalWork = 0;
 size_t AssetsClass::sWorkDone = 0;
@@ -46,51 +44,39 @@ DiskTexture::~DiskTexture()
 
 }
 
-Sound::Sound(std::string key, Mix_Chunk *mix_chunk, std::string load_extension)
+Sound::Sound(std::string key, MIX_Audio *init_mix_audio, std::string load_extension)
 	: m_Key(std::move(key)),
 	  m_LoadExtension(std::move(load_extension))
 {
-	m_MixChunk = mix_chunk;
+	mix_audio = init_mix_audio;
 }
 
 Sound::~Sound()
 {
-	if (m_MixChunk)
-		Mix_FreeChunk(m_MixChunk);
+	if (mix_audio)
+		MIX_DestroyAudio(mix_audio);
+	mix_audio = nullptr;
 }
 
 void Sound::SetVolume(int volume)
 {
-	Mix_VolumeChunk(m_MixChunk, volume);
+	// todo: couldn't find the volume function lawl
+//	MIX_Audio
+//	Mix_VolumeChunk(mix_audio, volume);
 }
 
 void Sound::PlaySound()
 {
-	if (m_MixChunk == nullptr || !Assets.SoundsEnabled())
+	if (mix_audio == nullptr || !Assets.SoundsEnabled())
 		return;
 
-	Mix_PlayChannel(-1, m_MixChunk, 0);
-}
+//	dbg_msg("Setting audio on new track %p, audio %p\n", (void*)Application.GetTrack(), (void*)mix_audio);
 
-Music::Music(std::string key, Mix_Music *mix_music, std::string load_extension)
-	: m_Key(std::move(key)),
-	  m_LoadExtension(std::move(load_extension))
-{
-	m_MixMusic = mix_music;
-}
-
-Music::~Music()
-{
-	if (m_MixMusic)
-		Mix_FreeMusic(m_MixMusic);
-}
-
-void Music::PlayMusic(int loops)
-{
-	if (m_MixMusic == nullptr || !Assets.SoundsEnabled())
-		return;
-
-	Mix_PlayMusic(m_MixMusic, loops);
+	// todo: change for tracks
+	MIX_SetTrackAudio(Application.GetTrack(), mix_audio);
+	MIX_PlayTrack(Application.GetTrack(), 0);
+//	MIX_PlayAudio();
+//	Mix_PlayChannel(-1, mix_audio, 0);
 }
 
 Font::Font(TTF_Font *ttf_font, std::string key, std::string load_extension)
@@ -107,9 +93,10 @@ Font::~Font()
 		TTF_CloseFont(m_TTFFont);
 }
 
-std::vector<std::tuple<std::string, std::string, std::string>> GetResourceKeys(const char *directory,
-																			   const std::unordered_set<
-																				   std::string>& supported_extensions)
+std::vector<std::tuple<std::string, std::string, std::string>> GetResourceKeys(
+	const char *directory,
+	const std::unordered_set<std::string>& supported_extensions
+)
 {
 	std::vector<std::tuple<std::string, std::string, std::string>> results;
 
@@ -138,7 +125,7 @@ std::vector<std::tuple<std::string, std::string, std::string>> GetResourceKeys(c
 		// Check if the extension is supported
 		if (supported_extensions.find(extension) == supported_extensions.end())
 		{
-			dbg_msg("[Assets] &8Unsupported file format '%s' for '%s'\n", extension.c_str(), identificator.c_str());
+//			dbg_msg("[Assets] &8Unsupported file format '%s' for '%s'\n", extension.c_str(), identificator.c_str());
 			continue;
 		}
 
@@ -168,7 +155,7 @@ bool AssetsClass::LoadingSurfaces()
 	auto duplicate_iterator = m_Surfaces.find(surface_key);
 	if (duplicate_iterator != m_Surfaces.end())
 	{
-		dbg_msg("[Assets] &cDuplicate surface '%s'\n", extension.c_str(), surface_key.c_str());
+		failed_load_surfaces.push_back(Strings::FString("[Assets] &eCACHE &cDuplicate surface '%s' &8(rename one of the files)\n", extension.c_str(), surface_key.c_str()));
 		return true;
 	}
 
@@ -176,8 +163,7 @@ bool AssetsClass::LoadingSurfaces()
 	SDL_Surface *sdl_surface = IMG_Load(file_path.c_str());
 	if (sdl_surface == nullptr)
 	{
-		dbg_msg("[Assets] &cFailed to load texture '%s'\n", file_path.c_str());
-		dbg_msg("[Assets] &cReason (%s)\n", SDL_GetError());
+		failed_load_surfaces.push_back(Strings::FString("[Assets] &eDISK &cFailed to load texture '%s'(%s)\n", file_path.c_str(), SDL_GetError()));
 		return true;
 	}
 
@@ -189,12 +175,14 @@ bool AssetsClass::LoadingSurfaces()
 											   });
 
 	Surface *new_surface = nullptr;
-	if (visual_hitbox_iterator != m_VisHitboxResources.end())
+	bool has_hitbox_file = visual_hitbox_iterator != m_VisHitboxResources.end();
+	if (has_hitbox_file)
 	{
 		HitboxFile visual_hitbox;
 		if (!visual_hitbox.OpenFile(R"(.\assets\images\)", surface_key))
 		{
-			dbg_msg("[Assets] &cFailed to load visual hitbox file '%s'\n", std::get<1>(*visual_hitbox_iterator).c_str());
+			failed_load_surfaces.push_back(Strings::FString("[Assets] &eDISK &cFailed to load visual hitbox file '%s'\n", std::get<
+				1>(*visual_hitbox_iterator).c_str()));
 			return true;
 		}
 		else
@@ -207,7 +195,8 @@ bool AssetsClass::LoadingSurfaces()
 	new_surface->FlagForAutomaticDeletion();
 	// Add it to all the textures
 	m_Surfaces[surface_key] = new_surface;
-	dbg_msg("[Assets] &9Loaded surface '%s'\n", surface_key.c_str());
+	dbg_msg("[Assets] &aDISK &9Loaded surface '%s'\n", surface_key.c_str());
+	success_load_surfaces++;
 
 	// Last
 	if (m_SurfaceResourcesIndex == m_SurfaceResources.size())
@@ -231,64 +220,23 @@ bool AssetsClass::LoadingSounds()
 	auto it = m_Sounds.find(key);
 	if (it != m_Sounds.end())
 	{
-		dbg_msg("[Assets] &cDuplicate sound '%s' for existing '%s'(%s)\n",
-				extension.c_str(), key.c_str(), it->second->m_LoadExtension.c_str());
+		failed_load_sounds.push_back(Strings::FStringColors("[Assets] &aCACHE &cDuplicate sound '%s' for existing '%s'(%s)\n", extension.c_str(), key.c_str(), it->second->m_LoadExtension.c_str()));
 		return true;
 	}
 
 	// Load the sound
-	Mix_Chunk *NewMixChunk = Mix_LoadWAV(file_path.c_str());
-	if (!NewMixChunk)
+	MIX_Audio *new_mix_audio = MIX_LoadAudio(Application.GetMixer(), file_path.c_str(), true);
+	if (!new_mix_audio)
 	{
-		dbg_msg("[Assets] &cFailed to load sound '%s'\n", file_path.c_str());
-		dbg_msg("[Assets] &cReason (%s)\n", SDL_GetError());
+		failed_load_sounds.push_back(Strings::FStringColors("[Assets] &aDISK &cFailed to load sound '%s'(%s)\n", file_path.c_str(), SDL_GetError()));
 		return true;
 	}
 
 	// Add it to all the textures
-	auto new_sound = new Sound(key, NewMixChunk, extension);
+	auto new_sound = new Sound(key, new_mix_audio, extension);
 	m_Sounds[key] = new_sound;
-	dbg_msg("[Assets] &9Loaded sound '%s'\n", key.c_str());
-
-	return true;
-}
-
-bool AssetsClass::LoadingMusic()
-{
-	if (m_MusicResourcesIndex >= m_MusicResources.size())
-		return false;
-
-	sWorkDone++;
-
-	auto& entry = m_MusicResources[m_MusicResourcesIndex];
-	++m_MusicResourcesIndex;
-	std::string& key = std::get<0>(entry);
-	std::string& file_path = std::get<1>(entry);
-	std::string& extension = std::get<2>(entry);
-
-	auto it = m_Music.find(key);
-	if (it != m_Music.end())
-	{
-		dbg_msg("[Assets] &cDuplicate music '%s' for existing '%s'(%s)\n",
-				extension.c_str(),
-				key.c_str(),
-				it->second->m_LoadExtension.c_str());
-		return true;
-	}
-
-	// Load the sound
-	Mix_Music *NewMixMusic = Mix_LoadMUS(file_path.c_str());
-	if (!NewMixMusic)
-	{
-		dbg_msg("[Assets] &cFailed to load music '%s'\n", file_path.c_str());
-		dbg_msg("[Assets] &cReason (%s)\n", SDL_GetError());
-		return true;
-	}
-
-	// Add it to all the textures
-	auto new_music = new Music(key, NewMixMusic, extension);
-	m_Music[key] = new_music;
-	dbg_msg("[Assets] &9Loaded music '%s'\n", key.c_str());
+	dbg_msg("[Assets] &aDISK &9Loaded sound '%s'\n", key.c_str());
+	success_load_sounds++;
 
 	return true;
 }
@@ -310,14 +258,17 @@ bool AssetsClass::LoadingFonts()
 	if (it != m_Fonts.end())
 	{
 		auto [other_font_id, other_font] = *it;
-		dbg_msg("[Assets] &cDuplicate font '%s'&r(%s:%.1fpt)\n",
+		failed_load_fonts.push_back(
+			FString(
+				"[Assets] &aCACHE &cDuplicate font '%s'&r(%s:%.1fpt), existing font '%s'&r(%s:%.1fpt)\n",
 				font_key.c_str(),
 				font_id.c_str(),
-				font_size);
-		dbg_msg("[Assets] &cExisting font '%s'&r(%s:%.1fpt)\n",
+				font_size,
 				other_font->m_Key.c_str(),
 				other_font_id.c_str(),
-				other_font->m_Size);
+				other_font->m_Size
+			)
+		);
 		return true;
 	}
 
@@ -331,18 +282,20 @@ bool AssetsClass::LoadingFonts()
 		{
 			auto ttf_font = TTF_OpenFont(file_path.c_str(), font_size);
 			if (!ttf_font)
-				throw std::runtime_error(FString("Failed to load font '%s' because (%s)",
-												 file_path.c_str(),
-												 SDL_GetError()));
+			{
+				failed_load_fonts.push_back(FString("[Assets] &aDISK &cFailed to load font '%s' because (%s)", file_path.c_str(), SDL_GetError()));
+				continue;
+			}
 
 			auto new_font = (new Font(ttf_font, font_key, extension))
 				->CacheSize(font_size);
 			required_font->m_Font = new_font;
 			m_Fonts[font_key] = new_font;
-			dbg_msg("[Assets] &9Loaded font '%s' &7(%s:%.1fpt)\n",
+			dbg_msg("[Assets] &aDISK &9Loaded font '%s' &7(%s:%.1fpt)\n",
 					font_key.c_str(),
 					font_id.c_str(),
 					font_size);
+			success_load_fonts++;
 		}
 	}
 
@@ -399,22 +352,35 @@ bool AssetsClass::LoadingTextures()
 	sWorkDone += m_LoadTextures.size();
 	m_InvalidTextureDefault = TextureFromSurface(*GetSurface("invalid"), TexturePurpose::GUI_ELEMENT);
 
-//	dbg_msg("[Assets] &5Loaded %i textures\n", m_Textures.size());
-
 	for (LoadTexture *load_texture : m_LoadTextures)
 	{
 		const std::string& texture_key = load_texture->Key();
 		const std::string& from_surface_key = load_texture->FromSurfaceKey();
 		TexturePurpose purpose = load_texture->GetPurpose();
 
-		Surface& from_surface = *GetSurface(from_surface_key);
-		Texture *new_texture = TextureFromSurface(from_surface, purpose)
+		auto duplicate_iterator = m_Textures.find(texture_key);
+		if (duplicate_iterator != m_Textures.end())
+		{
+			failed_load_textures.push_back(Strings::FStringColors("[Assets] &eCACHE &cDuplicate texture '%s' &8(remove one, reuse the other for your use cases)\n", texture_key.c_str()));
+			continue;
+		}
+
+		Surface *from_surface = GetSurface(from_surface_key);
+		if (!from_surface)
+		{
+			failed_load_textures.push_back(Strings::FStringColors("[Assets] &eCACHE &cFailed to load texture '%s', surface '%s' not found\n", texture_key.c_str(), from_surface_key.c_str()));
+			continue;
+		}
+
+		Texture *new_texture = TextureFromSurface(*from_surface, purpose)
 			->FlagForAutomaticDeletion();
 		load_texture->texture = new_texture;
 
 		m_Textures[texture_key] = new_texture;
+		dbg_msg("[Assets] &aRAM &9Loaded texture '%s'\n", texture_key.c_str());
+		success_load_textures++;
 	}
-	dbg_msg("[Assets] &5Loaded %zu textures\n", m_LoadTextures.size());
+//	dbg_msg("[Assets] &eLoaded %zu/%zu textures\n", m_Textures.size(), m_LoadTextures.size());
 	m_LoadTextures.clear();
 
 	return true;
@@ -427,39 +393,26 @@ bool AssetsClass::LinkingSounds()
 
 	sWorkDone += m_LinkSounds.size();
 
-	dbg_msg("[Assets] &5Loaded %i sounds\n", m_Sounds.size());
+//	dbg_msg("[Assets] &eLoaded %i sounds\n", m_Sounds.size());
 
 	// Link
 	for (auto required_sound : m_LinkSounds)
 	{
 		const std::string& sound_key = required_sound->Key();
 
-		required_sound->m_Sound = GetSound(sound_key);
+		auto sound = GetSound(sound_key);
+		if (!sound)
+		{
+			failed_link_sounds.push_back(Strings::FStringColors("[Assets] &eCACHE &cFailed to link missing sound '%s'\n", sound_key.c_str()));
+			continue;
+		}
+
+		required_sound->m_Sound = sound;
+		dbg_msg("[Assets] &aCACHE &9Linked sound '%s'\n", sound_key.c_str());
+		success_link_sounds++;
 	}
-	dbg_msg("[Assets] &5Linked %zu sounds\n", m_LinkSounds.size());
+//	dbg_msg("[Assets] &eLinked %zu sounds\n", m_LinkSounds.size());
 	m_LinkSounds.clear();
-
-	return true;
-}
-
-bool AssetsClass::LinkingMusic()
-{
-	if (m_LinkMusic.empty())
-		return false; // todo: bad
-
-	sWorkDone += m_LinkMusic.size();
-
-	dbg_msg("[Assets] &5Loaded %i music\n", m_Music.size());
-
-	// Link
-	for (auto required_music : m_LinkMusic)
-	{
-		const std::string& music_key = required_music->Key();
-
-		required_music->m_Music = GetMusic(music_key);
-	}
-	dbg_msg("[Assets] &5Linked %zu music\n", m_LinkMusic.size());
-	m_LinkMusic.clear();
 
 	return true;
 }
@@ -475,12 +428,21 @@ bool AssetsClass::LinkingFonts()
 	{
 		const std::string& font_key = required_font->Key();
 
-		required_font->m_Font = GetFont(font_key);
+		auto font = GetFont(font_key);
+		if (!font)
+		{
+			failed_link_fonts.push_back(Strings::FString("[Assets] &eCACHE &cFailed to link missing font '%s'\n", font_key.c_str()));
+			continue;
+		}
+
+		required_font->m_Font = font;
+		dbg_msg("[Assets] &aCACHE &9Linked font '%s'\n", font_key.c_str());
+		success_link_fonts++;
 	}
 
-	auto loaded_fonts_message = FString("[Assets] &5Loaded %zu fonts", m_PreloadFonts.size());
-	if (!m_LinkFonts.empty()) loaded_fonts_message += FString(" &d(%zu linked)", m_LinkFonts.size());
-	dbg_msg("%ls\n", loaded_fonts_message.c_str());
+//	auto loaded_fonts_message = FString("[Assets] &5Loaded %zu fonts", m_PreloadFonts.size());
+//	if (!m_LinkFonts.empty()) loaded_fonts_message += FString(" &d(%zu linked)", m_LinkFonts.size());
+//	dbg_msg("%ls\n", loaded_fonts_message.c_str());
 
 	m_LinkFonts.clear();
 	return true;
@@ -630,20 +592,25 @@ AssetsClass::AssetsClass()
 
 	m_SoundsEnabled = false;
 	sTotalWork = 0;
+
+	success_load_surfaces = 0;
+	success_load_textures = 0;
+	success_load_sounds = 0;
+	success_load_fonts = 0;
+	success_link_sounds = 0;
+	success_link_fonts = 0;
 }
 
 // Todo: Loading assets in realtime (adding/removing files?)
 void AssetsClass::Initialize(bool sounds_enabled)
 {
-	dbg_msg("[Assets] &aAttempting to initialize assets.\n");
-
 	// This function must contain a status override
 	if (status != Status::UNINITIALIZED)
 		return;
 
 	m_SoundsEnabled = sounds_enabled;
 
-	dbg_msg("[Assets] &aLooking for assets..\n");
+	dbg_msg("[Assets] &8Looking for something interesting..\n");
 	std::unordered_set<std::string> hitbox_extension = { ".vis" };
 	std::unordered_set<std::string> texture_extensions = { ".png", ".jpg", ".jpeg", ".bmp",
 														   ".gif", ".tif", ".tiff", ".webp" };
@@ -664,29 +631,25 @@ void AssetsClass::Initialize(bool sounds_enabled)
 	m_MusicResourcesIndex = 0;
 //	m_TextureResourcesIterator = m_TextureResources.begin();
 //	m_SoundResourcesIterator = m_SoundResources.begin();
-//	m_MusicResourcesIterator = m_MusicResources.begin();
 	m_PreloadFontIterator = m_PreloadFonts.begin();
-	m_PregenerateTexturesIterator = m_PregenerateTextures.begin();
-	m_LinkTexturesIterator = m_LoadTextures.begin();
+//	m_PregenerateTexturesIterator = m_PregenerateTextures.begin();
+//	m_LinkTexturesIterator = m_LoadTextures.begin();
 	m_LinkSoundsIterator = m_LinkSounds.begin();
-	m_LinkMusicIterator = m_LinkMusic.begin();
 	m_LinkFontsIterator = m_LinkFonts.begin();
 
-	dbg_msg("[Assets] &2Found %zu textures in assets\n", m_SurfaceResources.size());
-	dbg_msg("[Assets] &2Found %zu sounds in assets\n", m_SoundResources.size());
-	dbg_msg("[Assets] &2Found %zu music in assets\n", m_MusicResources.size());
-	dbg_msg("[Assets] &2Found %zu fonts in assets\n", m_FontResources.size());
-	dbg_msg("[Assets] &dFound %zu different font instances\n", m_PreloadFonts.size());
-	dbg_msg("[Assets] &eFound %zu texture links\n", m_LoadTextures.size());
-	dbg_msg("[Assets] &eFound %zu sound links\n", m_LinkSounds.size());
-	dbg_msg("[Assets] &eFound %zu music links\n", m_LinkMusic.size());
-	dbg_msg("[Assets] &eFound %zu font links\n", m_LinkFonts.size());
-	dbg_msg("[Assets] &dFound %zu pre-generated texture instances\n", m_PregenerateTextures.size());
-	dbg_msg("[Assets] &aReady to load assets..\n");
+	dbg_msg("[Assets] &aDISK &2Found %zu textures in assets\n", m_SurfaceResources.size());
+	dbg_msg("[Assets] &aDISK &2Found %zu sounds in assets\n", m_SoundResources.size());
+	dbg_msg("[Assets] &aDISK &2Found %zu music in assets\n", m_MusicResources.size());
+	dbg_msg("[Assets] &aDISK &2Found %zu fonts in assets\n", m_FontResources.size());
+	dbg_msg("[Assets] &aCACHE &2Found %zu font loads\n", m_PreloadFonts.size());
+	dbg_msg("[Assets] &aCACHE &2Found %zu texture loads\n", m_LoadTextures.size());
+	dbg_msg("[Assets] &aCACHE &2Found %zu sound links\n", m_LinkSounds.size());
+	dbg_msg("[Assets] &aCACHE &2Found %zu font links\n", m_LinkFonts.size());
 
-	sTotalWork = m_SurfaceResources.size() + m_SoundResources.size() + m_MusicResources.size() + m_PreloadFonts.size()
-		+ m_LoadTextures.size() + m_LinkSounds.size() + m_LinkMusic.size() + m_LinkFonts.size()
-		+ m_PregenerateTextures.size();
+	sTotalWork = m_SurfaceResources.size() + m_SoundResources.size() + m_PreloadFonts.size() // m_MusicResources.size()
+		+ m_LoadTextures.size() + m_LinkSounds.size() + m_LinkFonts.size();
+
+	dbg_msg("[Assets] &8Proceeding with loading..\n"); // now onto 'threaded loading'
 }
 
 void AssetsClass::Destroy()
@@ -719,14 +682,6 @@ void AssetsClass::Destroy()
 	}
 	m_Sounds.clear();
 
-	size_t destroyed_music = 0;
-	for (const auto& entry : m_Music)
-	{
-		delete entry.second;
-		destroyed_music++;
-	}
-	m_Music.clear();
-
 	size_t destroyed_fonts = 0;
 	for (const auto& entry : m_Fonts)
 	{
@@ -754,7 +709,6 @@ void AssetsClass::Destroy()
 	dbg_msg("%s\n", destroyed_surfaces_msg.c_str());
 	dbg_msg("%s\n", destroyed_textures_msg.c_str());
 	dbg_msg("[Assets] &5Destroyed %zu sounds\n", destroyed_sounds);
-	dbg_msg("[Assets] &5Destroyed %zu music\n", destroyed_music);
 	dbg_msg("[Assets] &5Destroyed %zu fonts\n", destroyed_fonts);
 }
 
@@ -769,18 +723,20 @@ Surface *AssetsClass::GetSurface(const std::string& surface_key)
 	if (it != m_Surfaces.end())
 		return it->second;
 
-	if (m_InvalidSurfaceDefault != nullptr)
-	{
-		dbg_msg("[Assets] GetSurface() `%s` not found\n", surface_key.c_str());
-		return m_InvalidSurfaceDefault;
-	}
+	return nullptr;
 
-	throw std::runtime_error(
-		Strings::FString(
-			"AssetsClass::GetSurface() surface '%s' was not found (no invalid surface found either)\n",
-			surface_key.c_str()
-		)
-	);
+//	if (m_InvalidSurfaceDefault != nullptr)
+//	{
+//		dbg_msg("[Assets] GetSurface() `%s` not found\n", surface_key.c_str());
+//		return m_InvalidSurfaceDefault;
+//	}
+//
+//	throw std::runtime_error(
+//		Strings::FString(
+//			"AssetsClass::GetSurface() surface '%s' was not found (no invalid surface found either)\n",
+//			surface_key.c_str()
+//		)
+//	);
 }
 
 Texture *AssetsClass::GetTexture(const std::string& texture_key)
@@ -812,15 +768,6 @@ Sound *AssetsClass::GetSound(const std::string& sound_key)
 {
 	auto it = m_Sounds.find(sound_key);
 	if (it != m_Sounds.end())
-		return it->second;
-
-	return nullptr;
-}
-
-Music *AssetsClass::GetMusic(const std::string& music_key)
-{
-	auto it = m_Music.find(music_key);
-	if (it != m_Music.end())
 		return it->second;
 
 	return nullptr;
@@ -862,89 +809,7 @@ Texture *AssetsClass::CreateTexture(TexturePurpose purpose, const Vec2i& size, R
 		return new VisualTexture(size, gpu_texture, *visual_hitbox);
 
 	return new Texture(size, gpu_texture);
-
-//	SDL_GPUTextureFormat customFormat = SDL_GPU_TEXTUREFORMAT_INVALID;  // Optional override
-//	SDL_GPUTextureCreateInfo textureInfo = { };
-//	textureInfo.width = size.x;
-//	textureInfo.height = size.y;
-//	textureInfo.sample_count = SDL_GPU_SAMPLECOUNT_1;
-//
-//	switch (purpose)
-//	{
-//		case TexturePurpose::GUI_ELEMENT: textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
-//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
-//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
-//			textureInfo.layer_count_or_depth = 1;
-//			textureInfo.num_levels = 1;  // No mipmaps
-//			break;
-//
-//		case TexturePurpose::OBJECT_3D: textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
-//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
-//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
-//			textureInfo.layer_count_or_depth = 1;
-//			textureInfo.num_levels = CalculateMipmapLevels(size.x, size.y);  // Full mipmap chain
-//			break;
-//
-//		case TexturePurpose::RENDER_TARGET: textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
-//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
-//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER | SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
-//			textureInfo.layer_count_or_depth = 1;
-//			textureInfo.num_levels = 1;
-//			break;
-//
-//		case TexturePurpose::DEPTH_BUFFER: textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
-//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_D24_UNORM;
-//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET;
-//			textureInfo.layer_count_or_depth = 1;
-//			textureInfo.num_levels = 1;
-//			break;
-//
-//		case TexturePurpose::CUBEMAP: textureInfo.type = SDL_GPU_TEXTURETYPE_CUBE;
-//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
-//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
-//			textureInfo.layer_count_or_depth = 6;  // 6 faces
-//			textureInfo.num_levels = CalculateMipmapLevels(size.x, size.y);
-//			break;
-//
-//		case TexturePurpose::TEXTURE_ATLAS: textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
-//			textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
-//			textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
-//			textureInfo.layer_count_or_depth = 1;
-//			textureInfo.num_levels = 1;  // Usually no mipmaps for atlases
-//			break;
-//	}
-
-	// Allow format override if needed
-//	if (customFormat != SDL_GPU_TEXTUREFORMAT_INVALID)
-//		textureInfo.format = customFormat;
 }
-
-//SDL_Texture *AssetsClass::CopySDLTexture(SDL_Texture *copy_texture, SDL_TextureAccess access)
-//{
-//	auto original_render_target = SDL_GetRenderTarget(Application.GetDrawing()->Renderer());
-//
-//	SDL_Texture *NewSDLTexture = SDL_CreateTexture(Application.GetDrawing()->Renderer(),
-//												   copy_texture->format,
-//												   access,
-//												   copy_texture->w,
-//												   copy_texture->h);
-////    SDL_SetRenderTarget(Application.GetDrawing()->Renderer(), NewSDLTexture);
-//	Application.GetDrawing()->SetRenderTargetSDL(NewSDLTexture);
-//	Application.GetDrawing()->RenderTextureFullscreen(copy_texture, nullptr);
-//	Application.GetDrawing()->SetRenderTargetSDL(original_render_target);
-//	return NewSDLTexture;
-//}
-
-//VisualTexture* AssetsClass::RenderTextBlendedVisual(TTF_Font* font, const std::string& text, SDL_Color color) {
-//    SDL_Surface* sdl_surface = TTF_RenderText_Blended(font, text.c_str(), text.size(), color);
-//    SDL_Texture* NewSDLTexture = SDL_CreateTextureFromSurface(Application.GetDrawing()->Renderer(), sdl_surface);
-//    SDL_DestroySurface(sdl_surface);
-//
-//    Vec2f text_size;
-//    SDL_GetTextureSize(NewSDLTexture, &text_size.x, &text_size.y);
-//
-//    return new VisualTexture(NewSDLTexture, Rect4f(0.0f, 0.0f, text_size.x, text_size.y));
-//}
 
 Texture *AssetsClass::RenderTextBlended(TTF_Font *font, const std::string& text, SDL_Color color)
 {
@@ -1085,18 +950,6 @@ void AssetsClass::LinkPreloadedSound(LinkSound *link_sound)
 	throw std::runtime_error(error);
 }
 
-void AssetsClass::LinkPreloadedMusic(LinkMusic *link_music)
-{
-	if (Assets.GetStatus() < Status::ASSETS_LINKED)
-	{
-		m_LinkMusic.push_back(link_music);
-		return;
-	}
-
-	auto error = Strings::FString("You cannot link music '%s' after status == ASSETS_LINKED", link_music->m_Key.c_str());
-	throw std::runtime_error(error);
-}
-
 void AssetsClass::PreloadFont_(PreloadFont *preload_font)
 {
 	if (Assets.GetStatus() < Status::ASSETS_LINKED)
@@ -1122,16 +975,6 @@ void AssetsClass::LinkPreloadedFont(LinkFont *link_font)
 	throw std::runtime_error(error);
 }
 
-void AssetsClass::SetMusicVolume(int volume)
-{
-	Mix_VolumeMusic(volume);
-}
-
-void AssetsClass::PauseMusic()
-{
-	Mix_PauseMusic();
-}
-
 void AssetsClass::AutomaticallyDeleteSurface(Surface *surface)
 {
 	m_AutomaticDeletionSurfaces.push_back(surface);
@@ -1146,18 +989,57 @@ void AssetsClass::ThreadedLoading()
 {
 	while (status == Status::KEYS_LOADED)
 	{
-		if (LoadingSurfaces()) break;
-		if (LoadingSounds()) break;
-		if (LoadingMusic()) break;
-		if (LoadingFonts()) break;
-		if (LoadingTextures()) break;
-		if (LinkingSounds()) break;
-		if (LinkingMusic()) break;
-		if (LinkingFonts()) break;
-//		if (GeneratingTextures()) break;
+		if (LoadingSurfaces()) break; // Only loads
+		if (LoadingSounds()) break; // Only loads
+		if (LoadingFonts()) break; // Loads and links
+		if (LoadingTextures()) break; // Loads and links
+		if (LinkingSounds()) break; // Only links
+		if (LinkingFonts()) break; // Only links
 
 		status = Status::ASSETS_LINKED;
-		dbg_msg("[Assets] &aWork finished %zu/%zu\n", GetWorkDone(), GetTotalWork());
+		dbg_msg("[Assets] &8Finished loading!\n");
+
+		// %s prefix
+		// %zu successful
+		// %zu total
+		// %s suffix message
+		auto summary = [](const char *fmt, size_t success, size_t fail)
+		{
+			size_t total = success + fail;
+			std::string color = (total == 0) ? "&8" : (success == total) ? "&a" : "&e";
+			std::string prefix = color + ((success == total) ? "✔ " : "✖ ");
+			std::string suffix = (success == total) ? "" :
+								 (success != total) ? Strings::FString(" &f.. &c%zu failed :/", fail) :
+								 " &f.. &call failed ;-;";
+			dbg_msg(fmt, prefix.c_str(), success, total, suffix.c_str());
+		};
+
+		size_t total_problems = failed_load_surfaces.size() +
+			failed_load_textures.size() +
+			failed_load_sounds.size() +
+			failed_load_fonts.size() +
+			failed_link_sounds.size() +
+			failed_link_fonts.size();
+		if (total_problems)
+		{
+			dbg_msg("\n");
+			dbg_msg("[Assets] &cFound %zu problem/s during loading:\n", total_problems);
+			for (auto msg : failed_load_surfaces) dbg_msg(msg.c_str());
+			for (auto msg : failed_load_textures) dbg_msg(msg.c_str());
+			for (auto msg : failed_load_sounds) dbg_msg(msg.c_str());
+			for (auto msg : failed_load_fonts) dbg_msg(msg.c_str());
+			for (auto msg : failed_link_sounds) dbg_msg(msg.c_str());
+			for (auto msg : failed_link_fonts) dbg_msg(msg.c_str());
+			dbg_msg("\n");
+		}
+
+		summary("[Assets] %sLoaded %zu/%zu surfaces%s\n", success_load_surfaces, failed_load_surfaces.size());
+		summary("[Assets] %sLoaded %zu/%zu textures%s\n", success_load_textures, failed_load_textures.size());
+		summary("[Assets] %sLoaded %zu/%zu sounds%s\n", success_load_sounds, failed_load_sounds.size());
+		summary("[Assets] %sLoaded %zu/%zu fonts%s\n", success_load_fonts, failed_load_fonts.size());
+		summary("[Assets] %sLinked %zu/%zu sounds%s\n", success_link_sounds, failed_link_sounds.size());
+		summary("[Assets] %sLinked %zu/%zu fonts%s\n", success_link_fonts, failed_link_fonts.size());
+		summary("[Assets] %sProcessed entries %zu/%zu%s\n", GetWorkDone(), GetTotalWork() - GetWorkDone());
 	}
 }
 
@@ -1215,22 +1097,6 @@ Sound *LinkSound::GetSound() const
 		throw std::runtime_error(FString("[Sound] GetSound '%s' was nullptr", m_Key.c_str()));
 
 	return m_Sound;
-}
-
-LinkMusic::LinkMusic(std::string music_key)
-	: m_Key(std::move(music_key))
-{
-	m_Music = nullptr;
-
-	AssetsClass::LinkPreloadedMusic(this);
-}
-
-Music *LinkMusic::GetMusic() const
-{
-	if (m_Music == nullptr)
-		throw std::runtime_error(FString("[Music] GetMusic '%s' was nullptr", m_Key.c_str()));
-
-	return m_Music;
 }
 
 PreloadFont::PreloadFont(std::string font_key, std::string font_id, float ptsize)

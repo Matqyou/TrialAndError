@@ -8,7 +8,7 @@ template<class T>
 Vec2<T>::Vec2() : x(T()), y(T()) { }
 
 template<class T>
-Vec2<T>::Vec2(T x, T y) : x(x), y(y) { }
+Vec2<T>::Vec2(T X, T Y) : x(X), y(Y) { }
 
 template<class T>
 Vec2<T>::Vec2(const Vec2& v) : x(v.x), y(v.y) { }

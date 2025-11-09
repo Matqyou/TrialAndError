@@ -10,7 +10,7 @@ template<class T>
 Rect4<T>::Rect4() : x(T()), y(T()), w(T()), h(T()) { }
 
 template<class T>
-Rect4<T>::Rect4(T x, T y, T w, T h) : x(x), y(y), w(w), h(h) { }
+Rect4<T>::Rect4(T X, T Y, T W, T H) : x(X), y(Y), w(W), h(H) { }
 
 template<class T>
 Rect4<T>::Rect4(const Rect4& r) : x(r.x), y(r.y), w(r.w), h(r.h) { }

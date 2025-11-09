@@ -26,6 +26,8 @@ public:
 protected:
 	SDL_Window *window;
 //	SDL_Renderer *renderer;
+	MIX_Mixer *mixer;
+	MIX_Track *track; // or tracks itf
 
 	NonBlockingClock clock;
 	Randomizer *randomizer;
@@ -41,17 +43,21 @@ protected:
 
 public:
 	ApplicationClass();
-	void Initialize(const char *title,
-					const char *version,
-					const char *identifier,
-					const Vec2i& window_resolution,
-					double framerate, double idle_framerate,
-					const char *renderer_backend = nullptr);
+	void Initialize(
+		const char *title,
+		const char *version,
+		const char *identifier,
+		const Vec2i& window_resolution,
+		double framerate, double idle_framerate,
+		const char *renderer_backend = nullptr
+	);
 	void Destroy();
 	~ApplicationClass();
 
 	// Getting
 	[[nodiscard]] SDL_Window *GetWindow() { return window; }
+	[[nodiscard]] MIX_Mixer *GetMixer() { return mixer; }
+	[[nodiscard]] MIX_Track *GetTrack() { return track; }
 	[[nodiscard]] NonBlockingClock *GetClock() { return &clock; }
 	[[nodiscard]] Randomizer *GetRandomizer() const { return randomizer; }
 

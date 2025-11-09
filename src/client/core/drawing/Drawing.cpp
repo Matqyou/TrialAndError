@@ -19,7 +19,7 @@ SDL_GPUShader *LoadShader(SDL_GPUDevice *device, const char *filepath, SDL_GPUSh
 	size_t size = ftell(f);
 	fseek(f, 0, SEEK_SET);
 
-	printf("Loading %s: %zu bytes\n", filepath, size);  // ADD THIS
+//	printf("Loading %s: %zu bytes\n", filepath, size);  // ADD THIS
 
 	unsigned char *code = new unsigned char[size];
 	fread(code, 1, size, f);
@@ -37,19 +37,49 @@ SDL_GPUShader *LoadShader(SDL_GPUDevice *device, const char *filepath, SDL_GPUSh
 	shader_info.code = code;
 	SDL_GPUShader *shader = SDL_CreateGPUShader(device, &shader_info);
 
-	printf("Shader created: %p (error: %s)\n", shader, SDL_GetError());  // ADD THIS
+	dbg_msg("[Drawing] &9Loaded shader '%s'\n", filepath);
 
 	delete[] code;
 	return shader;
 }
 
-Quad::Quad(DrawCommand& draw_command, const Rect4f& start_rect, const SDL_Color& start_color)
-{
-	vertices = &draw_command.Vertices()[draw_command.current_vertices_offset];
-	indices = &draw_command.Indices()[draw_command.current_indices_offset];
+SDL_GPUVertexAttribute GPUVertex::vertex_attributes[] = {
+	{ .location = 0, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, .offset = 0 },  // position
+	{ .location = 1, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, .offset = sizeof(float) * 3 }, // normal
+	{ .location = 2, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, .offset = sizeof(float) * 6 }, // UV
+	{ .location = 3, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM, .offset = sizeof(float) * 8 } // color
+};
 
-	draw_command.current_vertices_offset += 4;
-	draw_command.current_indices_offset += 6;
+SDL_GPUVertexAttribute GPUVertex2D::vertex_attributes[] = {
+	{ .location = 0, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, .offset = 0 }, // position: 2 float - 8
+	{ .location = 1, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, .offset = 8 },  // screen_position: 2 float - 8
+	{ .location = 2, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, .offset = 16 }, // uv: 2 float - 8
+	{ .location = 3, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM, .offset = 24 } // color: 4 byte - 4
+};
+
+const Uint32 Quad::NUM_VERTICES = 4;
+const Uint32 Quad::NUM_INDICES = 6;
+
+Quad::Quad()
+{
+	vertices = nullptr;
+	indices = nullptr;
+}
+
+Quad::Quad(GPUVertex2D *vertices_address, uint32_t *indices_address, const Dim2Rect& start_rect, const SDL_Color& start_color)
+{
+	Bind(vertices_address, indices_address, start_rect, start_color);
+}
+
+Quad::Quad(DrawCall& draw_command, const Dim2Rect& start_rect, const SDL_Color& start_color)
+{
+	Bind(draw_command, start_rect, start_color);
+}
+
+void Quad::Bind(GPUVertex2D *vertices_address, uint32_t *indices_address, const Dim2Rect& start_rect, const SDL_Color& start_color)
+{
+	vertices = vertices_address;
+	indices = indices_address;
 
 	//
 	indices[0] = 0;
@@ -60,39 +90,65 @@ Quad::Quad(DrawCommand& draw_command, const Rect4f& start_rect, const SDL_Color&
 	indices[5] = 3;
 
 	UpdateRect(start_rect);
-
-	for (int i = 0; i < 6; i++)
-		vertices[i].color = start_color;
+	UpdateColor(start_color);
 }
 
-void Quad::UpdateRect(const Rect4f& new_rect)
+void Quad::Bind(DrawCall& draw_command, const Dim2Rect& start_rect, const SDL_Color& start_color)
 {
-	float x2 = new_rect.x + new_rect.w;
-	float y2 = new_rect.y + new_rect.h;
+	GPUVertex2D *vertices_address = &draw_command.Vertices()[draw_command.current_vertices_offset];
+	uint32_t *indices_address = &draw_command.Indices()[draw_command.current_indices_offset];
+	draw_command.current_vertices_offset += 4;
+	draw_command.current_indices_offset += 6;
 
-	vertices[0] = {
-		.x = new_rect.x, .y = new_rect.y,
-		.u = 0, .v = 0,
-		.color = { .r = 255, .g = 255, .b = 255, .a = 255 },
-	};
-	vertices[1] = {
-		.x = x2, .y = new_rect.y,
-		.u = 1, .v = 0,
-		.color = { .r = 255, .g = 255, .b = 255, .a = 255 },
-	};
-	vertices[2] = {
-		.x = new_rect.x, .y = y2,
-		.u = 0, .v = 1,
-		.color = { .r = 255, .g = 255, .b = 255, .a = 255 },
-	};
-	vertices[3] = {
-		.x = x2, .y = y2,
-		.u = 1, .v = 1,
-		.color = { .r = 255, .g = 255, .b = 255, .a = 255 },
-	};
+	Bind(vertices_address, indices_address, start_rect, start_color);
 }
 
-DrawCommand::DrawCommand(Uint32 init_num_vertices, Uint32 init_num_indices, SDL_GPUTexture *init_texture)
+void Quad::UpdateRect(const Dim2Rect& new_rect)
+{
+	if (!vertices || !indices)
+		throw std::runtime_error("Quad::UpdateRect() Missing vertices or indices");
+
+	float x2 = new_rect.relative.x + new_rect.relative.w;
+	float y2 = new_rect.relative.y + new_rect.relative.h;
+	float sx2 = new_rect.scaled.x + new_rect.scaled.w;
+	float sy2 = new_rect.scaled.y + new_rect.scaled.h;
+
+	vertices[0].x = new_rect.relative.x;
+	vertices[0].y = new_rect.relative.y;
+	vertices[0].sx = new_rect.scaled.x;
+	vertices[0].sy = new_rect.scaled.y;
+	vertices[0].u = 0;
+	vertices[0].v = 0;
+
+	vertices[1].x = x2;
+	vertices[1].y = new_rect.relative.y;
+	vertices[1].sx = sx2;
+	vertices[1].sy = new_rect.scaled.y;
+	vertices[1].u = 1;
+	vertices[1].v = 0;
+
+	vertices[2].x = new_rect.relative.x;
+	vertices[2].y = y2;
+	vertices[2].sx = new_rect.scaled.x;
+	vertices[2].sy = sy2;
+	vertices[2].u = 0;
+	vertices[2].v = 1;
+
+	vertices[3].x = x2;
+	vertices[3].y = y2;
+	vertices[3].sx = sx2;
+	vertices[3].sy = sy2;
+	vertices[3].u = 1;
+	vertices[3].v = 1;
+}
+
+void Quad::UpdateColor(const SDL_Color& new_color)
+{
+	for (int i = 0; i < Quad::NUM_VERTICES; i++)
+		vertices[i].color = new_color;
+}
+
+DrawCall::DrawCall(Uint32 init_num_vertices, Uint32 init_num_indices, SDL_GPUTexture *init_texture)
 {
 	vertices = new GPUVertex2D[init_num_vertices];
 	num_vertices = init_num_vertices;
@@ -105,6 +161,8 @@ DrawCommand::DrawCommand(Uint32 init_num_vertices, Uint32 init_num_indices, SDL_
 	size_indices = num_indices * sizeof(uint32_t);
 
 	texture = init_texture;
+	draw_as_circles = false;
+
 	translation = Vec2f(0, 0);
 	rotation = 0;
 
@@ -112,11 +170,12 @@ DrawCommand::DrawCommand(Uint32 init_num_vertices, Uint32 init_num_indices, SDL_
 	current_indices_offset = 0;
 }
 
-DrawCommand::~DrawCommand()
+DrawCall::~DrawCall()
 {
 	delete vertices;
 	delete indices;
 
+	// should destroy before shutting down
 	if (gpu_vertices)
 		SDL_ReleaseGPUBuffer(Drawing.Device(), gpu_vertices);
 	if (gpu_indices)
@@ -128,7 +187,7 @@ DrawCommand::~DrawCommand()
 	gpu_indices = nullptr;
 }
 
-void DrawCommand::Update()
+void DrawCall::UpdateGPU()
 {
 	if (!gpu_vertices)
 	{
@@ -157,8 +216,9 @@ void DrawCommand::Update()
 	memcpy((char *)mapped + size_vertices, indices, size_indices);
 	SDL_UnmapGPUTransferBuffer(Drawing.Device(), transfer_buffer);
 
-	SDL_GPUCommandBuffer *cmd = Drawing.CommandBuffer();
-	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(cmd);
+//	SDL_GPUCommandBuffer *cmd = Drawing.CommandBuffer();
+	SDL_GPUCommandBuffer *upload_cmd = SDL_AcquireGPUCommandBuffer(Drawing.Device());
+	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(upload_cmd);
 
 	// Upload vertices
 	SDL_GPUTransferBufferLocation vert_src = {
@@ -185,12 +245,15 @@ void DrawCommand::Update()
 	SDL_UploadToGPUBuffer(copy_pass, &idx_src, &idx_dst, false);
 
 	SDL_EndGPUCopyPass(copy_pass);
-//	SDL_SubmitGPUCommandBuffer(cmd);
+	SDL_SubmitGPUCommandBuffer(upload_cmd);
+	SDL_WaitForGPUIdle(Drawing.Device());  // Wait before rendering uses these buffers
+
+	SDL_ReleaseGPUTransferBuffer(Drawing.Device(), transfer_buffer);
 }
 
-void DrawCommand::Draw()
+void DrawCall::Draw()
 {
-	Drawing.ShaderParams2D(rotation, translation, texture != nullptr);
+	Drawing.ShaderParams2D(translation, rotation, texture != nullptr, draw_as_circles);
 	Drawing.DrawTriangles(gpu_vertices, gpu_indices, num_indices, texture);
 }
 
@@ -203,12 +266,12 @@ DrawingClass::DrawingClass()
 	swapchain = nullptr;
 	swapchain_w = 1;
 	swapchain_h = 1;
+	sampler = nullptr;
 
 	depth_texture = nullptr;
 	vertex_shader = nullptr;
 	fragment_shader = nullptr;
 	pipeline = nullptr;
-	sampler = nullptr;
 
 	vertex_shader_2d = nullptr;
 	fragment_shader_2d = nullptr;
@@ -219,16 +282,16 @@ DrawingClass::DrawingClass()
 
 DrawingClass::~DrawingClass()
 {
-	Deinitialize();
+	Destroy();
 }
 
 void DrawingClass::Initialize(SDL_Window *drawing_window)
 {
 	window = drawing_window;
 
-	{ // 3d stuff
-		Vec2i window_resolution = Application.GetResolution();
+	Vec2i window_resolution = Application.GetResolution();
 
+	{ // 3d stuff
 		gpu_device = SDL_CreateGPUDevice(
 			SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_MSL | SDL_GPU_SHADERFORMAT_DXIL,
 			true,  // debug mode
@@ -291,23 +354,15 @@ void DrawingClass::Initialize(SDL_Window *drawing_window)
 			.pitch = sizeof(GPUVertex),  // Your vertex struct size
 			.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX
 		};
-
-		SDL_GPUVertexAttribute vertex_attributes[] = {
-			{ .location = 0, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, .offset = 0 },  // position
-			{ .location = 1, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, .offset = sizeof(float) * 3 }, // normal
-			{ .location = 2, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, .offset = sizeof(float) * 6 }, // UV
-			{ .location = 3, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM, .offset = sizeof(float) * 8 } // color
-		};
-
 		SDL_GPUVertexInputState vertex_input_state = {
 			.vertex_buffer_descriptions = &vertex_binding_desc,
 			.num_vertex_buffers = 1,
-			.vertex_attributes = vertex_attributes,
-			.num_vertex_attributes = 4
+			.vertex_attributes = GPUVertex::vertex_attributes,
+			.num_vertex_attributes =  sizeof(GPUVertex::vertex_attributes) / sizeof(GPUVertex::vertex_attributes[0])
 		};
 
 		// color target
-//		SDL_GPUColorTargetDescription color_target_desc = {
+//		SDL_GPUColorTargetDescription color_target_desc = { // todo: check if we need blending in 3d :p
 //			.format = SDL_GetGPUSwapchainTextureFormat(gpu_device, window),
 //			.blend_state = {
 //				.src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA,
@@ -369,6 +424,18 @@ void DrawingClass::Initialize(SDL_Window *drawing_window)
 	}
 
 	{
+		// depth texture info
+		SDL_GPUTextureCreateInfo depth_texture_info = {
+			.type = SDL_GPU_TEXTURETYPE_2D,
+			.format = SDL_GPU_TEXTUREFORMAT_D16_UNORM,
+			.usage = SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET,
+			.width = static_cast<Uint32>(window_resolution.x),
+			.height = static_cast<Uint32>(window_resolution.y),
+			.layer_count_or_depth = 1,
+			.num_levels = 1
+		};
+		depth_texture_2d = SDL_CreateGPUTexture(gpu_device, &depth_texture_info);
+
 		// shaders
 		SDL_GPUShaderCreateInfo vertex_shader_info = {
 			.entrypoint = "main",
@@ -409,28 +476,23 @@ void DrawingClass::Initialize(SDL_Window *drawing_window)
 			.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX
 		};
 
-		SDL_GPUVertexAttribute vertex_attributes_2d[] = {
-			{ .location = 0, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, .offset = 0 },  // position
-			{ .location = 1, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, .offset = 8 }, // UV
-			{ .location = 2, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM, .offset = 16 } // color
-		};
 		SDL_GPUVertexInputState vertex_input_state_2d = {
 			.vertex_buffer_descriptions = &vertex_binding_desc_2d,
 			.num_vertex_buffers = 1,
-			.vertex_attributes = vertex_attributes_2d,
-			.num_vertex_attributes = 3
+			.vertex_attributes = GPUVertex2D::vertex_attributes,
+			.num_vertex_attributes = sizeof(GPUVertex2D::vertex_attributes) / sizeof(GPUVertex2D::vertex_attributes[0])
 		};
 
 		SDL_GPUColorTargetDescription color_target_2d = {
-			.format = SDL_GetGPUSwapchainTextureFormat(gpu_device, window),
+			.format = SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM,
 			.blend_state = {
 				.src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA,
 				.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
 				.color_blend_op = SDL_GPU_BLENDOP_ADD,
 				.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE,
-				.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ZERO,
+				.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
 				.alpha_blend_op = SDL_GPU_BLENDOP_ADD,
-				.enable_blend = true,  // Enable blending for 2D
+				.enable_blend = true,
 			}
 		};
 
@@ -446,13 +508,15 @@ void DrawingClass::Initialize(SDL_Window *drawing_window)
 				.front_face = SDL_GPU_FRONTFACE_COUNTER_CLOCKWISE
 			},
 			.depth_stencil_state = {
-				.enable_depth_test = false,
-				.enable_depth_write = false,
+				.compare_op = SDL_GPU_COMPAREOP_LESS,   //
+				.enable_depth_test = false,              //
+				.enable_depth_write = false,             //
 			},
 			.target_info = {
 				.color_target_descriptions = &color_target_2d,
 				.num_color_targets = 1,
-				.has_depth_stencil_target = false,  // No depth for 2D
+				.depth_stencil_format = SDL_GPU_TEXTUREFORMAT_D16_UNORM, //
+				.has_depth_stencil_target = false,                        //
 			},
 		};
 		pipeline_2d = SDL_CreateGPUGraphicsPipeline(gpu_device, &pipeline_2d_info);
@@ -464,7 +528,7 @@ void DrawingClass::Initialize(SDL_Window *drawing_window)
 	}
 }
 
-void DrawingClass::Deinitialize()
+void DrawingClass::Destroy()
 {
 	if (status == Status::UNINITIALIZED)
 		return;
@@ -495,12 +559,12 @@ void DrawingClass::Deinitialize()
 
 	window = nullptr;
 	gpu_device = nullptr;
+	sampler = nullptr;
 
 	depth_texture = nullptr;
 	vertex_shader = nullptr;
 	fragment_shader = nullptr;
 	pipeline = nullptr;
-	sampler = nullptr;
 
 	vertex_shader_2d = nullptr;
 	fragment_shader_2d = nullptr;
@@ -509,64 +573,55 @@ void DrawingClass::Deinitialize()
 	status = Status::UNINITIALIZED;
 }
 
-void DrawingClass::DrawFilledRect(const SDL_FRect& rect, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+void DrawingClass::DrawFilledRect(const Dim2Rect& rect, const SDL_Color& sdl_color)
 {
-	// 1. Create rectangle vertices (2 triangles)
-	struct Vertex
-	{
-		float x, y, z;
-		float u, v;
-		uint8_t r, g, b, a;
-	};
-
-	std::vector<Vertex> vertices = {
-		{ rect.x, rect.y, 0.0f, 0.0f, 0.0f, r, g, b, a },                          // top-left
-		{ rect.x + rect.w, rect.y, 0.0f, 1.0f, 0.0f, r, g, b, a },             // top-right
-		{ rect.x, rect.y + rect.h, 0.0f, 0.0f, 1.0f, r, g, b, a },             // bottom-left
-		{ rect.x + rect.w, rect.y + rect.h, 0.0f, 1.0f, 1.0f, r, g, b, a } // bottom-right
-	};
-
-	std::vector<uint32_t> indices = { 0, 1, 2, 2, 1, 3 }; // 2 triangles
-
-	// 2. Create temporary buffers
-	SDL_GPUBufferCreateInfo vb_info = {
-		.usage = SDL_GPU_BUFFERUSAGE_VERTEX,
-		.size = (Uint32)(vertices.size() * sizeof(Vertex))
-	};
-	SDL_GPUBuffer *vb = SDL_CreateGPUBuffer(gpu_device, &vb_info);
-
-	SDL_GPUBufferCreateInfo ib_info = {
-		.usage = SDL_GPU_BUFFERUSAGE_INDEX,
-		.size = (Uint32)(indices.size() * sizeof(uint32_t))
-	};
-	SDL_GPUBuffer *ib = SDL_CreateGPUBuffer(gpu_device, &ib_info);
-
-	// 3. Upload data
-	SDL_GPUTransferBufferCreateInfo transfer_info = {
-		.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-		.size = vb_info.size + ib_info.size
-	};
-	SDL_GPUTransferBuffer *transfer = SDL_CreateGPUTransferBuffer(gpu_device, &transfer_info);
-
-	void *mapped = SDL_MapGPUTransferBuffer(gpu_device, transfer, false);
-	memcpy(mapped, vertices.data(), vb_info.size);
-	memcpy((char *)mapped + vb_info.size, indices.data(), ib_info.size);
-	SDL_UnmapGPUTransferBuffer(gpu_device, transfer);
-
-	SDL_GPUCommandBuffer *cmd = SDL_AcquireGPUCommandBuffer(gpu_device);
-	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(cmd);
-
-	SDL_GPUTransferBufferLocation vert_src = { .transfer_buffer = transfer, .offset = 0 };
-	SDL_GPUBufferRegion vert_dst = { .buffer = vb, .offset = 0, .size = vb_info.size };
-	SDL_UploadToGPUBuffer(copy_pass, &vert_src, &vert_dst, false);
-
-	SDL_GPUTransferBufferLocation idx_src = { .transfer_buffer = transfer, .offset = vb_info.size };
-	SDL_GPUBufferRegion idx_dst = { .buffer = ib, .offset = 0, .size = ib_info.size };
-	SDL_UploadToGPUBuffer(copy_pass, &idx_src, &idx_dst, false);
-
-	SDL_EndGPUCopyPass(copy_pass);
-	SDL_SubmitGPUCommandBuffer(cmd);
-	SDL_ReleaseGPUTransferBuffer(gpu_device, transfer);
+//	GPUVertex2D quad_vertices[Quad::NUM_VERTICES];
+//	uint32_t quad_indices[Quad::NUM_INDICES];
+//	Quad quad_rect(quad_vertices, quad_indices, rect, sdl_color);
+//
+//	Uint32 size_vertices = sizeof(quad_vertices);
+//	Uint32 size_indices = sizeof(quad_indices);
+//	Uint32 num_indices = size_indices; //
+//
+//	// 2. Create temporary buffers
+//	SDL_GPUBufferCreateInfo vb_info = {
+//		.usage = SDL_GPU_BUFFERUSAGE_VERTEX,
+//		.size = size_vertices
+//	};
+//	SDL_GPUBuffer *vb = SDL_CreateGPUBuffer(gpu_device, &vb_info);
+//
+//	SDL_GPUBufferCreateInfo ib_info = {
+//		.usage = SDL_GPU_BUFFERUSAGE_INDEX,
+//		.size = size_indices
+//	};
+//	SDL_GPUBuffer *ib = SDL_CreateGPUBuffer(gpu_device, &ib_info);
+//
+//	// 3. Upload data
+//	SDL_GPUTransferBufferCreateInfo transfer_info = {
+//		.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+//		.size = vb_info.size + ib_info.size
+//	};
+//	SDL_GPUTransferBuffer *transfer = SDL_CreateGPUTransferBuffer(gpu_device, &transfer_info);
+//
+//	void *mapped = SDL_MapGPUTransferBuffer(gpu_device, transfer, false);
+//	memcpy(mapped, quad_vertices, vb_info.size);
+//	memcpy((char *)mapped + vb_info.size, quad_indices, ib_info.size);
+//	SDL_UnmapGPUTransferBuffer(gpu_device, transfer);
+//
+//	SDL_GPUCommandBuffer *cmd = SDL_AcquireGPUCommandBuffer(gpu_device);
+//	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(cmd);
+//
+//	SDL_GPUTransferBufferLocation vert_src = { .transfer_buffer = transfer, .offset = 0 };
+//	SDL_GPUBufferRegion vert_dst = { .buffer = vb, .offset = 0, .size = vb_info.size };
+//	SDL_UploadToGPUBuffer(copy_pass, &vert_src, &vert_dst, false);
+//
+//	SDL_GPUTransferBufferLocation idx_src = { .transfer_buffer = transfer, .offset = vb_info.size };
+//	SDL_GPUBufferRegion idx_dst = { .buffer = ib, .offset = 0, .size = ib_info.size };
+//	SDL_UploadToGPUBuffer(copy_pass, &idx_src, &idx_dst, false);
+//
+//	SDL_EndGPUCopyPass(copy_pass);
+//	SDL_SubmitGPUCommandBuffer(cmd);
+//	SDL_ReleaseGPUTransferBuffer(gpu_device, transfer);
 
 	// 4. Store for rendering
 //	draw_commands.push_back(
@@ -686,12 +741,19 @@ bool DrawingClass::BeginPass2D()
 		.store_op = SDL_GPU_STOREOP_STORE,
 	};
 
+//	SDL_GPUDepthStencilTargetInfo depth_target = {
+//		.texture = depth_texture_2d,
+//		.clear_depth = 1.0f, // Clear to far plane
+//		.load_op = SDL_GPU_LOADOP_CLEAR,
+//		.store_op = SDL_GPU_STOREOP_DONT_CARE,
+//	};
+
 	// Begin render pass without depth/stencil
 	render_pass = SDL_BeginGPURenderPass(
 		cmd,
 		&color_target,
 		1,
-		NULL   // no depth/stencil target
+		nullptr   // no depth/stencil target
 	);
 
 	if (!render_pass)
@@ -711,16 +773,16 @@ void DrawingClass::SetPipeline2D()
 void DrawingClass::ShaderTick2D()
 {
 	vertex_uniform_2d.screen_size = Vec2f(Application.GetResolution());
-
 }
 
-void DrawingClass::ShaderParams2D(float rotation, const Vec2f& translation, bool use_texture)
+void DrawingClass::ShaderParams2D(const Vec2f& translation, float rotation, bool use_texture, float draw_as_circles)
 {
 	vertex_uniform_2d.translation = translation;
 	vertex_uniform_2d.rotation = rotation;
 	SDL_PushGPUVertexUniformData(cmd, 0, &vertex_uniform_2d, sizeof(VertexUniform2D));
 
 	fragment_uniform_2d.use_texture = use_texture ? 1.0f : 0.0f;
+	fragment_uniform_2d.draw_as_circle = draw_as_circles ? 1.0f : 0.0f;
 	SDL_PushGPUFragmentUniformData(cmd, 0, &fragment_uniform_2d, sizeof(FragmentUniform2D));
 }
 
@@ -789,8 +851,8 @@ SDL_GPUTexture *DrawingClass::LoadTextureToGPU(SDL_Texture *sdl_texture)
 	SDL_UnmapGPUTransferBuffer(gpu_device, transfer);
 
 	// Upload to GPU
-	SDL_GPUCommandBuffer *cmd = SDL_AcquireGPUCommandBuffer(gpu_device);
-	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(cmd);
+	SDL_GPUCommandBuffer *upload_cmd = SDL_AcquireGPUCommandBuffer(gpu_device);
+	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(upload_cmd);
 
 	SDL_GPUTextureTransferInfo src = {
 		.transfer_buffer = transfer,
@@ -805,7 +867,7 @@ SDL_GPUTexture *DrawingClass::LoadTextureToGPU(SDL_Texture *sdl_texture)
 	SDL_UploadToGPUTexture(copy_pass, &src, &dst, false);
 
 	SDL_EndGPUCopyPass(copy_pass);
-	SDL_SubmitGPUCommandBuffer(cmd);
+	SDL_SubmitGPUCommandBuffer(upload_cmd);
 
 	// Cleanup
 	SDL_UnlockTexture(sdl_texture);
@@ -826,24 +888,24 @@ GPUMesh *DrawingClass::LoadMeshToGPU(const Mesh& mesh)
 	gpu_vertices.reserve(vertices.size());
 
 	for (size_t i = 0; i < vertices.size(); i++)
-	{
-		gpu_vertices.push_back({
-								   .x = vertices[i].x,
-								   .y = vertices[i].y,
-								   .z = vertices[i].z,
-								   .nx = normals[i].x,
-								   .ny = normals[i].y,
-								   .nz = normals[i].z,
-								   .u = uvs[i].x,
-								   .v = uvs[i].y,
-								   .color = {
-									   .r = 255,
-									   .g = 255,
-									   .b = 255,
-									   .a = 255
-								   }
-							   });
-	}
+		gpu_vertices.push_back(
+			{
+				.x = vertices[i].x,
+				.y = vertices[i].y,
+				.z = vertices[i].z,
+				.nx = normals[i].x,
+				.ny = normals[i].y,
+				.nz = normals[i].z,
+				.u = uvs[i].x,
+				.v = uvs[i].y,
+				.color = {
+					.r = 255,
+					.g = 255,
+					.b = 255,
+					.a = 255
+				}
+			}
+		);
 
 	// Convert indices to uint32_t
 	std::vector<uint32_t> gpu_indices(indices.begin(), indices.end());
@@ -877,8 +939,8 @@ GPUMesh *DrawingClass::LoadMeshToGPU(const Mesh& mesh)
 	SDL_UnmapGPUTransferBuffer(gpu_device, transfer);
 
 	// 6. Upload to GPU
-	SDL_GPUCommandBuffer *cmd = SDL_AcquireGPUCommandBuffer(gpu_device);
-	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(cmd);
+	SDL_GPUCommandBuffer *upload_cmd = SDL_AcquireGPUCommandBuffer(gpu_device);
+	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(upload_cmd);
 
 	// Upload vertices
 	SDL_GPUTransferBufferLocation vert_src = {
@@ -905,7 +967,7 @@ GPUMesh *DrawingClass::LoadMeshToGPU(const Mesh& mesh)
 	SDL_UploadToGPUBuffer(copy_pass, &idx_src, &idx_dst, false);
 
 	SDL_EndGPUCopyPass(copy_pass);
-	SDL_SubmitGPUCommandBuffer(cmd);
+	SDL_SubmitGPUCommandBuffer(upload_cmd);
 
 	// 7. Cleanup transfer buffer
 	SDL_ReleaseGPUTransferBuffer(gpu_device, transfer);

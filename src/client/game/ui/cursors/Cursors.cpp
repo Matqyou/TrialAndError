@@ -13,7 +13,7 @@ SDL_Cursor* sCursorSystemPointer = nullptr;
 void Initialize() {
     sCursorSystemText = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_TEXT);
     sCursorSystemPointer = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER);
-    dbg_msg("[Cursors] &5Loaded 2 cursors\n");
+    dbg_msg("[Cursors] &9Loaded 2 cursors\n");
 }
 
 void Deinitialize() {

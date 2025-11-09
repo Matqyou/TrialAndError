@@ -4,13 +4,14 @@
 
 #pragma once
 
-//#include "ui/structures/visual_texture/files/HitboxFile.h"
-#include "client/core/texture/visual/VisualSurface.h"
-#include "client/core/texture/visual/VisualTexture.h"
-#include "shared/string/Strings.h"
-#include "SDL3_mixer/SDL_mixer.h"
-#include "shared/math/Vec2.h"
-#include "SDL3_ttf/SDL_ttf.h"
+#include <client/core/texture/visual/VisualSurface.h>
+#include <client/core/texture/visual/VisualTexture.h>
+
+#include <shared/string/Strings.h>
+#include <shared/math/Vec2.h>
+
+#include <SDL3_mixer/SDL_mixer.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <unordered_map>
 #include <functional>
 #include <iostream>
@@ -38,39 +39,19 @@ class Sound
 private:
 	friend class AssetsClass;
 	const std::string m_Key;
-	Mix_Chunk *m_MixChunk;
+	MIX_Audio *mix_audio;
 	std::string m_LoadExtension;
 
 public:
-	explicit Sound(std::string key = "NaN", Mix_Chunk *mix_chunk = nullptr, std::string load_extension = "NaN");
+	explicit Sound(std::string key = "NaN", MIX_Audio *init_mix_audio = nullptr, std::string load_extension = "NaN");
 	~Sound();
 
 	// Getting
-	[[nodiscard]] Mix_Chunk *MixChunk() const { return m_MixChunk; }
+	[[nodiscard]] MIX_Audio *MixAudio() const { return mix_audio; }
 
 	// Manipulating
 	void SetVolume(int volume);
 	void PlaySound();
-};
-
-class Music
-{
-private:
-	friend class AssetsClass;
-	const std::string m_Key;
-	Mix_Music *m_MixMusic;
-	std::string m_LoadExtension;
-
-public:
-	explicit Music(std::string key = "NaN", Mix_Music *mix_music = nullptr, std::string load_extension = "NaN");
-	~Music();
-
-	// Getting
-	[[nodiscard]] Mix_Music *MixMusic() const { return m_MixMusic; }
-
-	// Manipulating
-	void PlayMusic(int loops);
-
 };
 
 class Font
@@ -102,7 +83,6 @@ class DrawingClass;
 class LoadTexture;
 class PregenerateTexture;
 class LinkSound;
-class LinkMusic;
 class PreloadFont;
 class LinkFont;
 class AssetsClass
@@ -163,39 +143,47 @@ private:
 	std::unordered_map<std::string, DiskTexture *> m_DiskTextures;
 	std::unordered_map<std::string, Texture *> m_Textures;
 	static std::vector<LoadTexture *> m_LoadTextures;
-	static std::vector<PregenerateTexture *> m_PregenerateTextures;
-	static std::vector<LoadTexture *>::iterator m_LinkTexturesIterator;
-	static std::vector<PregenerateTexture *>::iterator m_PregenerateTexturesIterator;
+//	static std::vector<PregenerateTexture *> m_PregenerateTextures;
+//	static std::vector<LoadTexture *>::iterator m_LinkTexturesIterator;
+//	static std::vector<PregenerateTexture *>::iterator m_PregenerateTexturesIterator;
 	static std::vector<Surface *> m_AutomaticDeletionSurfaces;
 	static std::vector<Texture *> m_AutomaticDeletionTextures;
 	Surface *m_InvalidSurfaceDefault;
 	Texture *m_InvalidTextureDefault;
 
 	std::unordered_map<std::string, Sound *> m_Sounds;
-	std::unordered_map<std::string, Music *> m_Music;
 	std::unordered_map<std::string, Font *> m_Fonts;
 
 	static std::vector<PreloadFont *> m_PreloadFonts;
 	static std::vector<LinkSound *> m_LinkSounds;
-	static std::vector<LinkMusic *> m_LinkMusic;
 	static std::vector<LinkFont *> m_LinkFonts;
 
 	// Iterators
 	std::vector<PreloadFont *>::iterator m_PreloadFontIterator;
 	static std::vector<LinkSound *>::iterator m_LinkSoundsIterator;
-	static std::vector<LinkMusic *>::iterator m_LinkMusicIterator;
 	static std::vector<LinkFont *>::iterator m_LinkFontsIterator;
 
 	static size_t sTotalWork, sWorkDone;
+	std::vector<std::string> failed_load_surfaces;
+	std::vector<std::string> failed_load_textures;
+	std::vector<std::string> failed_load_sounds;
+	std::vector<std::string> failed_load_fonts;
+	std::vector<std::string> failed_link_sounds;
+	std::vector<std::string> failed_link_fonts;
+
+	size_t success_load_surfaces;
+	size_t success_load_textures;
+	size_t success_load_sounds;
+	size_t success_load_fonts;
+	size_t success_link_sounds;
+	size_t success_link_fonts;
 
 	bool LoadingSurfaces();
 	bool LoadingSounds();
-	bool LoadingMusic();
 	bool LoadingFonts(); // All at once
 //	bool GeneratingTextures();
 	bool LoadingTextures(); // All at once
 	bool LinkingSounds(); // All at once
-	bool LinkingMusic(); // All at once
 	bool LinkingFonts(); // All at once
 
 	Status status; // To know if assets are initialized or not
@@ -216,7 +204,6 @@ public:
 	[[nodiscard]] Texture *GetTexture(const std::string& texture_key);
 	[[nodiscard]] const std::unordered_map<std::string, Texture *>& GetAllTextures();
 	[[nodiscard]] Sound *GetSound(const std::string& sound_key);
-	[[nodiscard]] Music *GetMusic(const std::string& music_key);
 	[[nodiscard]] Font *GetFont(const std::string& font_key);
 	[[nodiscard]] bool SoundsEnabled() const { return m_SoundsEnabled; }
 	[[nodiscard]] bool IsLoading() { return status != Status::ASSETS_LINKED; }
@@ -242,13 +229,10 @@ public:
 	static void AddLoadTexture(LoadTexture *load_texture);
 //	static void LinkPregeneratedTexture(PregenerateTexture *pregenerate_texture);
 	static void LinkPreloadedSound(LinkSound *register_sound);
-	static void LinkPreloadedMusic(LinkMusic *register_music);
 	static void PreloadFont_(PreloadFont *preload_font);
 	static void LinkPreloadedFont(LinkFont *register_font);
 	static void AutomaticallyDeleteSurface(Surface *surface);
 	static void AutomaticallyDeleteTexture(Texture *texture);
-	void SetMusicVolume(int volume);
-	void PauseMusic();
 	void ThreadedLoading();
 
 };
@@ -323,22 +307,6 @@ public:
 	// Getting
 	[[nodiscard]] const std::string& Key() const { return m_Key; }
 	[[nodiscard]] Sound *GetSound() const;
-
-};
-
-class LinkMusic
-{
-private:
-	friend class AssetsClass;
-	std::string m_Key;
-	Music *m_Music;
-
-public:
-	explicit LinkMusic(std::string music_key);
-
-	// Getting
-	[[nodiscard]] const std::string& Key() const { return m_Key; }
-	[[nodiscard]] Music *GetMusic() const;
 
 };
 

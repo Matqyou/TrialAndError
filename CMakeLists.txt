@@ -70,6 +70,12 @@ target_link_libraries(${PROJECT_NAME}
         SDL3_ttf::SDL3_ttf
 )
 
+if(MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /w14456 /w14457 /w14458 /w14459)
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wshadow -Werror=shadow)
+endif()
+
 # For static linking - try without this first, then add back if needed
 # target_link_options(${PROJECT_NAME} PRIVATE "-static")
 

@@ -8,29 +8,31 @@
 #include <shared/string/Strings.h>
 #include <SDL3/SDL.h>
 
-Player::Player(const std::string& username, PlayerClass *player_class)
+Player::Player(const std::string& init_username, PlayerClass *init_player_class)
 	: character(nullptr),
 	  username(),
 	  xp(0),
 	  level(1),
-	  player_class(player_class ? player_class : PlayerClass::CreateClass(PLAYERCLASS_HUMAN))
+	  player_class(init_player_class ? init_player_class : PlayerClass::CreateClass(PLAYERCLASS_HUMAN))
 {
 	boss_damage_amplifier = 1;
 	base_damage = 10;
 	damage_amplifier = 1;
 	max_health_amplifier = 1;
 	extra_life = false;
-	SetUsername(username);
+	username = "Player";
+	SetUsername(init_username);
 	player_id = GameReference.NextPlayerID();
-	nameplate = new TextSurface(CommonUI::fontDefault, username, { 255, 255, 255, 255 });
+	nameplate = new TextSurface(CommonUI::fontDefault, init_username, { 255, 255, 255, 255 });
 
 	wants_gamepad_index = -1;
 	gamepad_subscription_id = -1;
 	if (true) // player wants to use controller
 		wants_gamepad_index = GameReference.GetAvailableGamepadIndex();
-	dbg_msg("Player %s looking for controller #%i\n", username.c_str(), wants_gamepad_index);
+//	dbg_msg("Player %s looking for controller #%i\n", init_username.c_str(), wants_gamepad_index);
 
 	GameReference.AddPlayer(this);
+	dbg_msg("[Player] Added player: &f%s\n", username.c_str());
 }
 
 Player::~Player()
@@ -141,5 +143,4 @@ void Player::CharacterRemoving()
 void Player::SetUsername(const std::string& new_username)
 {
 	username = Strings::FString("%s - %s", player_class->GetName(), new_username.substr(0, MAX_USERNAME_LENGTH).c_str());
-	dbg_msg("[Player] &8Setting username to: &f%s\n", username.c_str());
 }

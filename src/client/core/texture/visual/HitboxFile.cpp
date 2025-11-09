@@ -10,15 +10,15 @@
 #include <vector>
 
 HitboxFile::HitboxFile() {
-    this->hitbox = Rect4i(0, 0, 0, 0);
-    this->uses_hitbox = false;
-    this->loaded = false;
+    hitbox = Rect4i(0, 0, 0, 0);
+    uses_hitbox = false;
+    loaded = false;
 }
 
-HitboxFile::HitboxFile(const Rect4i& hitbox, bool uses_hitbox) {
-    this->hitbox = hitbox;
-    this->uses_hitbox = uses_hitbox;
-    this->loaded = true;
+HitboxFile::HitboxFile(const Rect4i& init_hitbox, bool init_uses_hitbox) {
+    hitbox = init_hitbox;
+    uses_hitbox = init_uses_hitbox;
+    loaded = true;
 }
 
 HitboxFile::~HitboxFile() {
@@ -117,8 +117,8 @@ bool HitboxFile::OpenFile(const std::string& directory, const std::string& entry
     return true;
 }
 
-void HitboxFile::SetHitbox(const Rect4i& hitbox, bool uses_hitbox) {
-    this->hitbox = hitbox;
-    this->uses_hitbox = uses_hitbox;
-    this->loaded = true;
+void HitboxFile::SetHitbox(const Rect4i& new_hitbox, bool new_uses_hitbox) {
+    hitbox = new_hitbox;
+    uses_hitbox = new_uses_hitbox;
+    loaded = true;
 }

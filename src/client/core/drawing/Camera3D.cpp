@@ -75,21 +75,21 @@ void Camera3D::SetEulerAngles(float pitch, float yaw, float roll)
 
 void Camera3D::LookAt(const Vec3f& target)
 {
-	Vec3f forward = (target - pos).NormalizeF();
-	Vec3f right = CrossProductVec3(forward, Vec3f(0, 1, 0)).NormalizeF();
-	Vec3f up = CrossProductVec3(right, forward);
+	Vec3f look_vector = (target - pos).NormalizeF();
+	Vec3f right_vector = CrossProductVec3(look_vector, Vec3f(0, 1, 0)).NormalizeF();
+	Vec3f up_vector = CrossProductVec3(right_vector, look_vector);
 
 	// Build rotation matrix and convert to quaternion
 	Mat4x4 rot_mat = Mat4x4::Identity();
-	rot_mat.at(0, 0) = right.x;
-	rot_mat.at(0, 1) = right.y;
-	rot_mat.at(0, 2) = right.z;
-	rot_mat.at(1, 0) = up.x;
-	rot_mat.at(1, 1) = up.y;
-	rot_mat.at(1, 2) = up.z;
-	rot_mat.at(2, 0) = -forward.x;
-	rot_mat.at(2, 1) = -forward.y;
-	rot_mat.at(2, 2) = -forward.z;
+	rot_mat.at(0, 0) = right_vector.x;
+	rot_mat.at(0, 1) = right_vector.y;
+	rot_mat.at(0, 2) = right_vector.z;
+	rot_mat.at(1, 0) = up_vector.x;
+	rot_mat.at(1, 1) = up_vector.y;
+	rot_mat.at(1, 2) = up_vector.z;
+	rot_mat.at(2, 0) = -look_vector.x;
+	rot_mat.at(2, 1) = -look_vector.y;
+	rot_mat.at(2, 2) = -look_vector.z;
 
 	// Convert matrix to quaternion (simplified)
 	float trace = rot_mat.at(0, 0) + rot_mat.at(1, 1) + rot_mat.at(2, 2);

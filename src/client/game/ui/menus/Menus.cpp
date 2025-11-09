@@ -25,7 +25,7 @@ MenusClass::MenusClass()
 	render_debug = false;
 }
 
-void MenusClass::InitMenus()
+void MenusClass::Initialize()
 {
 	main_menu = new MainMenu();
 	pause_menu = new PauseMenu();
@@ -34,13 +34,24 @@ void MenusClass::InitMenus()
 	classselect_menu = new ClassSelectMenu();
 }
 
-MenusClass::~MenusClass()
+void MenusClass::Destroy()
 {
 	delete main_menu;
 	delete pause_menu;
 	delete levelup_menu;
 	delete gamemode_menu;
 	delete classselect_menu;
+
+	main_menu = nullptr;
+	pause_menu = nullptr;
+	levelup_menu = nullptr;
+	gamemode_menu = nullptr;
+	classselect_menu = nullptr;
+}
+
+MenusClass::~MenusClass()
+{
+	Destroy();
 }
 
 void MenusClass::SetCurrentMenu(FullscreenMenu *new_menu)
@@ -91,6 +102,12 @@ void MenusClass::Tick(double elapsed_seconds)
 {
 	if (current_menu)
 		current_menu->Tick(elapsed_seconds);
+}
+
+void MenusClass::PreRender()
+{
+	if (current_menu)
+		current_menu->PreRender();
 }
 
 void MenusClass::Render()
@@ -155,6 +172,12 @@ void MenusClass::Render()
 //			delete debug_render;
 //		}
 	}
+}
+
+void MenusClass::RenderTransparent()
+{
+	if (current_menu)
+		current_menu->RenderTransparent();
 }
 
 MenusClass Menus;

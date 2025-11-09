@@ -201,7 +201,7 @@ void GamepadsClass::AddGamepad(SDL_JoystickID instance_id)
 
 	new_gamepad->index = assign_index;
 	gamepads.push_back(new_gamepad);
-	dbg_msg("[Gamepads] Gamepad #%i has been connected, assigned index #%i\n", instance_id, assign_index);
+	dbg_msg("[Gamepads] &fGamepad #%i has been connected, assigned index #%i\n", instance_id, assign_index);
 
 	// let's call the event for corresponding controller
 	bool added = true;
@@ -214,7 +214,7 @@ void GamepadsClass::AddGamepad(SDL_JoystickID instance_id)
 	else if (assign_index == 3)
 		sGamepadFourUpdated.Invoke(assign_index, added);
 	else
-		dbg_msg("[Gamepads] Unhandled controller index #%i\n", assign_index);
+		dbg_msg("[Gamepads] &fUnhandled controller index #%i\n", assign_index);
 }
 
 Gamepad *GamepadsClass::RemoveGamepad(SDL_JoystickID instance_id)
@@ -225,7 +225,7 @@ Gamepad *GamepadsClass::RemoveGamepad(SDL_JoystickID instance_id)
 
 	int index = existing_gamepad->index;
 	gamepads.erase(std::remove(gamepads.begin(), gamepads.end(), existing_gamepad), gamepads.end());
-	dbg_msg("[Gamepads] Gamepad #%i has been disconnected, index #%i\n", instance_id, index);
+	dbg_msg("[Gamepads] &fGamepad #%i has been disconnected, index #%i\n", instance_id, index);
 
 	// let's call the event for corresponding controller
 	bool added = false;

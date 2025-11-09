@@ -15,7 +15,7 @@ private:
 
 public:
     HitboxFile();
-    HitboxFile(const Rect4i& hitbox, bool uses_hitbox);
+    HitboxFile(const Rect4i& init_hitbox, bool init_uses_hitbox);
     ~HitboxFile();
 
     // Getting
@@ -27,6 +27,6 @@ public:
     void Clear();
     bool SaveFile(const std::string& directory, const std::string& entry_name) const;
     bool OpenFile(const std::string& directory, const std::string& entry_name);
-    void SetHitbox(const Rect4i& hitbox, bool uses_hitbox);
+    void SetHitbox(const Rect4i& new_hitbox, bool new_uses_hitbox);
 
 };

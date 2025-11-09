@@ -363,36 +363,36 @@ void Element::Refresh(int child_generation)
 	}
 
 	// 2nd gen - flex and align
-	for (auto parent : children)
+	for (auto child : children)
 	{
-		if (!parent->enabled) continue;
+		if (!child->enabled) continue;
 
-		int flex_slice = parent->GetFlexSlice();
+		int flex_slice = child->GetFlexSlice();
 		int current_flex = 0;
-		for (auto child : parent->children)
+		for (auto grandchild : child->children)
 		{
-			if (!child->enabled)
+			if (!grandchild->enabled)
 				continue;
 
 			// Flex
-			if (!(parent->occupy_width && child->occupy_width))
-				parent->FlexChildHorizontal_(child, flex_slice, current_flex);
-			if (!(parent->occupy_height && child->occupy_height))
-				parent->FlexChildVertical_(child, flex_slice, current_flex);
+			if (!(child->occupy_width && grandchild->occupy_width))
+				child->FlexChildHorizontal_(grandchild, flex_slice, current_flex);
+			if (!(child->occupy_height && grandchild->occupy_height))
+				child->FlexChildVertical_(grandchild, flex_slice, current_flex);
 
 			// Align
-			if (!parent->occupy_width || this->parent == nullptr) child->AlignHorizontal_();
-			if (!parent->occupy_height || this->parent == nullptr) child->AlignVertical_();
+			if (!child->occupy_width || this->parent == nullptr) grandchild->AlignHorizontal_();
+			if (!child->occupy_height || this->parent == nullptr) grandchild->AlignVertical_();
 
 			// 3rd gen - align
-			for (auto grandchild : child->children)
+			for (auto grandgrandchild : grandchild->children)
 			{
-				if (!grandchild->enabled)
+				if (!grandgrandchild->enabled)
 					continue;
 
 				// Align
-				if (child->occupy_width) grandchild->AlignHorizontal_();
-				if (child->occupy_height) grandchild->AlignVertical_();
+				if (grandchild->occupy_width) grandgrandchild->AlignHorizontal_();
+				if (grandchild->occupy_height) grandgrandchild->AlignVertical_();
 			}
 		}
 	}
@@ -526,10 +526,22 @@ void Element::HandleEvent(const SDL_Event& sdl_event, EventContext& event_summar
 	HandleEventChildren(sdl_event, event_summary);
 }
 
+void Element::PreRender()
+{
+	// The goal if PreRender is to get rid of this when possible
+	//  and to update vertices/ indices of the elements
+	PreRenderChildren();
+}
+
 void Element::Render()
 {
 	BaseRender();
 	RenderChildren();
+}
+
+void Element::RenderTransparent()
+{
+	RenderTransparentChildren();
 }
 
 void Element::FlagToDestroy()
@@ -614,6 +626,17 @@ void Element::HandleEventChildren(const SDL_Event& sdl_event, EventContext& even
 	}
 }
 
+void Element::PreRenderChildren()
+{
+	for (auto child : children)
+	{
+		if (!child->enabled)
+			continue;
+
+		child->PreRender();
+	}
+}
+
 void Element::RenderChildren() const
 {
 	for (auto child : children)
@@ -622,6 +645,17 @@ void Element::RenderChildren() const
 			continue;
 
 		child->Render();
+	}
+}
+
+void Element::RenderTransparentChildren() const
+{
+	for (auto child : children)
+	{
+		if (!child->enabled)
+			continue;
+
+		child->RenderTransparent();
 	}
 }
 

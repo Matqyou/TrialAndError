@@ -14,13 +14,10 @@ struct Quaternion
 
 	// Constructors
 	Quaternion() : w(1), x(0), y(0), z(0) { }
-	Quaternion(float w, float x, float y, float z) : w(w), x(x), y(y), z(z) { }
+	Quaternion(float W, float X, float Y, float Z) : w(W), x(X), y(Y), z(Z) { }
 
 	// Identity quaternion (no rotation)
-	static Quaternion Identity()
-	{
-		return { 1, 0, 0, 0 };
-	}
+	static Quaternion Identity() { return { 1, 0, 0, 0 }; }
 
 	// Create from Euler angles (pitch, yaw, roll in radians)
 	// Pitch = rotation around X axis (looking up/down)

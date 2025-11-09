@@ -33,11 +33,17 @@ public:
 
 public:
 	MenusClass();
-	void InitMenus();
+	void Initialize();
+	void Destroy();
 	~MenusClass();
 
 	// Sense
 	[[nodiscard]] FullscreenMenu *GetCurrentMenu() const { return current_menu; };
+	[[nodiscard]] MainMenu *GetMainMenu() const { return main_menu; };
+	[[nodiscard]] PauseMenu *GetPauseMenu() const { return pause_menu; };
+	[[nodiscard]] LevelupMenu *GetLevelupMenu() const { return levelup_menu; };
+	[[nodiscard]] GamemodeMenu *GetGamemodeMenu() const { return gamemode_menu; };
+	[[nodiscard]] ClassSelectMenu *GetClassSelectMenu() const { return classselect_menu; };
 
 	// Manipulating
 	void SetCurrentMenu(FullscreenMenu *new_menu);
@@ -45,7 +51,9 @@ public:
 	// Ticking
 	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_context);
 	void Tick(double elapsed_seconds);
+	void PreRender();
 	void Render();
+	void RenderTransparent();
 
 };
 

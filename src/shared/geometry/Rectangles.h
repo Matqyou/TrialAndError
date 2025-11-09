@@ -12,7 +12,7 @@ struct Rect4 {
     T x, y, w, h;
 
     Rect4();
-    Rect4(T x, T y, T w, T h);
+    Rect4(T X, T Y, T W, T H);
     Rect4(const Rect4& r);
 
     template<class U>

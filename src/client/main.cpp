@@ -65,11 +65,13 @@ int main()
 
 	srand(time(nullptr));
 	GameReference.SetExitApplicationCallback([]() { exit_application(); });
-	Application.Initialize(APPLICATION_NAME,
-						   APPLICATION_VERSION,
-						   "com.tae.trial_and_error",
-						   Vec2i(1280, 720),
-						   60.0, 10.0);
+	Application.Initialize(
+		APPLICATION_NAME,
+		APPLICATION_VERSION,
+		"com.tae.trial_and_error",
+		Vec2i(1280, 720),
+		60.0, 10.0
+	);
 
 	auto clock = Application.GetClock();
 
@@ -106,7 +108,7 @@ int main()
 				((float)Application.GetHeight() - 50.0f) / 2.0f,
 				800.0f, 50.0f,
 			};
-			Drawing.DrawFilledRect(inner_rect, 255, 195, 235, 255);
+//			Drawing.DrawFilledRect(inner_rect, 255, 195, 235, 255);
 
 			SDL_FRect progress_rect = {
 				((float)Application.GetWidth() - 800.0f) / 2.0f,
@@ -114,7 +116,7 @@ int main()
 				800.0f * ((float)AssetsClass::GetWorkDone() / (float)AssetsClass::GetTotalWork()),
 				50.0f
 			};
-			Drawing.DrawFilledRect(progress_rect, 104, 195, 235, 255);
+//			Drawing.DrawFilledRect(progress_rect, 104, 195, 235, 255);
 
 //			Drawing.UpdateRender();
 
@@ -137,6 +139,8 @@ int main()
 		}
 	} while (Assets.IsLoading());
 
+	Strings::PrintDivider();
+
 	// 3d stuff
 	SDL_GPUTexture *character_gpu_texture = sTest3DTexture;
 	SDL_GPUTexture *planet_gpu_texture = sPlanetTexture;
@@ -147,27 +151,27 @@ int main()
 	EventOnce<>& pre_render_event = Application.GetPreRenderEvent();
 
 	// Do this after assets have been loaded because it uses them
-	Menus.InitMenus();
+	Menus.Initialize();
 	Menus.main_menu->SwitchToThisMenu();
 
-	DrawCommand draw_vignette(4, 6, sVignette);
-	Quad vignette_quad(draw_vignette, Rect4f(0, 0, Application.GetWidth(), Application.GetHeight()));
+	DrawCall draw_vignette(Quad::NUM_VERTICES, Quad::NUM_INDICES, sVignette);
+	Quad vignette_quad(
+		draw_vignette,
+		Dim2Rect(
+			Rect4f(0, 0, 0, 0),
+			Rect4f(0, 0, 1, 1)
+		),
+		SDL_Color(0, 0, 0, 200)
+	);
 	pre_render_event.Subscribe([&draw_vignette]()
 							   {
 //								   draw_vignette.SetTranslation(Application.GetHalfResolution());
-								   draw_vignette.Update();
+								   draw_vignette.UpdateGPU();
 							   });
-//	if (Vignette)
-//		Vignette->SetAlphaMod(200);
 
-	MainMenu mainMenu;
-	mainMenu.SwitchToThisMenu();
-//	GameReference.Get
-//	mainMenu.InitialShow();
+	Menus.GetMainMenu()->SwitchToThisMenu();
 
-//	PauseMenu *PauseMenu;
-
-	Vec3f cubes_at = Vec3f(0.0f, 0.0f, 100.0f);
+	Vec3f cubes_at = Vec3f(0.0f, 100.0f, 100.0f);
 	std::vector<GPUMesh *> gpu_shapes;
 	for (int x = 0; x < 3; x++)
 		for (int y = 0; y < 3; y++)
@@ -348,6 +352,7 @@ int main()
 				}
 
 				// 2d
+				Menus.PreRender();
 				if (Drawing.BeginPass2D())
 				{
 					Drawing.SetPipeline2D();
@@ -361,6 +366,9 @@ int main()
 
 					Menus.Render();
 					GameReference.GetInterface()->DrawForeground();
+
+//					Drawing.SetPipeline2DT();
+//					Menus.RenderTransparent();
 
 					Drawing.EndPass();
 				}

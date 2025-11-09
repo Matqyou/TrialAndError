@@ -9,7 +9,7 @@ template<class T>
 Vec3<T>::Vec3() : x(T()), y(T()), z(T()) { }
 
 template<class T>
-Vec3<T>::Vec3(T x, T y, T z) : x(x), y(y), z(z) { }
+Vec3<T>::Vec3(T X, T Y, T Z) : x(X), y(Y), z(Z) { }
 
 template<class T>
 Vec3<T>::Vec3(const Vec3& v) : x(v.x), y(v.y), z(v.z) { }

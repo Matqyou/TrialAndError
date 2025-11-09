@@ -1,8 +1,9 @@
 #version 450
 
 layout(location = 0) in vec2 inPosition;   // Local quad coordinates
-layout(location = 1) in vec2 inUV;         // Texture coordinates
-layout(location = 2) in vec4 inColor;      // Vertex color
+layout(location = 1) in vec2 inScreenPos;  // Screen position multiplier (sx, sy)
+layout(location = 2) in vec2 inUV;         // Texture coordinates
+layout(location = 3) in vec4 inColor;      // Vertex color
 
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 fragUV;
@@ -26,8 +27,11 @@ void main() {
     rotatedPos.x = inPosition.x * c - inPosition.y * s;
     rotatedPos.y = inPosition.x * s + inPosition.y * c;
 
+    // Add screen position offset (sx, sy as pixel coordinates)
+    vec2 screenOffset = inScreenPos * pc.resolution;
+
     // Apply translation
-    vec2 finalPos = rotatedPos + pc.translation;
+    vec2 finalPos = rotatedPos + pc.translation + screenOffset;
 
     // Convert to NDC coordinates (0,0 = top-left)
     vec2 ndc;

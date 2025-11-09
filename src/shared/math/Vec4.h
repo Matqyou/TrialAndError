@@ -13,7 +13,7 @@ public:
 	T x, y, z, w;
 
 	Vec4();
-	Vec4(T x, T y, T z, T w);
+	Vec4(T X, T Y, T Z, T W);
 	Vec4(const Vec4& v);
 
 	template<class U>

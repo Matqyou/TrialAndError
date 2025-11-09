@@ -2,18 +2,21 @@
 
 #pragma once
 
-#include "client/game/ui/menus/base/FullscreenMenu.h"
-#include "shared/math/Vec2.h"
-#include "SDL3/SDL.h"
+#include <client/game/ui/menus/base/FullscreenMenu.h>
+#include <shared/math/Vec2.h>
+#include <SDL3/SDL.h>
 #include <chrono>
 
 class MainMenu : public FullscreenMenu
 {
 private:
-	std::chrono::steady_clock::time_point m_Opened;
-	bool m_Intro;
+	std::chrono::steady_clock::time_point opened_at;
+	bool intro;
 
-	DrawCommand drawing;
+	DrawCall render;
+	Quad background;
+	DrawCall render_circles;
+	Quad intro_circle;
 
 public:
 	MainMenu();
@@ -25,6 +28,7 @@ public:
 	// Ticking
 	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_summary) override;
 	void Tick(double elapsed_seconds) override;
+	void PreRender() override;
 	void Render() override;
 
 };

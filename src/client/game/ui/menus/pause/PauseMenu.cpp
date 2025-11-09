@@ -56,7 +56,7 @@ PauseMenu::~PauseMenu()
 //	{
 ////		case SDL_EVENT_QUIT:
 ////		{
-////			Application.Deinitialize(true);
+////			Application.Destroy(true);
 ////
 ////			while (Mix_Playing(-1))
 ////			{

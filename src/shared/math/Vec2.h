@@ -13,7 +13,7 @@ public:
 	T x, y;
 
 	Vec2();
-	Vec2(T x, T y);
+	Vec2(T X, T Y);
 	Vec2(const Vec2& v);
 
 	template<class U>

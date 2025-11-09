@@ -82,7 +82,7 @@ void LevelupMenu::SwitchToThisMenu()
 //	{
 ////		case SDL_EVENT_QUIT:
 ////		{
-////			m_GameWindow->Deinitialize(true);
+////			m_GameWindow->Destroy(true);
 ////			while (Mix_Playing(-1))
 ////			{
 ////			}

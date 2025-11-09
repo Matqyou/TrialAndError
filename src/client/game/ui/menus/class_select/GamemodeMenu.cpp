@@ -14,7 +14,6 @@ static LoadTexture sTextureSolo("ui.gamemodemenu.solobutton", AssetsClass::Textu
 static LoadTexture sTextureBack("ui.gamemodemenu.backbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
 static LoadTexture sTexturePvp("ui.gamemodemenu.pvpbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
 static LoadTexture sTextureTitle("ui.gamemodemenu.title", AssetsClass::TexturePurpose::GUI_ELEMENT);
-static LoadTexture sMenuTexture("interface.menu", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
 GamemodeMenu::GamemodeMenu()
 	: FullscreenMenu()

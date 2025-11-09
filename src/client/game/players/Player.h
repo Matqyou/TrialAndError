@@ -46,7 +46,7 @@ private:
 	int gamepad_subscription_id;
 
 public:
-	explicit Player(const std::string& index, PlayerClass *player_class = nullptr);
+	explicit Player(const std::string& init_username, PlayerClass *init_player_class = nullptr);
 	~Player();
 
 	// Getting

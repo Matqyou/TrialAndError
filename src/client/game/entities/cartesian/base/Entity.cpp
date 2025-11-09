@@ -89,13 +89,13 @@ Entity::Entity(EntityFormFactor form_factor,
 			   const Vec3f& start_size,
 			   const Vec3f& start_vel,
 			   float base_damping,
-			   bool has_health_component,
+			   bool init_has_health_component,
 			   double max_health)
 	: unknown_core((form_factor == DIRECTIONAL_ENTITY) ? new DirectionalEntityCore() : new EntityCore()),
 //	  m_pLastUnknownCore((form_factor == DIRECTIONAL_ENTITY) ? new DirectionalEntityCore() : new EntityCore()),
 	  core(*unknown_core),
 	  last_core(core),
-	  has_health_component(has_health_component),
+	  has_health_component(init_has_health_component),
 	  health_component(*this, max_health)
 {
 	world = nullptr;
@@ -214,27 +214,29 @@ void DirectionalEntity::TickUpdateLastCore()
 	memcpy(&last_directional_core, &directional_core, sizeof(DirectionalEntityCore));
 }
 
-DirectionalEntity::DirectionalEntity(EntityType entity_type,
+DirectionalEntity::DirectionalEntity(EntityType init_entity_type,
 									 const Vec3f& start_pos,
 									 const Vec3f& start_size,
 									 const Vec3f& start_vel,
 									 const Vec3f& start_direction,
 									 float base_damping,
-									 bool has_health_component,
+									 bool init_has_health_component,
 									 double max_health)
-	: Entity(DIRECTIONAL_ENTITY,
-			 entity_type,
-			 start_pos,
-			 start_size,
-			 start_vel,
-			 base_damping,
-			 has_health_component,
-			 max_health),
+	: Entity(
+	DIRECTIONAL_ENTITY,
+	init_entity_type,
+	start_pos,
+	start_size,
+	start_vel,
+	base_damping,
+	init_has_health_component,
+	max_health
+),
 	  directional_core(*(DirectionalEntityCore *)(unknown_core)),
 	  last_directional_core(directional_core)
 {
 	directional_core.direction = start_direction;
-	TickUpdateLastCore();
+	TickUpdateLastCore(); // todo: warning
 }
 
 DirectionalEntity::~DirectionalEntity() = default;

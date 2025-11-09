@@ -32,109 +32,8 @@ const std::unordered_map<char, std::string> minecraftToAnsi = {
     { 'f', "\033[97m" }, // White
     { 'r', "\033[0m" }   // Reset
 };
-const std::unordered_map<wchar_t, std::wstring> minecraftToAnsiW = {
-    { L'0', L"\033[30m" }, // Black
-    { L'1', L"\033[34m" }, // Dark Blue
-    { L'2', L"\033[32m" }, // Dark Green
-    { L'3', L"\033[36m" }, // Dark Aqua
-    { L'4', L"\033[31m" }, // Dark Red
-    { L'5', L"\033[35m" }, // Dark Purple
-    { L'6', L"\033[33m" }, // Gold
-    { L'7', L"\033[37m" }, // Gray
-    { L'8', L"\033[90m" }, // Dark Gray
-    { L'9', L"\033[94m" }, // Blue
-    { L'a', L"\033[92m" }, // Green
-    { L'b', L"\033[96m" }, // Aqua
-    { L'c', L"\033[91m" }, // Red
-    { L'd', L"\033[95m" }, // Light Purple
-    { L'e', L"\033[93m" }, // Yellow
-    { L'f', L"\033[97m" }, // White
-    { L'r', L"\033[0m" }   // Reset
-};
 
 namespace Strings {
-//    std::wstring FStringColorsW(const wchar_t* format, ...) {
-//        va_list args;
-//        va_start(args, format);
-//
-//        // Determine the required buffer size
-//        va_list argsCopy;
-//        va_copy(argsCopy, args);
-//        int bufferSize = std::vswprintf(nullptr, 0, format, argsCopy) + 1; // +1 for null terminator
-//        va_end(argsCopy);
-//
-//        // Create the buffer with the required size
-//        auto buffer = new wchar_t[bufferSize];
-//
-//        // Format the string
-//        std::vswprintf(buffer, bufferSize, format, args);
-//        va_end(args);
-//
-//        std::wstring message(buffer);
-//        delete[] buffer;
-//
-//        // Replace Minecraft-style color codes with ANSI codes
-//        size_t pos = 0;
-//        while ((pos = message.find(L'&', pos)) != std::wstring::npos) {
-//            if (pos + 1 < message.length()) {
-//                wchar_t colorCode = message[pos + 1];
-//                auto it = minecraftToAnsiW.find(colorCode);
-//                if (it != minecraftToAnsiW.end()) {
-//                    // Replace &<code> with the corresponding ANSI code
-//                    message.replace(pos, 2, it->second);
-//                    continue; // Skip past the replacement
-//                }
-//            }
-//            ++pos; // Move past this '&'
-//        }
-//
-//        return message + L"\033[0m"; // Ensure the string ends with a reset code
-//    }
-
-std::wstring FStringColorsW(const wchar_t* format, ...) {
-    va_list args;
-    va_start(args, format);
-
-    // Determine the required buffer size
-    va_list argsCopy;
-    va_copy(argsCopy, args);
-    int bufferSize = std::vswprintf(nullptr, 0, format, argsCopy) + 1; // +1 for null terminator
-    va_end(argsCopy);
-
-    if (bufferSize <= 0) {
-        va_end(args);
-        throw std::runtime_error("Failed to calculate buffer size for formatted string.");
-    }
-
-    // Allocate buffer and format the string
-    std::vector<wchar_t> buffer(bufferSize);
-    int result = std::vswprintf(buffer.data(), bufferSize, format, args);
-    va_end(args);
-
-    if (result < 0) {
-        throw std::runtime_error("String formatting failed.");
-    }
-
-    std::wstring message(buffer.data());
-
-    // Replace Minecraft-style color codes with ANSI codes
-    size_t pos = 0;
-    while ((pos = message.find(L'&', pos)) != std::wstring::npos) {
-        if (pos + 1 < message.length()) {
-            wchar_t colorCode = message[pos + 1];
-            auto it = minecraftToAnsiW.find(colorCode);
-            if (it != minecraftToAnsiW.end()) {
-                // Replace &<code> with the corresponding ANSI code
-                message.replace(pos, 2, it->second);
-                continue; // Skip past the replacement
-            }
-        }
-        ++pos; // Move past this '&'
-    }
-
-    return message + L"\033[0m"; // Ensure the string ends with a reset code
-}
-
 std::string FStringColors(const char* format, ...) {
     va_list args;
     va_start(args, format);
@@ -171,29 +70,6 @@ std::string FStringColors(const char* format, ...) {
     }
 
     return message + "\033[0m"; // Ensure the string ends with a reset code
-}
-
-std::wstring FStringW(const wchar_t* format, ...) {
-    va_list args;
-    va_start(args, format);
-
-    // Determine the required buffer size
-    va_list argsCopy;
-    va_copy(argsCopy, args);
-    int bufferSize = std::vswprintf(nullptr, 0, format, argsCopy) + 1;  // +1 for null terminator
-    va_end(argsCopy);
-
-    // Create the buffer with the required size
-    auto buffer = new wchar_t[bufferSize];
-
-    // Format the string
-    std::vswprintf(buffer, bufferSize, format, args);
-    va_end(args);
-
-    std::wstring message(buffer);
-    delete[] buffer;
-
-    return message;
 }
 
 std::string FString(const char* format, ...) {
@@ -265,27 +141,27 @@ std::string ToLowerCase(const std::string& input) {
     return result;
 }
 
-char RandomUppercaseLetter() {
-    return 'A' + (std::rand() % 26);
-}
+//char RandomUppercaseLetter() {
+//    return 'A' + (std::rand() % 26);
+//}
 
-std::string GenerateRandomFilename(size_t length, const std::string& extension) {
-	static const char characters[] =
-		"0123456789"
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"abcdefghijklmnopqrstuvwxyz";
-
-	std::random_device rd;
-	std::mt19937 generator(rd());
-	std::uniform_int_distribution<> distribution(0, sizeof(characters) - 2);
-
-	std::string filename;
-	for (size_t i = 0; i < length; ++i) {
-		filename += characters[distribution(generator)];
-	}
-
-	return filename + extension;
-}
+//std::string GenerateRandomFilename(size_t length, const std::string& extension) {
+//	static const char characters[] =
+//		"0123456789"
+//		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+//		"abcdefghijklmnopqrstuvwxyz";
+//
+//	std::random_device rd;
+//	std::mt19937 generator(rd());
+//	std::uniform_int_distribution<> distribution(0, sizeof(characters) - 2);
+//
+//	std::string filename;
+//	for (size_t i = 0; i < length; ++i) {
+//		filename += characters[distribution(generator)];
+//	}
+//
+//	return filename + extension;
+//}
 
 std::string ConvertTimeNano(long long nanoseconds) {
     const auto day = static_cast<long long>(86400e9L);
@@ -305,7 +181,7 @@ std::string ConvertTimeNano(long long nanoseconds) {
 }
 
 // Cout
-void PrintDivider(const std::string& label, bool wide) {
+void PrintDivider(const std::string& label) {
     const int LENGTH = 72;
 
     std::string output;
@@ -321,8 +197,7 @@ void PrintDivider(const std::string& label, bool wide) {
         output += Strings::FStringColors("&8%s", Strings::RepeatString("-", (int)remaining).c_str());
     }
 
-    if (wide) std::wcout << std::wstring(output.begin(), output.end()) << L"\n";
-    else std::cout << output << "\n";
+	std::cout << output << "\n";
 }
 
 }

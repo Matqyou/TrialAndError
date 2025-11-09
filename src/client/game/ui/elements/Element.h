@@ -110,80 +110,80 @@ public:
     // Options
     Element* SetChildren(const std::vector<Element*>& new_children);
     Element* AddChildren(const std::vector<Element*>& new_children);
-    Element* SetEnabled(bool enabled) {
-        this->enabled = enabled;
+    Element* SetEnabled(bool new_enabled) {
+        enabled = new_enabled;
         return this;
     }
-    Element* SetRelative(const Vec2i& relative) {
-        this->relative = relative;
+    Element* SetRelative(const Vec2i& new_relative) {
+        relative = new_relative;
         return this;
     }
-    Element* SetSize(const Vec2i& size) {
-        this->size = size;
+    Element* SetSize(const Vec2i& new_size) {
+        size = new_size;
         return this;
     }
     Element* SetDraw(ElementDraw new_draw) {
-        this->draw = new_draw;
+        draw = new_draw;
         return this;
     }
-    Element* SetFlexInvolved(bool horizontal, bool vertical) {
-        this->flex_involved_horizontal = horizontal;
-        this->flex_involved_vertical = vertical;
+    Element* SetFlexInvolved(bool new_horizontal, bool new_vertical) {
+        flex_involved_horizontal = new_horizontal;
+        flex_involved_vertical = new_vertical;
         return this;
     }
-    Element* SetOccupy(bool horizontal, bool vertical) {
-        this->occupy_width = horizontal;
-        this->occupy_height = vertical;
+    Element* SetOccupy(bool new_horizontal, bool new_vertical) {
+        occupy_width = new_horizontal;
+        occupy_height = new_vertical;
         return this;
     }
-    Element* SetFullyOccupy(bool horizontal, bool vertical) {
-        this->occupy_fully_width = horizontal;
-        this->occupy_fully_height = vertical;
+    Element* SetFullyOccupy(bool new_horizontal, bool new_vertical) {
+        occupy_fully_width = new_horizontal;
+        occupy_fully_height = new_vertical;
         return this;
     }
-    Element* SetFlex(Flex flex) {
-        this->flex = flex;
+    Element* SetFlex(Flex new_flex) {
+        flex = new_flex;
         return this;
     }
-    Element* SetFlex(Flex flex, int flex_gap) {
-        this->flex = flex;
-        this->flex_gap = flex_gap;
+    Element* SetFlex(Flex new_flex, int new_flex_gap) {
+        flex = new_flex;
+        flex_gap = new_flex_gap;
         return this;
     }
-    Element* SetAlign(Align horizontal, Align vertical) {
-        this->align_horizontal = horizontal;
-        this->align_vertical = vertical;
+    Element* SetAlign(Align new_horizontal, Align new_vertical) {
+        align_horizontal = new_horizontal;
+        align_vertical = new_vertical;
         return this;
     }
-    Element* SetAdaptive(bool horizontal, bool vertical) {
-        this->adaptive_width = horizontal;
-        this->adaptive_height = vertical;
+    Element* SetAdaptive(bool new_horizontal, bool new_vertical) {
+        adaptive_width = new_horizontal;
+        adaptive_height = new_vertical;
         return this;
     }
-    Element* SetName(const char* name) {
-        this->name = name;
+    Element* SetName(const char* new_name) {
+        name = new_name;
         return this;
     }
     Element* SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-        this->color = { r, g, b, a };
+        color = { r, g, b, a };
         return this;
     }
     Element* SetFocusColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-        this->focus_color = { r, g, b, a };
+        focus_color = { r, g, b, a };
         return this;
     }
     Element* SetTexture(Texture* texture) {
-        this->texture_instance.ChangeTexture(texture);
+        texture_instance.ChangeTexture(texture);
         return this;
     }
     Element* ResizeToTexture() {
-        this->size = Vec2i(texture_instance.GetTexture()->GetSize());
-        this->edge = pos + size;
+        size = Vec2i(texture_instance.GetTexture()->GetSize());
+        edge = pos + size;
         return this;
     }
 
     // Setting
-    void SetParent(Element* parent) { this->parent = parent; };
+    void SetParent(Element* new_parent) { parent = new_parent; }
 
     // Manipulating
     void UnfocusChildren();
@@ -198,7 +198,9 @@ public:
 
     virtual void Tick(double elapsed_seconds);
     virtual void HandleEvent(const SDL_Event& sdl_event, EventContext& event_summary);
+    virtual void PreRender();
     virtual void Render();
+    virtual void RenderTransparent();
     virtual void RenderDebug();
     virtual void PostEvent();
     virtual void PreComposition();
@@ -207,7 +209,9 @@ public:
     void PostEventChildren() const;
     void TickChildren(double elapsed_seconds) const;
     void HandleEventChildren(const SDL_Event& sdl_event, EventContext& event_summary);
+    void PreRenderChildren();
     void RenderChildren() const;
+    void RenderTransparentChildren() const;
     void RenderDebugChildren() const;
     void UpdateTexturePlacement();
 

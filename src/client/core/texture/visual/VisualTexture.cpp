@@ -5,22 +5,22 @@
 #include "VisualTexture.h"
 #include "client/core/Assets.h"
 
-VisualTexture::VisualTexture(const Vec2i& size, SDL_GPUTexture *texture, const Rect4f& physical_hitbox)
-	: Texture(size, texture)
+VisualTexture::VisualTexture(const Vec2i& init_size, SDL_GPUTexture *init_gpu_texture, const Rect4f& init_physical_hitbox)
+	: Texture(init_size, init_gpu_texture)
 {
 	if (this->gpu_texture)
 	{
 		this->translation_ratios = {
-			physical_hitbox.x / (float)texture_size.x,
-			physical_hitbox.y / (float)texture_size.y,
-			(float)texture_size.x / physical_hitbox.w,
-			(float)texture_size.y / physical_hitbox.h,
+			init_physical_hitbox.x / (float)texture_size.x,
+			init_physical_hitbox.y / (float)texture_size.y,
+			(float)texture_size.x / init_physical_hitbox.w,
+			(float)texture_size.y / init_physical_hitbox.h,
 		};
 	}
 	else
 	{ this->translation_ratios = { 1.0, 1.0, 1.0, 1.0 }; }
 
-	this->physical_hitbox = physical_hitbox;
+	this->physical_hitbox = init_physical_hitbox;
 	this->uses_hitbox = true;
 }
 
@@ -37,18 +37,18 @@ Rect4f VisualTexture::GetResultingPlacement(const Rect4f& physical_placement) co
 			 physical_placement.h * translation_ratios.h };
 };
 
-VisualTextureInstance::VisualTextureInstance(Texture *texture)
+VisualTextureInstance::VisualTextureInstance(Texture *init_texture)
 {
-	this->texture = texture;
-	this->physical_placement = Rect4f(0.0f, 0.0f, 64.0f, 64.0f);
-	this->resulting_placement = Rect4f(0.0f, 0.0f, 64.0f, 64.0f);
+	texture = init_texture;
+	physical_placement = Rect4f(0.0f, 0.0f, 64.0f, 64.0f);
+	resulting_placement = Rect4f(0.0f, 0.0f, 64.0f, 64.0f);
 }
 
-VisualTextureInstance::VisualTextureInstance(Texture *texture, const Rect4f& initial_placement)
+VisualTextureInstance::VisualTextureInstance(Texture *init_texture, const Rect4f& initial_placement)
 {
-	this->texture = texture;
-	this->physical_placement = initial_placement;
-	this->resulting_placement = initial_placement; //
+	texture = init_texture;
+	physical_placement = initial_placement;
+	resulting_placement = initial_placement; //
 }
 
 VisualTextureInstance::~VisualTextureInstance()

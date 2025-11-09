@@ -9,9 +9,6 @@
 #include "client/game/ui/CommonUI.h"
 #include "GamemodeMenu.h"
 
-static LoadTexture sTextureTitle("ui.classselectmenu.title", AssetsClass::TexturePurpose::GUI_ELEMENT);
-static LoadTexture sMenuTexture("interface.menu", AssetsClass::TexturePurpose::GUI_ELEMENT);
-
 // TODO Update the class buttons to be icons of the class and have text descriptions on hover
 static LoadTexture sTextureClassButton1("ui.classselectmenu.humanclassbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
 static LoadTexture sTextureClassButton2("ui.classselectmenu.zombieclassbutton", AssetsClass::TexturePurpose::GUI_ELEMENT);
@@ -30,7 +27,7 @@ ClassSelectMenu::ClassSelectMenu()
 		// Close menu
 		Menus.SetCurrentMenu(nullptr);
 
-		Assets.PauseMusic();
+//		Assets.PauseMusic();  // todo: mix
 		Assets.GetSound("ui.pitch.low")->PlaySound();
 
 		auto first_player_preferences = GameReference.GetPlayerPreferences(0);
