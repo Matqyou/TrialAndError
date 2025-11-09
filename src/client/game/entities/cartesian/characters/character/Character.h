@@ -31,8 +31,9 @@ struct CharacterInput
 //	double m_GoingX, m_GoingY, m_GoingLength;
 //	double m_LookingX, m_LookingY, m_LookingLength;
 
-	Vec3f going_direction;
-	Vec3f looking_direction;
+	Vec2f going_direction;
+	Vec2f looking_direction;
+	Quaternion looking_orientation; // for NPC
 
 	CharacterInput();
 };
@@ -92,6 +93,8 @@ public:
 		SDL_Color nameplate_color;
 		SDL_Color health_red_color;
 		SDL_Color health_black_color;
+
+		Mesh character_mesh;
 
 		// Listening & Ticking
 		virtual void EventDeath();

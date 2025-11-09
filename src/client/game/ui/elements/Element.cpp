@@ -417,12 +417,6 @@ void Element::UpdateComposition()
 	PostRefresh();
 }
 
-std::string WStringToUTF8(const std::wstring& wstr)
-{
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-	return converter.to_bytes(wstr);
-}
-
 void Element::DebugPrint(std::vector<bool> level, bool last_child)
 {
 	// Initialize the indentation string
@@ -463,8 +457,7 @@ void Element::DebugPrint(std::vector<bool> level, bool last_child)
 						   align_vertical == Align::TOP ? "↑" :
 						   align_vertical == Align::BOTTOM ? "↓" :
 						   "⇅";
-	output_element +=
-		Strings::FStringColors(" (%s%i%s&r,%s%i%s&r)", x_color, pos.x, x_suffix, y_color, pos.y, y_suffix);
+	output_element += Strings::FStringColors(" (%s%i%s&r,%s%i%s&r)", x_color, pos.x, x_suffix, y_color, pos.y, y_suffix);
 	if (flex == Flex::WIDTH) output_element += "←→";
 	else if (flex == Flex::HEIGHT) output_element += " ↕ ";
 	else output_element += " ";

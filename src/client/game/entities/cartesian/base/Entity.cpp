@@ -109,7 +109,7 @@ Entity::Entity(EntityFormFactor form_factor,
 	core.size = start_size;
 	core.vel = start_vel;
 	core.base_damping = base_damping;
-	core.size_ratio = (core.size.x + core.size.y) / 4.0f;
+	core.size_ratio = (core.size.x + core.size.y + core.size.z) / 6.0f;
 	TickUpdateLastCore();
 
 //	our_world->AddEntity(this);
@@ -130,20 +130,19 @@ void Entity::TickUpdateLastCore()
 
 void Entity::TickVelocity(double seconds_elapsed)
 {
-	core.vel.x *= core.base_damping;
-	core.vel.y *= core.base_damping;
-
-	core.pos.x += core.vel.x;
-	core.pos.y += core.vel.y;
+	core.vel *= core.base_damping;
+	core.pos += core.vel;
 }
 
 void Entity::TickWalls()
 {
 	float w2 = core.size.x / 2.0f;
-	float h2 = core.size.y / 2.0f;
+	float h2 = core.size.x / 2.0f;
+	float d2 = core.size.z / 2.0f;
 
 	float XWall = world->GetWidth() - w2;
 	float YWall = world->GetHeight() - h2;
+	float ZWall = world->GetDepth() - d2;
 
 	if (core.pos.x < w2)
 	{
@@ -155,6 +154,7 @@ void Entity::TickWalls()
 		core.pos.x = XWall;
 		core.vel.x = 0.0;
 	}
+
 	if (core.pos.y < h2)
 	{
 		core.pos.y = h2;
@@ -164,6 +164,17 @@ void Entity::TickWalls()
 	{
 		core.pos.y = YWall;
 		core.vel.y = 0.0;
+	}
+
+	if (core.pos.z < d2)
+	{
+		core.pos.z = d2;
+		core.vel.z = 0.0;
+	}
+	if (core.pos.z > ZWall)
+	{
+		core.pos.z = ZWall;
+		core.vel.z = 0.0;
 	}
 }
 
@@ -214,14 +225,16 @@ void DirectionalEntity::TickUpdateLastCore()
 	memcpy(&last_directional_core, &directional_core, sizeof(DirectionalEntityCore));
 }
 
-DirectionalEntity::DirectionalEntity(EntityType init_entity_type,
-									 const Vec3f& start_pos,
-									 const Vec3f& start_size,
-									 const Vec3f& start_vel,
-									 const Vec3f& start_direction,
-									 float base_damping,
-									 bool init_has_health_component,
-									 double max_health)
+DirectionalEntity::DirectionalEntity(
+	EntityType init_entity_type,
+	const Vec3f& start_pos,
+	const Vec3f& start_size,
+	const Vec3f& start_vel,
+	const Quaternion& start_orientation,
+	float base_damping,
+	bool init_has_health_component,
+	double max_health
+)
 	: Entity(
 	DIRECTIONAL_ENTITY,
 	init_entity_type,
@@ -235,7 +248,7 @@ DirectionalEntity::DirectionalEntity(EntityType init_entity_type,
 	  directional_core(*(DirectionalEntityCore *)(unknown_core)),
 	  last_directional_core(directional_core)
 {
-	directional_core.direction = start_direction;
+	directional_core.orientation = start_orientation;
 	TickUpdateLastCore(); // todo: warning
 }
 

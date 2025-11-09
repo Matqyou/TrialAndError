@@ -21,7 +21,8 @@ struct EntityCore
 
 struct DirectionalEntityCore : public EntityCore
 {
-	Vec3f direction;
+	Quaternion orientation;
+//	Vec3f direction;
 
 	DirectionalEntityCore() : EntityCore() { }
 };
@@ -80,7 +81,7 @@ protected:
 	const bool has_health_component;
 
 	// added into world
-	Streamer<GameWorld*> entity_added_event;
+	Streamer<GameWorld *> entity_added_event;
 
 	virtual void TickUpdateLastCore();
 	virtual void TickVelocity(double seconds_elapsed);
@@ -128,14 +129,16 @@ protected:
 	void TickUpdateLastCore() override;
 
 public:
-	DirectionalEntity(EntityType init_entity_type,
-					  const Vec3f& start_pos,
-					  const Vec3f& start_size,
-					  const Vec3f& start_vel,
-					  const Vec3f& start_direction,
-					  float base_damping,
-					  bool init_has_health_component,
-					  double max_health = 1.0);
+	DirectionalEntity(
+		EntityType init_entity_type,
+		const Vec3f& start_pos,
+		const Vec3f& start_size,
+		const Vec3f& start_vel,
+		const Quaternion& start_orientation,
+		float base_damping,
+		bool init_has_health_component,
+		double max_health = 1.0
+	);
 	~DirectionalEntity() override;
 
 	// Getting

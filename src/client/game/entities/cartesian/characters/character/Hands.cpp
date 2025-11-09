@@ -73,6 +73,7 @@ void Hands::Tick()
 			m_LastFistedL = CurrentTick;
 //			hands_pos = ParentCore.pos + FromAngleVec2f(radians) * m_LeftHand + m_Parent->GetInput().looking_direction * m_FistingRadius;
 		}
+		return; // todo: 3d
 
 		for (Entity *entity : World->GetEntities())
 		{
@@ -97,7 +98,8 @@ void Hands::Tick()
 			if (entity->GetType() != ENTITY_CHARACTER)
 				continue;
 
-			Vec3f boost_direction = m_Parent->GetInput().looking_direction;
+			Vec3f boost_direction = m_Parent->GetDirectionalCore().orientation.GetLook();
+//			Vec3f boost_direction = m_Parent->GetInput().looking_direction;
 			entity->Accelerate(boost_direction * 5.0f);
 
 			double Damage = m_Parent->GetBaseDamage() * m_Parent->GetDamageAmp();

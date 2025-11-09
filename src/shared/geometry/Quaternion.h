@@ -115,6 +115,101 @@ struct Quaternion
 		return { w, -x, -y, -z };
 	}
 
+	Vec3f GetLook()
+	{
+		// Rotate the forward vector (0, 0, 1)
+		float X = 2.0f * (x * z + w * y);
+		float Y = 2.0f * (y * z - w * x);
+		float Z = 1.0f - 2.0f * (x * x + y * y);
+
+		return { X, Y, Z };
+	}
+
+	Vec3f GetRight()
+	{
+		// Rotate the right vector (1, 0, 0)
+		float X = 1.0f - 2.0f * (y * y + z * z);
+		float Y = 2.0f * (x * y + w * z);
+		float Z = 2.0f * (x * z - w * y);
+
+		return { X, Y, Z };
+	}
+
+	Vec3f GetUp()
+	{
+		// Rotate the up vector (0, 1, 0)
+		float X = 2.0f * (x * y - w * z);
+		float Y = 1.0f - 2.0f * (x * x + z * z);
+		float Z = 2.0f * (y * z + w * x);
+
+		return { X, Y, Z };
+	}
+
+	static Quaternion FromDirection(Vec3f direction, Vec3f worldUp = Vec3f(0, 1, 0))
+	{
+		direction = direction.Normalize();
+
+		// If direction is parallel to worldUp, use a different reference
+		if (fabsf(DotProductVec3(direction, worldUp)) > 0.999f)
+			worldUp = Vec3f(0, 0, 1);  // Use forward as backup
+
+		// Build orthonormal basis
+		Vec3f right = CrossProductVec3(worldUp, direction).Normalize();
+		Vec3f up = CrossProductVec3(direction, right);
+
+		// Create rotation matrix from basis vectors
+		// Then convert to quaternion
+		// (Assuming your coordinate system: right=X, up=Y, forward=Z or -Z)
+
+		return Quaternion::FromMatrix(right, up, direction);
+	}
+
+	static Quaternion FromMatrix(Vec3f right, Vec3f up, Vec3f forward)
+	{
+		// Assuming column vectors forming a rotation matrix:
+		// [right.x  up.x  forward.x]
+		// [right.y  up.y  forward.y]
+		// [right.z  up.z  forward.z]
+
+		float m00 = right.x, m01 = up.x, m02 = forward.x;
+		float m10 = right.y, m11 = up.y, m12 = forward.y;
+		float m20 = right.z, m21 = up.z, m22 = forward.z;
+
+		float trace = m00 + m11 + m22;
+		Quaternion q;
+
+		if (trace > 0.0f) {
+			float s = sqrtf(trace + 1.0f) * 2.0f; // s = 4 * w
+			q.w = 0.25f * s;
+			q.x = (m21 - m12) / s;
+			q.y = (m02 - m20) / s;
+			q.z = (m10 - m01) / s;
+		}
+		else if ((m00 > m11) && (m00 > m22)) {
+			float s = sqrtf(1.0f + m00 - m11 - m22) * 2.0f; // s = 4 * x
+			q.w = (m21 - m12) / s;
+			q.x = 0.25f * s;
+			q.y = (m01 + m10) / s;
+			q.z = (m02 + m20) / s;
+		}
+		else if (m11 > m22) {
+			float s = sqrtf(1.0f + m11 - m00 - m22) * 2.0f; // s = 4 * y
+			q.w = (m02 - m20) / s;
+			q.x = (m01 + m10) / s;
+			q.y = 0.25f * s;
+			q.z = (m12 + m21) / s;
+		}
+		else {
+			float s = sqrtf(1.0f + m22 - m00 - m11) * 2.0f; // s = 4 * z
+			q.w = (m10 - m01) / s;
+			q.x = (m02 + m20) / s;
+			q.y = (m12 + m21) / s;
+			q.z = 0.25f * s;
+		}
+
+		return q;
+	}
+
 	// Linear interpolation (use for small angles only)
 	static Quaternion Lerp(const Quaternion& a, const Quaternion& b, float t)
 	{

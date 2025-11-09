@@ -55,7 +55,7 @@ void WeaponGlock::Tick()
 			m_LastShotAt = CurrentTick;
 			sShootSound.GetSound()->PlaySound();
 
-			Vec3f ProjectileVelocity = ShooterCore.direction * m_ProjectileSpeed;
+			Vec3f ProjectileVelocity = ShooterCore.orientation.GetLook() * m_ProjectileSpeed;
 			auto new_projectile = new Projectile(m_Parent,
 						   WEAPON_GLOCK,
 						   sTextureProjectile.GetTexture(),
@@ -66,7 +66,7 @@ void WeaponGlock::Tick()
 
 			float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
 				m_RecoilForce * 3.0f : m_RecoilForce;
-			Vec3f recoil_acceleration = ShooterCore.direction * -recoil;
+			Vec3f recoil_acceleration = ShooterCore.orientation.GetLook() * -recoil;
 			m_Parent->Accelerate(recoil_acceleration);
 		}
 		else

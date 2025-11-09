@@ -12,27 +12,13 @@
 
 #include <SDL3_mixer/SDL_mixer.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <unordered_set>
 #include <unordered_map>
 #include <functional>
 #include <iostream>
 #include <vector>
 #include <memory>
 #include <mutex>
-
-class DiskTexture
-{
-private:
-	Texture *m_Texture;
-	std::string m_LoadExtension;
-
-public:
-	DiskTexture(Texture *texture, const std::string& load_extension);
-	~DiskTexture();
-
-	// Getting
-	[[nodiscard]] const std::string& GetExtension() const { return m_LoadExtension; }
-
-};
 
 class Sound
 {
@@ -132,36 +118,28 @@ private:
 	Resources m_VisHitboxResources;
 	Resources m_SurfaceResources;
 	Resources m_SoundResources;
-	Resources m_MusicResources;
 	Resources m_FontResources;
 	size_t m_SurfaceResourcesIndex;
 	size_t m_SoundResourcesIndex;
-	size_t m_MusicResourcesIndex;
+
+	std::unordered_set<Surface*> cleanup_surfaces;
+	std::unordered_set<Texture*> cleanup_textures;
 
 	// Textures
 	std::unordered_map<std::string, Surface *> m_Surfaces;
-	std::unordered_map<std::string, DiskTexture *> m_DiskTextures;
 	std::unordered_map<std::string, Texture *> m_Textures;
 	static std::vector<LoadTexture *> m_LoadTextures;
-//	static std::vector<PregenerateTexture *> m_PregenerateTextures;
-//	static std::vector<LoadTexture *>::iterator m_LinkTexturesIterator;
-//	static std::vector<PregenerateTexture *>::iterator m_PregenerateTexturesIterator;
-	static std::vector<Surface *> m_AutomaticDeletionSurfaces;
-	static std::vector<Texture *> m_AutomaticDeletionTextures;
+	static std::vector<PreloadFont *> m_PreloadFonts;
+	static std::vector<LinkSound *> m_LinkSounds;
+	static std::vector<LinkFont *> m_LinkFonts;
 	Surface *m_InvalidSurfaceDefault;
 	Texture *m_InvalidTextureDefault;
 
 	std::unordered_map<std::string, Sound *> m_Sounds;
 	std::unordered_map<std::string, Font *> m_Fonts;
 
-	static std::vector<PreloadFont *> m_PreloadFonts;
-	static std::vector<LinkSound *> m_LinkSounds;
-	static std::vector<LinkFont *> m_LinkFonts;
-
 	// Iterators
 	std::vector<PreloadFont *>::iterator m_PreloadFontIterator;
-	static std::vector<LinkSound *>::iterator m_LinkSoundsIterator;
-	static std::vector<LinkFont *>::iterator m_LinkFontsIterator;
 
 	static size_t sTotalWork, sWorkDone;
 	std::vector<std::string> failed_load_surfaces;
@@ -214,8 +192,7 @@ public:
 	Texture *TextureFromSurface(const Surface& surface, TexturePurpose purpose);
 	SDL_Surface *CreateSDLSurface(int width, int height, SDL_PixelFormat format);
 	Texture *CreateTexture(TexturePurpose purpose, const Vec2i& size, Rect4f *visual_hitbox = nullptr);
-//	SDL_Texture *CopySDLTexture(SDL_Texture *copy_texture, SDL_TextureAccess access);
-////    VisualTexture* RenderTextBlendedVisual(TTF_Font* font, const std::string& text, SDL_Color color);
+//    VisualTexture* RenderTextBlendedVisual(TTF_Font* font, const std::string& text, SDL_Color color);
 	Texture *RenderTextBlended(TTF_Font *font, const std::string& text, SDL_Color color);
 	Texture *RenderTextBlended(TTF_Font *font, const char *text, SDL_Color color);
 //	Texture *RenderTextBlendedOutline(TTF_Font *font, const char *text, int thickness,
@@ -226,13 +203,15 @@ public:
 //	bool SaveTextureToDisk(Texture *texture, const std::string& filename);
 
 	// Manipulating
+	void NewSurface(Surface *new_surface);
+	void RemoveSurface(Surface *remove_surface);
+	void NewTexture(Texture *new_texture);
+	void RemoveTexture(Texture *remove_texture);
 	static void AddLoadTexture(LoadTexture *load_texture);
 //	static void LinkPregeneratedTexture(PregenerateTexture *pregenerate_texture);
 	static void LinkPreloadedSound(LinkSound *register_sound);
 	static void PreloadFont_(PreloadFont *preload_font);
 	static void LinkPreloadedFont(LinkFont *register_font);
-	static void AutomaticallyDeleteSurface(Surface *surface);
-	static void AutomaticallyDeleteTexture(Texture *texture);
 	void ThreadedLoading();
 
 };

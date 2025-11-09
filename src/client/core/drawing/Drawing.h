@@ -4,111 +4,19 @@
 
 #pragma once
 
+#include <client/core/drawing/mesh/Mesh2D.h>
+#include <client/core/drawing/mesh/Batch.h>
+#include <client/core/drawing/mesh/Mesh.h>
 #include <client/core/drawing/Camera3D.h>
 #include <client/core/drawing/Camera.h>
-#include <client/core/drawing/Mesh.h>
+
 #include <client/core/Assets.h>
+#include <shared/code/EventChannel.h>
 #include <shared/screen/Dim2Rect.h>
+
+#include <shared/code/EventOnce.h>
 #include <SDL3_image/SDL_image.h>
-
-struct GPUVertex
-{
-	float x, y, z;
-	float nx, ny, nz;
-	float u, v;
-	SDL_Color color;
-
-	static SDL_GPUVertexAttribute vertex_attributes[];
-};
-
-struct GPUVertex2D
-{
-	float x, y;
-	float sx, sy;
-	float u, v;
-	SDL_Color color;
-
-	static SDL_GPUVertexAttribute vertex_attributes[];
-};
-
-class Quad;
-class DrawCall
-{
-private:
-	friend class Quad;
-	GPUVertex2D *vertices;
-	Uint32 num_vertices;
-	uint32_t *indices;
-	Uint32 num_indices;
-
-	SDL_GPUBuffer *gpu_vertices;
-	Uint32 size_vertices;
-	SDL_GPUBuffer *gpu_indices;
-	Uint32 size_indices;
-
-	// vert
-	Vec2f translation;
-	float rotation;
-
-	// frag
-	SDL_GPUTexture *texture;
-	bool draw_as_circles;
-
-	Uint32 current_vertices_offset;
-	Uint32 current_indices_offset;
-
-public:
-	DrawCall(Uint32 init_num_vertices, Uint32 init_num_indices, SDL_GPUTexture *init_texture = nullptr);
-	~DrawCall();
-
-	GPUVertex2D *Vertices() { return vertices; }
-	uint32_t *Indices() { return indices; }
-//	Uint32 GetNumIndices() { return num_indices; }
-//	SDL_GPUTexture *Texture() { return texture; }
-//	float Rotation() { return rotation; }
-
-//	SDL_GPUBuffer *GPUVertices() { return gpu_vertices; }
-//	Uint32 SizeGPUVertices() { return size_vertices; }
-//	SDL_GPUBuffer *GPUIndices() { return gpu_indices; }
-//	Uint32 SizeGPUIndices() { return size_indices; }
-
-	void SetTexture(SDL_GPUTexture *new_texture) { texture = new_texture; } // Do not require UpdateGPU()
-	void SetDrawAsCircles(bool new_draw_as_circles) { draw_as_circles = new_draw_as_circles; }
-
-	void SetTranslation(const Vec2f& new_translation) { translation = new_translation; } // Do not require UpdateGPU()
-	void SetRotation(float new_rotation) { rotation = new_rotation; } // Do not require UpdateGPU()
-//	void SetZ(float new_z) { z = new_z; }
-
-	void UpdateGPU(); // Only updates vertices and indices(and count)
-	void Draw();
-
-};
-
-class Quad
-{
-public:
-	static const Uint32 NUM_VERTICES;
-	static const Uint32 NUM_INDICES;
-
-private:
-	GPUVertex2D *vertices;
-	uint32_t *indices;
-
-public:
-	Quad();
-	Quad(GPUVertex2D *vertices_address, uint32_t *indices_address, const Dim2Rect& start_rect, const SDL_Color& start_color = { 255, 255, 255, 255 });
-	Quad(DrawCall& draw_command, const Dim2Rect& start_rect, const SDL_Color& start_color = { 255, 255, 255, 255 });
-
-	GPUVertex2D& TopLeft() { return vertices[0]; }
-	GPUVertex2D& TopRight() { return vertices[1]; }
-	GPUVertex2D& BottomLeft() { return vertices[2]; }
-	GPUVertex2D& BottomRight() { return vertices[3]; }
-
-	void Bind(GPUVertex2D *vertices_address, uint32_t *indices_address, const Dim2Rect& start_rect, const SDL_Color& start_color = { 255, 255, 255, 255 });
-	void Bind(DrawCall& draw_command, const Dim2Rect& start_rect, const SDL_Color& start_color = { 255, 255, 255, 255 });
-	void UpdateRect(const Dim2Rect& new_rect);
-	void UpdateColor(const SDL_Color& new_color);
-};
+#include <unordered_set>
 
 struct VertexUniform
 {
@@ -159,7 +67,7 @@ private:
 	SDL_GPUCommandBuffer *cmd;
 	SDL_GPUSampler *sampler;
 	SDL_GPUTexture *depth_texture;
-	SDL_GPUTexture *depth_texture_2d;
+//	SDL_GPUTexture *depth_texture_2d;
 
 	// 3d stuff
 	SDL_GPUShader *vertex_shader;
@@ -168,8 +76,8 @@ private:
 	VertexUniform vertex_uniform;
 	FragmentUniform fragment_uniform;
 
-	std::vector<SDL_GPUTexture *> gpu_textures; // move to assets?
-	std::vector<GPUMesh *> gpu_meshes; // move to assets?
+//	std::vector<GPUMesh *> gpu_meshes; // move to assets?
+//	std::unordered_set<GPUMesh*> cleanup_meshes;
 
 	// 2d stuff
 	SDL_GPUShader *vertex_shader_2d;
@@ -178,19 +86,24 @@ private:
 	VertexUniform2D vertex_uniform_2d;
 	FragmentUniform2D fragment_uniform_2d;
 
+	//
+	EventChannel<> shut_down_event;
+	Batch mesh_updates;
+
 	Status status;
 
 public:
 	DrawingClass();
-	~DrawingClass();
-
 	void Initialize(SDL_Window *drawing_window);
 	void Destroy();
+	~DrawingClass();
 
 	// Getting
 	[[nodiscard]] SDL_GPUDevice *Device() const { return gpu_device; }
 	[[nodiscard]] SDL_GPUCommandBuffer *CommandBuffer() const { return cmd; }
-//	[[nodiscard]] SDL_Renderer *Renderer() const { return renderer; }
+
+	// Events
+	[[nodiscard]] EventChannel<>& ShutDownEvent() { return shut_down_event; }
 
 	// Options
 //	void SetRenderTarget(Texture *target);
@@ -198,6 +111,13 @@ public:
 //	void SetDrawBlendMode(SDL_BlendMode blend_mode) { SDL_SetRenderDrawBlendMode(renderer, blend_mode); }
 //	void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) { SDL_SetRenderDrawColor(renderer, r, g, b, a); }
 //	void SetColor(SDL_Color color) { SetColor(color.r, color.g, color.b, color.a); }
+
+	// Manipulating
+	void QueueUpdate(Mesh *update_mesh);
+	void QueueUpdate(Mesh2D *update_mesh_2d);
+	void CancelUpdate(Mesh *cancel_update_mesh);
+	void CancelUpdate(Mesh2D *cancel_update_mesh_2d);
+	void UpdateGPU();
 
 	// Drawing
 	void DrawFilledRect(const Dim2Rect& rect, const SDL_Color& sdl_color);
@@ -236,23 +156,19 @@ public:
 	void ShaderParams2D(const Vec2f& translation, float rotation, bool use_texture, float draw_as_circles);
 
 	void EndPass();
-
 	void EndCommandBuffer();
 
 	// 3d stuff
-	SDL_GPUTexture *LoadTextureToGPU(SDL_Texture *sdl_texture);
-	GPUMesh *LoadMeshToGPU(const Mesh& mesh);
-//	void UpdateRender();
+//	SDL_GPUTexture *LoadTextureToGPU(SDL_Texture *sdl_texture);
+//	GPUMesh *LoadMeshToGPU(const Mesh& mesh);
 
-	// 2d
+
 	void DrawTriangles(
 		SDL_GPUBuffer *vertices,
 		SDL_GPUBuffer *indices,
 		Uint32 num_indices,
 		SDL_GPUTexture *texture
 	);
-
-	// pass
 
 };
 

@@ -80,7 +80,7 @@ void WeaponShotgun::Tick()
 
 			float recoil = ((Character *)m_Parent)->GetErrorStatuses().DangerousRecoil.IsActive() ?
 						   m_RecoilForce * 3.0f : m_RecoilForce;
-			Vec3f recoil_acceleration = ShooterCore.direction * -recoil;
+			Vec3f recoil_acceleration = ShooterCore.orientation.GetLook() * -recoil;
 			m_Parent->Accelerate(recoil_acceleration);
 		}
 		else

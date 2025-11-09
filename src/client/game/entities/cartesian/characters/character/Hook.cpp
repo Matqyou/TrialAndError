@@ -53,14 +53,13 @@ void Hook::Tick(double elapsed_seconds)
 	GameWorld *world = parent->World();
 	bool hooking = parent->GetInput().hooking;
 	bool last_hooking = parent->GetLastInput().hooking;
-	Vec3f looking_direction = parent->GetInput().looking_direction;
 	EntityCore& character_core = parent->GetCore();
 
 	if (!deployed && hooking && !last_hooking)
 	{
 		deployed = true;
 		pos = character_core.pos;
-		vel = looking_direction * hook_travel_speed;
+		vel = parent->GetDirectionalCore().orientation.GetLook() * hook_travel_speed;
 	}
 	else if (deployed && !hooking && last_hooking)
 	{  // Instant retraction for now

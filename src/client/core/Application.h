@@ -36,9 +36,6 @@ protected:
 	Vec2f half_resolution;
 	static void PrintVersions();
 
-	// Events
-	EventOnce<> pre_render_event;
-
 	Status status;
 
 public:
@@ -70,7 +67,6 @@ public:
 	[[nodiscard]] int GetHeight2() const { return resolution.y / 2; }
 
 	[[nodiscard]] static Vec2f GetMousePosition();
-	EventOnce<>& GetPreRenderEvent() { return pre_render_event; }
 
 	// Ticking
 	void HandleEvent(const SDL_Event& sdl_event, EventContext& event_context);

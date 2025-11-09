@@ -25,8 +25,6 @@ class Crate;
 class GameWorld
 {
 protected:
-//	PauseMenu *m_PauseMenu;
-//	LevelUpMenu *m_LevelUpMenu;
 	TileMap *m_Tiles;
 	Particles *m_Particles;
 	float m_Width, m_Height, m_Depth;
@@ -35,7 +33,6 @@ protected:
 	bool m_Paused;
 	bool m_GameOver;
 	bool m_LevelUpDelay;
-//	std::vector<Player *> players;
 	std::vector<Entity *> pending_entities; // added after current tick
 	std::vector<Entity *> entities;
 	std::vector<Entity *> entities_by_types[NUM_ENTITY_TYPES];
@@ -59,6 +56,8 @@ protected:
 	unsigned int m_Round;
 	unsigned int m_Score;
 	TextSurface *m_ScoreText;
+
+	Mesh ground_mesh;
 
 	virtual void TickCamera(double elapsed_seconds);
 	virtual void TickSpawner(double elapsed_seconds);

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <shared/geometry/Rectangles.h>
 #include <shared/screen/Dim2.h>
 
 struct Dim2Rect

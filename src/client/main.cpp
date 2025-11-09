@@ -28,12 +28,12 @@
 #include <cstdlib>
 #include <vector>
 #include <random>
+#include "client/core/drawing/CommonMesh.h"
 
 LinkSound sConnectedSound("ui.pitch.mid");
 LinkSound sDisconnectedSound("ui.pitch.low");
 
 LoadTexture sPlanetTexture("backgrounds.planet2", AssetsClass::TexturePurpose::OBJECT_3D);
-LoadTexture sTest3DTexture("entity.character.body", AssetsClass::TexturePurpose::OBJECT_3D);
 
 LoadTexture sVignette("backgrounds.vignette", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
@@ -141,62 +141,62 @@ int main()
 
 	Strings::PrintDivider();
 
+	CommonMesh::Initialize();
+
 	// 3d stuff
-	SDL_GPUTexture *character_gpu_texture = sTest3DTexture;
 	SDL_GPUTexture *planet_gpu_texture = sPlanetTexture;
 
 	Gamepads.AddMissingGamepads();
 	GameReference.Initialize();
 
-	EventOnce<>& pre_render_event = Application.GetPreRenderEvent();
-
 	// Do this after assets have been loaded because it uses them
 	Menus.Initialize();
 	Menus.main_menu->SwitchToThisMenu();
 
-	DrawCall draw_vignette(Quad::NUM_VERTICES, Quad::NUM_INDICES, sVignette);
+	Mesh2D vignette(Quad::NUM_VERTICES, Quad::NUM_INDICES);
+	vignette.SetTexture(sVignette);
 	Quad vignette_quad(
-		draw_vignette,
+		vignette,
 		Dim2Rect(
 			Rect4f(0, 0, 0, 0),
 			Rect4f(0, 0, 1, 1)
 		),
 		SDL_Color(0, 0, 0, 200)
 	);
-	pre_render_event.Subscribe([&draw_vignette]()
-							   {
-//								   draw_vignette.SetTranslation(Application.GetHalfResolution());
-								   draw_vignette.UpdateGPU();
-							   });
+	Drawing.QueueUpdate(&vignette);
 
 	Menus.GetMainMenu()->SwitchToThisMenu();
 
 	Vec3f cubes_at = Vec3f(0.0f, 100.0f, 100.0f);
-	std::vector<GPUMesh *> gpu_shapes;
+	std::vector<Mesh> meshes;
 	for (int x = 0; x < 3; x++)
 		for (int y = 0; y < 3; y++)
 			for (int z = 0; z < 3; z++)
 			{
-				Mesh new_cube = MeshPresets::CreateCube(10.0f);
-				new_cube.position = Vec3f(
+				Vec3f position = Vec3f(
 					-15.0f + (float)x * 15.0f,
 					-15.0f + (float)y * 15.0f,
 					-15.0f + (float)z * 15.f
 				) + cubes_at;
-				new_cube.gpu_texture = character_gpu_texture;
-				gpu_shapes.push_back(Drawing.LoadMeshToGPU(new_cube));
+
+				Mesh new_cube = MeshPresets::CreateTexturedCube(10.0f);
+				new_cube.SetTranslation(Mat4x4::Translation(position));
+				new_cube.SetTexture(CommonMesh::character_mesh_texture);
+				meshes.push_back(new_cube);
 			}
 
-	Mesh sphere = MeshPresets::CreateSphere(30.0f, 30, 50);
-	sphere.position = Vec3f(70.0f, 0.0f, 0.0f) + cubes_at;
-	sphere.gpu_texture = planet_gpu_texture;
-	gpu_shapes.push_back(Drawing.LoadMeshToGPU(sphere));
+	Mesh new_sphere = MeshPresets::CreateSphere(30.0f, 30, 50);
+	new_sphere.SetTranslation(Mat4x4::Translation(Vec3f(70.0f, 0.0f, 0.0f) + cubes_at));
+	new_sphere.SetTexture(planet_gpu_texture);
+	meshes.push_back(new_sphere);
 
-//	GPUMesh *gpu_sphere = Drawing.LoadMeshToGPU(sphere);
+//	Mesh ground = MeshPresets::CreateGround(1000.0f, 100);
+//	ground.SetTexture(nullptr);
+//	ground.UpdateColor({ 150, 0, 0, 255 });
+//	meshes.push_back(ground);
 
-	GPUMesh *ground = Drawing.LoadMeshToGPU(MeshPresets::CreateGround(1000.0f, 100));
-	ground->gpu_texture = character_gpu_texture;
-	gpu_shapes.push_back(ground);
+	for (Mesh& mesh : meshes)
+		Drawing.QueueUpdate(&mesh);
 
 	while (true)
 	{
@@ -268,85 +268,86 @@ int main()
 			auto elapsed_seconds = (double)(total_frame_duration) / 1e9;
 
 			// Ticking
+//			GameReference.GetCamera3D().LookAt(Vec3f(0, 0, 0));
 			if (GameReference.World())
 				GameReference.World()->Tick(elapsed_seconds);
 			Menus.Tick(elapsed_seconds);
 			Gamepads.TickLast();
 
 			{ // 3d stuff
-				Camera3D& camera = GameReference.GetCamera3D();
-
-				// move 3d camera controller
-				if (!Gamepads.GetGamepads().empty())
-				{
-					Gamepad *gamepad = Gamepads.GetGamepads().front();
-					Vec2f left_joystick = gamepad->GetJoystickLeft();
-					Vec2f right_joystick = gamepad->GetJoystickRight();
-					float triggers = gamepad->GetLeftTrigger() - gamepad->GetRightTrigger();
-
-					// Movement (using left stick)
-					float move_speed = 50.0f;
-					bool go_up = gamepad->GetButton(SDL_GAMEPAD_BUTTON_DPAD_UP);
-					bool go_down = gamepad->GetButton(SDL_GAMEPAD_BUTTON_DPAD_DOWN);
-					float forward = -left_joystick.y * move_speed * elapsed_seconds;
-					float strafe = left_joystick.x * move_speed * elapsed_seconds;
-					float vertical = static_cast<float>(-go_down + go_up) * move_speed * elapsed_seconds;
-					camera.MoveRelative(forward, strafe, vertical);
-
-					// Rotation (using right stick)
-					float look_sensitivity = 2.0f;
-					if (right_joystick.x != 0.0f || right_joystick.y != 0.0f || triggers != 0.0f)
-					{
-						float yaw = right_joystick.x * look_sensitivity * elapsed_seconds;
-						float pitch = right_joystick.y * look_sensitivity * elapsed_seconds;
-						float roll = triggers * look_sensitivity * elapsed_seconds;
-
-						// Get current local axes
-						Vec3f up_axis = camera.GetUp();
-						Vec3f right_axis = camera.GetRight();
-						Vec3f forward_axis = camera.GetLook();
-
-						// Create rotation quaternions around LOCAL axes
-						Quaternion yaw_rot = Quaternion::FromAxisAngle(up_axis, yaw);
-						Quaternion pitch_rot = Quaternion::FromAxisAngle(right_axis, pitch);
-						Quaternion roll_rot = Quaternion::FromAxisAngle(forward_axis, roll);
-
-						// Apply rotations: BOTH from the left
-						Quaternion current = camera.GetRotation();
-						Quaternion new_rotation = (roll_rot * pitch_rot * yaw_rot * current).Normalize();
-						camera.SetRotation(new_rotation);
-					}
-
-				}
+//				Camera3D& camera = GameReference.GetCamera3D();
+//
+//				// move 3d camera controller
+//				if (!Gamepads.GetGamepads().empty())
+//				{
+//					Gamepad *gamepad = Gamepads.GetGamepads().front();
+//					Vec2f left_joystick = gamepad->GetJoystickLeft();
+//					Vec2f right_joystick = gamepad->GetJoystickRight();
+//					float triggers = gamepad->GetLeftTrigger() - gamepad->GetRightTrigger();
+//
+//					// Movement (using left stick)
+//					float move_speed = 50.0f;
+//					bool go_up = gamepad->GetButton(SDL_GAMEPAD_BUTTON_DPAD_UP);
+//					bool go_down = gamepad->GetButton(SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+//					float forward = -left_joystick.y * move_speed * elapsed_seconds;
+//					float strafe = left_joystick.x * move_speed * elapsed_seconds;
+//					float vertical = static_cast<float>(-go_down + go_up) * move_speed * elapsed_seconds;
+//					camera.MoveRelative(forward, strafe, vertical);
+//
+//					// Rotation (using right stick)
+//					float look_sensitivity = 2.0f;
+//					if (right_joystick.x != 0.0f || right_joystick.y != 0.0f || triggers != 0.0f)
+//					{
+//						float yaw = right_joystick.x * look_sensitivity * elapsed_seconds;
+//						float pitch = right_joystick.y * look_sensitivity * elapsed_seconds;
+//						float roll = triggers * look_sensitivity * elapsed_seconds;
+//
+//						// Get current local axes
+//						Vec3f up_axis = camera.GetUp();
+//						Vec3f right_axis = camera.GetRight();
+//						Vec3f forward_axis = camera.GetLook();
+//
+//						// Create rotation quaternions around LOCAL axes
+//						Quaternion yaw_rot = Quaternion::FromAxisAngle(up_axis, yaw);
+//						Quaternion pitch_rot = Quaternion::FromAxisAngle(right_axis, pitch);
+//						Quaternion roll_rot = Quaternion::FromAxisAngle(forward_axis, roll);
+//
+//						// Apply rotations: BOTH from the left
+//						Quaternion current = camera.GetRotation();
+//						Quaternion new_rotation = (roll_rot * pitch_rot * yaw_rot * current).Normalize();
+//						camera.SetRotation(new_rotation);
+//					}
+//				}
 
 			}
 
-			Vec3f camera_position = GameReference.GetCamera3D().GetPosition();
-			ground->position = Vec3f(camera_position.x, 0, camera_position.z);
+//			Vec3f camera_position = GameReference.GetCamera3D().GetPosition();
+//			dbg_msg("")
+//			ground.translation = Mat4x4::Translation(Vec3f(camera_position.x, 0, camera_position.z));
 
 			if (Drawing.CreateCommandBuffer())
 			{
-				pre_render_event.Invoke();
-
 				// 3d
+				Drawing.UpdateGPU();
 				if (GameReference.World() && Drawing.BeginPass())
 				{
 					Drawing.SetPipeline3D();
 					Drawing.ShaderTick();
 					Drawing.SetViewportAndScissor();
 
-					for (GPUMesh *mesh : gpu_shapes)
+					for (Mesh& mesh : meshes)
 					{
-						if (!mesh->vertex_buffer || !mesh->indice_buffer)
+						if (!mesh.gpu_vertices || !mesh.gpu_indices)
 						{
 							SDL_Log("ERROR: Mesh has invalid buffers");
 							continue;
 						}
 
-						Mat4x4 model_matrix = Mat4x4::Translation(mesh->position); // todo: optimize
-						Drawing.ShaderParams(model_matrix, mesh->gpu_texture != nullptr);
-						Drawing.DrawTriangles(mesh->vertex_buffer, mesh->indice_buffer, mesh->indice_count, mesh->gpu_texture);
+						mesh.Draw();
 					}
+
+					if (GameReference.World())
+						GameReference.World()->Draw();
 
 					Drawing.EndPass();
 				}
@@ -358,17 +359,12 @@ int main()
 					Drawing.SetPipeline2D();
 					Drawing.ShaderTick2D();
 
-					if (GameReference.World())
-						GameReference.World()->Draw();
 					GameReference.GetInterface()->DrawBackground();
 
-					draw_vignette.Draw();
+					vignette.Draw();
 
 					Menus.Render();
 					GameReference.GetInterface()->DrawForeground();
-
-//					Drawing.SetPipeline2DT();
-//					Menus.RenderTransparent();
 
 					Drawing.EndPass();
 				}

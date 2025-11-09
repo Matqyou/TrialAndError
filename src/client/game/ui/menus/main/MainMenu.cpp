@@ -8,38 +8,35 @@
 #include "client/game/ui/CommonUI.h"
 #include "client/game/ui/menus/Menus.h"
 
-static LinkSound sElevatorMusic("intro");
+static LinkSound sElevatorMusic("music.intro");
 static LoadTexture sTexturePlay("ui.main.playbutton2", AssetsClass::TexturePurpose::GUI_ELEMENT);
 static LoadTexture sTextureTitle("ui.main.title2", AssetsClass::TexturePurpose::GUI_ELEMENT);
 static LoadTexture sTextureExit("ui.main.exit2", AssetsClass::TexturePurpose::GUI_ELEMENT);
 
-const Uint32 NUM_MAIN_MENU_QUADS = 1;
 MainMenu::MainMenu()
 	: FullscreenMenu(),
-	  render(Quad::NUM_VERTICES * NUM_MAIN_MENU_QUADS, Quad::NUM_INDICES * NUM_MAIN_MENU_QUADS),
-	  render_circles(Quad::NUM_VERTICES, Quad::NUM_INDICES)
+	  mesh(Quad::NUM_VERTICES, Quad::NUM_INDICES),
+	  mesh_circles(Quad::NUM_VERTICES, Quad::NUM_INDICES)
 {
+	mesh_circles.SetDrawAsCircles(true);
+
 	Dim2Rect background_rect(
 		Rect4f(0, 0, 0, 0),
 		Rect4f(0, 0, 1, 1)
 	);
-	background.Bind(render, background_rect, { 0, 0, 0, 255 });
+	background.Allocate(mesh);
+	background.UpdateRect(background_rect);
+	background.UpdateColor({ 0, 0, 0, 255 });
 
 	Dim2Rect circle_rect(
 		Rect4f(0, 0, 100, 100),
 		Rect4f(0, 0, 0, 0)
 	);
-	intro_circle.Bind(render_circles, circle_rect);
+	intro_circle.Allocate(mesh_circles);
+	intro_circle.UpdateRect(circle_rect);
 
-	Application.GetPreRenderEvent().Subscribe(
-		[this]()
-		{
-			render.UpdateGPU();
-			render.SetTexture(nullptr);
-
-			render_circles.UpdateGPU();
-			render_circles.SetDrawAsCircles(true);
-		});
+	Drawing.QueueUpdate(&mesh);
+	Drawing.QueueUpdate(&mesh_circles);
 
 	auto title = (new Element())
 		->SetSize(Vec2i(600, 300))
@@ -164,7 +161,7 @@ void MainMenu::PreRender()
 	intro_circle.UpdateRect(circle_rect);
 	intro_circle.UpdateColor({ circle_color, circle_color, circle_color, 255 });
 
-	render_circles.UpdateGPU(); // todo: batch gpu updates instead of doing this *sips tea* :3
+	Drawing.QueueUpdate(&mesh_circles);
 }
 
 void MainMenu::Render()
@@ -176,9 +173,9 @@ void MainMenu::Render()
 		return;
 	}
 
-	render.Draw();
+	mesh.Draw();
 
 	double duration = (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - opened_at).count();
 	if (duration < 15000) // shocking disappearance of the circle before cutscene ends
-		render_circles.Draw();
+		mesh_circles.Draw();
 }

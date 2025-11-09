@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include <shared/geometry/Rectangles.h>
+#include <SDL3_image/SDL_image.h>
 #include <SDL3/SDL.h>
-#include "SDL3_image/SDL_image.h"
-#include "shared/geometry/Rectangles.h"
 
 struct TextureInfo
 {
@@ -19,12 +19,12 @@ class Texture
 protected:
 	SDL_GPUTexture *gpu_texture;
 	const Vec2i texture_size;
-	bool flagged_for_automatic_deletion;
 
 	bool uses_hitbox; // if is VisualTexture subclass
 
 public:
-	explicit Texture(const Vec2i& size, SDL_GPUTexture *texture);
+	explicit Texture(const Vec2i& init_size, SDL_GPUTexture *init_gpu_texture);
+	bool Destroy();
 	virtual ~Texture();
 
 	// Getting
@@ -38,7 +38,6 @@ public:
 //	[[nodiscard]] Texture *CopyTexture(SDL_TextureAccess texture_access) const;
 
 	// Manipulating
-	Texture *FlagForAutomaticDeletion();
 //	Texture *SetBlendMode(SDL_BlendMode blend_mode);
 //	Texture *SetColorMod(Uint8 r, Uint8 g, Uint8 b);
 //	Texture *SetColorMod(SDL_Color color);

@@ -12,10 +12,10 @@ class Surface
 protected:
 	SDL_Surface *sdl_surface;
 	bool uses_hitbox;
-	bool flagged_for_automatic_deletion;
 
 public:
 	explicit Surface(SDL_Surface *surface);
+	bool Destroy();
 	virtual ~Surface();
 
 	// Getting
@@ -24,7 +24,4 @@ public:
 	[[nodiscard]] float GetWidth() const { return static_cast<float>(sdl_surface->w); }
 	[[nodiscard]] float GetHeight() const { return static_cast<float>(sdl_surface->h); }
 	[[nodiscard]] bool UsesHitbox() const { return uses_hitbox; }
-
-	Surface *FlagForAutomaticDeletion();
-
 };

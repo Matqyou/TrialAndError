@@ -13,12 +13,15 @@
 
 GameWorld::GameWorld(int width, int height)
 {
+
+
 //	m_PauseMenu = new PauseMenu();
 //	m_LevelUpMenu = nullptr;
 	m_Particles = new Particles(this); //
 	m_Tiles = new TileMap(32, width, height);
 	m_Width = static_cast<float>(m_Tiles->TotalWidth());
-	m_Height = static_cast<float>(m_Tiles->TotalHeight());
+	m_Height = 100.0f;
+	m_Depth = static_cast<float>(m_Tiles->TotalHeight());
 	m_ShowNamesVisibility = 0.0;
 	m_ShowNames = false;
 	m_Paused = false;
@@ -44,6 +47,11 @@ GameWorld::GameWorld(int width, int height)
 	m_Round = 0;
 	m_Score = 0;
 	m_ScoreText = new TextSurface(CommonUI::fontDefault, "Score: 0", { 150, 150, 0 });
+
+	ground_mesh = MeshPresets::CreateGround(1, 100);
+	ground_mesh.SetTranslation(Mat4x4::Translation(Vec3f(m_Width / 2.0f, 0.0f, m_Depth / 2.0f)) * Mat4x4::Scale(Vec3f(m_Width, 1.0f, m_Depth)));
+	ground_mesh.UpdateColor({ 150, 0, 0, 255 });
+	Drawing.QueueUpdate(&ground_mesh);
 }
 
 GameWorld::~GameWorld()
@@ -51,8 +59,6 @@ GameWorld::~GameWorld()
 	delete m_Tiles;
 	delete m_Particles;
 
-//	for (auto player : players)
-//		delete player;
 	for (auto entity : entities)
 		delete entity;
 	entities.clear();
@@ -257,55 +263,71 @@ void GameWorld::TickCamera(double elapsed_seconds)
 	if (entities_by_types[ENTITY_CHARACTER].empty())
 		return;
 
-	bool FirstIteration = true;
-	float minX, maxX, minY, maxY;
-
 	for (Entity *entity : entities_by_types[ENTITY_CHARACTER])
 	{
 		auto character = (Character *)entity;
-		if (character->IsNPC())
-			if (!character->GetCurrentWeapon())
-				continue;
+		if (character->IsNPC()) continue;
 
-		EntityCore& entity_core = character->GetCore();
-		if (FirstIteration)
-		{
-			FirstIteration = false;
-			minX = entity_core.pos.x;
-			maxX = entity_core.pos.x;
-			minY = entity_core.pos.y;
-			maxY = entity_core.pos.y;
-		}
-		else
-		{
-			if (entity_core.pos.x < minX)
-				minX = entity_core.pos.x;
-			if (entity_core.pos.x > maxX)
-				maxX = entity_core.pos.x;
-			if (entity_core.pos.y < minY)
-				minY = entity_core.pos.y;
-			if (entity_core.pos.y > maxY)
-				maxY = entity_core.pos.y;
-		}
+		Camera3D& camera = GameReference.GetCamera3D();
+		Vec3f camera_pos = camera.GetPosition();
+		Vec3f new_camera_pos = character->GetCore().pos - (character->GetCore().vel).NormalizeF() * 50.0f + character->GetDirectionalCore().orientation.GetUp() * 50.0f;
+		Vec3f delta = new_camera_pos - camera_pos;
+
+		camera.SetPosition(camera_pos + delta * 0.1f);
+		camera.SetRotation(Quaternion::FromDirection(character->GetCore().pos - camera.GetPosition()));
+
+		break;
 	}
 
-	if (!FirstIteration)
-	{
-		float CameraX = ((float)maxX + (float)minX) / 2.0f;
-		float CameraY = ((float)maxY + (float)minY) / 2.0f;
-		float ZoomX = static_cast<float>(Application.GetWidth()) / (maxX - minX + 600);
-		float ZoomY = static_cast<float>(Application.GetHeight()) / (maxY - minY + 600);
-		float zoom = std::min(ZoomX, ZoomY);
-
-		auto& camera = GameReference.GetCamera();
-		auto old_camera_pos = camera.GetPos();
-		auto new_camera_pos = Vec2f(old_camera_pos.x + 0.1f * (CameraX - old_camera_pos.x),
-									old_camera_pos.y + 0.1f * (CameraY - old_camera_pos.y));
-		camera.SetPos(new_camera_pos);
-
-		float old_camera_zoom = camera.GetZoom();
-		camera.SetZoom(old_camera_zoom + 0.1f * (zoom - old_camera_zoom));
-	}
+//	if (entities_by_types[ENTITY_CHARACTER].empty())
+//		return;
+//
+//	bool FirstIteration = true;
+//	float min_x, max_x, min_z, max_z;
+//	for (Entity *entity : entities_by_types[ENTITY_CHARACTER])
+//	{
+//		auto character = (Character *)entity;
+//		if (character->IsNPC())
+//			if (!character->GetCurrentWeapon())
+//				continue;
+//
+//		EntityCore& entity_core = character->GetCore();
+//		if (FirstIteration)
+//		{
+//			FirstIteration = false;
+//			min_x = entity_core.pos.x;
+//			max_x = entity_core.pos.x;
+//			min_z = entity_core.pos.z;
+//			max_z = entity_core.pos.z;
+//		}
+//		else
+//		{
+//			if (entity_core.pos.x < min_x)
+//				min_x = entity_core.pos.x;
+//			if (entity_core.pos.x > max_x)
+//				max_x = entity_core.pos.x;
+//			if (entity_core.pos.z < min_z)
+//				min_z = entity_core.pos.z;
+//			if (entity_core.pos.z > max_z)
+//				max_z = entity_core.pos.z;
+//		}
+//	}
+//
+//	if (!FirstIteration)
+//	{
+//		float camera_x = ((float)max_x + (float)min_x) / 2.0f;
+//		float camera_z = ((float)max_z + (float)min_z) / 2.0f;
+//
+//		Camera3D& camera = GameReference.GetCamera3D();
+//		Vec3f old_camera_pos = camera.GetPosition();
+//		Vec3f new_camera_pos = Vec3f(
+//			old_camera_pos.x + 0.1f * (camera_x - old_camera_pos.x),
+//			100.f,
+//			old_camera_pos.z + 0.1f * (camera_z - old_camera_pos.z)
+//		);
+//		camera.SetPosition(new_camera_pos);
+//		camera.SetRotation(Quaternion::FromDirection((Vec3f(camera_x, 0, camera_z) - camera.GetPosition())));
+//	}
 }
 
 void GameWorld::TickSpawner(double elapsed_seconds)
@@ -496,19 +518,20 @@ void GameWorld::Draw()
 //			}
 //		}
 //	}
-//	// Stop drawing when the game has been triggered as over
-//	if (!m_GameOver)
-//	{
+	// Stop drawing when the game has been triggered as over
+	if (!m_GameOver)
+	{
 //		SDL_FRect DrawRect = { 0, 0, m_Width, m_Height };
 //		drawing->SetColor(100, 100, 100, 255);
 //		drawing->DrawRect(DrawRect, false, GameReference.GetCamera());
-//
-//		m_Particles->Draw();
-//		for (auto& entities_by_type : entities_by_types)
-//			for (Entity *entity : entities_by_type)
-//				entity->Draw();
-////		m_Tiles->Draw();
-//	}
+
+		ground_mesh.Draw();
+		m_Particles->Draw();
+		for (auto& entities_by_type : entities_by_types)
+			for (Entity *entity : entities_by_type)
+				entity->Draw();
+//		m_Tiles->Draw();
+	}
 //
 //	// Draw the score value
 //	Texture *ScoreTexture = m_ScoreText->RequestUpdate();

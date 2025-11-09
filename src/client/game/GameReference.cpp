@@ -200,7 +200,7 @@ void GameData::InitializeInfinite()
 	auto new_character = new Character(
 		GameReference.GetPlayerFromID(0),
 		100.0,
-		Vec3f(100.0f, 100.0f, 100.0f),
+		Vec3f(100.0f, 0.0f, 100.0f),
 		Vec3f(0, 0, 0),
 		false
 	);

@@ -7,28 +7,29 @@
 #include "client/core/Assets.h"
 #include "Texture.h"
 
-//#define CHECK_SDL_TEXTURE(sdl_texture, message) \
-//    if ((sdl_texture) == nullptr) { \
-//        std::cout << Strings::FStringColors("[Texture] &c" message "\n"); \
-//        return this; \
-//    }
-
-Texture::Texture(const Vec2i& size, SDL_GPUTexture *texture)
-	: texture_size(size)
+Texture::Texture(const Vec2i& init_size, SDL_GPUTexture *init_gpu_texture)
+	: texture_size(init_size)
 {
-	this->gpu_texture = texture;
-	this->flagged_for_automatic_deletion = false;
-	this->uses_hitbox = false;
+	gpu_texture = init_gpu_texture;
+	uses_hitbox = false;
+
+	Assets.NewTexture(this);
+}
+
+bool Texture::Destroy()
+{
+	Assets.RemoveTexture(this);
+	bool destroy = (gpu_texture != nullptr);
+
+	SDL_ReleaseGPUTexture(Drawing.Device(), gpu_texture);
+	gpu_texture = nullptr;
+
+	return destroy;
 }
 
 Texture::~Texture()
 {
-	if (gpu_texture != nullptr)
-	{
-		SDL_ReleaseGPUTexture(Drawing.Device(), gpu_texture);
-//		SDL_DestroyTexture(gpu_texture);
-		gpu_texture = nullptr;
-	}
+	Destroy();
 }
 
 //Texture *Texture::CopyTexture(SDL_TextureAccess texture_access) const
@@ -42,16 +43,6 @@ Texture::~Texture()
 //	new_texture->gpu_texture = Assets.CopySDLTexture(gpu_texture, texture_access);
 //	return new_texture;
 //}
-
-Texture *Texture::FlagForAutomaticDeletion()
-{
-	if (!flagged_for_automatic_deletion)
-	{
-		flagged_for_automatic_deletion = true;
-		AssetsClass::AutomaticallyDeleteTexture(this);
-	}
-	return this;
-}
 
 //Texture *Texture::SetSDLTexture(SDL_Texture *new_gpu_texture)
 //{

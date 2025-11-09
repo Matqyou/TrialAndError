@@ -102,8 +102,8 @@ void CharacterNPC::TickControls()
 	{
 		EntityCore& ClosestCore = ClosestChar->GetCore();
 		Vec3f travel_direction = (ClosestCore.pos - core.pos).NormalizeF();
-		input.going_direction = travel_direction * (current_weapon ? 1.0f : 0.5f);
-		input.looking_direction = travel_direction;
+		input.going_direction = Vec2f(0, 1) * (current_weapon ? 1.0f : 0.5f);
+		input.looking_orientation = Quaternion::FromDirection(travel_direction);
 
 		input.reloading = false;
 
@@ -116,7 +116,7 @@ void CharacterNPC::TickControls()
 		else
 		{
 			if (Closest <= 300.0)
-				input.going_direction = Vec3f(0.0f, 0.0f, 0.0f);
+				input.going_direction = Vec2f(0, 0);
 
 			if (!current_weapon->GetMagAmmo())
 			{

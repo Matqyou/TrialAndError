@@ -43,220 +43,6 @@ SDL_GPUShader *LoadShader(SDL_GPUDevice *device, const char *filepath, SDL_GPUSh
 	return shader;
 }
 
-SDL_GPUVertexAttribute GPUVertex::vertex_attributes[] = {
-	{ .location = 0, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, .offset = 0 },  // position
-	{ .location = 1, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, .offset = sizeof(float) * 3 }, // normal
-	{ .location = 2, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, .offset = sizeof(float) * 6 }, // UV
-	{ .location = 3, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM, .offset = sizeof(float) * 8 } // color
-};
-
-SDL_GPUVertexAttribute GPUVertex2D::vertex_attributes[] = {
-	{ .location = 0, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, .offset = 0 }, // position: 2 float - 8
-	{ .location = 1, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, .offset = 8 },  // screen_position: 2 float - 8
-	{ .location = 2, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, .offset = 16 }, // uv: 2 float - 8
-	{ .location = 3, .buffer_slot = 0, .format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM, .offset = 24 } // color: 4 byte - 4
-};
-
-const Uint32 Quad::NUM_VERTICES = 4;
-const Uint32 Quad::NUM_INDICES = 6;
-
-Quad::Quad()
-{
-	vertices = nullptr;
-	indices = nullptr;
-}
-
-Quad::Quad(GPUVertex2D *vertices_address, uint32_t *indices_address, const Dim2Rect& start_rect, const SDL_Color& start_color)
-{
-	Bind(vertices_address, indices_address, start_rect, start_color);
-}
-
-Quad::Quad(DrawCall& draw_command, const Dim2Rect& start_rect, const SDL_Color& start_color)
-{
-	Bind(draw_command, start_rect, start_color);
-}
-
-void Quad::Bind(GPUVertex2D *vertices_address, uint32_t *indices_address, const Dim2Rect& start_rect, const SDL_Color& start_color)
-{
-	vertices = vertices_address;
-	indices = indices_address;
-
-	//
-	indices[0] = 0;
-	indices[1] = 1;
-	indices[2] = 2;
-	indices[3] = 2;
-	indices[4] = 1;
-	indices[5] = 3;
-
-	UpdateRect(start_rect);
-	UpdateColor(start_color);
-}
-
-void Quad::Bind(DrawCall& draw_command, const Dim2Rect& start_rect, const SDL_Color& start_color)
-{
-	GPUVertex2D *vertices_address = &draw_command.Vertices()[draw_command.current_vertices_offset];
-	uint32_t *indices_address = &draw_command.Indices()[draw_command.current_indices_offset];
-	draw_command.current_vertices_offset += 4;
-	draw_command.current_indices_offset += 6;
-
-	Bind(vertices_address, indices_address, start_rect, start_color);
-}
-
-void Quad::UpdateRect(const Dim2Rect& new_rect)
-{
-	if (!vertices || !indices)
-		throw std::runtime_error("Quad::UpdateRect() Missing vertices or indices");
-
-	float x2 = new_rect.relative.x + new_rect.relative.w;
-	float y2 = new_rect.relative.y + new_rect.relative.h;
-	float sx2 = new_rect.scaled.x + new_rect.scaled.w;
-	float sy2 = new_rect.scaled.y + new_rect.scaled.h;
-
-	vertices[0].x = new_rect.relative.x;
-	vertices[0].y = new_rect.relative.y;
-	vertices[0].sx = new_rect.scaled.x;
-	vertices[0].sy = new_rect.scaled.y;
-	vertices[0].u = 0;
-	vertices[0].v = 0;
-
-	vertices[1].x = x2;
-	vertices[1].y = new_rect.relative.y;
-	vertices[1].sx = sx2;
-	vertices[1].sy = new_rect.scaled.y;
-	vertices[1].u = 1;
-	vertices[1].v = 0;
-
-	vertices[2].x = new_rect.relative.x;
-	vertices[2].y = y2;
-	vertices[2].sx = new_rect.scaled.x;
-	vertices[2].sy = sy2;
-	vertices[2].u = 0;
-	vertices[2].v = 1;
-
-	vertices[3].x = x2;
-	vertices[3].y = y2;
-	vertices[3].sx = sx2;
-	vertices[3].sy = sy2;
-	vertices[3].u = 1;
-	vertices[3].v = 1;
-}
-
-void Quad::UpdateColor(const SDL_Color& new_color)
-{
-	for (int i = 0; i < Quad::NUM_VERTICES; i++)
-		vertices[i].color = new_color;
-}
-
-DrawCall::DrawCall(Uint32 init_num_vertices, Uint32 init_num_indices, SDL_GPUTexture *init_texture)
-{
-	vertices = new GPUVertex2D[init_num_vertices];
-	num_vertices = init_num_vertices;
-	indices = new uint32_t[init_num_indices];
-	num_indices = init_num_indices;
-
-	gpu_vertices = nullptr;
-	size_vertices = num_vertices * sizeof(GPUVertex2D);
-	gpu_indices = nullptr;
-	size_indices = num_indices * sizeof(uint32_t);
-
-	texture = init_texture;
-	draw_as_circles = false;
-
-	translation = Vec2f(0, 0);
-	rotation = 0;
-
-	current_vertices_offset = 0;
-	current_indices_offset = 0;
-}
-
-DrawCall::~DrawCall()
-{
-	delete vertices;
-	delete indices;
-
-	// should destroy before shutting down
-	if (gpu_vertices)
-		SDL_ReleaseGPUBuffer(Drawing.Device(), gpu_vertices);
-	if (gpu_indices)
-		SDL_ReleaseGPUBuffer(Drawing.Device(), gpu_indices);
-
-	vertices = nullptr;
-	indices = nullptr;
-	gpu_vertices = nullptr;
-	gpu_indices = nullptr;
-}
-
-void DrawCall::UpdateGPU()
-{
-	if (!gpu_vertices)
-	{
-		SDL_GPUBufferCreateInfo vertices_info = {
-			.usage = SDL_GPU_BUFFERUSAGE_VERTEX,
-			.size = size_vertices
-		};
-		gpu_vertices = SDL_CreateGPUBuffer(Drawing.Device(), &vertices_info);
-	}
-	if (!gpu_indices)
-	{
-		SDL_GPUBufferCreateInfo indices_info = {
-			.usage = SDL_GPU_BUFFERUSAGE_INDEX,
-			.size = size_indices
-		};
-		gpu_indices = SDL_CreateGPUBuffer(Drawing.Device(), &indices_info);
-	}
-
-	SDL_GPUTransferBufferCreateInfo transfer_info = {
-		.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-		.size = size_vertices + size_indices
-	};
-	SDL_GPUTransferBuffer *transfer_buffer = SDL_CreateGPUTransferBuffer(Drawing.Device(), &transfer_info);
-	void *mapped = SDL_MapGPUTransferBuffer(Drawing.Device(), transfer_buffer, false);
-	memcpy(mapped, vertices, size_vertices);
-	memcpy((char *)mapped + size_vertices, indices, size_indices);
-	SDL_UnmapGPUTransferBuffer(Drawing.Device(), transfer_buffer);
-
-//	SDL_GPUCommandBuffer *cmd = Drawing.CommandBuffer();
-	SDL_GPUCommandBuffer *upload_cmd = SDL_AcquireGPUCommandBuffer(Drawing.Device());
-	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(upload_cmd);
-
-	// Upload vertices
-	SDL_GPUTransferBufferLocation vert_src = {
-		.transfer_buffer = transfer_buffer,
-		.offset = 0
-	};
-	SDL_GPUBufferRegion vert_dst = {
-		.buffer = gpu_vertices,
-		.offset = 0,
-		.size = size_vertices
-	};
-	SDL_UploadToGPUBuffer(copy_pass, &vert_src, &vert_dst, false);
-
-	// Upload indices
-	SDL_GPUTransferBufferLocation idx_src = {
-		.transfer_buffer = transfer_buffer,
-		.offset = size_vertices
-	};
-	SDL_GPUBufferRegion idx_dst = {
-		.buffer = gpu_indices,
-		.offset = 0,
-		.size = size_indices
-	};
-	SDL_UploadToGPUBuffer(copy_pass, &idx_src, &idx_dst, false);
-
-	SDL_EndGPUCopyPass(copy_pass);
-	SDL_SubmitGPUCommandBuffer(upload_cmd);
-	SDL_WaitForGPUIdle(Drawing.Device());  // Wait before rendering uses these buffers
-
-	SDL_ReleaseGPUTransferBuffer(Drawing.Device(), transfer_buffer);
-}
-
-void DrawCall::Draw()
-{
-	Drawing.ShaderParams2D(translation, rotation, texture != nullptr, draw_as_circles);
-	Drawing.DrawTriangles(gpu_vertices, gpu_indices, num_indices, texture);
-}
-
 DrawingClass::DrawingClass()
 {
 	window = nullptr;
@@ -278,11 +64,6 @@ DrawingClass::DrawingClass()
 	pipeline_2d = nullptr;
 
 	status = Status::UNINITIALIZED;
-}
-
-DrawingClass::~DrawingClass()
-{
-	Destroy();
 }
 
 void DrawingClass::Initialize(SDL_Window *drawing_window)
@@ -425,16 +206,16 @@ void DrawingClass::Initialize(SDL_Window *drawing_window)
 
 	{
 		// depth texture info
-		SDL_GPUTextureCreateInfo depth_texture_info = {
-			.type = SDL_GPU_TEXTURETYPE_2D,
-			.format = SDL_GPU_TEXTUREFORMAT_D16_UNORM,
-			.usage = SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET,
-			.width = static_cast<Uint32>(window_resolution.x),
-			.height = static_cast<Uint32>(window_resolution.y),
-			.layer_count_or_depth = 1,
-			.num_levels = 1
-		};
-		depth_texture_2d = SDL_CreateGPUTexture(gpu_device, &depth_texture_info);
+//		SDL_GPUTextureCreateInfo depth_texture_info = {
+//			.type = SDL_GPU_TEXTURETYPE_2D,
+//			.format = SDL_GPU_TEXTUREFORMAT_D16_UNORM,
+//			.usage = SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET,
+//			.width = static_cast<Uint32>(window_resolution.x),
+//			.height = static_cast<Uint32>(window_resolution.y),
+//			.layer_count_or_depth = 1,
+//			.num_levels = 1
+//		};
+//		depth_texture_2d = SDL_CreateGPUTexture(gpu_device, &depth_texture_info);
 
 		// shaders
 		SDL_GPUShaderCreateInfo vertex_shader_info = {
@@ -509,8 +290,8 @@ void DrawingClass::Initialize(SDL_Window *drawing_window)
 			},
 			.depth_stencil_state = {
 				.compare_op = SDL_GPU_COMPAREOP_LESS,   //
-				.enable_depth_test = false,              //
-				.enable_depth_write = false,             //
+				.enable_depth_test = false,             //
+				.enable_depth_write = false,            //
 			},
 			.target_info = {
 				.color_target_descriptions = &color_target_2d,
@@ -526,6 +307,8 @@ void DrawingClass::Initialize(SDL_Window *drawing_window)
 			throw std::runtime_error("Pipeline creation failed");
 		}
 	}
+
+	status = Status::INITIALIZED;
 }
 
 void DrawingClass::Destroy()
@@ -533,29 +316,40 @@ void DrawingClass::Destroy()
 	if (status == Status::UNINITIALIZED)
 		return;
 
+	SDL_WaitForGPUIdle(gpu_device);
+	shut_down_event.Invoke();
+
 	// Release textures
 	SDL_ReleaseGPUTexture(gpu_device, depth_texture);
-	for (SDL_GPUTexture *gpu_texture : gpu_textures)
-		SDL_ReleaseGPUTexture(gpu_device, gpu_texture);
-	gpu_textures.clear();
-	for (GPUMesh *gpu_mesh : gpu_meshes)
-	{
-		SDL_ReleaseGPUBuffer(gpu_device, gpu_mesh->vertex_buffer);
-		SDL_ReleaseGPUBuffer(gpu_device, gpu_mesh->indice_buffer);
-	}
-	gpu_meshes.clear();
+//	auto it = cleanup_textures_shutdown.begin();
+//	while (it != cleanup_textures_shutdown.end()) {
+//		Texture *texture = *it;
+//		it = cleanup_textures_shutdown.erase(it);
+//		texture->Destroy();
+//	}
+//	cleanup_textures_shutdown.clear();
+//	for (GPUMesh *gpu_mesh : gpu_meshes)
+//	{
+//		SDL_ReleaseGPUBuffer(gpu_device, gpu_mesh->vertex_buffer);
+//		SDL_ReleaseGPUBuffer(gpu_device, gpu_mesh->indice_buffer);
+//	}
+//	gpu_meshes.clear();
 
 	SDL_ReleaseGPUShader(gpu_device, vertex_shader);
 	SDL_ReleaseGPUShader(gpu_device, fragment_shader);
 	SDL_ReleaseGPUSampler(gpu_device, sampler);
 	SDL_ReleaseGPUGraphicsPipeline(gpu_device, pipeline);
-	SDL_DestroyGPUDevice(gpu_device);
-
 
 	// 2d
 	SDL_ReleaseGPUShader(gpu_device, vertex_shader_2d);
 	SDL_ReleaseGPUShader(gpu_device, fragment_shader_2d);
 	SDL_ReleaseGPUGraphicsPipeline(gpu_device, pipeline_2d);
+
+	if (window)
+		SDL_ReleaseWindowFromGPUDevice(gpu_device, window);
+
+	SDL_WaitForGPUIdle(gpu_device);
+	SDL_DestroyGPUDevice(gpu_device);
 
 	window = nullptr;
 	gpu_device = nullptr;
@@ -571,6 +365,36 @@ void DrawingClass::Destroy()
 	pipeline_2d = nullptr;
 
 	status = Status::UNINITIALIZED;
+}
+
+DrawingClass::~DrawingClass()
+{
+	Destroy();
+}
+
+void DrawingClass::QueueUpdate(Mesh *update_mesh)
+{
+	mesh_updates.AddUpdate(update_mesh);
+}
+
+void DrawingClass::QueueUpdate(Mesh2D *update_mesh_2d)
+{
+	mesh_updates.AddUpdate(update_mesh_2d);
+}
+
+void DrawingClass::CancelUpdate(Mesh *cancel_update_mesh)
+{
+	mesh_updates.CancelUpdate(cancel_update_mesh);
+}
+
+void DrawingClass::CancelUpdate(Mesh2D *cancel_update_mesh_2d)
+{
+	mesh_updates.CancelUpdate(cancel_update_mesh_2d);
+}
+
+void DrawingClass::UpdateGPU()
+{
+	mesh_updates.UpdateGPU();
 }
 
 void DrawingClass::DrawFilledRect(const Dim2Rect& rect, const SDL_Color& sdl_color)
@@ -655,7 +479,7 @@ bool DrawingClass::BeginPass()
 {
 	SDL_GPUColorTargetInfo color_target = {
 		.texture = swapchain,
-		.clear_color = (SDL_FColor){ 0.5f, 0.0f, 0.5f, 1.0f },
+		.clear_color = (SDL_FColor){ 0, 0, 0, 1.0f },
 		.load_op = SDL_GPU_LOADOP_CLEAR,
 //			.clear_color = (SDL_FColor){ 1.0f, 0.0f, 1.0f, 1.0f },
 //			.load_op = SDL_GPU_LOADOP_LOAD,
@@ -796,192 +620,111 @@ void DrawingClass::EndCommandBuffer()
 	SDL_SubmitGPUCommandBuffer(cmd);
 }
 
-SDL_GPUTexture *DrawingClass::LoadTextureToGPU(SDL_Texture *sdl_texture)
-{
-	// From SDL2 SDL_Texture (old renderer):
-	void *pixels;
-	int pitch;
-	SDL_LockTexture(sdl_texture, nullptr, &pixels, &pitch);
-
-	// Get texture info
-	Vec2f texture_size;
-	SDL_GetTextureSize(sdl_texture, &texture_size.x, &texture_size.y);
-	int width = (int)texture_size.x;
-	int height = (int)texture_size.y;
-
-	// Create GPU texture
-	SDL_GPUTextureCreateInfo texture_info = {
-		.type = SDL_GPU_TEXTURETYPE_2D,
-		.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,
-		.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER,
-		.width = (Uint32)width,
-		.height = (Uint32)height,
-		.layer_count_or_depth = 1,
-		.num_levels = 1
-	};
-	SDL_GPUTexture *gpu_texture = SDL_CreateGPUTexture(gpu_device, &texture_info);
-
-	// Create transfer buffer
-	Uint32 data_size = width * height * 4;  // RGBA = 4 bytes per pixel
-	SDL_GPUTransferBufferCreateInfo transfer_info = {
-		.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-		.size = data_size
-	};
-	SDL_GPUTransferBuffer *transfer = SDL_CreateGPUTransferBuffer(gpu_device, &transfer_info);
-
-	// Copy pixels to transfer buffer
-	void *mapped = SDL_MapGPUTransferBuffer(gpu_device, transfer, false);
-	if (pitch == width * 4)
-	{
-		// Simple case: no padding, direct copy
-		memcpy(mapped, pixels, data_size);
-	}
-	else
-	{
-		// Pitch != width case: copy row by row (skip padding)
-		for (int y = 0; y < height; y++)
-		{
-			memcpy(
-				(char *)mapped + (y * width * 4),           // destination
-				(char *)pixels + (y * pitch),                // source
-				width * 4                                   // bytes per row
-			);
-		}
-	}
-	SDL_UnmapGPUTransferBuffer(gpu_device, transfer);
-
-	// Upload to GPU
-	SDL_GPUCommandBuffer *upload_cmd = SDL_AcquireGPUCommandBuffer(gpu_device);
-	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(upload_cmd);
-
-	SDL_GPUTextureTransferInfo src = {
-		.transfer_buffer = transfer,
-		.offset = 0
-	};
-	SDL_GPUTextureRegion dst = {
-		.texture = gpu_texture,
-		.w = (Uint32)width,
-		.h = (Uint32)height,
-		.d = 1
-	};
-	SDL_UploadToGPUTexture(copy_pass, &src, &dst, false);
-
-	SDL_EndGPUCopyPass(copy_pass);
-	SDL_SubmitGPUCommandBuffer(upload_cmd);
-
-	// Cleanup
-	SDL_UnlockTexture(sdl_texture);
-	SDL_ReleaseGPUTransferBuffer(gpu_device, transfer);
-
-	gpu_textures.push_back(gpu_texture);
-	return gpu_texture;
-}
-
-GPUMesh *DrawingClass::LoadMeshToGPU(const Mesh& mesh)
-{
-	auto& vertices = mesh.vertices;
-	auto& indices = mesh.indices;
-	auto& normals = mesh.face_normals;
-	auto& uvs = mesh.uvs;
-
-	std::vector<GPUVertex> gpu_vertices;
-	gpu_vertices.reserve(vertices.size());
-
-	for (size_t i = 0; i < vertices.size(); i++)
-		gpu_vertices.push_back(
-			{
-				.x = vertices[i].x,
-				.y = vertices[i].y,
-				.z = vertices[i].z,
-				.nx = normals[i].x,
-				.ny = normals[i].y,
-				.nz = normals[i].z,
-				.u = uvs[i].x,
-				.v = uvs[i].y,
-				.color = {
-					.r = 255,
-					.g = 255,
-					.b = 255,
-					.a = 255
-				}
-			}
-		);
-
-	// Convert indices to uint32_t
-	std::vector<uint32_t> gpu_indices(indices.begin(), indices.end());
-
-	// 2. Create vertex buffer
-	SDL_GPUBufferCreateInfo vertex_buffer_info = {
-		.usage = SDL_GPU_BUFFERUSAGE_VERTEX,
-		.size = (Uint32)(gpu_vertices.size() * sizeof(GPUVertex))
-	};
-	SDL_GPUBuffer *vertex_buffer = SDL_CreateGPUBuffer(gpu_device, &vertex_buffer_info);
-
-	// 3. Create index buffer
-	SDL_GPUBufferCreateInfo index_buffer_info = {
-		.usage = SDL_GPU_BUFFERUSAGE_INDEX,
-		.size = (Uint32)(gpu_indices.size() * sizeof(uint32_t))
-	};
-	SDL_GPUBuffer *index_buffer = SDL_CreateGPUBuffer(gpu_device, &index_buffer_info);
-
-	// 4. Create transfer buffer (big enough for both)
-	Uint32 total_size = vertex_buffer_info.size + index_buffer_info.size;
-	SDL_GPUTransferBufferCreateInfo transfer_info = {
-		.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-		.size = total_size
-	};
-	SDL_GPUTransferBuffer *transfer = SDL_CreateGPUTransferBuffer(gpu_device, &transfer_info);
-
-	// 5. Map and copy data
-	void *mapped = SDL_MapGPUTransferBuffer(gpu_device, transfer, false);
-	memcpy(mapped, gpu_vertices.data(), vertex_buffer_info.size);
-	memcpy((char *)mapped + vertex_buffer_info.size, gpu_indices.data(), index_buffer_info.size);
-	SDL_UnmapGPUTransferBuffer(gpu_device, transfer);
-
-	// 6. Upload to GPU
-	SDL_GPUCommandBuffer *upload_cmd = SDL_AcquireGPUCommandBuffer(gpu_device);
-	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(upload_cmd);
-
-	// Upload vertices
-	SDL_GPUTransferBufferLocation vert_src = {
-		.transfer_buffer = transfer,
-		.offset = 0
-	};
-	SDL_GPUBufferRegion vert_dst = {
-		.buffer = vertex_buffer,
-		.offset = 0,
-		.size = vertex_buffer_info.size
-	};
-	SDL_UploadToGPUBuffer(copy_pass, &vert_src, &vert_dst, false);
-
-	// Upload indices
-	SDL_GPUTransferBufferLocation idx_src = {
-		.transfer_buffer = transfer,
-		.offset = vertex_buffer_info.size
-	};
-	SDL_GPUBufferRegion idx_dst = {
-		.buffer = index_buffer,
-		.offset = 0,
-		.size = index_buffer_info.size
-	};
-	SDL_UploadToGPUBuffer(copy_pass, &idx_src, &idx_dst, false);
-
-	SDL_EndGPUCopyPass(copy_pass);
-	SDL_SubmitGPUCommandBuffer(upload_cmd);
-
-	// 7. Cleanup transfer buffer
-	SDL_ReleaseGPUTransferBuffer(gpu_device, transfer);
-
-	auto *new_gpu_mesh = new GPUMesh();
-	new_gpu_mesh->vertex_buffer = vertex_buffer;
-	new_gpu_mesh->indice_buffer = index_buffer;
-	new_gpu_mesh->indice_count = (uint32_t)gpu_indices.size();
-	new_gpu_mesh->gpu_texture = mesh.gpu_texture;
-	new_gpu_mesh->position = mesh.position;
-
-	gpu_meshes.push_back(new_gpu_mesh);
-	return new_gpu_mesh;
-}
+//GPUMesh *DrawingClass::LoadMeshToGPU(const Mesh& mesh)
+//{
+//	auto& vertices = mesh.vertices;
+//	auto& indices = mesh.indices;
+//	auto& normals = mesh.face_normals;
+//	auto& uvs = mesh.uvs;
+//
+//	std::vector<GPUVertex> gpu_vertices;
+//	gpu_vertices.reserve(vertices.size());
+//
+//	for (size_t i = 0; i < vertices.size(); i++)
+//		gpu_vertices.push_back(
+//			{
+//				.x = vertices[i].x,
+//				.y = vertices[i].y,
+//				.z = vertices[i].z,
+//				.nx = normals[i].x,
+//				.ny = normals[i].y,
+//				.nz = normals[i].z,
+//				.u = uvs[i].x,
+//				.v = uvs[i].y,
+//				.color = {
+//					.r = 255,
+//					.g = 255,
+//					.b = 255,
+//					.a = 255
+//				}
+//			}
+//		);
+//
+//	// Convert indices to uint32_t
+//	std::vector<uint32_t> gpu_indices(indices.begin(), indices.end());
+//
+//	// 2. Create vertex buffer
+//	SDL_GPUBufferCreateInfo vertex_buffer_info = {
+//		.usage = SDL_GPU_BUFFERUSAGE_VERTEX,
+//		.size = (Uint32)(gpu_vertices.size() * sizeof(GPUVertex))
+//	};
+//	SDL_GPUBuffer *vertex_buffer = SDL_CreateGPUBuffer(gpu_device, &vertex_buffer_info);
+//
+//	// 3. Create index buffer
+//	SDL_GPUBufferCreateInfo index_buffer_info = {
+//		.usage = SDL_GPU_BUFFERUSAGE_INDEX,
+//		.size = (Uint32)(gpu_indices.size() * sizeof(uint32_t))
+//	};
+//	SDL_GPUBuffer *index_buffer = SDL_CreateGPUBuffer(gpu_device, &index_buffer_info);
+//
+//	// 4. Create transfer buffer (big enough for both)
+//	Uint32 total_size = vertex_buffer_info.size + index_buffer_info.size;
+//	SDL_GPUTransferBufferCreateInfo transfer_info = {
+//		.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+//		.size = total_size
+//	};
+//	SDL_GPUTransferBuffer *transfer = SDL_CreateGPUTransferBuffer(gpu_device, &transfer_info);
+//
+//	// 5. Map and copy data
+//	void *mapped = SDL_MapGPUTransferBuffer(gpu_device, transfer, false);
+//	memcpy(mapped, gpu_vertices.data(), vertex_buffer_info.size);
+//	memcpy((char *)mapped + vertex_buffer_info.size, gpu_indices.data(), index_buffer_info.size);
+//	SDL_UnmapGPUTransferBuffer(gpu_device, transfer);
+//
+//	// 6. Upload to GPU
+//	SDL_GPUCommandBuffer *upload_cmd = SDL_AcquireGPUCommandBuffer(gpu_device);
+//	SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(upload_cmd);
+//
+//	// Upload vertices
+//	SDL_GPUTransferBufferLocation vert_src = {
+//		.transfer_buffer = transfer,
+//		.offset = 0
+//	};
+//	SDL_GPUBufferRegion vert_dst = {
+//		.buffer = vertex_buffer,
+//		.offset = 0,
+//		.size = vertex_buffer_info.size
+//	};
+//	SDL_UploadToGPUBuffer(copy_pass, &vert_src, &vert_dst, false);
+//
+//	// Upload indices
+//	SDL_GPUTransferBufferLocation idx_src = {
+//		.transfer_buffer = transfer,
+//		.offset = vertex_buffer_info.size
+//	};
+//	SDL_GPUBufferRegion idx_dst = {
+//		.buffer = index_buffer,
+//		.offset = 0,
+//		.size = index_buffer_info.size
+//	};
+//	SDL_UploadToGPUBuffer(copy_pass, &idx_src, &idx_dst, false);
+//
+//	SDL_EndGPUCopyPass(copy_pass);
+//	SDL_SubmitGPUCommandBuffer(upload_cmd);
+//
+//	// 7. Cleanup transfer buffer
+//	SDL_ReleaseGPUTransferBuffer(gpu_device, transfer);
+//
+//	auto *new_gpu_mesh = new GPUMesh();
+//	new_gpu_mesh->vertex_buffer = vertex_buffer;
+//	new_gpu_mesh->indice_buffer = index_buffer;
+//	new_gpu_mesh->indice_count = (uint32_t)gpu_indices.size();
+//	new_gpu_mesh->gpu_texture = mesh.gpu_texture;
+//	new_gpu_mesh->position = mesh.position;
+//
+//	gpu_meshes.push_back(new_gpu_mesh);
+//	return new_gpu_mesh;
+//}
 
 void DrawingClass::DrawTriangles(SDL_GPUBuffer *vertices, SDL_GPUBuffer *indices, Uint32 num_indices, SDL_GPUTexture *texture)
 {

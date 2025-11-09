@@ -3,6 +3,7 @@
 #pragma once
 
 #include <client/game/ui/menus/base/FullscreenMenu.h>
+#include <client/core/drawing/mesh/Quad.h>
 #include <shared/math/Vec2.h>
 #include <SDL3/SDL.h>
 #include <chrono>
@@ -13,9 +14,9 @@ private:
 	std::chrono::steady_clock::time_point opened_at;
 	bool intro;
 
-	DrawCall render;
+	Mesh2D mesh;
 	Quad background;
-	DrawCall render_circles;
+	Mesh2D mesh_circles;
 	Quad intro_circle;
 
 public:

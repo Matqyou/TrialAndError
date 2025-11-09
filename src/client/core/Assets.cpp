@@ -14,8 +14,6 @@
 
 using namespace Strings;
 
-std::vector<Surface *> AssetsClass::m_AutomaticDeletionSurfaces = { };
-std::vector<Texture *> AssetsClass::m_AutomaticDeletionTextures = { };
 std::vector<LoadTexture *> AssetsClass::m_LoadTextures = { };
 //std::vector<PregenerateTexture *> AssetsClass::m_PregenerateTextures = { };
 std::vector<LinkSound *> AssetsClass::m_LinkSounds = { };
@@ -24,25 +22,13 @@ std::vector<LinkFont *> AssetsClass::m_LinkFonts = { };
 
 // Iterators
 //std::vector<LoadTexture *>::iterator AssetsClass::m_LinkTexturesIterator = std::vector<LoadTexture *>::iterator{ };
-std::vector<LinkSound *>::iterator AssetsClass::m_LinkSoundsIterator = std::vector<LinkSound *>::iterator{ };
-std::vector<LinkFont *>::iterator AssetsClass::m_LinkFontsIterator = std::vector<LinkFont *>::iterator{ };
+//std::vector<LinkSound *>::iterator AssetsClass::m_LinkSoundsIterator = std::vector<LinkSound *>::iterator{ };
+//std::vector<LinkFont *>::iterator AssetsClass::m_LinkFontsIterator = std::vector<LinkFont *>::iterator{ };
 //std::vector<PregenerateTexture *>::iterator
 //	AssetsClass::m_PregenerateTexturesIterator = std::vector<PregenerateTexture *>::iterator{ };
 
 size_t AssetsClass::sTotalWork = 0;
 size_t AssetsClass::sWorkDone = 0;
-
-DiskTexture::DiskTexture(Texture *texture, const std::string& load_extension)
-{
-	m_Texture = texture;
-	m_LoadExtension = load_extension;
-	texture->FlagForAutomaticDeletion();
-}
-
-DiskTexture::~DiskTexture()
-{
-
-}
 
 Sound::Sound(std::string key, MIX_Audio *init_mix_audio, std::string load_extension)
 	: m_Key(std::move(key)),
@@ -192,7 +178,7 @@ bool AssetsClass::LoadingSurfaces()
 	else
 		new_surface = new Surface(sdl_surface);
 
-	new_surface->FlagForAutomaticDeletion();
+//	new_surface->FlagForAutomaticDeletion();
 	// Add it to all the textures
 	m_Surfaces[surface_key] = new_surface;
 	dbg_msg("[Assets] &aDISK &9Loaded surface '%s'\n", surface_key.c_str());
@@ -372,8 +358,7 @@ bool AssetsClass::LoadingTextures()
 			continue;
 		}
 
-		Texture *new_texture = TextureFromSurface(*from_surface, purpose)
-			->FlagForAutomaticDeletion();
+		Texture *new_texture = TextureFromSurface(*from_surface, purpose);
 		load_texture->texture = new_texture;
 
 		m_Textures[texture_key] = new_texture;
@@ -622,24 +607,21 @@ void AssetsClass::Initialize(bool sounds_enabled)
 	m_VisHitboxResources = GetResourceKeys(R"(.\assets\images\)", hitbox_extension);
 	m_SurfaceResources = GetResourceKeys(R"(.\assets\images\)", texture_extensions);
 	m_SoundResources = GetResourceKeys(R"(.\assets\sounds\)", sound_extensions);
-	m_MusicResources = GetResourceKeys(R"(.\assets\music\)", sound_extensions);
 	m_FontResources = GetResourceKeys(R"(.\assets\fonts\)", font_extensions);
 
 	status = Status::KEYS_LOADED;
 	m_SurfaceResourcesIndex = 0;
 	m_SoundResourcesIndex = 0;
-	m_MusicResourcesIndex = 0;
 //	m_TextureResourcesIterator = m_TextureResources.begin();
 //	m_SoundResourcesIterator = m_SoundResources.begin();
 	m_PreloadFontIterator = m_PreloadFonts.begin();
 //	m_PregenerateTexturesIterator = m_PregenerateTextures.begin();
 //	m_LinkTexturesIterator = m_LoadTextures.begin();
-	m_LinkSoundsIterator = m_LinkSounds.begin();
-	m_LinkFontsIterator = m_LinkFonts.begin();
+//	m_LinkSoundsIterator = m_LinkSounds.begin();
+//	m_LinkFontsIterator = m_LinkFonts.begin();
 
 	dbg_msg("[Assets] &aDISK &2Found %zu textures in assets\n", m_SurfaceResources.size());
 	dbg_msg("[Assets] &aDISK &2Found %zu sounds in assets\n", m_SoundResources.size());
-	dbg_msg("[Assets] &aDISK &2Found %zu music in assets\n", m_MusicResources.size());
 	dbg_msg("[Assets] &aDISK &2Found %zu fonts in assets\n", m_FontResources.size());
 	dbg_msg("[Assets] &aCACHE &2Found %zu font loads\n", m_PreloadFonts.size());
 	dbg_msg("[Assets] &aCACHE &2Found %zu texture loads\n", m_LoadTextures.size());
@@ -656,23 +638,28 @@ void AssetsClass::Destroy()
 {
 	if (status == Status::UNINITIALIZED)
 		return;
+
 	status = Status::UNINITIALIZED;
 
 	size_t destroyed_surfaces = 0;
-	for (Surface *surface : m_AutomaticDeletionSurfaces)
+	auto surface_it = cleanup_surfaces.begin();
+	while (surface_it != cleanup_surfaces.end())
 	{
-		delete surface;
-		destroyed_surfaces++;
+		Surface *surface = *surface_it;
+		surface_it = cleanup_surfaces.erase(surface_it);
+		destroyed_surfaces += surface->Destroy();
 	}
-	m_AutomaticDeletionSurfaces.clear();
+	cleanup_surfaces.clear();
 
 	size_t destroyed_textures = 0;
-	for (Texture *texture : m_AutomaticDeletionTextures)
+	auto texture_it = cleanup_textures.begin();
+	while (texture_it != cleanup_textures.end())
 	{
-		delete texture;
-		destroyed_textures++;
+		Texture *texture = *texture_it;
+		texture_it = cleanup_textures.erase(texture_it);
+		destroyed_textures += texture->Destroy();
 	}
-	m_AutomaticDeletionTextures.clear();
+	cleanup_textures.clear();
 
 	size_t destroyed_sounds = 0;
 	for (const auto& entry : m_Sounds)
@@ -746,10 +733,7 @@ Texture *AssetsClass::GetTexture(const std::string& texture_key)
 		return it->second;
 
 	if (m_InvalidTextureDefault != nullptr)
-	{
-		dbg_msg("[Assets] GetTexture() `%s` not found\n", texture_key.c_str());
 		return m_InvalidTextureDefault;
-	}
 
 	throw std::runtime_error(
 		Strings::FString(
@@ -914,6 +898,26 @@ Texture *AssetsClass::RenderTextSolid(TTF_Font *font, const char *text, SDL_Colo
 //	return true;
 //}
 
+void AssetsClass::NewSurface(Surface *new_surface)
+{
+	cleanup_surfaces.insert(new_surface);
+}
+
+void AssetsClass::RemoveSurface(Surface *remove_surface)
+{
+	cleanup_surfaces.erase(remove_surface);
+}
+
+void AssetsClass::NewTexture(Texture *new_texture)
+{
+	cleanup_textures.insert(new_texture);
+}
+
+void AssetsClass::RemoveTexture(Texture *remove_texture)
+{
+	cleanup_textures.erase(remove_texture);
+}
+
 void AssetsClass::AddLoadTexture(LoadTexture *load_texture)
 {
 	if (Assets.GetStatus() < Status::ASSETS_LINKED)
@@ -973,16 +977,6 @@ void AssetsClass::LinkPreloadedFont(LinkFont *link_font)
 	auto error = Strings::FString("You cannot link font '%s' after status == ASSETS_LINKED",
 								  link_font->m_Key.c_str());
 	throw std::runtime_error(error);
-}
-
-void AssetsClass::AutomaticallyDeleteSurface(Surface *surface)
-{
-	m_AutomaticDeletionSurfaces.push_back(surface);
-}
-
-void AssetsClass::AutomaticallyDeleteTexture(Texture *texture)
-{
-	m_AutomaticDeletionTextures.push_back(texture);
 }
 
 void AssetsClass::ThreadedLoading()

@@ -3,6 +3,8 @@
 //
 #include <client/game/entities/cartesian/characters/character/Character.h>
 #include "client/game/entities/cartesian/item/weapons/EntityGuns.h"
+#include "client/core/drawing/CommonMesh.h"
+#include "shared/math/Mapping.h"
 #include <client/game/entities/cartesian/Projectile.h>
 #include <client/game/ui/CommonUI.h>
 
@@ -22,8 +24,8 @@ CharacterInput::CharacterInput()
 	next_item = false;
 	prev_item = false;
 	deselect_item = false;
-	going_direction = Vec3f(0, 0, 0);
-	looking_direction = Vec3f(0, 0, 0);
+	going_direction = Vec2f(0, 0);
+	looking_direction = Vec2f(0, 0);
 }
 
 // Link textures
@@ -56,14 +58,16 @@ Character::Character(Player *our_player,
 					 const Vec3f& start_pos,
 					 const Vec3f& start_vel,
 					 bool character_is_npc)
-	: DirectionalEntity(ENTITY_CHARACTER,
-						start_pos,
-						Vec3f(35, 35, 35),
-						start_vel,
-						Vec3f(1.0, 1.0, 1.0),
-						0.93,
-						true,
-						max_health),
+	: DirectionalEntity(
+	ENTITY_CHARACTER,
+	start_pos,
+	Vec3f(35, 35, 35),
+	start_vel,
+	Quaternion::Identity(),
+	0.93,
+	true,
+	max_health
+),
 	  base_acceleration(0.45),
 	  hands(this, 10.0),
 	  hook(this),
@@ -72,6 +76,9 @@ Character::Character(Player *our_player,
 	  last_input(),
 	  error_statuses(GameReference.GetInterface(), this, !character_is_npc)
 {
+	character_mesh = CommonMesh::character_mesh;
+	character_mesh.FlagCopy();
+
 	player = our_player;
 	color_hue = player ? 60.0 - double(player->GetPlayerID() * 30) : 0.0;
 	color_hue = player ? 60.0 - double(player->GetPlayerID() * 30) : 0.0;
@@ -186,7 +193,7 @@ void Character::DropWeapon()
 
 	ItemEntity *new_weapon_entity = EntityGuns::CreateItemEntityFromWeaponData(this, current_weapon, core.pos);
 	world->AddEntity(new_weapon_entity, true);
-	new_weapon_entity->Accelerate(directional_core.direction * 20.0f);
+	new_weapon_entity->Accelerate(directional_core.orientation.GetLook() * 20.0f);
 //	new_weapon_entity->SetRotation(directional_core.direction.Atan2()); // todo: 3d
 	new_weapon_entity->AccelerateRotation(std::fmod(Application.GetRandomizer()->Double(), 0.7) - 0.35);
 	current_weapon = nullptr;
@@ -317,7 +324,7 @@ void Character::EventDeath()
 		world->AddEntity(new_weapon_entity, true);
 		weapons[i] = nullptr;
 
-		new_weapon_entity->Accelerate(directional_core.direction * 5);
+		new_weapon_entity->Accelerate(directional_core.orientation.GetLook() * 5);
 //		new_weapon_entity->SetRotation(directional_core.direction.Atan2()); // todo: 3d
 		new_weapon_entity->AccelerateRotation(std::fmod(Application.GetRandomizer()->Float(), 0.35f) - 0.175f);
 	}
@@ -348,18 +355,12 @@ void Character::TickKeyboardControls()
 //	if (Horizontal || Vertical)
 //		m_Input.m_GoingLength = 1.0;
 
-	input.going_direction.x = Horizontal ?
-							  movement[CONTROL_LEFT] ? -Unit : Unit
-										 : 0.0f;
-
-	input.going_direction.y = Vertical ?
-							  movement[CONTROL_UP] ? -Unit : Unit
-									   : 0.0f;
+	input.going_direction.x = !Horizontal ? 0.0f : movement[CONTROL_LEFT] ? -Unit : Unit;
+	input.going_direction.y = !Vertical ? 0.0f : movement[CONTROL_UP] ? -Unit : Unit;
 
 	// RequestUpdate look direction
-	Vec2f mouse_pos = ApplicationClass::GetMousePosition();
-
-	Camera& camera = GameReference.GetCamera();
+	Vec2f relative_mouse = Application.GetMousePosition() - Application.GetHalfResolution();
+	input.looking_direction = relative_mouse * 0.2f; // sensitivity
 
 	// todo: 3d
 //	Vec2f screen_character_pos = camera.CameraToScreenPoint(core.pos);
@@ -380,31 +381,16 @@ void Character::TickKeyboardControls()
 
 void Character::TickGameControllerControls()
 {
-	Gamepad* gamepad = Gamepads.GetGamepadFromIndex(gamepad_index);
+	Gamepad *gamepad = Gamepads.GetGamepadFromIndex(gamepad_index);
 
 	// Sneaking
-	input.sneaking = gamepad->GetButton(SDL_GAMEPAD_BUTTON_LEFT_STICK); // m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
+	input.sneaking = gamepad->GetButton(SDL_GAMEPAD_BUTTON_LEFT_STICK);
 
 	Vec2f left_joystick = gamepad->GetJoystickLeft();
-	if (left_joystick.LengthF() > 1.0f) // todo: check out if there is a better way to calibrate analog stick rather than adding deadzone
-		left_joystick = left_joystick.NormalizeF();
-//	input.going_direction = left_joystick;
-	// todo: 3d
+	input.going_direction = Mapping::SquareToCircle(left_joystick) * Vec2f(1.0f, -1.0f);
 
 	Vec2f right_joystick = gamepad->GetJoystickRight();
-	if (right_joystick.Length() >= 0.6)
-	{
-		if (right_joystick.LengthF() > 1.0f)
-			right_joystick = right_joystick.NormalizeF();
-//		input.looking_direction = right_joystick;
-	} else {
-//		input.looking_direction = left_joystick;
-	}
-
-//	Vec2f fixed_right = SquareToCircle(right_joystick);
-//	dbg_msg("\n");
-//	dbg_msg("Before: %.1fx, %.1fy\n", right_joystick.x, right_joystick.y);
-//	dbg_msg("After: %.1fx, %.1fy\n", fixed_right.x, fixed_right.y);
+	input.looking_direction = Mapping::SquareToCircle(right_joystick) * 0.05f;
 
 	// Shooting
 	input.shooting = gamepad->GetRightTrigger() > 0.1;
@@ -420,6 +406,8 @@ void Character::TickGameControllerControls()
 		&& !gamepad->GetLastButton(SDL_GAMEPAD_BUTTON_DPAD_UP) ||
 		gamepad->GetButton(SDL_GAMEPAD_BUTTON_DPAD_DOWN)
 			&& !gamepad->GetLastButton(SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+
+//	dbg_msg("Pos %f %f %f\n", core.pos.x, core.pos.y, core.pos.z);
 }
 
 // When in combat heal differently than out of combat
@@ -438,34 +426,62 @@ void Character::TickControls()
 	else
 		TickKeyboardControls();
 
-	if (input.looking_direction.Length() <= 0.6 && input.going_direction.Length() > 0.2)
-		input.looking_direction = input.going_direction;
+//	if (input.looking_direction.Length() <= 0.6 && input.going_direction.Length() > 0.2)
+//		input.looking_direction = input.going_direction;
 }
 
 void Character::TickProcessInputs()
 {
-	if (input.going_direction.Length() >= 0.2)
-	{
+//	auto look = directional_core.orientation.GetLook();
+//	auto right = directional_core.orientation.GetRight();
+//	auto up = directional_core.orientation.GetUp();
+//	dbg_msg("Look %f %f %f\n", look.x, look.y, look.z);
+//	dbg_msg("Right %f %f %f\n", right.x, right.y, right.z);
+//	dbg_msg("Up %f %f %f\n", up.x, up.y, up.z);
 
+	if (!is_npc)
+	{
+		if (input.looking_direction.Length() > 0.01)
+		{
+			Vec3f up_axis = directional_core.orientation.GetUp();
+//		Vec3f right_axis = directional_core.orientation.GetRight();
+
+			// Create rotation quaternions around LOCAL axes
+			Quaternion yaw_rot = Quaternion::FromAxisAngle(up_axis, input.looking_direction.x);
+//		Quaternion pitch_rot = Quaternion::FromAxisAngle(right_axis, input.looking_direction.y);
+
+//		Quaternion new_rotation = (roll_rot * pitch_rot * yaw_rot * directional_core.orientation).Normalize();
+			directional_core.orientation = yaw_rot * directional_core.orientation;
+		}
+	} else {
+		directional_core.orientation = input.looking_orientation;
+	}
+
+	if (input.going_direction.Length() > 0.01)
+	{
 		// Fix controller drifting
 		// Checks if player is shifting (holding left stick)
 		// TODO: bool Shifting = m_GameController->GetButton(SDL_CONTROLLER_BUTTON_LEFTSTICK);
 
-		float Acceleration = (input.sneaking ? base_acceleration / 3 : base_acceleration) *
+		float acceleration = (input.sneaking ? base_acceleration / 3 : base_acceleration) *
 			(error_statuses.Disoriented.IsActive() ? -1.0f : 1.0f) *
 			(error_statuses.Slowdown.IsActive() ? 0.5f : 1.0f) *
 			(current_weapon ? 0.9f : 1.0f);
 		// Accelerate in that direction
-		core.vel += input.going_direction * Acceleration;
+		Vec3f acceleration3 = directional_core.orientation.GetLook() * input.going_direction.y +
+			directional_core.orientation.GetRight() * input.going_direction.x;
+		core.vel += acceleration3 * acceleration;
+
+//		dbg_msg("%f %f\n", input.going_direction.x, input.going_direction.y);
+//		dbg_msg("%fx %fy %fz\n", directional_core.orientation.GetRight().x, directional_core.orientation.GetRight().y, directional_core.orientation.GetRight().z);
 	}
 
-	if (input.looking_direction.Length() >= 0.6)
-		directional_core.direction = input.looking_direction * (error_statuses.Disoriented.IsActive() ? -1.0f : 1.0f);
-	else if (input.going_direction.Length() >= 0.2)
-		directional_core.direction = input.going_direction * (error_statuses.Disoriented.IsActive() ? -1.0f : 1.0f);
+//	if (input.looking_direction.Length() >= 0.6)
+//		directional_core.orientation = input.looking_direction * (error_statuses.Disoriented.IsActive() ? -1.0f : 1.0f);
+//	else if (input.going_direction.Length() >= 0.2)
+//		directional_core.orientation = input.going_direction * (error_statuses.Disoriented.IsActive() ? -1.0f : 1.0f);
 
-	if (input.next_item ^ input.prev_item
-		^ input.deselect_item)
+	if (input.next_item ^ input.prev_item ^ input.deselect_item)
 	{ // I hope this works as intended, only 1 at a time | ignore if multiple inputs at the same time
 		if (input.deselect_item)
 		{
@@ -579,16 +595,20 @@ void Character::DrawErrorIcons()
 
 void Character::DrawCharacter()
 {
-	SDL_FRect draw_rect = {
-		core.pos.x - core.size.x / 2.0f,
-		core.pos.y - core.size.y / 2.0f,
-		core.size.x,
-		core.size.y
-	};
+//	dbg_msg("%f %f %f\n", core.pos.x, core.pos.y, core.pos.z);
+	character_mesh.SetTranslation(Mat4x4::Translation(core.pos) * Mat4x4::Scale(core.size) * Mat4x4::FromQuaternion(directional_core.orientation));
+	character_mesh.Draw();
+
+//	SDL_FRect draw_rect = {
+//		core.pos.x - core.size.x / 2.0f,
+//		core.pos.y - core.size.y / 2.0f,
+//		core.size.x,
+//		core.size.y
+//	};
 
 //	sCharacterTexture.GetTexture()->SetColorMod(character_color.r, character_color.g, character_color.b);
 
-	Vec3f pointing_direction = directional_core.direction * 3.0f + core.vel / 3.0f;
+//	Vec3f pointing_direction = directional_core.direction * 3.0f + core.vel / 3.0f;
 	// todo: 3d
 //	double pointing_angle = pointing_direction.Atan2() / M_PI * 180.0;
 //	drawing->RenderTextureRotated(sCharacterTexture.GetTexture()->SDLTexture(),
